@@ -56,6 +56,7 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
    - Each letter: 30-38px square (responsive via clamp)
    - Individual animations with staggered delays
    - Rotation effects (-2deg odd, +2deg even)
+   - After all letters land, instantly change all to green and trigger a shake animation (Wordle-style) for all letter blocks.
 
 2. **Controls Section (`.controls`)**
    - Flexbox horizontal layout
@@ -154,22 +155,22 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
    - Drop from -300px with rotation
    - Duration: 0.6s ease-out per letter
 
-3. **Letter Color Change (2.9s)**
-   - All letters change gray→green simultaneously
-   - Duration: 0.3s ease-out
-   - Triggered after all letters land
+3. **Letter Color Change & Shake (Instant after drop)**
+   - As soon as all letters land, instantly change all letter blocks from gray to green
+   - Immediately trigger a shake animation (Wordle-style) for all letter blocks
+   - Shake duration: 0.4s
 
-4. **Controls Fade In (3.4s)**
+4. **Controls Fade In (2.5s)**
    - Buttons appear with vertical translation
    - Duration: 0.6s ease-out
    - Opacity: 0 → 1
 
-5. **Stats Fade In (3.7s)**
+5. **Stats Fade In (2.5s)**
    - Score and letters remaining appear
    - Duration: 0.6s ease-out
    - Opacity: 0 → 1
 
-6. **Word Addition (3.2s)**
+6. **Word Addition (2.5s)**
    - "NOODEL" added to words list
    - Timed after color change completes
 
