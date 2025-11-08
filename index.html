@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOODEL Start Menu</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="main-container">
+        <div class="card">
+            <div class="title">
+                <div class="letter-block">N</div>
+                <div class="letter-block">O</div>
+                <div class="letter-block">O</div>
+                <div class="letter-block">D</div>
+                <div class="letter-block">E</div>
+                <div class="letter-block">L</div>
+            </div>
+            <div class="controls">
+                <button class="start-btn">🎮 START GAME</button>
+                <button class="mute-btn">🔊</button>
+            </div>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-label">Score</div>
+                    <div class="stat-value">0</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-label">Letters Remaining</div>
+                    <div class="stat-value">100</div>
+                </div>
+            </div>
+        </div>
+        <div class="game-grid-wrapper">
+            <div id="gameGrid" class="game-grid"></div>
+        </div>
+        <div class="made-words-container">
+            <div class="made-words-title">Words Made</div>
+            <div id="wordsList" class="words-list"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
