@@ -155,36 +155,39 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
    - Drop from -300px with rotation
    - Duration: 0.6s ease-out per letter
 
-3. **Letter Color Change & Shake (Instant after drop)**
-   - As soon as all letters land, instantly change all letter blocks from gray to green
+3. **Letter Color Change & Shake (2.9s after drop starts)**
+   - At 2.9s, instantly change all letter blocks from gray to green via JavaScript
    - Immediately trigger a shake animation (Wordle-style) for all letter blocks
-   - Shake duration: 0.4s
+   - Shake duration: 0.4s with forwards fill-mode
 
-4. **Controls Fade In (2.5s)**
+4. **Controls Fade In (3.4s)**
    - Buttons appear with vertical translation
    - Duration: 0.6s ease-out
    - Opacity: 0 → 1
 
-5. **Stats Fade In (2.5s)**
+5. **Stats Fade In (3.7s)**
    - Score and letters remaining appear
    - Duration: 0.6s ease-out
    - Opacity: 0 → 1
 
-6. **Word Addition (immediate after NOODEL is made)**
+6. **Word Addition (3.2s)**
    - "NOODEL" added to words list
-   - Timed immediately after color change and shake animation completes
+   - Timed 3.2s after page load
 
 ### Keyframe Animations
 
 **`@keyframes dropIn`**
 - Purpose: Letter block vertical drop
-- From: `translateY(-300px) rotate(-2deg)`
-- To: `translateY(0) rotate(-2deg)`
+- From: `translateY(-300px) rotate(var(--rotation))`
+- To: `translateY(0) rotate(var(--rotation))`
 
-**`@keyframes colorChange`**
-- Purpose: Letter background transition
-- From: Inherited gray (#888)
-- To: Green (#4CAF50)
+**`@keyframes shake`**
+- Purpose: Wordle-style shake after color change
+- 0%: `translateX(0) rotate(var(--rotation))`
+- 25%: `translateX(-5px) rotate(var(--rotation))`
+- 50%: `translateX(5px) rotate(var(--rotation))`
+- 75%: `translateX(-5px) rotate(var(--rotation))`
+- 100%: `translateX(0) rotate(var(--rotation))`
 
 **`@keyframes fadeIn`**
 - Purpose: Controls and stats appearance
@@ -199,10 +202,10 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
 ### Animation Properties
 
 **Letter Blocks:**
-- Odd children: `rotate(-2deg)`
-- Even children: `rotate(2deg)`
+- Odd children: `rotate(-2deg)` (via --rotation CSS variable)
+- Even children: `rotate(2deg)` (via --rotation CSS variable)
 - Hover: `rotate(0) scale(1.1)`
-- Chained animations: dropIn → colorChange
+- Chained animations: dropIn → JavaScript color change + shake
 
 **Grid Squares:**
 - Algorithm: Column-based random delays
