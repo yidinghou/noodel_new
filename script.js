@@ -3,6 +3,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const letterBlocks = document.querySelectorAll('.letter-block');
     const wordsList = document.getElementById('wordsList');
 
+    // Set next letters preview (POC: 4 random letters)
+    const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    for (let i = 1; i <= 4; i++) {
+        const letterBlock = document.getElementById(`nextLetter${i}`);
+        if (letterBlock) {
+            letterBlock.textContent = letters[Math.floor(Math.random() * letters.length)];
+        }
+    }
+
     // Set letter rotations and delays
     letterBlocks.forEach((block, index) => {
         const rotation = index % 2 === 0 ? '-2deg' : '2deg';
