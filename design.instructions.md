@@ -170,9 +170,9 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
    - Duration: 0.6s ease-out
    - Opacity: 0 → 1
 
-6. **Word Addition (2.5s)**
+6. **Word Addition (immediate after NOODEL is made)**
    - "NOODEL" added to words list
-   - Timed after color change completes
+   - Timed immediately after color change and shake animation completes
 
 ### Keyframe Animations
 
