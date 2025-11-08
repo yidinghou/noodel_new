@@ -10,22 +10,39 @@ document.addEventListener('DOMContentLoaded', function() {
         block.style.animationDelay = `${2.0 + index * 0.1}s`;
     });
 
-    // Generate grid squares with delays
-    const columnDelays = [];
-    for (let i = 0; i < 7; i++) {
-        columnDelays.push(Math.random() * 1.5 + 0.1); // 0.1 to 1.6
+    // Generate grid squares with random column selection delays
+    const delays = Array.from({ length: 6 }, () => Array(7).fill(null));
+    let currentDelay = 0.1;
+    const increment = 0.05;
+
+    while (true) {
+        const availableColumns = [];
+        for (let col = 0; col < 7; col++) {
+            if (delays.some(row => row[col] === null)) {
+                availableColumns.push(col);
+            }
+        }
+        if (availableColumns.length === 0) break;
+
+        const randomColIndex = Math.floor(Math.random() * availableColumns.length);
+        const col = availableColumns[randomColIndex];
+
+        // Find the lowest available row (highest index)
+        let row = 5;
+        while (row >= 0 && delays[row][col] !== null) {
+            row--;
+        }
+        if (row >= 0) {
+            delays[row][col] = currentDelay;
+            currentDelay += increment;
+        }
     }
 
     for (let row = 0; row < 6; row++) {
         for (let col = 0; col < 7; col++) {
             const square = document.createElement('div');
             square.className = 'grid-square';
-            let delay = columnDelays[col];
-            if (row < 5) {
-                delay -= (5 - row) * 0.1;
-                delay = Math.max(delay, 0);
-            }
-            square.style.animationDelay = `${delay}s`;
+            square.style.animationDelay = `${delays[row][col]}s`;
             gameGrid.appendChild(square);
         }
     }
