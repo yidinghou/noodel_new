@@ -208,9 +208,9 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
 - Chained animations: dropIn → JavaScript color change + shake
 
 **Grid Squares:**
-- Algorithm: Column-based random delays
-- Physics simulation: Upper rows drop earlier
-- Delay calculation: `columnDelay - (rows - 1 - row) * 0.1`
+- Algorithm: Random column selection with incremental delays
+- Physics simulation: One tile drops at a time, randomly selecting a column with available spots, filling from bottom row up
+- Delay calculation: Starting at 0.1s with 0.05s increments per tile
 
 ---
 
@@ -427,16 +427,15 @@ Grid squares:
 
 **Step 4: JavaScript Delay Generation**
 
-Generate column-based random delays:
-- Create array for column delays (7 columns)
-- For each column, push random value between 0.1 and 1.6 seconds
-
-Apply to grid squares with stacking logic:
-- Loop through 6 rows and 7 columns
-- Calculate cell index as row times 7 plus column
-- If bottom row (row 5): use column delay directly
-- If upper row: subtract (5 minus row) times 0.1 from column delay
-- Set animation delay as inline style using Math.max to prevent negative values
+Create a 2D delays array (6 rows × 7 columns) initialized to null:
+- Set currentDelay to 0.1s and increment to 0.05s
+- While there are available spots:
+  - Collect columns with at least one null spot
+  - Randomly pick one of those columns
+  - Find the lowest available row (highest index) in that column
+  - Assign currentDelay to that spot
+  - Increment currentDelay
+- Apply the delays to grid squares as inline animation-delay styles
 
 ### 5.6 Made Words Section
 
