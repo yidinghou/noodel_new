@@ -213,34 +213,29 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
 
 **Total Duration (after START GAME):** ~4 seconds
 
-1. **Grid Squares Drop (0.1s - 1.6s)**
-   - Random staggered delays per column
-   - Drop from -500px with opacity fade-in
-   - Duration: 0.4s ease-out per square
-
-2. **Title Letter Blocks Drop (2.0s - 2.5s)**
+1. **Title Letter Blocks Drop (0.0s - 0.5s)**
    - Sequential 0.1s delays (N→O→O→D→E→L)
    - Drop from -300px with rotation
    - Duration: 0.6s ease-out per letter
 
-3. **Letter Color Change & Shake (2.9s after drop starts)**
+2. **Letter Color Change & Shake (0.1s after step 1)**
    - At 2.9s, instantly change all letter blocks from gray to green via JavaScript
    - Immediately trigger a shake animation (Wordle-style) for all letter blocks by adding 'shaking' class
    - Shake duration: 0.4s with forwards fill-mode
    - Shake animation preserves the final rotated position (translateY(0) + rotation) to prevent disappearance
    - Letters remain visible and green after shake completes
 
-4. **Controls Fade In (3.4s)**
+3. **Controls Fade In (0.1 seconds after step 2)**
    - Buttons appear with vertical translation
    - Duration: 0.6s ease-out
    - Opacity: 0 → 1
 
-5. **Stats Fade In (3.7s)**
+4. **Stats Fade In (0.1s after step 3)**
    - Score and letters remaining appear
    - Duration: 0.6s ease-out
    - Opacity: 0 → 1
 
-6. **Next Letters Preview Fade In (on START GAME click)**
+5. **Next Letters Preview Fade In (on START GAME click)**
    - Preview tiles fade in when game starts
    - Duration: 0.6s ease-out
    - Opacity: 0 → 1
