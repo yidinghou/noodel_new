@@ -22,12 +22,14 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
 - Score and Letters Remaining statistics
 
 #### 2. Game Grid (Middle Section)
-**Purpose:** Interactive 7×6 game board  
+**Purpose:** Interactive 7×6 game board with letter queue system  
 **Flex Ratio:** 3 (largest section)  
 **Contains:**
+- Next Letters Preview (4-letter horizontal queue)
 - 42 grid squares (7 columns × 6 rows)
 - Dynamically generated via JavaScript
-- Hover interactions for gameplay
+- Click-to-drop letter placement with two-stage animation
+- Connect-4 style bottom-to-top column filling
 
 #### 3. Made Words List (Bottom Section)
 **Purpose:** Display words created during gameplay  
@@ -85,8 +87,17 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
 - Semi-transparent white background using rgba(255, 255, 255, 0.95)
 - Border radius of 20px
 - Padding of 15px
-- The wrapper must use `display: flex` and stretch the grid to fill all available vertical space. The grid must be large and responsive, filling the flex area. Avoid small grid sizing.
-- Grid itself should have max-width of 900px and use flex: 1, width: 100%, height: 100% for full area usage.
+- Uses `display: flex` with `flex-direction: column` to accommodate Next Letters Preview and Grid
+- The wrapper must stretch the grid to fill all available vertical space. The grid must be large and responsive, filling the flex area. Avoid small grid sizing.
+
+**Next Letters Preview (Above Grid):**
+- Horizontal container showing 4 upcoming letters
+- Position: Above the game grid within the grid wrapper
+- Letters displayed as preview-letter-blocks (gray #888 background)
+- First letter marked with `.next-up` class (orange border #FF9800, scale 1.1)
+- 5px gap between letter blocks
+- Letters cycle through A-Z sequence
+- Auto-advances when a letter is dropped into the grid
 
 **Grid Layout:**
 - CSS Grid display with 7 columns and 6 rows using repeat()
@@ -95,21 +106,32 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
 - Light gray background (#e8e8e8)
 - 8px padding around grid
 - Border radius of 12px
-- The grid must fill the available space in the wrapper, using flex and width/height 100%. Grid squares must scale responsively and not be tiny.
+- Position relative for dropping letter overlay positioning
+- Grid itself should have max-width of 900px and use flex: 1, width: 100%, height: 100% for full area usage.
 
 **Grid Square Properties:**
 - Aspect ratio: 1:1 (perfect squares)
 - Background: Linear gradient (white to light gray)
 - Border: 2px solid #ddd
 - Border radius: 6px
-- Hover state: Blue gradient with 1.05 scale transform
+- Hover state: Blue gradient with 1.05 scale transform (only on empty cells)
+- Clickable: Click any square to drop the next letter into that column
+- Filled state: Gray background (#888), white text, 2px solid #333 border
+
+**Interactive Column Mechanics:**
+- Columns fill bottom-to-top (Connect-4 style)
+- Each column tracks fill count (0-6)
+- Click anywhere in a column to drop the next letter
+- Column becomes non-interactive when full (6 cells)
+- Letters automatically find the lowest available slot
 
 **JavaScript Generation:**
-- 42 squares created dynamically
-- Each square assigned unique animation delay
+- 42 squares created dynamically with row/col dataset attributes
+- Each square assigned unique animation delay for initial drop
 - Column-based delay algorithm for realistic drop physics
 - Bottom row delays: Random 0.1s - 1.6s
 - Upper rows: Progressively earlier to simulate stacking
+- Click handlers attached to enable letter dropping
 
 ### 2.3 Made Words List Specifics
 
