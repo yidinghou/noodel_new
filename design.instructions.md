@@ -118,12 +118,52 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
 - Clickable: Click any square to drop the next letter into that column
 - Filled state: Gray background (#888), white text, 2px solid #333 border
 
+**Dropping Letter Overlay Properties:**
+- Class: `.dropping-letter-overlay`
+- Position: Fixed (relative to viewport for smooth cross-element movement)
+- Display: Flex with center alignment
+- Font size: `clamp(16px, 2vw, 24px)` (matches grid squares)
+- Font weight: Bold
+- Background: #888 (gray) - changes during drop
+- Color: White - changes during drop
+- Border: 2px solid #333 - changes during drop
+- Border radius: 6px
+- Pointer events: None (non-interactive during animation)
+- Z-index: 10 (appears above all elements)
+- Initial transition: `all 0.3s ease-out` (for stage 1 movement from next-up to top row of column)
+- Drop state via `.animating` class:
+  - Transition: `top 0.5s ease-in` (smooth vertical drop)
+  - Background: `linear-gradient(145deg, #e3f2fd, #bbdefb)` (light blue gradient, matches hover state)
+  - Color: #333 (dark gray text for contrast)
+  - Border-color: #2196F3 (blue border)
+- Purpose: Temporary visual element that moves from next-up preview to top of column, then drops down to target position with visual feedback
+- Lifecycle: Created at next-up position → Moves to top of column (0.3s, gray) → Drops to bottom of column (0.5s, light blue) → Settles and removed (total 0.8s)
+
 **Interactive Column Mechanics:**
 - Columns fill bottom-to-top (Connect-4 style)
 - Each column tracks fill count (0-6)
 - Click anywhere in a column to drop the next letter
 - Column becomes non-interactive when full (6 cells)
 - Letters automatically find the lowest available slot
+
+**Three-Stage Drop Animation (Click Interaction):**
+- **Stage 1 - Move from Next-Up to Top of Column (0.3s):** When a column is clicked, a temporary overlay letter element is created at the next-up preview position
+- The overlay uses fixed positioning and starts at the exact position of the .next-up letter block
+- The overlay smoothly transitions to the TOP ROW (row 0) of the clicked column (0.3s ease-out)
+- During this stage, the overlay moves horizontally and vertically, and resizes to match the grid cell dimensions
+- The letter moves to the top of the game grid column, not to the final destination yet
+- The overlay maintains gray background (#888) and white text during this stage
+- **Stage 2 - Vertical Drop to Target Cell (0.5s):** After reaching the top of the column, the overlay drops down within the column
+- The overlay changes appearance: background becomes light blue gradient (same as hover state), text becomes dark gray (#333), border becomes blue (#2196F3)
+- The overlay drops from the top row position to the lowest available cell in that column (bottom-to-top filling)
+- Drop animation uses smooth transition (0.5s ease-in) creating a realistic Connect-4 style gravity effect
+- The letter visibly falls through the column until it reaches its final resting position
+- The light blue color provides visual feedback during the drop
+- **Stage 3 - Settlement:** After the drop animation completes (total 0.8s), the letter is permanently placed into the target grid cell
+- The actual grid square receives the letter text content and "filled" class (gray background, white text)
+- The overlay element is removed from the DOM
+- The next letters preview updates to show the new sequence
+- This creates a fluid three-part motion: preview → top of column → drop to bottom of column with color change
 
 **JavaScript Generation:**
 - 42 squares created dynamically with row/col dataset attributes
@@ -458,6 +498,40 @@ Create a 2D delays array (6 rows × 7 columns) initialized to null:
   - Assign currentDelay to that spot
   - Increment currentDelay
 - Apply the delays to grid squares as inline animation-delay styles
+
+**Step 5: Interactive Drop Mechanism**
+
+Implement dropLetterInColumn function with three-stage animation:
+
+Stage 1 - Move from next-up to top of column (0.3s):
+- Get the .next-up letter block element and its getBoundingClientRect()
+- Get target grid square based on column fill count (final destination)
+- Get top row square (row 0) in the same column using querySelector
+- Get position of top row square using getBoundingClientRect()
+- Create overlay div with class "dropping-letter-overlay"
+- Set overlay position (left, top, width, height) to match next-up block using fixed positioning
+- Append overlay to document body
+- Force reflow to apply starting position
+- Apply CSS transition (all 0.3s ease-out) to smoothly move to TOP ROW of column
+- Overlay moves horizontally and vertically while resizing to match grid cell
+
+Stage 2 - Vertical drop within column (0.5s):
+- After 300ms, add "animating" class which applies:
+  - Transition: `top 0.5s ease-in` for smooth drop animation
+  - Background change to light blue gradient: `linear-gradient(145deg, #e3f2fd, #bbdefb)`
+  - Text color change to dark gray (#333)
+  - Border color change to blue (#2196F3)
+- Set top to target position (final destination at bottom of column), creating drop effect
+- Letter visibly falls from top row through the column to the lowest available position with light blue appearance
+
+Stage 3 - Settlement after 800ms total:
+- Set target square's text content to letter
+- Add "filled" class to target square
+- Remove overlay from DOM
+- Increment column fill count
+- Advance to next letter in sequence
+- Update next letters preview
+- Decrement letters remaining counter
 
 ### 5.6 Made Words Section
 
