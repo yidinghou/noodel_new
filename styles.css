@@ -236,6 +236,41 @@ body {
     transition: transform 0.3s ease;
 }
 
+.preview-letter-block.next-up {
+    border: 3px solid #FF9800;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.floating-copy {
+    position: fixed;
+    z-index: 1000;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.dropping-piece {
+    position: absolute;
+    z-index: 999;
+    pointer-events: none;
+    transition: all 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.grid-square.cell-filled {
+    background: #4CAF50;
+    color: white;
+    font-size: clamp(16px, 2vw, 20px);
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.grid-square.column-full {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
 .game-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -247,6 +282,7 @@ body {
     width: 100%;
     max-width: 900px;
     aspect-ratio: 7/6;
+    position: relative;
 }
 
 .grid-square {
@@ -257,9 +293,10 @@ body {
     opacity: 0;
     animation: gridSquareDrop 0.4s ease-out forwards;
     transition: all 0.2s ease;
+    cursor: pointer;
 }
 
-.grid-square:hover {
+.grid-square:hover:not(.cell-filled) {
     background: linear-gradient(145deg, #e3f2fd, #bbdefb);
     transform: scale(1.05);
 }
