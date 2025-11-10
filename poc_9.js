@@ -107,37 +107,46 @@ document.addEventListener('DOMContentLoaded', function() {
         // Concurrently update queue
         updateQueue();
 
-        // Stage B: After zoom, create dropping piece
+        // Stage B: After zoom, animate letter drop through grid cells
         setTimeout(() => {
             floatingCopy.remove();
 
-            const droppingPiece = document.createElement('div');
-            droppingPiece.className = 'preview-letter-block dropping-piece';
-            droppingPiece.textContent = nextLetter;
-            gameGrid.appendChild(droppingPiece);
-
-            const dropRow = 5 - columnFills[col];
-            const dropSquare = gridSquares[dropRow][col];
-            const dropRect = dropSquare.getBoundingClientRect();
+            // Calculate target row (where it should end up)
+            const targetRow = 5 - columnFills[col];
+            
+            // Create a visual letter element that overlays the grid
+            const droppingLetter = document.createElement('div');
+            droppingLetter.className = 'preview-letter-block dropping-letter';
+            droppingLetter.textContent = nextLetter;
+            
+            // Position it absolutely within the grid container
             const gridRect = gameGrid.getBoundingClientRect();
-
-            // Position at column top (relative to grid)
-            droppingPiece.style.left = `${columnTopRect.left - gridRect.left}px`;
-            droppingPiece.style.top = `${columnTopRect.top - gridRect.top}px`;
-            droppingPiece.style.width = `${columnTopRect.width}px`;
-            droppingPiece.style.height = `${columnTopRect.height}px`;
+            const topSquareRect = gridSquares[0][col].getBoundingClientRect();
+            const targetSquareRect = gridSquares[targetRow][col].getBoundingClientRect();
+            
+            droppingLetter.style.position = 'absolute';
+            droppingLetter.style.left = `${topSquareRect.left - gridRect.left}px`;
+            droppingLetter.style.top = `${topSquareRect.top - gridRect.top}px`;
+            droppingLetter.style.width = `${topSquareRect.width}px`;
+            droppingLetter.style.height = `${topSquareRect.height}px`;
+            droppingLetter.style.zIndex = '1000';
+            droppingLetter.style.pointerEvents = 'none';
+            
+            gameGrid.appendChild(droppingLetter);
 
             // Trigger drop animation
             setTimeout(() => {
-                droppingPiece.style.left = `${dropRect.left - gridRect.left}px`;
-                droppingPiece.style.top = `${dropRect.top - gridRect.top}px`;
+                droppingLetter.style.transition = 'top 0.8s cubic-bezier(0.4, 0.0, 0.2, 1)';
+                droppingLetter.style.top = `${targetSquareRect.top - gridRect.top}px`;
             }, 10);
 
-            // After drop completes, fill the cell
+            // After drop completes, remove overlay and fill the actual cell
             setTimeout(() => {
-                droppingPiece.remove();
-                dropSquare.classList.add('cell-filled');
-                dropSquare.textContent = nextLetter;
+                droppingLetter.remove();
+                
+                const targetSquare = gridSquares[targetRow][col];
+                targetSquare.classList.add('cell-filled');
+                targetSquare.textContent = nextLetter;
                 columnFills[col]++;
 
                 // Mark column as full if needed
@@ -146,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
 
                 animLock = false;
-            }, 800);
+            }, 820);
         }, 300);
     }
 
