@@ -219,8 +219,10 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
 
 3. **Letter Color Change & Shake (2.9s after drop starts)**
    - At 2.9s, instantly change all letter blocks from gray to green via JavaScript
-   - Immediately trigger a shake animation (Wordle-style) for all letter blocks
+   - Immediately trigger a shake animation (Wordle-style) for all letter blocks by adding 'shaking' class
    - Shake duration: 0.4s with forwards fill-mode
+   - Shake animation preserves the final rotated position (translateY(0) + rotation) to prevent disappearance
+   - Letters remain visible and green after shake completes
 
 4. **Controls Fade In (3.4s)**
    - Buttons appear with vertical translation
@@ -245,11 +247,12 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
 
 **`@keyframes shake`**
 - Purpose: Wordle-style shake after color change
-- 0%: `translateX(0) rotate(var(--rotation))`
-- 25%: `translateX(-5px) rotate(var(--rotation))`
-- 50%: `translateX(5px) rotate(var(--rotation))`
-- 75%: `translateX(-5px) rotate(var(--rotation))`
-- 100%: `translateX(0) rotate(var(--rotation))`
+- 0%: `translateY(0) translateX(0) rotate(var(--rotation))`
+- 25%: `translateY(0) translateX(-5px) rotate(var(--rotation))`
+- 50%: `translateY(0) translateX(5px) rotate(var(--rotation))`
+- 75%: `translateY(0) translateX(-5px) rotate(var(--rotation))`
+- 100%: `translateY(0) translateX(0) rotate(var(--rotation))`
+- Note: Includes translateY(0) to preserve the final dropped position and prevent disappearance
 
 **`@keyframes fadeIn`**
 - Purpose: Controls and stats appearance
@@ -268,6 +271,8 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
 - Even children: `rotate(2deg)` (via --rotation CSS variable)
 - Hover: `rotate(0) scale(1.1)`
 - Chained animations: dropIn → JavaScript color change + shake
+- Shake implementation: `.shaking` class added via JavaScript to trigger shake animation
+- Shake preserves letter position using `translateY(0)` to prevent disappearance after animation
 
 **Grid Squares:**
 - Algorithm: Random column selection with incremental delays
