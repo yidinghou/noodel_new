@@ -252,13 +252,15 @@ body {
 
 
 .grid-square.cell-filled {
-    background: #4CAF50;
+    background: #888;
     color: white;
     font-size: clamp(16px, 2vw, 20px);
     font-weight: bold;
     display: flex;
     align-items: center;
     justify-content: center;
+    border: 2px solid #333;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .grid-square.column-full {

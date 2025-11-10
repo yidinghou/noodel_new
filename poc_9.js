@@ -85,6 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
         floatingCopy.classList.add('floating-copy');
         floatingCopy.classList.remove('next-up', 'shifting-slide');
         floatingCopy.textContent = nextLetter;
+        floatingCopy.style.backgroundColor = '#ADD8E6'; // Light blue immediately on click
         document.body.appendChild(floatingCopy);
 
         const nextLetterRect = nextLetterBlock.getBoundingClientRect();
@@ -118,6 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const droppingLetter = document.createElement('div');
             droppingLetter.className = 'preview-letter-block dropping-letter';
             droppingLetter.textContent = nextLetter;
+            droppingLetter.style.backgroundColor = '#ADD8E6'; // Light blue while falling
             
             // Position it absolutely within the grid container
             const gridRect = gameGrid.getBoundingClientRect();
