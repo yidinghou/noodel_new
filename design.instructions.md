@@ -94,11 +94,14 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
 **Next Letters Preview (Above Grid):**
 - Horizontal container showing 4 upcoming letters
 - Position: Above the game grid within the grid wrapper
-- Letters displayed as preview-letter-blocks (gray #888 background)
+- **VISIBILITY:** Hidden by default, only appears after "START GAME" is clicked
+- Letters displayed as individual preview-letter-blocks (gray #888 background)
+- Each preview tile is independent and standalone
 - First letter marked with `.next-up` class (orange border #FF9800, scale 1.1)
 - 5px gap between letter blocks
 - Letters cycle through A-Z sequence
 - Auto-advances when a letter is dropped into the grid
+- **Fade-in animation:** Preview tiles fade in with 0.6s ease-out when game starts
 
 **Grid Layout:**
 - CSS Grid display with 7 columns and 6 rows using repeat()
@@ -166,14 +169,6 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
 - The next letters preview updates to show the new sequence
 - This creates a fluid three-part motion: preview → top of column → drop to bottom of column with color change
 
-**JavaScript Generation:**
-- 42 squares created dynamically with row/col dataset attributes
-- Each square assigned unique animation delay for initial drop
-- Column-based delay algorithm for realistic drop physics
-- Bottom row delays: Random 0.1s - 1.6s
-- Upper rows: Progressively earlier to simulate stacking
-- Click handlers attached to enable letter dropping
-
 ### 2.3 Made Words List Specifics
 
 **Container Properties:**
@@ -206,7 +201,17 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
 
 ### Animation Timeline (Complete Sequence)
 
-**Total Duration:** ~4 seconds
+**Before START GAME is clicked:**
+- Grid squares are hidden (opacity 0, no animation)
+- Next Letters Preview is hidden (opacity 0, not displayed)
+- Title letter blocks, controls, and stats animate normally as described below
+
+**After START GAME is clicked (game initialization):**
+- All animations proceed normally
+- Next Letters Preview fades in with 0.6s ease-out animation
+- Grid becomes interactive
+
+**Total Duration (after START GAME):** ~4 seconds
 
 1. **Grid Squares Drop (0.1s - 1.6s)**
    - Random staggered delays per column
@@ -235,7 +240,12 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
    - Duration: 0.6s ease-out
    - Opacity: 0 → 1
 
-6. **Word Addition (3.2s)**
+6. **Next Letters Preview Fade In (on START GAME click)**
+   - Preview tiles fade in when game starts
+   - Duration: 0.6s ease-out
+   - Opacity: 0 → 1
+
+7. **Word Addition (3.2s)**
    - "NOODEL" added to words list
    - Timed 3.2s after page load
 
@@ -568,6 +578,25 @@ Use setTimeout with 3200ms delay:
 - Set className to "word-item"
 - Set innerHTML with strong tag for "NOODEL" and small tag for description
 - Append to wordsList
+
+### 5.7 START GAME Button Functionality
+
+**Initial State (Before Click):**
+- Button displays "🎮 START GAME"
+- Next Letters Preview is hidden (opacity 0, display none or hidden)
+- Grid squares are visible but game is not interactive
+
+**On Click Event:**
+- Button text changes to "🔄 RESET"
+- Next Letters Preview fades in (0.6s ease-out, opacity 0 → 1)
+- Game becomes interactive (columns are clickable)
+- Preview tiles appear as individual blocks showing the upcoming 4 letters
+- First letter of preview marked with `.next-up` class (orange border, scale 1.1)
+
+**On Second Click (RESET):**
+- Page reloads or game state resets
+- All animations restart
+- Button text returns to "🎮 START GAME"
 
 ---
 
