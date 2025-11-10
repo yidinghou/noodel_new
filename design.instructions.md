@@ -64,6 +64,7 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
    - Flexbox horizontal layout
    - 8px gap between buttons
    - Start button (flex: 2) and Mute button (flex: 1)
+   - On first click, "START GAME" changes to "RESET"
    - Fade-in animation at 3.4s
 
 3. **Stats Section (`.stats`)**
