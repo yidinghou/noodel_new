@@ -56,9 +56,9 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
 1. **Title Section (`.title`)**
    - Letter blocks displayed inline-block
    - Each letter: 30-38px square (responsive via clamp)
-   - Individual animations with staggered delays
+   - Individual animations with **randomized delays** (0s to 0.6s) applied via JavaScript
    - Rotation effects (-2deg odd, +2deg even)
-   - After all letters land, instantly change all to green and trigger a shake animation (Wordle-style) for all letter blocks.
+   - After all letters land, instantly change all to green and trigger a shake animation (Wordle-style) for all letter blocks **simultaneously** (all animation delays reset to 0s for shake)
 
 2. **Controls Section (`.controls`)**
    - Flexbox horizontal layout
@@ -211,38 +211,46 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
 - Next Letters Preview fades in with 0.6s ease-out animation
 - Grid becomes interactive
 
-**Total Duration (after START GAME):** ~4 seconds
+**Total Duration (dynamic):** Varies based on randomized letter drop delays (~0.6s to ~1.2s)
 
-1. **Title Letter Blocks Drop (0.0s - 0.5s)**
-   - Sequential 0.1s delays (N→O→O→D→E→L)
+1. **Title Letter Blocks Drop (0.0s - 0.6s randomized start)**
+   - **Randomized delays** between 0s and 0.6s applied via JavaScript (`randomizeTitleLetterAnimations()`)
+   - Each letter gets a unique random delay, no fixed sequence
    - Drop from -300px with rotation
    - Duration: 0.6s ease-out per letter
+   - All animation delays are set via `block.style.animationDelay`
 
-2. **Letter Color Change & Shake (0.1s after step 1)**
-   - At 2.9s, instantly change all letter blocks from gray to green via JavaScript
-   - Immediately trigger a shake animation (Wordle-style) for all letter blocks by adding 'shaking' class
+2. **Letter Color Change & Shake (100ms after last letter lands)**
+   - Triggered by `shakeAllTitleLetters()` function after all drop animations complete
+   - All letter blocks instantly change from gray to green via JavaScript
+   - **All animation delays reset to 0s** to ensure simultaneous shake
+   - Shake animation triggered by adding 'shaking' class to all letters at once
    - Shake duration: 0.4s with forwards fill-mode
    - Shake animation preserves the final rotated position (translateY(0) + rotation) to prevent disappearance
+   - All letters shake **simultaneously** regardless of when they finished dropping
    - Letters remain visible and green after shake completes
 
-3. **Controls Fade In (0.1 seconds after step 2)**
+3. **Controls Fade In (hardcoded at 3.4s)**
    - Buttons appear with vertical translation
    - Duration: 0.6s ease-out
    - Opacity: 0 → 1
+   - Note: Uses fixed CSS animation-delay, not dynamic
 
-4. **Stats Fade In (0.1s after step 3)**
+4. **Stats Fade In (hardcoded at 3.7s)**
    - Score and letters remaining appear
    - Duration: 0.6s ease-out
    - Opacity: 0 → 1
+   - Note: Uses fixed CSS animation-delay, not dynamic
 
 5. **Next Letters Preview Fade In (on START GAME click)**
    - Preview tiles fade in when game starts
    - Duration: 0.6s ease-out
    - Opacity: 0 → 1
 
-7. **Word Addition (3.2s)**
+6. **Word Addition (dynamic timing)**
    - "NOODEL" added to words list
-   - Timed 3.2s after page load
+   - Timed 300ms after shake animation completes
+   - Calculated dynamically: `titleAnimationEnd + shakeDuration + 100ms buffer`
 
 ### Keyframe Animations
 
@@ -276,8 +284,10 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
 - Odd children: `rotate(-2deg)` (via --rotation CSS variable)
 - Even children: `rotate(2deg)` (via --rotation CSS variable)
 - Hover: `rotate(0) scale(1.1)`
-- Chained animations: dropIn → JavaScript color change + shake
+- Chained animations: dropIn (with randomized delays) → JavaScript color change + simultaneous shake
+- Drop delays: Randomized between 0s and 0.6s via `randomizeTitleLetterAnimations()` function
 - Shake implementation: `.shaking` class added via JavaScript to trigger shake animation
+- **Critical for simultaneous shake:** `animationDelay` reset to `'0s'` before adding `.shaking` class in `shakeAllTitleLetters()` function
 - Shake preserves letter position using `translateY(0)` to prevent disappearance after animation
 
 **Grid Squares:**
@@ -469,11 +479,11 @@ Grid square properties:
 
 **Step 1: Define Keyframes**
 
-Create four keyframe animations:
+Create three keyframe animations:
 
-dropIn - transforms from translateY(-300px) rotate(-2deg) to translateY(0) rotate(-2deg)
+dropIn - transforms from translateY(-300px) rotate(var(--rotation)) to translateY(0) rotate(var(--rotation))
 
-colorChange - changes background to #4CAF50
+shake - horizontal shake animation with translateX(-5px to 5px) while preserving translateY(0) and rotate(var(--rotation))
 
 fadeIn - transitions from opacity 0 with translateY(20px) to opacity 1 with translateY(0)
 
@@ -482,8 +492,9 @@ gridSquareDrop - transforms from translateY(-500px) opacity 0 to translateY(0) o
 **Step 2: Apply Initial States**
 
 Letter blocks:
-- Initial transform: translateY(-300px) rotate(-2deg)
+- Initial transform: translateY(-300px) rotate(var(--rotation))
 - Animation: dropIn with 0.6s ease-out, forwards fill mode
+- No hardcoded animation-delay in CSS (applied via JavaScript)
 
 Controls and stats:
 - Initial opacity: 0
@@ -492,13 +503,27 @@ Grid squares:
 - Initial opacity: 0
 - Animation: gridSquareDrop with 0.4s ease-out, forwards fill mode
 
-**Step 3: Configure Delays**
-- Letter blocks: Sequential 0.1s increments starting at 2.0s
-- Chain color change after drop: delay at 2.9s
-- Controls: 3.4s delay
-- Stats: 3.7s delay
+**Step 3: JavaScript Animation Functions**
 
-**Step 4: JavaScript Delay Generation**
+Create `randomizeTitleLetterAnimations()` function:
+- Select all `.letter-block` elements
+- Generate random delay between 0s and 0.6s for each letter
+- Apply delay via `block.style.animationDelay = ${randomDelay}s`
+- Calculate max delay to determine when last letter finishes dropping
+- Return the animation end time (maxDelay + dropDuration) in milliseconds
+
+Create `shakeAllTitleLetters()` function:
+- Select all `.letter-block` elements
+- Change all backgrounds to #4CAF50 (green)
+- **Critical:** Reset `block.style.animationDelay = '0s'` for all blocks
+- Add `.shaking` class to all blocks simultaneously
+- Return shake duration (400ms) for timing subsequent events
+
+**Step 4: Configure Fixed Delays (CSS)**
+- Controls: 3.4s delay (hardcoded in CSS)
+- Stats: 3.7s delay (hardcoded in CSS)
+
+**Step 5: JavaScript Delay Generation for Grid** (if implementing grid animation)
 
 Create a 2D delays array (6 rows × 7 columns) initialized to null:
 - Set currentDelay to 0.1s and increment to 0.05s
@@ -510,7 +535,16 @@ Create a 2D delays array (6 rows × 7 columns) initialized to null:
   - Increment currentDelay
 - Apply the delays to grid squares as inline animation-delay styles
 
-**Step 5: Interactive Drop Mechanism**
+**Step 6: Sequence Animations in DOMContentLoaded**
+
+In the main initialization:
+- Call `generateGrid()` to create grid squares
+- Call `initializeNextLetters()` to prepare letter sequence
+- Call `randomizeTitleLetterAnimations()` and store the return value
+- After dropAnimationEnd + 100ms buffer, call `shakeAllTitleLetters()`
+- After shake completes, add "NOODEL" word to list (shakeDuration + 100ms buffer)
+
+**Step 7: Interactive Drop Mechanism**
 
 Implement dropLetterInColumn function with three-stage animation:
 
