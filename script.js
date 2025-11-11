@@ -9,37 +9,57 @@ let nextLetters = [];
 
 // Randomize NOODEL title letter animation delays
 function randomizeTitleLetterAnimations() {
-    const letterBlocks = document.querySelectorAll('.letter-block');
-    const delays = [];
-    
-    // Generate random delays starting from 0s
-    letterBlocks.forEach((block, index) => {
-        const randomDelay = Math.random() * 0.6; // Random delay between 0s and 0.6s
-        delays.push(randomDelay);
-        block.style.animationDelay = `${randomDelay}s`;
+    return new Promise((resolve) => {
+        const letterBlocks = document.querySelectorAll('.letter-block');
+        const delays = [];
+        
+        // Generate random delays starting from 0s
+        letterBlocks.forEach((block, index) => {
+            const randomDelay = Math.random() * 0.6; // Random delay between 0s and 0.6s
+            delays.push(randomDelay);
+            block.style.animationDelay = `${randomDelay}s`;
+        });
+        
+        // Find the latest animation end time (delay + animation duration)
+        const maxDelay = Math.max(...delays);
+        const dropDuration = 0.6; // 0.6s from CSS dropIn animation
+        const lastDropEnd = (maxDelay + dropDuration) * 1000; // Convert to ms
+        
+        // Resolve promise when animation completes
+        setTimeout(resolve, lastDropEnd);
     });
-    
-    // Find the latest animation end time (delay + animation duration)
-    const maxDelay = Math.max(...delays);
-    const dropDuration = 0.6; // 0.6s from CSS dropIn animation
-    const lastDropEnd = (maxDelay + dropDuration) * 1000; // Convert to ms
-    
-    return lastDropEnd;
 }
 
 // Apply color change and shake to all title letters simultaneously
 function shakeAllTitleLetters() {
-    const letterBlocks = document.querySelectorAll('.letter-block');
-    const shakeDuration = 400; // 0.4s from CSS shake animation
-    
-    // Change all letters to green and trigger shake at the same time
-    letterBlocks.forEach(block => {
-        block.style.backgroundColor = '#4CAF50';
-        block.style.animationDelay = '0s'; // Reset delay so all shake together
-        block.classList.add('shaking');
+    return new Promise((resolve) => {
+        const letterBlocks = document.querySelectorAll('.letter-block');
+        const shakeDuration = 400; // 0.4s from CSS shake animation
+        
+        // Change all letters to green and trigger shake at the same time
+        letterBlocks.forEach(block => {
+            block.style.backgroundColor = '#4CAF50';
+            block.style.animationDelay = '0s'; // Reset delay so all shake together
+            block.classList.add('shaking');
+        });
+        
+        // Resolve promise when shake completes
+        setTimeout(resolve, shakeDuration);
     });
+}
+
+// Show controls and stats after NOODEL animation completes
+function showControlsAndStats() {
+    const controls = document.querySelector('.controls');
+    const stats = document.querySelector('.stats');
     
-    return shakeDuration;
+    // Show controls
+    controls.style.opacity = '1';
+    
+    // Show stats shortly after controls
+    setTimeout(() => {
+        stats.style.opacity = '1';
+    }, 300);
 }
 
 // Initialize the game
@@ -47,18 +67,13 @@ document.addEventListener('DOMContentLoaded', () => {
     generateGrid();
     initializeNextLetters();
     
-    // Apply randomized animation delays to title letters
-    const dropAnimationEnd = randomizeTitleLetterAnimations();
-    
-    // Trigger shake after all letters have dropped
-    setTimeout(() => {
-        const shakeDuration = shakeAllTitleLetters();
-        
-        // Add "NOODEL" to words list after shake completes
-        setTimeout(() => {
+    // Chain animations in sequence
+    randomizeTitleLetterAnimations()
+        .then(() => shakeAllTitleLetters())
+        .then(() => {
             addWord('NOODEL', 'The name of this game!');
-        }, shakeDuration + 100); // 100ms buffer after shake
-    }, dropAnimationEnd + 100); // 100ms buffer after drop
+            showControlsAndStats();
+        });
     
     // Start button functionality
     const startBtn = document.getElementById('startBtn');
