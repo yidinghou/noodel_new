@@ -10,7 +10,6 @@ let nextLetters = [];
 // Initialize the game
 document.addEventListener('DOMContentLoaded', () => {
     generateGrid();
-    generateGridAnimationDelays();
     initializeNextLetters();
     
     // Color change and shake animation for title letters
@@ -57,44 +56,6 @@ function generateGrid() {
         square.dataset.row = Math.floor(i / 7);
         gridElement.appendChild(square);
     }
-}
-
-// Generate random drop animation delays for grid squares
-function generateGridAnimationDelays() {
-    const squares = document.querySelectorAll('.grid-square');
-    const delays = Array(6).fill(null).map(() => Array(7).fill(null));
-    let currentDelay = 0.1;
-    const increment = 0.05;
-    
-    // Fill delays array randomly, one column at a time from bottom up
-    while (delays.some(row => row.some(cell => cell === null))) {
-        // Get columns that still have available spots
-        const availableColumns = [];
-        for (let col = 0; col < 7; col++) {
-            if (delays.some(row => row[col] === null)) {
-                availableColumns.push(col);
-            }
-        }
-        
-        // Pick a random column
-        const randomColumn = availableColumns[Math.floor(Math.random() * availableColumns.length)];
-        
-        // Find the lowest available row in that column (highest index)
-        for (let row = 5; row >= 0; row--) {
-            if (delays[row][randomColumn] === null) {
-                delays[row][randomColumn] = currentDelay;
-                currentDelay += increment;
-                break;
-            }
-        }
-    }
-    
-    // Apply delays to grid squares
-    squares.forEach((square, index) => {
-        const row = Math.floor(index / 7);
-        const col = index % 7;
-        square.style.animationDelay = `${delays[row][col]}s`;
-    });
 }
 
 // Initialize next letters
