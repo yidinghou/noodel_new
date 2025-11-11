@@ -213,9 +213,10 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
 
 **Total Duration (dynamic):** Varies based on randomized letter drop delays (~0.6s to ~1.2s)
 
-1. **Title Letter Blocks Drop (0.0s - 0.6s randomized start)**
-   - **Randomized delays** between 0s and 0.6s applied via JavaScript (`randomizeTitleLetterAnimations()`)
-   - Each letter gets a unique random delay, no fixed sequence
+1. **Title Letter Blocks Drop (0.0s - 0.6s at regular intervals)**
+   - **Randomized drop order** with regular 0.1s intervals applied via JavaScript (`randomizeTitleLetterAnimations()`)
+   - Letter order is shuffled randomly, but they drop at consistent intervals
+   - Each letter drops 0.1s after the previous one in the shuffled sequence
    - Drop from -300px with rotation
    - Duration: 0.6s ease-out per letter
    - All animation delays are set via `block.style.animationDelay`
@@ -230,17 +231,19 @@ The NOODEL start menu uses a **vertical flexbox layout** with three distinct sec
    - All letters shake **simultaneously** regardless of when they finished dropping
    - Letters remain visible and green after shake completes
 
-3. **Controls Fade In (hardcoded at 3.4s)**
+3. **Controls Fade In (after shake completes + 200ms delay)**
    - Buttons appear with vertical translation
-   - Duration: 0.6s ease-out
+   - Duration: 0.6s ease-out via CSS transition
    - Opacity: 0 → 1
-   - Note: Uses fixed CSS animation-delay, not dynamic
+   - Triggered by adding `.visible` class via JavaScript in `showControlsAndStats()`
+   - Timing is dynamic based on actual animation completion
 
-4. **Stats Fade In (hardcoded at 3.7s)**
+4. **Stats Fade In (after controls start + 300ms delay)**
    - Score and letters remaining appear
-   - Duration: 0.6s ease-out
+   - Duration: 0.6s ease-out via CSS transition
    - Opacity: 0 → 1
-   - Note: Uses fixed CSS animation-delay, not dynamic
+   - Triggered by adding `.visible` class via JavaScript in `showControlsAndStats()`
+   - Timing is dynamic based on actual animation completion
 
 5. **Next Letters Preview Fade In (on START GAME click)**
    - Preview tiles fade in when game starts
@@ -505,23 +508,33 @@ Grid squares:
 
 **Step 3: JavaScript Animation Functions**
 
-Create `randomizeTitleLetterAnimations()` function:
+Create `randomizeTitleLetterAnimations()` function that returns a Promise:
 - Select all `.letter-block` elements
-- Generate random delay between 0s and 0.6s for each letter
-- Apply delay via `block.style.animationDelay = ${randomDelay}s`
+- Create array of indices and shuffle it randomly (Fisher-Yates shuffle)
+- Assign delays at regular 0.1s intervals based on shuffled order
+- Apply delay via `block.style.animationDelay = ${delay}s`
 - Calculate max delay to determine when last letter finishes dropping
-- Return the animation end time (maxDelay + dropDuration) in milliseconds
+- Resolve promise when animation completes (maxDelay + dropDuration)
 
-Create `shakeAllTitleLetters()` function:
+Create `shakeAllTitleLetters()` function that returns a Promise:
 - Select all `.letter-block` elements
 - Change all backgrounds to #4CAF50 (green)
 - **Critical:** Reset `block.style.animationDelay = '0s'` for all blocks
 - Add `.shaking` class to all blocks simultaneously
-- Return shake duration (400ms) for timing subsequent events
+- Resolve promise when shake completes (after 400ms)
 
-**Step 4: Configure Fixed Delays (CSS)**
-- Controls: 3.4s delay (hardcoded in CSS)
-- Stats: 3.7s delay (hardcoded in CSS)
+Create `showControlsAndStats()` function:
+- Select `.controls` and `.stats` elements
+- Add `.visible` class to controls after 200ms delay
+- Add `.visible` class to stats after 500ms delay (300ms after controls)
+- Uses CSS transitions instead of animations for smooth fade-in
+
+**Step 4: Configure Transitions (CSS)**
+- Controls and stats use CSS transitions instead of animations
+- Both start with opacity: 0 and transform: translateY(20px)
+- `.visible` class triggers transition to opacity: 1 and transform: translateY(0)
+- Transition duration: 0.6s ease-out
+- Timing controlled by JavaScript adding `.visible` class after animations complete
 
 **Step 5: JavaScript Delay Generation for Grid** (if implementing grid animation)
 
@@ -537,12 +550,14 @@ Create a 2D delays array (6 rows × 7 columns) initialized to null:
 
 **Step 6: Sequence Animations in DOMContentLoaded**
 
-In the main initialization:
+In the main initialization using Promise chain:
 - Call `generateGrid()` to create grid squares
 - Call `initializeNextLetters()` to prepare letter sequence
-- Call `randomizeTitleLetterAnimations()` and store the return value
-- After dropAnimationEnd + 100ms buffer, call `shakeAllTitleLetters()`
-- After shake completes, add "NOODEL" word to list (shakeDuration + 100ms buffer)
+- Chain animations using Promises:
+  - `randomizeTitleLetterAnimations()` returns Promise that resolves when drops complete
+  - `.then()` call `shakeAllTitleLetters()` which returns Promise that resolves when shake completes
+  - `.then()` add "NOODEL" word to list and call `showControlsAndStats()`
+- Clean sequential flow: drop → shake → show UI elements
 
 **Step 7: Interactive Drop Mechanism**
 
