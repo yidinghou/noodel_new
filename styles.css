@@ -73,7 +73,13 @@ body {
     gap: 8px;
     margin: 8px 0;
     opacity: 0;
-    animation: fadeIn 0.6s ease-out forwards;
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    transform: translateY(20px);
+}
+
+.controls.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .start-btn {
@@ -120,7 +126,13 @@ body {
     padding: 10px;
     margin-top: 8px;
     opacity: 0;
-    animation: fadeIn 0.6s ease-out forwards;
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    transform: translateY(20px);
+}
+
+.stats.visible {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .stat-group {

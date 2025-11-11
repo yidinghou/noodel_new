@@ -53,13 +53,15 @@ function showControlsAndStats() {
     const controls = document.querySelector('.controls');
     const stats = document.querySelector('.stats');
     
-    // Show controls
-    controls.style.opacity = '1';
+    // Show controls after a short delay
+    setTimeout(() => {
+        controls.classList.add('visible');
+    }, 200);
     
     // Show stats shortly after controls
     setTimeout(() => {
-        stats.style.opacity = '1';
-    }, 300);
+        stats.classList.add('visible');
+    }, 500);
 }
 
 // Initialize the game
