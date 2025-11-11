@@ -11,17 +11,23 @@ let nextLetters = [];
 function randomizeTitleLetterAnimations() {
     return new Promise((resolve) => {
         const letterBlocks = document.querySelectorAll('.letter-block');
-        const delays = [];
+        const interval = 0.25; // Regular interval between drops (0.25s)
         
-        // Generate random delays starting from 0s
-        letterBlocks.forEach((block, index) => {
-            const randomDelay = Math.random() * 0.6; // Random delay between 0s and 0.6s
-            delays.push(randomDelay);
-            block.style.animationDelay = `${randomDelay}s`;
+        // Create array of indices and shuffle it
+        const indices = Array.from({ length: letterBlocks.length }, (_, i) => i);
+        for (let i = indices.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [indices[i], indices[j]] = [indices[j], indices[i]];
+        }
+        
+        // Assign delays based on shuffled order
+        indices.forEach((originalIndex, dropOrder) => {
+            const delay = dropOrder * interval;
+            letterBlocks[originalIndex].style.animationDelay = `${delay}s`;
         });
         
-        // Find the latest animation end time (delay + animation duration)
-        const maxDelay = Math.max(...delays);
+        // Find the latest animation end time
+        const maxDelay = (letterBlocks.length - 1) * interval;
         const dropDuration = 0.6; // 0.6s from CSS dropIn animation
         const lastDropEnd = (maxDelay + dropDuration) * 1000; // Convert to ms
         
