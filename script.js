@@ -7,24 +7,58 @@ let columnFillCounts = [0, 0, 0, 0, 0, 0, 0]; // Track how many cells are filled
 const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 let nextLetters = [];
 
+// Randomize NOODEL title letter animation delays
+function randomizeTitleLetterAnimations() {
+    const letterBlocks = document.querySelectorAll('.letter-block');
+    const delays = [];
+    
+    // Generate random delays starting from 0s
+    letterBlocks.forEach((block, index) => {
+        const randomDelay = Math.random() * 0.6; // Random delay between 0s and 0.6s
+        delays.push(randomDelay);
+        block.style.animationDelay = `${randomDelay}s`;
+    });
+    
+    // Find the latest animation end time (delay + animation duration)
+    const maxDelay = Math.max(...delays);
+    const dropDuration = 0.6; // 0.6s from CSS dropIn animation
+    const lastDropEnd = (maxDelay + dropDuration) * 1000; // Convert to ms
+    
+    return lastDropEnd;
+}
+
+// Apply color change and shake to all title letters simultaneously
+function shakeAllTitleLetters() {
+    const letterBlocks = document.querySelectorAll('.letter-block');
+    const shakeDuration = 400; // 0.4s from CSS shake animation
+    
+    // Change all letters to green and trigger shake at the same time
+    letterBlocks.forEach(block => {
+        block.style.backgroundColor = '#4CAF50';
+        block.style.animationDelay = '0s'; // Reset delay so all shake together
+        block.classList.add('shaking');
+    });
+    
+    return shakeDuration;
+}
+
 // Initialize the game
 document.addEventListener('DOMContentLoaded', () => {
     generateGrid();
     initializeNextLetters();
     
-    // Color change and shake animation for title letters
-    setTimeout(() => {
-        const letterBlocks = document.querySelectorAll('.letter-block');
-        letterBlocks.forEach(block => {
-            block.style.backgroundColor = '#4CAF50';
-            block.classList.add('shaking');
-        });
-    }, 2900);
+    // Apply randomized animation delays to title letters
+    const dropAnimationEnd = randomizeTitleLetterAnimations();
     
-    // Add "NOODEL" to words list after animations
+    // Trigger shake after all letters have dropped
     setTimeout(() => {
-        addWord('NOODEL', 'The name of this game!');
-    }, 3200);
+        const shakeDuration = shakeAllTitleLetters();
+        
+        // Add "NOODEL" to words list after shake completes
+        setTimeout(() => {
+            addWord('NOODEL', 'The name of this game!');
+        }, shakeDuration + 100); // 100ms buffer after shake
+    }, dropAnimationEnd + 100); // 100ms buffer after drop
     
     // Start button functionality
     const startBtn = document.getElementById('startBtn');
