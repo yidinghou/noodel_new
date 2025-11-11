@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NOODEL</title>
-    <link rel="stylesheet" href="style.css">
+    <title>NOODEL - Word Game</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="main-container">
+        <!-- Card Section (Top) -->
         <div class="card">
             <div class="title">
                 <div class="letter-block">N</div>
@@ -17,33 +18,43 @@
                 <div class="letter-block">E</div>
                 <div class="letter-block">L</div>
             </div>
+            
             <div class="controls">
-                <button class="start-btn">🎮 START GAME</button>
-                <button class="mute-btn">🔊</button>
+                <button class="start-btn" id="startBtn">🎮 START GAME</button>
+                <button class="mute-btn" id="muteBtn">🔊</button>
             </div>
+            
             <div class="stats">
                 <div class="stat-group">
                     <div class="stat-label">Score</div>
-                    <div class="stat-value" id="score">0</div>
+                    <div class="stat-value" id="scoreValue">0</div>
                 </div>
                 <div class="stat-group">
                     <div class="stat-label">Letters Remaining</div>
-                    <div class="stat-value" id="letters-remaining">100</div>
+                    <div class="stat-value" id="lettersRemaining">100</div>
                 </div>
             </div>
         </div>
+        
+        <!-- Game Grid Section (Middle) -->
         <div class="game-grid-wrapper">
-            <div class="next-letters-preview">
+            <div class="next-letters-preview" id="nextLettersPreview">
+                <!-- Preview letters will be dynamically generated -->
             </div>
-            <div id="gameGrid" class="game-grid">
+            <div class="game-grid" id="gameGrid">
+                <!-- Grid squares will be dynamically generated -->
             </div>
         </div>
+        
+        <!-- Made Words Section (Bottom) -->
         <div class="made-words-container">
             <div class="made-words-title">Words Made</div>
-            <div id="wordsList" class="words-list">
+            <div class="words-list" id="wordsList">
+                <!-- Words will be added dynamically -->
             </div>
         </div>
     </div>
+    
     <script src="script.js"></script>
 </body>
 </html>
