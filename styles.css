@@ -74,7 +74,7 @@ body {
     margin: 8px 0;
     opacity: 0;
     animation: fadeIn 0.6s ease-out forwards;
-    animation-delay: 3.4s;
+    animation-delay: 1.8s;
 }
 
 .start-btn {
@@ -122,7 +122,7 @@ body {
     margin-top: 8px;
     opacity: 0;
     animation: fadeIn 0.6s ease-out forwards;
-    animation-delay: 3.7s;
+    animation-delay: 2.1s;
 }
 
 .stat-group {
