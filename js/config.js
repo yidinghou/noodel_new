@@ -21,7 +21,7 @@ export const CONFIG = {
         LETTER_STAGE_1_DELAY: 200,      // milliseconds for stage 1 (move to top)
         LETTER_STAGE_2_DELAY: 600,      // milliseconds for stage 2+3 (drop + settle)
         LETTER_DROP_START: 200,         // milliseconds before starting drop
-        LETTER_DROP_DURATION: 300       // milliseconds for the actual drop transition
+        LETTER_DROP_DURATION: 400       // milliseconds for the actual drop transition TODO: calculate as stage2 - stage1
     },
     COLORS: {
         TITLE_ACTIVE: '#4CAF50'
