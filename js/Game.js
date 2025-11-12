@@ -92,7 +92,7 @@ export class Game {
 
     start() {
         this.state.started = true;
-        this.dom.startBtn.textContent = '🔄 RESET';
+        this.dom.startBtn.textContent = '🔄';
         
         // Show next letters preview
         this.dom.preview.classList.add('visible');
