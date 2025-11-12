@@ -57,6 +57,22 @@
     animation: previewPulse var(--animation-duration-pulse) ease-in-out infinite;
 }
 
+/* Empty Preview Letter Block (no letters remaining) - Supersedes next-up styling */
+.preview-letter-block.empty {
+    background-color: #e0e0e0;
+    border-color: #bdbdbd;
+    color: #bdbdbd;
+    box-shadow: none;
+    opacity: 0.4;
+    animation: none;
+    transform: scale(1);
+}
+
+.preview-letter-block.empty::after {
+    content: '—';
+    font-size: 30px;
+}
+
 /* Game Grid */
 .game-grid {
     display: grid;

@@ -13,8 +13,13 @@ export class LetterController {
     initialize() {
         this.gameState.nextLetters = [];
         for (let i = 0; i < CONFIG.GAME.PREVIEW_COUNT; i++) {
-            this.gameState.nextLetters.push(this.gameState.alphabet[this.gameState.currentLetterIndex % 26]);
-            this.gameState.currentLetterIndex++;
+            if (this.gameState.currentLetterIndex < this.gameState.alphabet.length) {
+                this.gameState.nextLetters.push(this.gameState.alphabet[this.gameState.currentLetterIndex]);
+                this.gameState.currentLetterIndex++;
+            } else {
+                // No more letters available
+                this.gameState.nextLetters.push('');
+            }
         }
     }
 
@@ -25,10 +30,19 @@ export class LetterController {
         this.gameState.nextLetters.forEach((letter, index) => {
             const letterBlock = document.createElement('div');
             letterBlock.className = 'preview-letter-block';
-            if (index === 0) {
-                letterBlock.classList.add('next-up');
+            
+            // Check if letter is empty (no more letters remaining)
+            if (!letter || letter === '' || letter === null || letter === undefined) {
+                letterBlock.classList.add('empty');
+                // Don't set textContent - the ::after pseudo-element will show the dash
+            } else {
+                // Only add next-up styling if the letter is NOT empty
+                if (index === 0) {
+                    letterBlock.classList.add('next-up');
+                }
+                letterBlock.textContent = letter;
             }
-            letterBlock.textContent = letter;
+            
             this.dom.preview.appendChild(letterBlock);
         });
     }
@@ -37,8 +51,15 @@ export class LetterController {
     advance() {
         // Remove first letter and add new one at the end
         this.gameState.nextLetters.shift();
-        this.gameState.nextLetters.push(this.gameState.alphabet[this.gameState.currentLetterIndex % 26]);
-        this.gameState.currentLetterIndex++;
+        
+        // Check if we've reached the end of the alphabet
+        if (this.gameState.currentLetterIndex < this.gameState.alphabet.length) {
+            this.gameState.nextLetters.push(this.gameState.alphabet[this.gameState.currentLetterIndex]);
+            this.gameState.currentLetterIndex++;
+        } else {
+            // No more letters - push empty string
+            this.gameState.nextLetters.push('');
+        }
         
         // Update display
         this.display();
