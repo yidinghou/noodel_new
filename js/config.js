@@ -2,6 +2,10 @@
 export const CONFIG = {
     // DEBUG MODE: Set to true to skip intro animations for faster testing
     DEBUG: true,
+    
+    // DEBUG GRID: Set to true to pre-populate grid with test pattern
+    DEBUG_GRID_ENABLED: true,
+    
     GRID: {
         ROWS: 6,
         COLUMNS: 7,
@@ -10,7 +14,7 @@ export const CONFIG = {
     GAME: {
         INITIAL_LETTERS: 100,
         PREVIEW_COUNT: 4,
-        ALPHABET: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+        ALPHABET: 'CATCATCATCATCATCATCATCATCATCATCATCAT'
     },
     ANIMATION: {
         TITLE_DROP_INTERVAL: 0.25,      // seconds between each title letter drop
@@ -21,9 +25,71 @@ export const CONFIG = {
         LETTER_STAGE_1_DELAY: 200,      // milliseconds for stage 1 (move to top)
         LETTER_STAGE_2_DELAY: 600,      // milliseconds for stage 2+3 (drop + settle)
         LETTER_DROP_START: 200,         // milliseconds before starting drop
-        LETTER_DROP_DURATION: 400       // milliseconds for the actual drop transition TODO: calculate as stage2 - stage1
+        LETTER_DROP_DURATION: 400,      // milliseconds for the actual drop transition TODO: calculate as stage2 - stage1
+        WORD_ANIMATION_DURATION: 400,   // milliseconds for word highlight and shake
+        WORD_CLEAR_DELAY: 100           // milliseconds to wait before clearing word cells
     },
     COLORS: {
         TITLE_ACTIVE: '#4CAF50'
-    }
+    },
+    
+    // DEBUG GRID PATTERNS
+    // Each row is represented as an array of 7 columns (empty string '' = empty cell)
+    // Grid is arranged bottom-to-top (row 0 is the top, row 5 is the bottom)
+    DEBUG_GRID: [
+        // Row 0 (Top)
+        ['', '', '', '', '', '', ''],
+        // Row 1
+        ['', '', '', '', '', '', ''],
+        // Row 2
+        ['', '', '', '', '', '', ''],
+        // Row 3
+        ['', '', 'T', '', '', '', ''],
+        // Row 4
+        ['', 'A', 'C', 'A', '', '', ''],
+        // Row 5 (Bottom)
+        ['', 'A', 'T', '', 'T', '', '']
+    ]
+    
+    // Alternative test patterns (uncomment to use):
+    
+    // Pattern 1: Horizontal word at bottom
+    // DEBUG_GRID: [
+    //     ['', '', '', '', '', '', ''],
+    //     ['', '', '', '', '', '', ''],
+    //     ['', '', '', '', '', '', ''],
+    //     ['', '', '', '', '', '', ''],
+    //     ['', '', '', '', '', '', ''],
+    //     ['C', 'A', 'T', '', '', '', '']
+    // ]
+    
+    // Pattern 2: Vertical word
+    // DEBUG_GRID: [
+    //     ['', '', '', '', '', '', ''],
+    //     ['', '', '', '', '', '', ''],
+    //     ['', '', '', '', '', '', ''],
+    //     ['D', '', '', '', '', '', ''],
+    //     ['O', '', '', '', '', '', ''],
+    //     ['G', '', '', '', '', '', '']
+    // ]
+    
+    // Pattern 3: Multiple words (horizontal + vertical)
+    // DEBUG_GRID: [
+    //     ['', '', '', '', '', '', ''],
+    //     ['', '', '', '', '', '', ''],
+    //     ['', '', '', '', '', '', ''],
+    //     ['T', '', '', '', '', '', ''],
+    //     ['H', 'A', 'T', '', '', '', ''],
+    //     ['E', '', '', '', '', '', '']
+    // ]
+    
+    // Pattern 4: Diagonal word (DOG)
+    // DEBUG_GRID: [
+    //     ['', '', '', '', '', '', ''],
+    //     ['', '', '', '', '', '', ''],
+    //     ['', '', '', '', '', '', ''],
+    //     ['D', '', '', '', '', '', ''],
+    //     ['', 'O', '', '', '', '', ''],
+    //     ['', '', 'G', '', '', '', '']
+    // ]
 };

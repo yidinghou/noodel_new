@@ -123,4 +123,31 @@ export class AnimationController {
             }
         }, CONFIG.ANIMATION.LETTER_STAGE_2_DELAY);
     }
+
+    // Highlight and shake word cells when a word is found
+    highlightAndShakeWord(positions) {
+        return new Promise((resolve) => {
+            // Add word-found class to all cells in the word
+            positions.forEach(pos => {
+                const square = this.dom.getGridSquare(pos.index);
+                if (square) {
+                    square.classList.add('word-found');
+                }
+            });
+            
+            // Resolve after animation completes
+            setTimeout(resolve, CONFIG.ANIMATION.WORD_ANIMATION_DURATION);
+        });
+    }
+
+    // Clear word cells after animation
+    clearWordCells(positions) {
+        positions.forEach(pos => {
+            const square = this.dom.getGridSquare(pos.index);
+            if (square) {
+                square.textContent = '';
+                square.classList.remove('filled', 'word-found');
+            }
+        });
+    }
 }

@@ -47,4 +47,90 @@ export class GridController {
         // Return column to be processed by caller
         return column;
     }
+
+    // Apply gravity - make letters fall down after cells are cleared
+    applyGravity() {
+        let moved = false;
+        
+        // Process each column from bottom to top
+        for (let col = 0; col < CONFIG.GRID.COLUMNS; col++) {
+            // Start from bottom row and work upwards
+            for (let row = CONFIG.GRID.ROWS - 1; row >= 0; row--) {
+                const currentIndex = row * CONFIG.GRID.COLUMNS + col;
+                const currentSquare = this.dom.getGridSquare(currentIndex);
+                
+                // If current cell is empty, look for filled cells above it
+                if (!currentSquare.classList.contains('filled')) {
+                    // Search upwards for a filled cell
+                    for (let searchRow = row - 1; searchRow >= 0; searchRow--) {
+                        const searchIndex = searchRow * CONFIG.GRID.COLUMNS + col;
+                        const searchSquare = this.dom.getGridSquare(searchIndex);
+                        
+                        if (searchSquare.classList.contains('filled')) {
+                            // Move the letter down
+                            currentSquare.textContent = searchSquare.textContent;
+                            currentSquare.classList.add('filled');
+                            searchSquare.textContent = '';
+                            searchSquare.classList.remove('filled');
+                            moved = true;
+                            break; // Found a letter to move, continue with next empty cell
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Update column fill counts
+        this.updateColumnFillCounts();
+        
+        return moved;
+    }
+
+    // Update column fill counts based on actual grid state
+    updateColumnFillCounts() {
+        for (let col = 0; col < CONFIG.GRID.COLUMNS; col++) {
+            let count = 0;
+            for (let row = CONFIG.GRID.ROWS - 1; row >= 0; row--) {
+                const index = row * CONFIG.GRID.COLUMNS + col;
+                const square = this.dom.getGridSquare(index);
+                if (square.classList.contains('filled')) {
+                    count++;
+                } else {
+                    break; // Stop counting when we hit an empty cell
+                }
+            }
+            this.gameState.columnFillCounts[col] = count;
+        }
+    }
+
+    // Load debug grid pattern for testing (only in DEBUG mode)
+    loadDebugGrid() {
+        if (!CONFIG.DEBUG || !CONFIG.DEBUG_GRID_ENABLED || !CONFIG.DEBUG_GRID) {
+            return;
+        }
+
+        console.log('🔧 Loading debug grid pattern...');
+
+        // Iterate through the debug grid pattern
+        for (let row = 0; row < CONFIG.GRID.ROWS; row++) {
+            for (let col = 0; col < CONFIG.GRID.COLUMNS; col++) {
+                const letter = CONFIG.DEBUG_GRID[row][col];
+                
+                if (letter && letter !== '') {
+                    const index = row * CONFIG.GRID.COLUMNS + col;
+                    const square = this.dom.getGridSquare(index);
+                    
+                    if (square) {
+                        square.textContent = letter;
+                        square.classList.add('filled');
+                    }
+                }
+            }
+        }
+
+        // Update column fill counts to match the debug grid
+        this.updateColumnFillCounts();
+        
+        console.log('✅ Debug grid loaded successfully');
+    }
 }
