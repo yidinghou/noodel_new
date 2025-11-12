@@ -1,72 +1,25 @@
 import { CONFIG } from './config.js';
+import { DictionaryManager } from './DictionaryManager.js';
 
 /**
  * WordResolver class - Detects and validates words on the game grid
  */
 export class WordResolver {
-    constructor(gameState, domCache) {
+    constructor(gameState, domCache, dictionary) {
         this.gameState = gameState;
         this.dom = domCache;
-        this.dictionary = this.initializeDictionary();
+        this.dictionary = dictionary;
     }
 
     /**
-     * Initialize a basic dictionary of valid words (3+ letters)
-     * Can be expanded with a larger word list
+     * Factory method to create a WordResolver with loaded dictionary
+     * @param {Object} gameState - The game state object
+     * @param {Object} domCache - The DOM cache object
+     * @returns {Promise<WordResolver>} A WordResolver instance with loaded dictionary
      */
-    initializeDictionary() {
-        return new Set([
-            // Common 3-letter words
-            'CAT', 'DOG', 'BAT', 'RAT', 'HAT', 'MAT', 'SAT', 'FAT', 'PAT', 'VAT',
-            'BIG', 'DIG', 'FIG', 'PIG', 'WIG', 'JIG', 'RIG', 'GIG',
-            'CAR', 'BAR', 'JAR', 'TAR', 'WAR', 'FAR', 'PAR', 'GAR',
-            'BED', 'RED', 'LED', 'FED', 'WED',
-            'CAN', 'BAN', 'FAN', 'MAN', 'PAN', 'RAN', 'TAN', 'VAN', 'WAN',
-            'THE', 'AND', 'FOR', 'ARE', 'BUT', 'NOT', 'YOU', 'ALL', 'CAN', 'HER',
-            'WAS', 'ONE', 'OUR', 'OUT', 'DAY', 'GET', 'HAS', 'HIM', 'HIS', 'HOW',
-            'ITS', 'MAY', 'NEW', 'NOW', 'OLD', 'SEE', 'TWO', 'WAY', 'WHO', 'BOY',
-            'DID', 'ITS', 'LET', 'PUT', 'SAY', 'SHE', 'TOO', 'USE',
-            'BIG', 'BOX', 'RUN', 'SUN', 'TOP', 'TRY', 'WIN', 'YES',
-            
-            // Common 4-letter words
-            'WORD', 'GAME', 'PLAY', 'TIME', 'YEAR', 'WORK', 'BACK', 'CALL', 'CAME',
-            'COME', 'MAKE', 'TAKE', 'WANT', 'GIVE', 'GOOD', 'HAND', 'HIGH', 'KEEP',
-            'LAST', 'LEFT', 'LIFE', 'LIKE', 'LONG', 'LOOK', 'MADE', 'MANY', 'MORE',
-            'MOST', 'MOVE', 'MUCH', 'NAME', 'NEED', 'NEXT', 'ONLY', 'OVER', 'PART',
-            'SAME', 'SEEM', 'SUCH', 'TELL', 'THAN', 'THAT', 'THEM', 'THEN', 'THEY',
-            'THIS', 'TURN', 'VERY', 'WELL', 'WENT', 'WERE', 'WHAT', 'WHEN', 'WITH',
-            'ALSO', 'AREA', 'AWAY', 'BEST', 'BOTH', 'CASE', 'CITY', 'DOWN', 'EACH',
-            'EVEN', 'FEEL', 'FIND', 'FORM', 'FROM', 'HAVE', 'HERE', 'HOME', 'INTO',
-            'JUST', 'KNOW', 'LATE', 'LESS', 'LINE', 'LIVE', 'MEAN', 'NEAR', 'OPEN',
-            'ONCE', 'PLAN', 'REAL', 'SAID', 'SHOW', 'SOME', 'SOON', 'SURE', 'TAKE',
-            'TEAM', 'THAT', 'TOLD', 'USED', 'WAIT', 'WEEK', 'WENT', 'WILL', 'YOUR',
-            
-            // Common 5-letter words
-            'ABOUT', 'ABOVE', 'AFTER', 'AGAIN', 'ALONG', 'AMONG', 'BELOW', 'BEING',
-            'BLACK', 'BREAK', 'BRING', 'BUILD', 'CARRY', 'CAUSE', 'CHECK', 'CHILD',
-            'CLASS', 'CLEAR', 'CLOSE', 'COULD', 'COVER', 'DOING', 'EARLY', 'ENTER',
-            'EVERY', 'FIELD', 'FIRST', 'FORCE', 'FOUND', 'GIVEN', 'GOING', 'GREAT',
-            'GREEN', 'GROUP', 'HAPPY', 'HEART', 'HOUSE', 'LATER', 'LARGE', 'LEAST',
-            'LEAVE', 'LIGHT', 'LITTLE', 'LOCAL', 'MIGHT', 'MONEY', 'MONTH', 'NEVER',
-            'NIGHT', 'NORTH', 'OFTEN', 'ORDER', 'OTHER', 'PARTY', 'PEACE', 'PLACE',
-            'PLANT', 'POINT', 'POWER', 'PRESS', 'QUITE', 'READY', 'RIGHT', 'ROUND',
-            'SEEMS', 'SHALL', 'SHORT', 'SINCE', 'SMALL', 'SOUND', 'SOUTH', 'SPACE',
-            'SPEAK', 'SPEND', 'STAND', 'START', 'STATE', 'STILL', 'STORY', 'STUDY',
-            'THEIR', 'THERE', 'THESE', 'THING', 'THINK', 'THREE', 'TODAY', 'UNDER',
-            'UNTIL', 'USING', 'VALUE', 'WATCH', 'WATER', 'WHERE', 'WHILE', 'WHITE',
-            'WHOLE', 'WOMAN', 'WORLD', 'WOULD', 'WRITE', 'YEARS', 'YOUNG',
-            
-            // 6+ letter words
-            'BEFORE', 'BETTER', 'CHANGE', 'DURING', 'ENOUGH', 'FAMILY', 'FRIEND',
-            'MEMBER', 'NUMBER', 'PEOPLE', 'PERSON', 'PLEASE', 'PROBLEM', 'REASON',
-            'SCHOOL', 'SECOND', 'SHOULD', 'SYSTEM', 'THROUGH', 'NOODEL', 'LETTER',
-            'ALWAYS', 'AROUND', 'BECAME', 'BECOME', 'BEFORE', 'BEHIND', 'CALLED',
-            'COMING', 'COURSE', 'DURING', 'ENOUGH', 'FATHER', 'FOLLOW', 'GROUND',
-            'HAVING', 'ISLAND', 'ITSELF', 'MAKING', 'MATTER', 'MOTHER', 'MOVING',
-            'RATHER', 'REALLY', 'RESULT', 'SAYING', 'SECOND', 'SHOULD', 'SIMPLE',
-            'SINGLE', 'SOCIAL', 'STRONG', 'TAKING', 'THINGS', 'TOWARD', 'TRYING',
-            'TURNED', 'UNLESS', 'WANTED', 'WITHIN', 'WONDER', 'WORKING', 'WRITING'
-        ]);
+    static async create(gameState, domCache) {
+        const dictionary = await DictionaryManager.loadDictionaries();
+        return new WordResolver(gameState, domCache, dictionary);
     }
 
     /**
@@ -198,10 +151,14 @@ export class WordResolver {
             positions.push({ row: currentRow, col: currentCol, index });
         }
         
+        // Fetch definition from dictionary (or use placeholder if not found)
+        const definition = this.dictionary.get(word) || 'No definition available';
+        
         return {
             word,
             positions,
-            direction: this.getDirectionName(rowDelta, colDelta)
+            direction: this.getDirectionName(rowDelta, colDelta),
+            definition
         };
     }
 

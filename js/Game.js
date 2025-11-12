@@ -21,13 +21,18 @@ export class Game {
         this.letters = new LetterController(this.state, this.dom);
         this.animator = new AnimationController(this.dom);
         this.score = new ScoreController(this.state, this.dom);
-        this.wordResolver = new WordResolver(this.state, this.dom);
+        this.wordResolver = null; // Will be initialized asynchronously
         
         // Flag to prevent multiple simultaneous word checks
         this.isProcessingWords = false;
     }
 
     async init() {
+        // Load dictionary and initialize WordResolver
+        console.log('Loading dictionary...');
+        this.wordResolver = await WordResolver.create(this.state, this.dom);
+        console.log('Dictionary loaded successfully!');
+        
         // Setup grid and letters
         this.grid.generate();
         this.letters.initialize();
@@ -39,7 +44,8 @@ export class Game {
         
         if (CONFIG.DEBUG) {
             // DEBUG mode: Skip animations and show UI immediately
-            this.score.addWord('NOODEL', 'The name of this game!');
+            const noodelDef = this.wordResolver.dictionary.get('NOODEL') || 'A word game where players create words by dropping letters onto the board. Click columns to place each letter and build your vocabulary!';
+            this.score.addWord('NOODEL', noodelDef);
             this.dom.controls.classList.add('visible');
             this.dom.stats.classList.add('visible');
         } else {
@@ -48,7 +54,8 @@ export class Game {
             await this.animator.shakeAllTitleLetters();
             
             // Add initial word and show UI
-            this.score.addWord('NOODEL', 'The name of this game!');
+            const noodelDef = this.wordResolver.dictionary.get('NOODEL') || 'A word game where players create words by dropping letters onto the board. Click columns to place each letter and build your vocabulary!';
+            this.score.addWord('NOODEL', noodelDef);
             this.animator.showControlsAndStats();
         }
         
@@ -147,7 +154,7 @@ export class Game {
                     foundWords.forEach(wordData => {
                         this.score.addWord(
                             wordData.word,
-                            `${wordData.direction} - ${wordData.word.length} letters`
+                            wordData.definition
                         );
                     });
                     

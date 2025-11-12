@@ -8,10 +8,10 @@ export class ScoreController {
     }
 
     // Add word to the words list
-    addWord(word, description) {
+    addWord(word, definition) {
         const wordItem = document.createElement('div');
         wordItem.className = 'word-item';
-        wordItem.innerHTML = `<strong>${word}</strong> <small>${description}</small>`;
+        wordItem.innerHTML = `<strong>${word}</strong> <small>${definition}</small>`;
         this.dom.wordsList.appendChild(wordItem);
         
         // Update score
