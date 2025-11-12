@@ -1,0 +1,154 @@
+/* BASE STYLES & DESIGN TOKENS
+   ============================
+   Foundation: resets, CSS variables (design tokens), and global utilities.
+   Load this file FIRST before all other stylesheets.
+*/
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Design Tokens - Single Source of Truth */
+:root {
+    /* Colors - Primitives (raw values) */
+    --color-white: #ffffff;
+    --color-gray-dark: #333;
+    --color-gray-medium: #888;
+    --color-gray-light: #f8f9fa;
+    --color-gray-border: #ddd;
+    --color-gray-bg: #e8e8e8;
+    --color-blue-light: #79b9ed;
+    --color-blue-primary: #1976D2;
+    --color-blue-pale: #e3f2fd;
+    --color-blue-pale-2: #bbdefb;
+    --color-orange-primary: #FF9800;
+    --color-orange-dark: #F57C00;
+    --color-orange-light: #FFB74D;
+    --color-green: #4CAF50;
+
+    /* Colors - Semantic (purpose-based) */
+    --color-bg-body: var(--color-white);
+    --color-bg-card: rgba(255, 255, 255, 0.95);
+    --color-bg-stats: var(--color-gray-light);
+    --color-bg-grid: var(--color-gray-bg);
+    --color-text-primary: var(--color-gray-dark);
+    --color-text-secondary: #666;
+    --color-text-muted: var(--color-gray-medium);
+    --color-text-white: var(--color-white);
+    --color-border-primary: var(--color-gray-dark);
+    --color-border-light: var(--color-gray-border);
+    --color-accent-primary: var(--color-blue-primary);
+    --color-accent-secondary: var(--color-orange-primary);
+    --color-next-up: var(--color-orange-light);
+
+    /* Sizing */
+    --size-letter-block: clamp(30px, 4vw, 38px);
+    --size-font-letter: clamp(16px, 2vw, 20px);
+    --size-font-button: clamp(10px, 1.2vw, 12px);
+    --size-font-stat-value: clamp(14px, 2vw, 18px);
+    --size-font-stat-label: clamp(11px, 1.3vw, 12px);
+    --size-font-grid: clamp(16px, 2vw, 24px);
+    --size-border-radius-card: 20px;
+    --size-border-radius-button: 50px;
+    --size-border-radius-block: 10px;
+    --size-border-radius-grid: 12px;
+    --size-border-radius-stat: 15px;
+    --size-border-radius-small: 6px;
+    --size-gap-standard: 8px;
+    --size-gap-large: 20px;
+    --size-padding-card: 15px;
+    --size-padding-made-words: 30px;
+
+    /* Shadows */
+    --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.1);
+    --shadow-block: 0 4px 8px rgba(0, 0, 0, 0.2);
+    --shadow-button: 0 4px 15px rgba(0, 0, 0, 0.2);
+    --shadow-next-up: 0 8px 22px rgba(255, 152, 0, 0.22);
+
+    /* Transitions & Animations */
+    --transition-standard: 0.6s ease-out;
+    --transition-quick: 0.3s;
+    --transition-fast: 0.2s;
+    --animation-duration-drop: 0.6s;
+    --animation-duration-shake: 0.4s;
+    --animation-duration-pulse: 1.2s;
+}
+
+body {
+    background: var(--color-bg-body);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-gap-large);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Shared animation keyframes */
+@keyframes dropIn {
+    from {
+        transform: translateY(-300px) rotate(var(--rotation));
+    }
+    to {
+        transform: translateY(0) rotate(var(--rotation));
+    }
+}
+
+@keyframes shake {
+    0% {
+        transform: translateY(0) translateX(0) rotate(var(--rotation));
+    }
+    25% {
+        transform: translateY(0) translateX(-5px) rotate(var(--rotation));
+    }
+    50% {
+        transform: translateY(0) translateX(5px) rotate(var(--rotation));
+    }
+    75% {
+        transform: translateY(0) translateX(-5px) rotate(var(--rotation));
+    }
+    100% {
+        transform: translateY(0) translateX(0) rotate(var(--rotation));
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes gridSquareDrop {
+    from {
+        transform: translateY(-500px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes previewPulse {
+    0% {
+        transform: scale(1.15);
+    }
+    50% {
+        transform: scale(1.22);
+    }
+    100% {
+        transform: scale(1.15);
+    }
+}
