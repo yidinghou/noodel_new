@@ -1,7 +1,7 @@
 // Configuration constants
 export const CONFIG = {
     // DEBUG MODE: Set to true to skip intro animations for faster testing
-    DEBUG: true,
+    DEBUG: false,
     
     // DEBUG GRID: Set to true to pre-populate grid with test pattern
     DEBUG_GRID_ENABLED: true,
@@ -13,8 +13,9 @@ export const CONFIG = {
     },
     GAME: {
         INITIAL_LETTERS: 100,
-        PREVIEW_COUNT: 4,
-        ALPHABET: 'CATCATCATCATCATCATCATCATCATCATCATCAT'
+        PREVIEW_COUNT: 4
+        // Note: Alphabet is now generated dynamically using LetterGenerator
+        // based on English letter frequency distribution
     },
     ANIMATION: {
         TITLE_DROP_INTERVAL: 0.25,      // seconds between each title letter drop

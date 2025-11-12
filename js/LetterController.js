@@ -13,8 +13,8 @@ export class LetterController {
     initialize() {
         this.gameState.nextLetters = [];
         for (let i = 0; i < CONFIG.GAME.PREVIEW_COUNT; i++) {
-            if (this.gameState.currentLetterIndex < this.gameState.alphabet.length) {
-                this.gameState.nextLetters.push(this.gameState.alphabet[this.gameState.currentLetterIndex]);
+            if (this.gameState.currentLetterIndex < this.gameState.letterSequence.length) {
+                this.gameState.nextLetters.push(this.gameState.letterSequence[this.gameState.currentLetterIndex]);
                 this.gameState.currentLetterIndex++;
             } else {
                 // No more letters available
@@ -52,9 +52,9 @@ export class LetterController {
         // Remove first letter and add new one at the end
         this.gameState.nextLetters.shift();
         
-        // Check if we've reached the end of the alphabet
-        if (this.gameState.currentLetterIndex < this.gameState.alphabet.length) {
-            this.gameState.nextLetters.push(this.gameState.alphabet[this.gameState.currentLetterIndex]);
+        // Check if we've reached the end of the letter sequence
+        if (this.gameState.currentLetterIndex < this.gameState.letterSequence.length) {
+            this.gameState.nextLetters.push(this.gameState.letterSequence[this.gameState.currentLetterIndex]);
             this.gameState.currentLetterIndex++;
         } else {
             // No more letters - push empty string
