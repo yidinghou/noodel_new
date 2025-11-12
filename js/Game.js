@@ -27,13 +27,20 @@ export class Game {
         this.grid.generate();
         this.letters.initialize();
         
-        // Run initial animations
-        await this.animator.randomizeTitleLetterAnimations();
-        await this.animator.shakeAllTitleLetters();
-        
-        // Add initial word and show UI
-        this.score.addWord('NOODEL', 'The name of this game!');
-        this.animator.showControlsAndStats();
+        if (CONFIG.DEBUG) {
+            // DEBUG mode: Skip animations and show UI immediately
+            this.score.addWord('NOODEL', 'The name of this game!');
+            this.dom.controls.classList.add('visible');
+            this.dom.stats.classList.add('visible');
+        } else {
+            // Normal mode: Run initial animations
+            await this.animator.randomizeTitleLetterAnimations();
+            await this.animator.shakeAllTitleLetters();
+            
+            // Add initial word and show UI
+            this.score.addWord('NOODEL', 'The name of this game!');
+            this.animator.showControlsAndStats();
+        }
         
         // Setup event listeners
         this.setupEventListeners();

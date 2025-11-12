@@ -1,5 +1,7 @@
 // Configuration constants
 export const CONFIG = {
+    // DEBUG MODE: Set to true to skip intro animations for faster testing
+    DEBUG: true,
     GRID: {
         ROWS: 6,
         COLUMNS: 7,
@@ -16,9 +18,10 @@ export const CONFIG = {
         TITLE_SHAKE_DURATION: 400,      // milliseconds for shake animation
         CONTROLS_DELAY: 200,             // milliseconds before showing controls
         STATS_DELAY: 500,                // milliseconds before showing stats
-        LETTER_STAGE_1_DELAY: 300,      // milliseconds for stage 1 (move to top)
-        LETTER_STAGE_2_DELAY: 800,      // milliseconds for stage 2+3 (drop + settle)
-        LETTER_DROP_START: 300          // milliseconds before starting drop
+        LETTER_STAGE_1_DELAY: 200,      // milliseconds for stage 1 (move to top)
+        LETTER_STAGE_2_DELAY: 600,      // milliseconds for stage 2+3 (drop + settle)
+        LETTER_DROP_START: 200,         // milliseconds before starting drop
+        LETTER_DROP_DURATION: 300       // milliseconds for the actual drop transition
     },
     COLORS: {
         TITLE_ACTIVE: '#4CAF50'
