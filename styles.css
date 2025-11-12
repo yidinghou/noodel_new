@@ -84,7 +84,7 @@ body {
 
 .start-btn {
     flex: 2;
-    background: linear-gradient(145deg, #2196F3, #1976D2);
+    background: linear-gradient(145deg, #79b9ed, #1976D2);
     color: white;
     border: none;
     padding: 10px 20px;
@@ -193,8 +193,13 @@ body {
 }
 
 .preview-letter-block.next-up {
+    /* Highlight the "next-up" tile with a pulse + glow effect */
     border-color: #FF9800;
-    transform: scale(1.1);
+    transform: scale(1.15);
+    background: #FFB74D; /* warm orange */
+    color: #222;
+    box-shadow: 0 8px 22px rgba(255,152,0,0.22);
+    animation: previewPulse 1.2s ease-in-out infinite;
 }
 
 .game-grid {
@@ -340,4 +345,10 @@ body {
         transform: translateY(0);
         opacity: 1;
     }
+}
+
+@keyframes previewPulse {
+    0% { transform: scale(1.15); }
+    50% { transform: scale(1.22); }
+    100% { transform: scale(1.15); }
 }
