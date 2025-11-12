@@ -6,6 +6,8 @@ import { GridController } from './GridController.js';
 import { LetterController } from './LetterController.js';
 import { ScoreController } from './ScoreController.js';
 import { WordResolver } from './WordResolver.js';
+import { WordItem } from './WordItem.js';
+import { calculateWordScore } from './ScoringUtils.js';
 
 /**
  * Game class - Main orchestrator that coordinates all controllers
@@ -44,23 +46,32 @@ export class Game {
         
         if (CONFIG.DEBUG) {
             // DEBUG mode: Skip animations and show UI immediately
-            const noodelDef = this.wordResolver.dictionary.get('NOODEL') || 'A word game where players create words by dropping letters onto the board. Click columns to place each letter and build your vocabulary!';
-            this.score.addWord('NOODEL', noodelDef);
+            await this.commonSetup();
             this.dom.controls.classList.add('visible');
             this.dom.stats.classList.add('visible');
         } else {
-            // Normal mode: Run initial animations
+            // Normal mode: Run NOODEL falling animation first
             await this.animator.randomizeTitleLetterAnimations();
-            await this.animator.shakeAllTitleLetters();
             
-            // Add initial word and show UI
-            const noodelDef = this.wordResolver.dictionary.get('NOODEL') || 'A word game where players create words by dropping letters onto the board. Click columns to place each letter and build your vocabulary!';
-            this.score.addWord('NOODEL', noodelDef);
+            // Then do common setup (shake + add word)
+            await this.commonSetup();
             this.animator.showControlsAndStats();
         }
         
         // Setup event listeners
         this.setupEventListeners();
+    }
+
+    // Common setup for both init and reset - shakes NOODEL and adds word
+    async commonSetup() {
+        // Shake NOODEL title letters
+        await this.animator.shakeAllTitleLetters();
+        
+        // Add NOODEL word to made words list
+        const noodelDef = this.wordResolver.dictionary.get('NOODEL') || 'A word game where players create words by dropping letters onto the board. Click columns to place each letter and build your vocabulary!';
+        const noodelScore = calculateWordScore('NOODEL'); // Calculate using Scrabble values + length bonus
+        const noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
+        this.score.addWord(noodelItem);
     }
 
     setupEventListeners() {
@@ -91,8 +102,32 @@ export class Game {
         this.grid.addClickHandlers((e) => this.handleSquareClick(e));
     }
 
-    reset() {
-        location.reload();
+    async reset() {
+        // Reset game state (score, letters, grid data)
+        this.state.reset();
+        
+        // Clear and regenerate the grid
+        this.dom.grid.innerHTML = '';
+        this.grid.generate();
+        
+        // Clear words list and reset score controller
+        this.dom.wordsList.innerHTML = '';
+        this.score.madeWords = [];
+        
+        // Update UI displays
+        this.dom.scoreValue.textContent = this.state.score;
+        this.dom.lettersRemaining.textContent = this.state.lettersRemaining;
+        
+        // Generate new letter sequence and display
+        this.letters.initialize();
+        this.letters.display();
+        
+        // Run common setup (shake NOODEL + add word)
+        await this.commonSetup();
+        
+        // Keep game in started state and re-add click handlers
+        this.state.started = true;
+        this.grid.addClickHandlers((e) => this.handleSquareClick(e));
     }
 
     handleSquareClick(e) {
@@ -152,10 +187,9 @@ export class Game {
                     
                     // Add all words to made words list
                     foundWords.forEach(wordData => {
-                        this.score.addWord(
-                            wordData.word,
-                            wordData.definition
-                        );
+                        const points = calculateWordScore(wordData.word); // Calculate points using Scrabble values + length bonus
+                        const wordItem = new WordItem(wordData.word, wordData.definition, points);
+                        this.score.addWord(wordItem);
                     });
                     
                     // Clear all word cells after animation

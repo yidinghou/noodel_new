@@ -46,6 +46,14 @@ export class AnimationController {
             letterBlocks.forEach(block => {
                 block.style.backgroundColor = CONFIG.COLORS.TITLE_ACTIVE;
                 block.style.animationDelay = '0s'; // Reset delay so all shake together
+                
+                // Remove shaking class first (in case it was already applied)
+                block.classList.remove('shaking');
+                
+                // Force reflow to restart animation
+                block.offsetHeight;
+                
+                // Add shaking class to trigger animation
                 block.classList.add('shaking');
             });
             

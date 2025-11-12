@@ -1,5 +1,6 @@
 import { CONFIG } from './config.js';
 import { LetterGenerator } from './LetterGenerator.js';
+import { calculateWordScore } from './ScoringUtils.js';
 
 /**
  * GameState class - Manages all game state data
@@ -9,8 +10,8 @@ export class GameState {
         // Game flow state
         this.started = false;
         
-        // Score tracking
-        this.score = 0;
+        // Score tracking (starts negative to account for NOODEL title word)
+        this.score = -calculateWordScore('NOODEL');
         
         // Letter management
         this.letterSequence = this.generateLetterSequence();  // The actual 100-letter sequence
@@ -83,8 +84,8 @@ export class GameState {
         // Game flow state
         this.started = false;
         
-        // Score tracking
-        this.score = 0;
+        // Score tracking (starts negative to account for NOODEL title word)
+        this.score = -calculateWordScore('NOODEL');
         
         // Letter management - generate fresh sequence
         this.letterSequence = this.generateLetterSequence();
