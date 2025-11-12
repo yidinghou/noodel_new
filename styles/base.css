@@ -46,6 +46,8 @@
     /* Sizing */
     --size-letter-block: clamp(30px, 4vw, 38px);
     --size-font-letter: clamp(16px, 2vw, 20px);
+    --size-title-block: clamp(60px, 8vw, 76px);
+    --size-font-title: clamp(32px, 4vw, 40px);
     --size-font-button: clamp(10px, 1.2vw, 12px);
     --size-font-stat-value: clamp(14px, 2vw, 18px);
     --size-font-stat-label: clamp(11px, 1.3vw, 12px);

@@ -14,18 +14,23 @@
 }
 
 .title {
-    text-align: center;
+    display: flex;
+    justify-content: center;
+    gap: clamp(6px, 2vw, 12px);
     margin-bottom: 10px;
+    padding: 0 10px;
 }
 
 /* Letter Block (NOODEL title animation) */
 .letter-block {
-    display: inline-flex;
-    width: var(--size-letter-block);
-    height: var(--size-letter-block);
+    display: flex;
+    flex: 0 1 auto;
+    width: clamp(40px, 14vw, 76px);
+    aspect-ratio: 1 / 1;
+    min-width: 40px;
     background-color: var(--color-text-muted);
     color: var(--color-text-white);
-    font-size: var(--size-font-letter);
+    font-size: clamp(20px, 7vw, 40px);
     font-weight: bold;
     border: 2px solid var(--color-border-primary);
     border-radius: var(--size-border-radius-block);
