@@ -29,7 +29,7 @@ export class LetterController {
         
         this.gameState.nextLetters.forEach((letter, index) => {
             const letterBlock = document.createElement('div');
-            letterBlock.className = 'preview-letter-block';
+            letterBlock.className = 'block-base preview-letter-block';
             
             // Check if letter is empty (no more letters remaining)
             if (!letter || letter === '' || letter === null || letter === undefined) {

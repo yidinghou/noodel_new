@@ -46,6 +46,8 @@
     /* Sizing */
     --size-letter-block: clamp(30px, 4vw, 38px);
     --size-font-letter: clamp(16px, 2vw, 20px);
+    --size-title-block: clamp(60px, 8vw, 76px);
+    --size-font-title: clamp(32px, 4vw, 40px);
     --size-font-button: clamp(10px, 1.2vw, 12px);
     --size-font-stat-value: clamp(14px, 2vw, 18px);
     --size-font-stat-label: clamp(11px, 1.3vw, 12px);
@@ -89,6 +91,18 @@ body {
     gap: var(--size-gap-large);
     max-width: 1400px;
     margin: 0 auto;
+}
+
+/* Base Block - Common foundation for square/block elements */
+.block-base {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border-radius: var(--size-border-radius-block);
+    transition: transform var(--transition-quick);
+    box-sizing: border-box;
 }
 
 /* Shared animation keyframes */
