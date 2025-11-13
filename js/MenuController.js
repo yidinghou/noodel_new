@@ -41,16 +41,17 @@ export class MenuController {
     }
 
     /**
-     * Show the menu by displaying button words in the grid with drop animation
+     * Show the menu by displaying button words in the grid
+     * @param {boolean} useFlip - If true, uses flip animation instead of drop (for reset)
      */
-    show() {
+    show(useFlip = false) {
         this.isMenuActive = true;
         
         // Clear the grid first
         const squares = this.dom.getAllGridSquares();
         squares.forEach(square => {
             square.textContent = '';
-            square.classList.remove('filled', 'menu-button', 'menu-start', 'menu-login', 'menu-more', 'menu-arrow');
+            square.classList.remove('filled', 'menu-button', 'menu-start', 'menu-login', 'menu-more', 'menu-arrow', 'flipping');
         });
         
         // Collect all menu button data (square, letter, position)
@@ -62,19 +63,29 @@ export class MenuController {
             menuButtons.push(...buttonData);
         });
         
-        // Animate buttons dropping in with randomized order
-        this.animateMenuDrop(menuButtons);
-        
-        // Add click handlers after all animations complete
-        // Calculate total animation time: (number of buttons × interval) + drop duration
-        const dropInterval = 80;
-        const dropDuration = 420;
-        const totalAnimationTime = (menuButtons.length * dropInterval) + dropDuration;
-        
-        setTimeout(() => {
-            console.log('Adding menu click handlers...');
-            this.addMenuClickHandlers();
-        }, totalAnimationTime);
+        // Choose animation based on mode
+        if (useFlip) {
+            this.animateMenuFlip(menuButtons);
+            // Flip animation is synchronous and shorter (0.4s)
+            setTimeout(() => {
+                console.log('Adding menu click handlers...');
+                this.addMenuClickHandlers();
+            }, 450);
+        } else {
+            // Animate buttons dropping in with randomized order
+            this.animateMenuDrop(menuButtons);
+            
+            // Add click handlers after all animations complete
+            // Calculate total animation time: (number of buttons × interval) + drop duration
+            const dropInterval = 80;
+            const dropDuration = 420;
+            const totalAnimationTime = (menuButtons.length * dropInterval) + dropDuration;
+            
+            setTimeout(() => {
+                console.log('Adding menu click handlers...');
+                this.addMenuClickHandlers();
+            }, totalAnimationTime);
+        }
     }
 
     /**
@@ -124,6 +135,23 @@ export class MenuController {
         }
         
         return buttonData;
+    }
+
+    /**
+     * Animate menu buttons flipping in place (for reset, synchronized with title shake)
+     */
+    animateMenuFlip(menuButtons) {
+        // All buttons flip in simultaneously (no randomization)
+        menuButtons.forEach((buttonData) => {
+            const { square, letter, className, word, isArrow } = buttonData;
+            
+            // Immediately place content and classes
+            square.textContent = letter;
+            square.classList.add('filled', isArrow ? 'menu-arrow' : 'menu-button', className, 'flipping');
+            if (!isArrow) {
+                square.dataset.menuButton = word;
+            }
+        });
     }
 
     /**

@@ -159,13 +159,19 @@ export class Game {
         this.dom.preview.classList.remove('visible');
         this.dom.startBtn.textContent = '🎮';
         
-        // Run common setup (shake NOODEL + add word)
-        await this.commonSetup();
-        
-        // Show menu again after reset
+        // Shake NOODEL title AND flip menu in simultaneously
         if (this.menu) {
-            setTimeout(() => this.menu.show(), 500);
+            this.menu.show(true); // Pass true to use flip animation
         }
+        
+        // Then shake title and add NOODEL word
+        await this.animator.shakeAllTitleLetters();
+        
+        // Add NOODEL word to made words list
+        const noodelDef = this.wordResolver.dictionary.get('NOODEL') || 'A word game where players create words by dropping letters onto the board. Click columns to place each letter and build your vocabulary!';
+        const noodelScore = calculateWordScore('NOODEL');
+        const noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
+        this.score.addWord(noodelItem);
     }
 
     handleSquareClick(e) {
