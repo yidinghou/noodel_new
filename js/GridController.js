@@ -13,7 +13,7 @@ export class GridController {
     generate() {
         for (let i = 0; i < CONFIG.GRID.TOTAL_CELLS; i++) {
             const square = document.createElement('div');
-            square.className = 'grid-square';
+            square.className = 'block-base grid-square';
             square.dataset.index = i;
             square.dataset.column = i % CONFIG.GRID.COLUMNS;
             square.dataset.row = Math.floor(i / CONFIG.GRID.COLUMNS);

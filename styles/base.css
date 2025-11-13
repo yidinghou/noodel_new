@@ -93,6 +93,18 @@ body {
     margin: 0 auto;
 }
 
+/* Base Block - Common foundation for square/block elements */
+.block-base {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border-radius: var(--size-border-radius-block);
+    transition: transform var(--transition-quick);
+    box-sizing: border-box;
+}
+
 /* Shared animation keyframes */
 @keyframes dropIn {
     from {
