@@ -181,41 +181,9 @@
     background: #9a9a9a;
     color: #ffffff;
     border: 2px solid #6a6a6a;
-    transition: all var(--transition-fast);
+    transition: background var(--transition-fast);
 }
 
 .grid-square.menu-button:hover {
-    transform: scale(1.08);
     background: #858585;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
-}
-
-/* START button - Slightly lighter grey */
-.grid-square.menu-start {
-    background: #a0a0a0;
-    border-color: #707070;
-}
-
-.grid-square.menu-start:hover {
-    background: #8d8d8d;
-}
-
-/* LOGIN button - Medium grey */
-.grid-square.menu-login {
-    background: #8a8a8a;
-    border-color: #656565;
-}
-
-.grid-square.menu-login:hover {
-    background: #787878;
-}
-
-/* MORE button - Darker grey */
-.grid-square.menu-more {
-    background: #757575;
-    border-color: #5a5a5a;
-}
-
-.grid-square.menu-more:hover {
-    background: #636363;
 }
