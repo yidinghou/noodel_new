@@ -61,10 +61,16 @@ export class MenuController {
         // Animate buttons dropping in with randomized order
         this.animateMenuDrop(menuButtons);
         
-        // Add click handlers after animation starts
+        // Add click handlers after all animations complete
+        // Calculate total animation time: (number of buttons × interval) + drop duration
+        const dropInterval = 80;
+        const dropDuration = 420;
+        const totalAnimationTime = (menuButtons.length * dropInterval) + dropDuration;
+        
         setTimeout(() => {
+            console.log('Adding menu click handlers...');
             this.addMenuClickHandlers();
-        }, 100);
+        }, totalAnimationTime);
     }
 
     /**
@@ -166,31 +172,43 @@ export class MenuController {
      */
     addMenuClickHandlers() {
         const squares = this.dom.getAllGridSquares();
+        let handlerCount = 0;
         
         squares.forEach(square => {
             if (square.classList.contains('menu-button')) {
                 square.addEventListener('click', (e) => this.handleMenuClick(e));
+                handlerCount++;
             }
         });
+        
+        console.log(`Added ${handlerCount} menu click handlers`);
     }
 
     /**
      * Handle menu button clicks
      */
     handleMenuClick(e) {
-        if (!this.isMenuActive) return;
+        console.log('Menu click detected', e.target.textContent, e.target.dataset.menuButton);
+        
+        if (!this.isMenuActive) {
+            console.log('Menu not active, ignoring click');
+            return;
+        }
         
         const buttonType = e.target.dataset.menuButton;
         
         switch (buttonType) {
             case 'start':
+                console.log('Starting game...');
                 this.hide();
                 if (this.onStart) this.onStart();
                 break;
             case 'login':
+                console.log('Login clicked...');
                 if (this.onLogin) this.onLogin();
                 break;
             case 'more':
+                console.log('More clicked...');
                 if (this.onMore) this.onMore();
                 break;
         }
