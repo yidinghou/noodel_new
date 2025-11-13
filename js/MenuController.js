@@ -19,19 +19,23 @@ export class MenuController {
                 word: 'START',
                 row: 1,
                 startCol: 1,
-                className: 'menu-start'
+                className: 'menu-start',
+                hasArrow: true,
+                arrowCol: 0
             },
             {
                 word: 'LOGIN',
                 row: 3,
                 startCol: 1,
-                className: 'menu-login'
+                className: 'menu-login',
+                hasArrow: false
             },
             {
                 word: 'MORE',
                 row: 5,
                 startCol: 1.5,
-                className: 'menu-more'
+                className: 'menu-more',
+                hasArrow: false
             }
         ];
     }
@@ -46,7 +50,7 @@ export class MenuController {
         const squares = this.dom.getAllGridSquares();
         squares.forEach(square => {
             square.textContent = '';
-            square.classList.remove('filled', 'menu-button', 'menu-start', 'menu-login', 'menu-more');
+            square.classList.remove('filled', 'menu-button', 'menu-start', 'menu-login', 'menu-more', 'menu-arrow');
         });
         
         // Collect all menu button data (square, letter, position)
@@ -77,9 +81,29 @@ export class MenuController {
      * Collect menu button data for animation
      */
     collectMenuButtonData(menuItem) {
-        const { word, row, startCol, className } = menuItem;
+        const { word, row, startCol, className, hasArrow, arrowCol } = menuItem;
         const buttonData = [];
         
+        // Add arrow if specified
+        if (hasArrow && arrowCol !== undefined) {
+            const arrowIndex = row * CONFIG.GRID.COLUMNS + arrowCol;
+            const arrowSquare = this.dom.getGridSquare(arrowIndex);
+            
+            if (arrowSquare) {
+                buttonData.push({
+                    square: arrowSquare,
+                    letter: '→',
+                    className: 'menu-arrow',
+                    word: word.toLowerCase(),
+                    index: arrowIndex,
+                    row: row,
+                    col: arrowCol,
+                    isArrow: true
+                });
+            }
+        }
+        
+        // Add word letters
         for (let i = 0; i < word.length; i++) {
             const col = Math.floor(startCol + i);
             const index = row * CONFIG.GRID.COLUMNS + col;
@@ -93,7 +117,8 @@ export class MenuController {
                     word: word.toLowerCase(),
                     index: index,
                     row: row,
-                    col: col
+                    col: col,
+                    isArrow: false
                 });
             }
         }
@@ -220,12 +245,12 @@ export class MenuController {
     hide() {
         this.isMenuActive = false;
         
-        // Clear all menu buttons from the grid
+        // Clear all menu buttons and arrows from the grid
         const squares = this.dom.getAllGridSquares();
         squares.forEach(square => {
-            if (square.classList.contains('menu-button')) {
+            if (square.classList.contains('menu-button') || square.classList.contains('menu-arrow')) {
                 square.textContent = '';
-                square.classList.remove('filled', 'menu-button', 'menu-start', 'menu-login', 'menu-more');
+                square.classList.remove('filled', 'menu-button', 'menu-start', 'menu-login', 'menu-more', 'menu-arrow');
                 delete square.dataset.menuButton;
             }
         });

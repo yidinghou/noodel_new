@@ -192,3 +192,29 @@
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     outline-color: rgba(106, 106, 106, 0.8);
 }
+
+/* Menu Arrow - Pulsating indicator */
+.grid-square.menu-arrow {
+    cursor: pointer;
+    font-weight: bold;
+    font-size: clamp(24px, 3vw, 32px);
+    background: rgba(154, 154, 154, 0.3);
+    color: #ffffff;
+    border: 2px solid #6a6a6a;
+    animation: menuArrowPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes menuArrowPulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+    50% {
+        transform: scale(1.15);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+}
