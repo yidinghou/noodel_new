@@ -66,11 +66,14 @@ export class MenuController {
         // Choose animation based on mode
         if (useFlip) {
             this.animateMenuFlip(menuButtons);
-            // Flip animation is synchronous and shorter (0.4s)
+            // Flip animation with stagger: (buttons × interval) + flip duration
+            const flipInterval = 40;
+            const flipDuration = 400;
+            const totalFlipTime = (menuButtons.length * flipInterval) + flipDuration;
             setTimeout(() => {
                 console.log('Adding menu click handlers...');
                 this.addMenuClickHandlers();
-            }, 450);
+            }, totalFlipTime);
         } else {
             // Animate buttons dropping in with randomized order
             this.animateMenuDrop(menuButtons);
@@ -141,16 +144,29 @@ export class MenuController {
      * Animate menu buttons flipping in place (for reset, synchronized with title shake)
      */
     animateMenuFlip(menuButtons) {
-        // All buttons flip in simultaneously (no randomization)
-        menuButtons.forEach((buttonData) => {
-            const { square, letter, className, word, isArrow } = buttonData;
+        // Randomize flip order
+        const shuffled = [...menuButtons];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        
+        // Flip each button with a staggered delay
+        const flipInterval = 40; // ms between each flip (faster than drop)
+        
+        shuffled.forEach((buttonData, flipOrder) => {
+            const delay = flipOrder * flipInterval;
             
-            // Immediately place content and classes
-            square.textContent = letter;
-            square.classList.add('filled', isArrow ? 'menu-arrow' : 'menu-button', className, 'flipping');
-            if (!isArrow) {
-                square.dataset.menuButton = word;
-            }
+            setTimeout(() => {
+                const { square, letter, className, word, isArrow } = buttonData;
+                
+                // Place content and classes with flip animation
+                square.textContent = letter;
+                square.classList.add('filled', isArrow ? 'menu-arrow' : 'menu-button', className, 'flipping');
+                if (!isArrow) {
+                    square.dataset.menuButton = word;
+                }
+            }, delay);
         });
     }
 
