@@ -82,6 +82,62 @@ export class AnimationController {
         }, CONFIG.ANIMATION.STATS_DELAY);
     }
 
+    // Animate NOODEL word dropping from stats area to made words section
+    animateNoodelWordDrop(wordItem, onComplete) {
+        return new Promise((resolve) => {
+            // Get positions
+            const statsRect = this.dom.stats.getBoundingClientRect();
+            const madeWordsRect = this.dom.wordsList.getBoundingClientRect();
+            
+            // Create word item overlay (matching made-words style)
+            const overlay = document.createElement('div');
+            overlay.className = 'word-item word-item-dropping';
+            overlay.innerHTML = `<strong>${wordItem.text}</strong> <small>(${wordItem.points} pts)</small> <span>${wordItem.definition}</span>`;
+            
+            // Position above stats div - match the full container width (words list takes full width of parent)
+            overlay.style.position = 'fixed';
+            overlay.style.left = `${madeWordsRect.left}px`;
+            overlay.style.top = `${statsRect.top}px`; // Above stats
+            overlay.style.width = `${madeWordsRect.width}px`; // Full width to match actual word items
+            overlay.style.zIndex = '100';
+            overlay.style.opacity = '0';
+            overlay.style.boxSizing = 'border-box'; // Include padding in width
+            
+            document.body.appendChild(overlay);
+            
+            // Force reflow
+            overlay.offsetHeight;
+            
+            // Fade in at starting position
+            setTimeout(() => {
+                overlay.style.transition = 'opacity 0.3s ease-out';
+                overlay.style.opacity = '1';
+            }, 10);
+            
+            // Start drop after fade in and linger time (ease-out instead of bounce)
+            setTimeout(() => {
+                overlay.style.transition = 'top 0.8s ease-out';
+                overlay.style.top = `${madeWordsRect.top}px`;
+            }, 1000);
+            
+            // After drop completes, remove overlay and add to actual list
+            setTimeout(() => {
+                document.body.removeChild(overlay);
+                
+                // Add to actual made words list
+                if (onComplete) {
+                    onComplete();
+                }
+                
+                // Show stats after word settles
+                setTimeout(() => {
+                    this.dom.stats.classList.add('visible');
+                    resolve();
+                }, 200);
+            }, 2050);
+        });
+    }
+
     // Drop letter in column with three-stage animation
     dropLetterInColumn(column, letter, targetRow, onComplete) {
         // Get the next-up letter block position

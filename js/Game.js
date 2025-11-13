@@ -63,14 +63,21 @@ export class Game {
             // Normal mode: Run NOODEL falling animation first
             await this.animator.randomizeTitleLetterAnimations();
             
-            // Then do common setup (shake + add word)
-            await this.commonSetup();
+            // Shake NOODEL title
+            await this.animator.shakeAllTitleLetters();
             
-            // Show stats
-            this.animator.showStats();
+            // Create NOODEL word item
+            const noodelDef = this.wordResolver.dictionary.get('NOODEL') || 'Click Grid, Drop Letters, Make Words.';
+            const noodelScore = calculateWordScore('NOODEL');
+            const noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
             
-            // Show menu after stats appear
-            setTimeout(() => this.menu.show(), 800);
+            // Animate word dropping from above stats to made words section
+            await this.animator.animateNoodelWordDrop(noodelItem, () => {
+                this.score.addWord(noodelItem);
+            });
+            
+            // Show menu after stats appear (stats fade in during word drop)
+            setTimeout(() => this.menu.show(), 400);
         }
         
         // Setup event listeners
@@ -83,7 +90,7 @@ export class Game {
         await this.animator.shakeAllTitleLetters();
         
         // Add NOODEL word to made words list
-        const noodelDef = this.wordResolver.dictionary.get('NOODEL') || 'A word game where players create words by dropping letters onto the board. Click columns to place each letter and build your vocabulary!';
+        const noodelDef = this.wordResolver.dictionary.get('NOODEL') || 'Click Grid, Drop Letters, Make Words.';
         const noodelScore = calculateWordScore('NOODEL'); // Calculate using Scrabble values + length bonus
         const noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
         this.score.addWord(noodelItem);
@@ -168,7 +175,7 @@ export class Game {
         await this.animator.shakeAllTitleLetters();
         
         // Add NOODEL word to made words list
-        const noodelDef = this.wordResolver.dictionary.get('NOODEL') || 'A word game where players create words by dropping letters onto the board. Click columns to place each letter and build your vocabulary!';
+        const noodelDef = this.wordResolver.dictionary.get('NOODEL') || 'Click Grid, Drop Letters, Make Words.';
         const noodelScore = calculateWordScore('NOODEL');
         const noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
         this.score.addWord(noodelItem);
