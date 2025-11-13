@@ -75,6 +75,13 @@ export class AnimationController {
         }, CONFIG.ANIMATION.STATS_DELAY);
     }
 
+    // Show only stats (when using menu instead of controls)
+    showStats() {
+        setTimeout(() => {
+            this.dom.stats.classList.add('visible');
+        }, CONFIG.ANIMATION.STATS_DELAY);
+    }
+
     // Drop letter in column with three-stage animation
     dropLetterInColumn(column, letter, targetRow, onComplete) {
         // Get the next-up letter block position

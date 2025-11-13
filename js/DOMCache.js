@@ -4,6 +4,7 @@
 export class DOMCache {
     constructor() {
         this.grid = document.getElementById('gameGrid');
+        this.gridWrapper = document.querySelector('.game-grid-wrapper');
         this.startBtn = document.getElementById('startBtn');
         this.muteBtn = document.getElementById('muteBtn');
         this.preview = document.getElementById('nextLettersPreview');

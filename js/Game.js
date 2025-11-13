@@ -8,6 +8,7 @@ import { ScoreController } from './ScoreController.js';
 import { WordResolver } from './WordResolver.js';
 import { WordItem } from './WordItem.js';
 import { calculateWordScore } from './ScoringUtils.js';
+import { MenuController } from './MenuController.js';
 
 /**
  * Game class - Main orchestrator that coordinates all controllers
@@ -24,6 +25,14 @@ export class Game {
         this.animator = new AnimationController(this.dom);
         this.score = new ScoreController(this.state, this.dom);
         this.wordResolver = null; // Will be initialized asynchronously
+        
+        // Initialize menu controller with callbacks
+        this.menu = new MenuController(
+            this.dom,
+            () => this.start(),           // onStart callback
+            () => this.handleLogin(),     // onLogin callback
+            () => this.handleMore()       // onMore callback
+        );
         
         // Flag to prevent multiple simultaneous word checks
         this.isProcessingWords = false;
@@ -47,15 +56,21 @@ export class Game {
         if (CONFIG.DEBUG) {
             // DEBUG mode: Skip animations and show UI immediately
             await this.commonSetup();
-            this.dom.controls.classList.add('visible');
             this.dom.stats.classList.add('visible');
+            // Show menu after a short delay
+            setTimeout(() => this.menu.show(), 300);
         } else {
             // Normal mode: Run NOODEL falling animation first
             await this.animator.randomizeTitleLetterAnimations();
             
             // Then do common setup (shake + add word)
             await this.commonSetup();
-            this.animator.showControlsAndStats();
+            
+            // Show stats
+            this.animator.showStats();
+            
+            // Show menu after stats appear
+            setTimeout(() => this.menu.show(), 800);
         }
         
         // Setup event listeners
@@ -94,12 +109,31 @@ export class Game {
         this.state.started = true;
         this.dom.startBtn.textContent = '🔄';
         
+        // Hide menu if it's active
+        if (this.menu && this.menu.isActive()) {
+            this.menu.hide();
+        }
+        
         // Show next letters preview
         this.dom.preview.classList.add('visible');
         this.letters.display();
         
         // Add click handlers to grid squares
         this.grid.addClickHandlers((e) => this.handleSquareClick(e));
+    }
+
+    handleLogin() {
+        console.log('Login button clicked');
+        alert('Login feature coming soon!');
+    }
+
+    handleMore() {
+        console.log('More button clicked');
+        const choice = confirm('More options:\n\nWould you like to reset the game?');
+        if (choice && this.menu) {
+            this.menu.hide();
+            this.reset();
+        }
     }
 
     async reset() {
@@ -118,19 +152,26 @@ export class Game {
         this.dom.scoreValue.textContent = this.state.score;
         this.dom.lettersRemaining.textContent = this.state.lettersRemaining;
         
-        // Generate new letter sequence and display
+        // Generate new letter sequence
         this.letters.initialize();
-        this.letters.display();
+        
+        // Hide preview and reset button
+        this.dom.preview.classList.remove('visible');
+        this.dom.startBtn.textContent = '🎮';
         
         // Run common setup (shake NOODEL + add word)
         await this.commonSetup();
         
-        // Keep game in started state and re-add click handlers
-        this.state.started = true;
-        this.grid.addClickHandlers((e) => this.handleSquareClick(e));
+        // Show menu again after reset
+        if (this.menu) {
+            setTimeout(() => this.menu.show(), 500);
+        }
     }
 
     handleSquareClick(e) {
+        // Don't process clicks when menu is active
+        if (this.menu && this.menu.isActive()) return;
+        
         if (!this.state.started) return;
         
         const column = parseInt(e.target.dataset.column);
