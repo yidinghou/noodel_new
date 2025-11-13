@@ -40,6 +40,6 @@
 
 /* Word Item Dropping Animation (for NOODEL intro) */
 .word-item-dropping {
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     transform-origin: center;
 }

@@ -73,6 +73,15 @@
     font-size: 30px;
 }
 
+/* Menu Preview Spacers (invisible but take up space for drop animation positioning) */
+.preview-letter-block.menu-preview-spacer {
+    background-color: transparent;
+    border: none;
+    box-shadow: none;
+    opacity: 0;
+    pointer-events: none;
+}
+
 /* Game Grid */
 .game-grid {
     display: grid;
@@ -124,12 +133,17 @@
     transition: all var(--transition-quick);
 }
 
-/* Menu dropping overlay */
+/* Menu dropping overlay - matches final menu button appearance */
 .dropping-letter-overlay.menu-dropping {
-    background: #9a9a9a;
+    background: rgba(154, 154, 154, 0.5);
     color: #ffffff;
     border: 2px solid #6a6a6a;
     font-size: clamp(20px, 2.5vw, 28px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    outline: 3px solid rgba(106, 106, 106, 0.6);
+    outline-offset: -1px;
+    transform: scale(0.9);
+    z-index: 150;
 }
 
 /* Dropping Overlay in Motion (animating state) */

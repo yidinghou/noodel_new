@@ -66,17 +66,15 @@ export class Game {
             // Shake NOODEL title
             await this.animator.shakeAllTitleLetters();
             
-            // Create NOODEL word item
-            const noodelDef = this.wordResolver.dictionary.get('NOODEL') || 'Click Grid, Drop Letters, Make Words.';
+            // Create NOODEL word item and store it for later
+            const noodelDef = this.wordResolver.dictionary.get('NOODEL') || CONFIG.GAME_INFO.NOODEL_DEFINITION;
             const noodelScore = calculateWordScore('NOODEL');
-            const noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
+            this.noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
             
-            // Animate word dropping from above stats to made words section
-            await this.animator.animateNoodelWordDrop(noodelItem, () => {
-                this.score.addWord(noodelItem);
-            });
+            // Show word definition overlay above stats (doesn't drop yet)
+            this.animator.showNoodelWordOverlay(this.noodelItem);
             
-            // Show menu after stats appear (stats fade in during word drop)
+            // Show menu after word appears
             setTimeout(() => this.menu.show(), 400);
         }
         
@@ -90,7 +88,7 @@ export class Game {
         await this.animator.shakeAllTitleLetters();
         
         // Add NOODEL word to made words list
-        const noodelDef = this.wordResolver.dictionary.get('NOODEL') || 'Click Grid, Drop Letters, Make Words.';
+        const noodelDef = this.wordResolver.dictionary.get('NOODEL') || CONFIG.GAME_INFO.NOODEL_DEFINITION;
         const noodelScore = calculateWordScore('NOODEL'); // Calculate using Scrabble values + length bonus
         const noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
         this.score.addWord(noodelItem);
@@ -112,13 +110,21 @@ export class Game {
         });
     }
 
-    start() {
+    async start() {
         this.state.started = true;
         this.dom.startBtn.textContent = '🔄';
         
         // Hide menu if it's active
         if (this.menu && this.menu.isActive()) {
             this.menu.hide();
+        }
+        
+        // Drop the NOODEL word and show stats simultaneously
+        if (this.noodelItem) {
+            await this.animator.dropNoodelWordOverlay(() => {
+                this.score.addWord(this.noodelItem);
+            });
+            this.noodelItem = null; // Clear reference after adding
         }
         
         // Show next letters preview
@@ -175,7 +181,7 @@ export class Game {
         await this.animator.shakeAllTitleLetters();
         
         // Add NOODEL word to made words list
-        const noodelDef = this.wordResolver.dictionary.get('NOODEL') || 'Click Grid, Drop Letters, Make Words.';
+        const noodelDef = this.wordResolver.dictionary.get('NOODEL') || CONFIG.GAME_INFO.NOODEL_DEFINITION;
         const noodelScore = calculateWordScore('NOODEL');
         const noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
         this.score.addWord(noodelItem);

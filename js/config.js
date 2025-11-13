@@ -33,6 +33,9 @@ export const CONFIG = {
     COLORS: {
         TITLE_ACTIVE: '#4CAF50'
     },
+    GAME_INFO: {
+        NOODEL_DEFINITION: 'Click Grid, Drop Letters, Make Words.'
+    },
     
     // DEBUG GRID PATTERNS
     // Each row is represented as an array of 7 columns (empty string '' = empty cell)

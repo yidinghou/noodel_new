@@ -54,6 +54,9 @@ export class MenuController {
             square.classList.remove('filled', 'menu-button', 'menu-start', 'menu-login', 'menu-more', 'menu-arrow', 'flipping');
         });
         
+        // Show preview squares (one for each column)
+        this.showColumnPreviews();
+        
         // Collect all menu button data (square, letter, position)
         const menuButtons = [];
         
@@ -89,6 +92,14 @@ export class MenuController {
                 this.addMenuClickHandlers();
             }, totalAnimationTime);
         }
+    }
+
+    /**
+     * Show preview area (spacers are already in HTML, no need to create)
+     */
+    showColumnPreviews() {
+        // Spacers are already in the HTML, just ensure preview is visible
+        this.dom.preview.classList.add('visible');
     }
 
     /**
@@ -197,24 +208,26 @@ export class MenuController {
      * Drop a single menu button into place
      */
     dropMenuButton(buttonData) {
-        const { square, letter, className, word } = buttonData;
+        const { square, letter, className, word, col } = buttonData;
         
         // Get the target square's position
         const targetRect = square.getBoundingClientRect();
         
-        // Calculate starting position (above the grid)
-        const startTop = targetRect.top - 300;
+        // Get the grid to determine starting position
+        const gridRect = this.dom.grid.getBoundingClientRect();
         
-        // Create overlay element for the drop animation
+        // Create overlay element for the drop animation (grid-square sized)
         const overlay = document.createElement('div');
         overlay.className = 'dropping-letter-overlay menu-dropping';
         overlay.textContent = letter;
         
-        // Set initial position above target
+        // Position overlay 10px above the grid top
+        const startTop = gridRect.top - targetRect.height - 10;
+        
         overlay.style.left = `${targetRect.left}px`;
-        overlay.style.top = `${startTop}px`;
-        overlay.style.width = `${targetRect.width}px`;
-        overlay.style.height = `${targetRect.height}px`;
+        overlay.style.top = `${startTop}px`; // Bottom of square is at grid top
+        overlay.style.width = `${targetRect.width}px`; // Grid square width
+        overlay.style.height = `${targetRect.height}px`; // Grid square height
         
         document.body.appendChild(overlay);
         
@@ -298,6 +311,9 @@ export class MenuController {
                 delete square.dataset.menuButton;
             }
         });
+        
+        // Keep preview spacers visible (they stay for the entire session)
+        // Preview will be replaced with actual letter preview when game starts
     }
 
     /**

@@ -82,43 +82,59 @@ export class AnimationController {
         }, CONFIG.ANIMATION.STATS_DELAY);
     }
 
-    // Animate NOODEL word dropping from stats area to made words section
-    animateNoodelWordDrop(wordItem, onComplete) {
+    // Show NOODEL word overlay above stats (without dropping yet)
+    showNoodelWordOverlay(wordItem) {
+        // Get positions
+        const statsRect = this.dom.stats.getBoundingClientRect();
+        const madeWordsRect = this.dom.wordsList.getBoundingClientRect();
+        
+        // Create word item overlay (matching made-words style)
+        const overlay = document.createElement('div');
+        overlay.className = 'word-item word-item-dropping';
+        overlay.id = 'noodel-word-overlay'; // ID to reference later
+        overlay.innerHTML = `<strong>${wordItem.text}</strong> <small>(${wordItem.points} pts)</small> <span>${wordItem.definition}</span>`;
+        
+        // Position above stats div - match the full container width
+        overlay.style.position = 'fixed';
+        overlay.style.left = `${madeWordsRect.left}px`;
+        overlay.style.top = `${statsRect.top}px`;
+        overlay.style.width = `${madeWordsRect.width}px`;
+        overlay.style.zIndex = '100';
+        overlay.style.opacity = '0';
+        overlay.style.boxSizing = 'border-box';
+        
+        document.body.appendChild(overlay);
+        
+        // Force reflow
+        overlay.offsetHeight;
+        
+        // Fade in
+        setTimeout(() => {
+            overlay.style.transition = 'opacity 0.3s ease-out';
+            overlay.style.opacity = '1';
+        }, 10);
+        
+        return overlay;
+    }
+
+    // Drop the NOODEL word overlay to made words section (called on START click)
+    dropNoodelWordOverlay(onComplete) {
         return new Promise((resolve) => {
-            // Get positions
-            const statsRect = this.dom.stats.getBoundingClientRect();
+            const overlay = document.getElementById('noodel-word-overlay');
+            if (!overlay) {
+                console.error('NOODEL word overlay not found');
+                resolve();
+                return;
+            }
+            
             const madeWordsRect = this.dom.wordsList.getBoundingClientRect();
             
-            // Create word item overlay (matching made-words style)
-            const overlay = document.createElement('div');
-            overlay.className = 'word-item word-item-dropping';
-            overlay.innerHTML = `<strong>${wordItem.text}</strong> <small>(${wordItem.points} pts)</small> <span>${wordItem.definition}</span>`;
+            // Start drop animation
+            overlay.style.transition = 'top 0.8s ease-out';
+            overlay.style.top = `${madeWordsRect.top}px`;
             
-            // Position above stats div - match the full container width (words list takes full width of parent)
-            overlay.style.position = 'fixed';
-            overlay.style.left = `${madeWordsRect.left}px`;
-            overlay.style.top = `${statsRect.top}px`; // Above stats
-            overlay.style.width = `${madeWordsRect.width}px`; // Full width to match actual word items
-            overlay.style.zIndex = '100';
-            overlay.style.opacity = '0';
-            overlay.style.boxSizing = 'border-box'; // Include padding in width
-            
-            document.body.appendChild(overlay);
-            
-            // Force reflow
-            overlay.offsetHeight;
-            
-            // Fade in at starting position
-            setTimeout(() => {
-                overlay.style.transition = 'opacity 0.3s ease-out';
-                overlay.style.opacity = '1';
-            }, 10);
-            
-            // Start drop after fade in and linger time (ease-out instead of bounce)
-            setTimeout(() => {
-                overlay.style.transition = 'top 0.8s ease-out';
-                overlay.style.top = `${madeWordsRect.top}px`;
-            }, 1000);
+            // Show stats at the same time as drop starts
+            this.dom.stats.classList.add('visible');
             
             // After drop completes, remove overlay and add to actual list
             setTimeout(() => {
@@ -129,12 +145,8 @@ export class AnimationController {
                     onComplete();
                 }
                 
-                // Show stats after word settles
-                setTimeout(() => {
-                    this.dom.stats.classList.add('visible');
-                    resolve();
-                }, 200);
-            }, 2050);
+                resolve();
+            }, 850);
         });
     }
 
