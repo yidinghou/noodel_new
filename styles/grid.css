@@ -185,6 +185,8 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     outline: 3px solid rgba(106, 106, 106, 0.6);
     outline-offset: -1px;
+
+    transform: scale(0.9);        /* tweak this value to make it smaller/larger */
 }
 
 .grid-square.menu-button:hover {
@@ -196,25 +198,25 @@
 /* Menu Arrow - Pulsating indicator */
 .grid-square.menu-arrow {
     cursor: pointer;
-    font-weight: bold;
+    font-weight: 900;
     font-size: clamp(24px, 3vw, 32px);
     background: rgba(154, 154, 154, 0.3);
-    color: #ffffff;
+    color: #000000;
     border: 2px solid #6a6a6a;
     animation: menuArrowPulse 1.2s ease-in-out infinite;
 }
 
 @keyframes menuArrowPulse {
     0% {
-        transform: scale(1);
+        transform: scale(0.9);
         opacity: 0.7;
     }
     50% {
-        transform: scale(1.15);
-        opacity: 1;
+        transform: scale(1);
+        opacity: 1.5    ;
     }
     100% {
-        transform: scale(1);
+        transform: scale(0.9);
         opacity: 0.7;
     }
 }
