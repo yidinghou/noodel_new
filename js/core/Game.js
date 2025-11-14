@@ -43,7 +43,8 @@ export class Game {
             menu: this.menu,
             grid: this.grid,
             letters: this.letters,
-            score: this.score
+            score: this.score,
+            game: this  // Add game controller for timer methods
         });
         
         // Load predefined sequences
@@ -51,6 +52,10 @@ export class Game {
         
         // Flag to prevent multiple simultaneous word checks
         this.isProcessingWords = false;
+        
+        // Timer for initial user guidance (pulsate grid if no click within 5 seconds)
+        this.inactivityTimer = null;
+        this.hasClickedGrid = false;
     }
 
     async init() {
@@ -73,7 +78,8 @@ export class Game {
             dictionary: this.wordResolver.dictionary,
             state: this.state,
             dom: this.dom,
-            score: this.score
+            score: this.score,
+            game: this
         };
         
         // Play appropriate intro sequence based on debug mode
@@ -107,6 +113,10 @@ export class Game {
     }
 
     async start() {
+        // Clear inactivity timer when menu button is clicked
+        this.clearInactivityTimer();
+        this.hasClickedGrid = true;
+        
         this.state.started = true;
         this.dom.startBtn.textContent = '🔄';
         
@@ -126,14 +136,28 @@ export class Game {
         
         // Add click handlers to grid squares
         this.grid.addClickHandlers((e) => this.handleSquareClick(e));
+        
+        // Reset flag for gameplay inactivity tracking
+        this.hasClickedGrid = false;
+        
+        // Start new inactivity timer for gameplay (pulsate if no click within 5 seconds)
+        this.startInactivityTimer();
     }
 
     handleLogin() {
+        // Clear inactivity timer when menu button is clicked
+        this.clearInactivityTimer();
+        this.hasClickedGrid = true;
+        
         console.log('Login button clicked');
         alert('Login feature coming soon!');
     }
 
     handleMore() {
+        // Clear inactivity timer when menu button is clicked
+        this.clearInactivityTimer();
+        this.hasClickedGrid = true;
+        
         console.log('More button clicked');
         const choice = confirm('More options:\n\nWould you like to reset the game?');
         if (choice && this.menu) {
@@ -175,6 +199,12 @@ export class Game {
         if (this.menu && this.menu.isActive()) return;
         
         if (!this.state.started) return;
+        
+        // Clear inactivity timer and stop pulsating on first grid click during gameplay
+        if (!this.hasClickedGrid) {
+            this.clearInactivityTimer();
+            this.hasClickedGrid = true;
+        }
         
         const column = parseInt(e.target.dataset.column);
         
@@ -276,5 +306,24 @@ export class Game {
         } finally {
             this.isProcessingWords = false;
         }
+    }
+
+    // Start timer to pulsate grid if user doesn't click within 5 seconds
+    startInactivityTimer() {
+        this.inactivityTimer = setTimeout(() => {
+            if (!this.hasClickedGrid) {
+                this.grid.startPulsating();
+            }
+        }, 5000);
+    }
+
+    // Clear the inactivity timer and stop pulsating
+    clearInactivityTimer() {
+        if (this.inactivityTimer) {
+            clearTimeout(this.inactivityTimer);
+            this.inactivityTimer = null;
+        }
+        // Stop pulsating when user interacts
+        this.grid.stopPulsating();
     }
 }

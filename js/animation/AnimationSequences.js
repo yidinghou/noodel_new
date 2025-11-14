@@ -50,7 +50,14 @@ export const INTRO_SEQUENCE = [
         method: 'show',
         target: 'menu',
         duration: 400,
-        parallel: false
+        parallel: false,
+        args: (ctx) => [false, ctx.game], // Pass useFlip=false and game instance
+        onAfter: (ctx) => {
+            // Start timer that will pulsate grid if user doesn't click menu within 5 seconds
+            if (ctx.game && !ctx.game.hasClickedGrid) {
+                ctx.game.startInactivityTimer();
+            }
+        }
     }
 ];
 

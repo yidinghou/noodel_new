@@ -271,4 +271,21 @@ export class AnimationController {
             block.style.setProperty('--progress-percent', `${greenPercent}%`);
         });
     }
+
+    /**
+     * Pulsate grid to help user identify playable area
+     * Triggers a green glow animation that repeats 3 times
+     */
+    async pulsateGrid() {
+        const grid = this.dom.grid;
+        
+        // Add pulsating class to trigger animation
+        grid.classList.add('pulsating');
+        
+        // Wait for animation to complete (1.5s duration * 3 iterations)
+        await new Promise(resolve => setTimeout(resolve, 4500));
+        
+        // Remove class after animation finishes
+        grid.classList.remove('pulsating');
+    }
 }

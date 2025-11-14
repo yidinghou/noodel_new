@@ -43,10 +43,12 @@ export class MenuController {
     /**
      * Show the menu by displaying button words in the grid
      * @param {boolean} useFlip - If true, uses flip animation instead of drop (for reset)
+     * @param {Game} game - Game instance for clearing inactivity timer
      */
-    show(useFlip = false) {
+    show(useFlip = false, game = null) {
         this.isMenuActive = true;
         this.menuButtonsData = []; // Store for later drop animation
+        this.game = game; // Store game instance
         
         // Clear the grid first
         const squares = this.dom.getAllGridSquares();
@@ -351,8 +353,14 @@ export class MenuController {
     /**
      * Trigger the drop animation when grid is clicked
      */
-    triggerDrop() {
+    triggerDrop(game) {
         if (!this.waitingForGridClick || !this.menuButtonsData) return;
+        
+        // Clear inactivity timer and stop pulsating when grid is clicked
+        if (game && game.clearInactivityTimer) {
+            game.clearInactivityTimer();
+            game.hasClickedGrid = true;
+        }
         
         // Clear preview elements
         const spacers = this.dom.preview.querySelectorAll('.preview-letter-block');
@@ -414,7 +422,7 @@ export class MenuController {
         this.gridClickHandler = (e) => {
             // Only trigger if we're waiting and click is on a grid square
             if (this.waitingForGridClick && e.target.classList.contains('grid-square')) {
-                this.triggerDrop();
+                this.triggerDrop(this.game);
                 // Remove the handler after first click
                 this.dom.grid.removeEventListener('click', this.gridClickHandler);
                 this.gridClickHandler = null;

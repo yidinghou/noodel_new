@@ -134,4 +134,20 @@ export class GridController {
         
         console.log('✅ Debug grid loaded successfully');
     }
+
+    // Start pulsating animation on all grid squares
+    startPulsating() {
+        const squares = this.dom.getAllGridSquares();
+        squares.forEach(square => {
+            square.classList.add('pulsating');
+        });
+    }
+
+    // Stop pulsating animation on all grid squares
+    stopPulsating() {
+        const squares = this.dom.getAllGridSquares();
+        squares.forEach(square => {
+            square.classList.remove('pulsating');
+        });
+    }
 }
