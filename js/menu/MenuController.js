@@ -1,4 +1,4 @@
-import { CONFIG } from './config.js';
+import { CONFIG } from '../config.js';
 
 /**
  * MenuController class - Manages the menu interface using grid-based buttons

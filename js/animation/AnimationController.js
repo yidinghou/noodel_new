@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js';
-import { FeatureFlags } from './FeatureFlags.js';
+import { CONFIG } from '../config.js';
+import { FeatureFlags } from '../core/FeatureFlags.js';
 
 /**
  * AnimationController class - Handles all game animations

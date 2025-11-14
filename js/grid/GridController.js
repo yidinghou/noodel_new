@@ -1,5 +1,5 @@
-import { CONFIG } from './config.js';
-import { FeatureFlags } from './FeatureFlags.js';
+import { CONFIG } from '../config.js';
+import { FeatureFlags } from '../core/FeatureFlags.js';
 
 /**
  * GridController class - Manages grid generation and interactions

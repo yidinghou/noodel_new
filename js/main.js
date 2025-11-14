@@ -1,6 +1,6 @@
-import { Game } from './Game.js';
+import { Game } from './core/Game.js';
 import { CONFIG } from './config.js';
-import { FeatureFlags } from './FeatureFlags.js';
+import { FeatureFlags } from './core/FeatureFlags.js';
 
 /**
  * Inject animation configuration as CSS custom properties

@@ -1,5 +1,5 @@
-import { FeatureFlags } from './FeatureFlags.js';
-import { CONFIG } from './config.js';
+import { FeatureFlags } from '../core/FeatureFlags.js';
+import { CONFIG } from '../config.js';
 
 /**
  * AnimationSequencer class - Orchestrates animation sequences

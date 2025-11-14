@@ -1,17 +1,17 @@
-import { CONFIG } from './config.js';
+import { CONFIG } from '../config.js';
 import { FeatureFlags } from './FeatureFlags.js';
 import { GameState } from './GameState.js';
 import { DOMCache } from './DOMCache.js';
-import { AnimationController } from './AnimationController.js';
-import { GridController } from './GridController.js';
-import { LetterController } from './LetterController.js';
-import { ScoreController } from './ScoreController.js';
-import { WordResolver } from './WordResolver.js';
-import { WordItem } from './WordItem.js';
-import { calculateWordScore } from './ScoringUtils.js';
-import { MenuController } from './MenuController.js';
-import { AnimationSequencer } from './AnimationSequencer.js';
-import { SEQUENCES } from './AnimationSequences.js';
+import { AnimationController } from '../animation/AnimationController.js';
+import { GridController } from '../grid/GridController.js';
+import { LetterController } from '../letter/LetterController.js';
+import { ScoreController } from '../scoring/ScoreController.js';
+import { WordResolver } from '../word/WordResolver.js';
+import { WordItem } from '../word/WordItem.js';
+import { calculateWordScore } from '../scoring/ScoringUtils.js';
+import { MenuController } from '../menu/MenuController.js';
+import { AnimationSequencer } from '../animation/AnimationSequencer.js';
+import { SEQUENCES } from '../animation/AnimationSequences.js';
 
 /**
  * Game class - Main orchestrator that coordinates all controllers

@@ -1,4 +1,4 @@
-import { CONFIG } from './config.js';
+import { CONFIG } from '../config.js';
 
 /**
  * LetterController class - Manages letter generation and preview display

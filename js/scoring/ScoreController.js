@@ -1,4 +1,4 @@
-import { WordItem } from './WordItem.js';
+import { WordItem } from '../word/WordItem.js';
 
 /**
  * ScoreController class - Manages scoring, words, and game progress

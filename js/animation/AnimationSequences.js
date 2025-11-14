@@ -3,9 +3,9 @@
  * Each sequence is an array of steps with timing and dependency information
  */
 
-import { WordItem } from './WordItem.js';
-import { calculateWordScore } from './ScoringUtils.js';
-import { CONFIG } from './config.js';
+import { WordItem } from '../word/WordItem.js';
+import { calculateWordScore } from '../scoring/ScoringUtils.js';
+import { CONFIG } from '../config.js';
 
 /**
  * INTRO SEQUENCE

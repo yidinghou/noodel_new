@@ -1,6 +1,6 @@
-import { CONFIG } from './config.js';
-import { LetterGenerator } from './LetterGenerator.js';
-import { calculateWordScore } from './ScoringUtils.js';
+import { CONFIG } from '../config.js';
+import { LetterGenerator } from '../letter/LetterGenerator.js';
+import { calculateWordScore } from '../scoring/ScoringUtils.js';
 
 /**
  * GameState class - Manages all game state data
