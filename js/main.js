@@ -25,9 +25,17 @@ document.addEventListener('DOMContentLoaded', () => {
     injectAnimationConfig();
     const game = new Game();
     
-    // Expose game and FeatureFlags globally for console access
-    window.game = game;
-    window.FeatureFlags = FeatureFlags;
-    
-    game.init();
+    game.init().then(() => {
+        // Expose game, FeatureFlags, and sequencer globally for console access
+        window.game = game;
+        window.FeatureFlags = FeatureFlags;
+        window.sequencer = game.sequencer;
+        
+        if (FeatureFlags.isEnabled('debug.enabled')) {
+            console.log('🎮 Game initialized. Available console commands:');
+            console.log('  - FeatureFlags.disable("animations.titleDrop")');
+            console.log('  - sequencer.setSpeed(0.5) // Half speed');
+            console.log('  - sequencer.getSequenceNames()');
+        }
+    });
 });

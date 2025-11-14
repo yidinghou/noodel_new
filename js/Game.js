@@ -10,6 +10,8 @@ import { WordResolver } from './WordResolver.js';
 import { WordItem } from './WordItem.js';
 import { calculateWordScore } from './ScoringUtils.js';
 import { MenuController } from './MenuController.js';
+import { AnimationSequencer } from './AnimationSequencer.js';
+import { SEQUENCES } from './AnimationSequences.js';
 
 /**
  * Game class - Main orchestrator that coordinates all controllers
@@ -35,6 +37,18 @@ export class Game {
             () => this.handleMore()       // onMore callback
         );
         
+        // Initialize animation sequencer with all controllers
+        this.sequencer = new AnimationSequencer({
+            animator: this.animator,
+            menu: this.menu,
+            grid: this.grid,
+            letters: this.letters,
+            score: this.score
+        });
+        
+        // Load predefined sequences
+        this.sequencer.loadSequences(SEQUENCES);
+        
         // Flag to prevent multiple simultaneous word checks
         this.isProcessingWords = false;
     }
@@ -54,51 +68,26 @@ export class Game {
             this.grid.loadDebugGrid();
         }
         
+        // Create shared context for sequence execution
+        const context = {
+            dictionary: this.wordResolver.dictionary,
+            state: this.state,
+            dom: this.dom,
+            score: this.score
+        };
+        
+        // Play appropriate intro sequence based on debug mode
         if (FeatureFlags.isEnabled('debug.enabled')) {
-            // DEBUG mode: Skip animations and show UI immediately
-            await this.commonSetup();
-            this.dom.stats.classList.add('visible');
-            // Show menu after a short delay
-            setTimeout(() => this.menu.show(), 300);
+            await this.sequencer.play('debugIntro', context);
         } else {
-            // Normal mode: Run NOODEL falling animation first (if enabled)
-            if (FeatureFlags.isEnabled('animations.titleDrop')) {
-                await this.animator.randomizeTitleLetterAnimations();
-            }
-            
-            // Shake NOODEL title (if enabled)
-            if (FeatureFlags.isEnabled('animations.titleShake')) {
-                await this.animator.shakeAllTitleLetters();
-            }
-            
-            // Create NOODEL word item and store it for later
-            const noodelDef = this.wordResolver.dictionary.get('NOODEL') || CONFIG.GAME_INFO.NOODEL_DEFINITION;
-            const noodelScore = calculateWordScore('NOODEL');
-            this.noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
-            
-            // Show word definition overlay above stats (doesn't drop yet)
-            this.animator.showNoodelWordOverlay(this.noodelItem);
-            
-            // Show menu after word appears
-            setTimeout(() => this.menu.show(), 400);
+            await this.sequencer.play('intro', context);
         }
+        
+        // Store noodelItem for later use in start()
+        this.noodelItem = context.noodelItem;
         
         // Setup event listeners
         this.setupEventListeners();
-    }
-
-    // Common setup for both init and reset - shakes NOODEL and adds word
-    async commonSetup() {
-        // Shake NOODEL title letters (if enabled)
-        if (FeatureFlags.isEnabled('animations.titleShake')) {
-            await this.animator.shakeAllTitleLetters();
-        }
-        
-        // Add NOODEL word to made words list
-        const noodelDef = this.wordResolver.dictionary.get('NOODEL') || CONFIG.GAME_INFO.NOODEL_DEFINITION;
-        const noodelScore = calculateWordScore('NOODEL'); // Calculate using Scrabble values + length bonus
-        const noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
-        this.score.addWord(noodelItem);
     }
 
     setupEventListeners() {
@@ -121,28 +110,19 @@ export class Game {
         this.state.started = true;
         this.dom.startBtn.textContent = '🔄';
         
-        // Hide menu if it's active
-        if (this.menu && this.menu.isActive()) {
-            this.menu.hide();
-        }
+        // Create context for game start sequence
+        const context = {
+            noodelItem: this.noodelItem,
+            state: this.state,
+            dom: this.dom,
+            score: this.score
+        };
         
-        // Drop the NOODEL word and show stats simultaneously
-        if (this.noodelItem) {
-            await this.animator.dropNoodelWordOverlay(() => {
-                this.score.addWord(this.noodelItem);
-            });
-            this.noodelItem = null; // Clear reference after adding
-        }
+        // Play game start sequence
+        await this.sequencer.play('gameStart', context);
         
-        // Initialize progress bar (all letters available = 100%)
-        this.animator.updateLetterProgress(
-            this.state.lettersRemaining,
-            CONFIG.GAME.INITIAL_LETTERS
-        );
-        
-        // Show next letters preview
-        this.dom.preview.classList.add('visible');
-        this.letters.display();
+        // Clear noodelItem reference after it's been added
+        this.noodelItem = null;
         
         // Add click handlers to grid squares
         this.grid.addClickHandlers((e) => this.handleSquareClick(e));
@@ -186,13 +166,8 @@ export class Game {
         this.dom.preview.classList.remove('visible');
         this.dom.startBtn.textContent = '🎮';
         
-        // Shake NOODEL title AND flip menu in simultaneously
-        if (this.menu) {
-            this.menu.show(true); // Pass true to use flip animation
-        }
-        
-        // Then shake title
-        await this.animator.shakeAllTitleLetters();
+        // Play reset sequence (menu flip + title shake in parallel)
+        await this.sequencer.play('reset');
     }
 
     handleSquareClick(e) {

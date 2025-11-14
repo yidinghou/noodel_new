@@ -1,0 +1,191 @@
+/**
+ * AnimationSequences - Declarative definitions of all game animation sequences
+ * Each sequence is an array of steps with timing and dependency information
+ */
+
+import { WordItem } from './WordItem.js';
+import { calculateWordScore } from './ScoringUtils.js';
+import { CONFIG } from './config.js';
+
+/**
+ * INTRO SEQUENCE
+ * Plays when the game first loads (normal mode)
+ * - Title letters drop and shake
+ * - NOODEL word overlay appears
+ * - Menu shows
+ */
+export const INTRO_SEQUENCE = [
+    {
+        name: 'titleDrop',
+        method: 'randomizeTitleLetterAnimations',
+        target: 'animator',
+        duration: 'auto',
+        parallel: false,
+        feature: 'animations.titleDrop'
+    },
+    {
+        name: 'titleShake',
+        method: 'shakeAllTitleLetters',
+        target: 'animator',
+        duration: 'auto',
+        parallel: false,
+        feature: 'animations.titleShake'
+    },
+    {
+        name: 'createNoodelWord',
+        method: 'showNoodelWordOverlay',
+        target: 'animator',
+        duration: 300,
+        parallel: false,
+        onBefore: (ctx) => {
+            // Create NOODEL word item for display
+            const noodelDef = ctx.dictionary.get('NOODEL') || CONFIG.GAME_INFO.NOODEL_DEFINITION;
+            const noodelScore = calculateWordScore('NOODEL');
+            ctx.noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
+        },
+        args: (ctx) => [ctx.noodelItem]
+    },
+    {
+        name: 'showMenu',
+        method: 'show',
+        target: 'menu',
+        duration: 400,
+        parallel: false
+    }
+];
+
+/**
+ * DEBUG INTRO SEQUENCE
+ * Plays when the game loads in debug mode (skips animations)
+ * - Shake title
+ * - Add NOODEL word immediately
+ * - Show stats
+ * - Show menu
+ */
+export const DEBUG_INTRO_SEQUENCE = [
+    {
+        name: 'titleShake',
+        method: 'shakeAllTitleLetters',
+        target: 'animator',
+        duration: 'auto',
+        parallel: false,
+        feature: 'animations.titleShake'
+    },
+    {
+        name: 'addNoodelWord',
+        method: 'addWord',
+        target: 'score',
+        duration: 0,
+        parallel: false,
+        onBefore: (ctx) => {
+            // Create NOODEL word item
+            const noodelDef = ctx.dictionary.get('NOODEL') || CONFIG.GAME_INFO.NOODEL_DEFINITION;
+            const noodelScore = calculateWordScore('NOODEL');
+            ctx.noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
+        },
+        args: (ctx) => [ctx.noodelItem]
+    },
+    {
+        name: 'showStats',
+        method: 'showStats',
+        target: 'animator',
+        duration: 0,
+        parallel: false
+    },
+    {
+        name: 'showMenu',
+        method: 'show',
+        target: 'menu',
+        duration: 300,
+        parallel: false
+    }
+];
+
+/**
+ * GAME START SEQUENCE
+ * Plays when the START button is clicked
+ * - Hide menu
+ * - Drop NOODEL word to made words list
+ * - Show stats (parallel with drop)
+ * - Initialize progress bar
+ * - Show letter preview
+ */
+export const GAME_START_SEQUENCE = [
+    {
+        name: 'hideMenu',
+        method: 'hide',
+        target: 'menu',
+        duration: 0,
+        parallel: false
+    },
+    {
+        name: 'dropNoodelWord',
+        method: 'dropNoodelWordOverlay',
+        target: 'animator',
+        duration: 'auto',
+        parallel: false,
+        onBefore: (ctx) => {
+            // Set up callback to add word after drop animation
+            ctx.addWordCallback = () => {
+                if (ctx.noodelItem) {
+                    ctx.score.addWord(ctx.noodelItem);
+                }
+            };
+        },
+        args: (ctx) => [ctx.addWordCallback]
+    },
+    {
+        name: 'initProgressBar',
+        method: 'updateLetterProgress',
+        target: 'animator',
+        duration: 0,
+        parallel: false,
+        args: (ctx) => [ctx.state.lettersRemaining, CONFIG.GAME.INITIAL_LETTERS]
+    },
+    {
+        name: 'showPreview',
+        method: 'display',
+        target: 'letters',
+        duration: 0,
+        parallel: false,
+        onBefore: (ctx) => {
+            ctx.dom.preview.classList.add('visible');
+        }
+    }
+];
+
+/**
+ * RESET SEQUENCE
+ * Plays when the reset button is clicked
+ * - Show menu (with flip animation)
+ * - Shake title (parallel with menu)
+ */
+export const RESET_SEQUENCE = [
+    {
+        name: 'showMenuFlip',
+        method: 'show',
+        target: 'menu',
+        duration: 400,
+        parallel: true,
+        args: [true], // Pass true for flip animation
+        feature: 'animations.menuFlip'
+    },
+    {
+        name: 'titleShake',
+        method: 'shakeAllTitleLetters',
+        target: 'animator',
+        duration: 'auto',
+        parallel: true,
+        feature: 'animations.titleShake'
+    }
+];
+
+/**
+ * All sequences mapped by name
+ */
+export const SEQUENCES = {
+    intro: INTRO_SEQUENCE,
+    debugIntro: DEBUG_INTRO_SEQUENCE,
+    gameStart: GAME_START_SEQUENCE,
+    reset: RESET_SEQUENCE
+};
