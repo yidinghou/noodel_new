@@ -181,11 +181,114 @@ export const RESET_SEQUENCE = [
 ];
 
 /**
+ * LETTER DROP SEQUENCE
+ * Plays when a player clicks a column to place a letter
+ * - Animate letter dropping to target position
+ * - Update game state (column fill, letters remaining)
+ * - Update progress bar
+ */
+export const LETTER_DROP_SEQUENCE = [
+    {
+        name: 'dropAnimation',
+        method: 'dropLetterInColumn',
+        target: 'animator',
+        duration: 'auto',
+        parallel: false,
+        feature: 'animations.letterDrop',
+        // Args will be provided by Game.js: [column, letter, targetRow, callback]
+        onAfter: (ctx) => {
+            // Update game state after drop completes
+            ctx.state.incrementColumnFill(ctx.column);
+            ctx.letters.advance();
+            ctx.score.updateLettersRemaining();
+        }
+    },
+    {
+        name: 'updateProgressBar',
+        method: 'updateLetterProgress',
+        target: 'animator',
+        duration: 0,
+        parallel: false,
+        args: (ctx) => [ctx.state.lettersRemaining, CONFIG.GAME.INITIAL_LETTERS]
+    }
+];
+
+/**
+ * WORD FOUND SEQUENCE (Single Iteration)
+ * Plays when words are detected on the grid
+ * - Highlight and shake all found words (parallel)
+ * - Add words to score
+ * - Clear word cells
+ * - Apply gravity
+ * Note: This sequence is called repeatedly until no more words are found
+ */
+export const WORD_FOUND_SEQUENCE = [
+    {
+        name: 'highlightWords',
+        method: 'highlightWords', // Custom method we'll add to handle multiple words
+        target: 'animator',
+        duration: 'auto',
+        parallel: false,
+        feature: 'animations.wordHighlight',
+        onBefore: (ctx) => {
+            // Store promises for parallel word animations
+            ctx.animationPromises = ctx.foundWords.map(wordData => 
+                ctx.animator.highlightAndShakeWord(wordData.positions)
+            );
+        },
+        onAfter: async (ctx) => {
+            // Wait for all word animations to complete
+            if (ctx.animationPromises && ctx.animationPromises.length > 0) {
+                await Promise.all(ctx.animationPromises);
+            }
+        }
+    },
+    {
+        name: 'addWordsToScore',
+        method: 'addWords', // Custom method we'll add to ScoreController
+        target: 'score',
+        duration: 0,
+        parallel: false,
+        onBefore: (ctx) => {
+            // Add all words to score
+            ctx.foundWords.forEach(wordData => {
+                const points = calculateWordScore(wordData.word);
+                const wordItem = new WordItem(wordData.word, wordData.definition, points);
+                ctx.score.addWord(wordItem);
+            });
+        }
+    },
+    {
+        name: 'clearWordCells',
+        method: 'clearWords', // Custom method we'll add to AnimationController
+        target: 'animator',
+        duration: CONFIG.ANIMATION.WORD_CLEAR_DELAY,
+        parallel: false,
+        onBefore: (ctx) => {
+            // Clear all word cells
+            ctx.foundWords.forEach(wordData => {
+                ctx.animator.clearWordCells(wordData.positions);
+            });
+        }
+    },
+    {
+        name: 'applyGravity',
+        method: 'applyGravity',
+        target: 'grid',
+        duration: 300, // Short delay for gravity to settle
+        parallel: false,
+        feature: 'gravityPhysics'
+    }
+];
+
+/**
  * All sequences mapped by name
  */
 export const SEQUENCES = {
     intro: INTRO_SEQUENCE,
     debugIntro: DEBUG_INTRO_SEQUENCE,
     gameStart: GAME_START_SEQUENCE,
-    reset: RESET_SEQUENCE
+    reset: RESET_SEQUENCE,
+    letterDrop: LETTER_DROP_SEQUENCE,
+    wordFound: WORD_FOUND_SEQUENCE
 };
