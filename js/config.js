@@ -34,7 +34,10 @@ export const CONFIG = {
         TITLE_ACTIVE: '#4CAF50'
     },
     GAME_INFO: {
-        NOODEL_DEFINITION: 'Click Grid, Drop Letters, Make Words.'
+        NOODEL_DEFINITION: 'A Word Game\nClick Grid, Place Letters, Make Words.'
+    },
+    FEATURES: {
+        TITLE_PROGRESS_BAR: true  // Show progress bar in NOODEL title (green to gray as letters are used)
     },
     
     // DEBUG GRID PATTERNS

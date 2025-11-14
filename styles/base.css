@@ -42,6 +42,7 @@
     --color-accent-primary: var(--color-blue-primary);
     --color-accent-secondary: var(--color-orange-primary);
     --color-next-up: var(--color-orange-light);
+    --color-letter-active: var(--color-green);
 
     /* Sizing */
     --size-letter-block: clamp(30px, 4vw, 38px);

@@ -37,14 +37,13 @@ export class AnimationController {
         });
     }
 
-    // Apply color change and shake to all title letters simultaneously
+    // Apply shake to all title letters simultaneously
     shakeAllTitleLetters() {
         return new Promise((resolve) => {
             const letterBlocks = this.dom.getTitleLetterBlocks();
             
-            // Change all letters to green and trigger shake at the same time
+            // Trigger shake (color is handled by progress bar gradient)
             letterBlocks.forEach(block => {
-                block.style.backgroundColor = CONFIG.COLORS.TITLE_ACTIVE;
                 block.style.animationDelay = '0s'; // Reset delay so all shake together
                 
                 // Remove shaking class first (in case it was already applied)
@@ -88,11 +87,11 @@ export class AnimationController {
         const statsRect = this.dom.stats.getBoundingClientRect();
         const madeWordsRect = this.dom.wordsList.getBoundingClientRect();
         
-        // Create word item overlay (matching made-words style)
+        // Create word item overlay with custom format for intro
         const overlay = document.createElement('div');
         overlay.className = 'word-item word-item-dropping';
         overlay.id = 'noodel-word-overlay'; // ID to reference later
-        overlay.innerHTML = `<strong>${wordItem.text}</strong> <small>(${wordItem.points} pts)</small> <span>${wordItem.definition}</span>`;
+        overlay.innerHTML = `<strong>${wordItem.text} - </strong><small>${wordItem.definition}</small>`;
         
         // Position above stats div - match the full container width
         overlay.style.position = 'fixed';
@@ -133,20 +132,23 @@ export class AnimationController {
             overlay.style.transition = 'top 0.8s ease-out';
             overlay.style.top = `${madeWordsRect.top}px`;
             
-            // Show stats at the same time as drop starts
-            this.dom.stats.classList.add('visible');
-            
-            // After drop completes, remove overlay and add to actual list
+            // After drop completes, THEN show stats
             setTimeout(() => {
-                document.body.removeChild(overlay);
+                // Show stats after drop finishes
+                this.dom.stats.classList.add('visible');
                 
-                // Add to actual made words list
-                if (onComplete) {
-                    onComplete();
-                }
-                
-                resolve();
-            }, 850);
+                // Wait a bit more, then remove overlay and add to list
+                setTimeout(() => {
+                    document.body.removeChild(overlay);
+                    
+                    // Add to actual made words list
+                    if (onComplete) {
+                        onComplete();
+                    }
+                    
+                    resolve();
+                }, 300); // Small delay after stats appear
+            }, 800); // Wait for drop to complete
         });
     }
 
@@ -231,6 +233,36 @@ export class AnimationController {
                 square.textContent = '';
                 square.classList.remove('filled', 'word-found');
             }
+        });
+    }
+
+    /**
+     * Update NOODEL title letter progress bar based on letters remaining
+     * Each letter represents a portion of the total progress
+     * Supports partial filling of individual letters
+     */
+    updateLetterProgress(lettersRemaining, totalLetters) {
+        const percentRemaining = (lettersRemaining / totalLetters) * 100;
+        const letterBlocks = this.dom.getTitleLetterBlocks();
+        const lettersCount = letterBlocks.length; // 6 for NOODEL
+        const percentPerLetter = 100 / lettersCount; // ~16.67%
+        
+        letterBlocks.forEach((block, index) => {
+            const letterStart = index * percentPerLetter;
+            const letterEnd = (index + 1) * percentPerLetter;
+            
+            let greenPercent = 100; // Default: fully green
+            
+            if (percentRemaining <= letterStart) {
+                // This letter should be fully gray
+                greenPercent = 0;
+            } else if (percentRemaining < letterEnd) {
+                // This letter is partially filled
+                const partialProgress = percentRemaining - letterStart;
+                greenPercent = (partialProgress / percentPerLetter) * 100;
+            }
+            
+            block.style.setProperty('--progress-percent', `${greenPercent}%`);
         });
     }
 }

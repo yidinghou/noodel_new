@@ -27,13 +27,25 @@
     flex: 0 1 auto;
     width: clamp(40px, 14vw, 76px);
     min-width: 40px;
-    background-color: var(--color-text-muted);
-    color: var(--color-text-white);
+    position: relative;
+    overflow: hidden;
     font-size: clamp(20px, 7vw, 40px);
     border: 2px solid var(--color-border-primary);
     box-shadow: var(--shadow-block);
     transform: translateY(-300px) rotate(var(--rotation));
     animation: dropIn var(--animation-duration-drop) ease-out forwards;
+    
+    /* Progress bar gradient (green to gray transition) */
+    --progress-percent: 100%;
+    background: linear-gradient(
+        to right,
+        var(--color-letter-active) 0%,
+        var(--color-letter-active) var(--progress-percent),
+        #808080 var(--progress-percent),
+        #808080 100%
+    );
+    color: var(--color-text-white);
+    transition: background 0.3s ease;
 }
 
 .letter-block:nth-child(odd) {

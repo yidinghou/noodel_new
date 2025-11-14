@@ -127,6 +127,14 @@ export class Game {
             this.noodelItem = null; // Clear reference after adding
         }
         
+        // Initialize progress bar (all letters available = 100%) - if feature enabled
+        if (CONFIG.FEATURES.TITLE_PROGRESS_BAR) {
+            this.animator.updateLetterProgress(
+                this.state.lettersRemaining,
+                CONFIG.GAME.INITIAL_LETTERS
+            );
+        }
+        
         // Show next letters preview
         this.dom.preview.classList.add('visible');
         this.letters.display();
@@ -159,6 +167,14 @@ export class Game {
         
         // Generate new letter sequence
         this.letters.initialize();
+        
+        // Reset progress bar to 100% - if feature enabled
+        if (CONFIG.FEATURES.TITLE_PROGRESS_BAR) {
+            this.animator.updateLetterProgress(
+                CONFIG.GAME.INITIAL_LETTERS,
+                CONFIG.GAME.INITIAL_LETTERS
+            );
+        }
         
         // Clear preview tiles
         this.menu.clearPreviewTiles();
@@ -207,6 +223,14 @@ export class Game {
             this.state.incrementColumnFill(column);
             this.letters.advance();
             this.score.updateLettersRemaining();
+            
+            // Update progress bar in NOODEL title (if feature enabled)
+            if (CONFIG.FEATURES.TITLE_PROGRESS_BAR) {
+                this.animator.updateLetterProgress(
+                    this.state.lettersRemaining,
+                    CONFIG.GAME.INITIAL_LETTERS
+                );
+            }
             
             // Check for words after the letter has been placed
             await this.checkAndProcessWords();
