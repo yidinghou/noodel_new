@@ -159,7 +159,7 @@
     background: var(--color-green);
     color: var(--color-text-white);
     border-color: var(--color-green);
-    animation: wordShake var(--animation-duration-shake) ease-in-out forwards;
+    animation: wordShake var(--animation-duration-word-found) ease-in-out forwards;
 }
 
 /* Keyframe for word shake animation (similar to title shake) */

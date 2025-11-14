@@ -255,8 +255,10 @@ export class Game {
                     
                     // Wait a bit before applying gravity (if animation was shown)
                     if (shouldAnimate) {
+                        const root = getComputedStyle(document.documentElement);
+                        const wordClearDelay = parseFloat(root.getPropertyValue('--animation-delay-word-clear').trim());
                         await new Promise(resolve => 
-                            setTimeout(resolve, CONFIG.ANIMATION.WORD_CLEAR_DELAY)
+                            setTimeout(resolve, wordClearDelay)
                         );
                     }
                     

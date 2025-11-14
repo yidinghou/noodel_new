@@ -1,17 +1,9 @@
 import { Game } from './core/Game.js';
-import { CONFIG } from './config.js';
 import { FeatureFlags } from './core/FeatureFlags.js';
 
 /**
- * Inject animation configuration as CSS custom properties
- */
-function injectAnimationConfig() {
-    const root = document.documentElement;
-    root.style.setProperty('--letter-drop-duration', `${CONFIG.ANIMATION.LETTER_DROP_DURATION}ms`);
-}
-
-/**
  * Main entry point - Initialize the game when DOM is ready
+ * Note: Animation timing is now controlled via CSS custom properties in base.css
  */
 document.addEventListener('DOMContentLoaded', () => {
     // Load feature flags from URL parameters (e.g., ?debug=true&skipAnimations=true)
@@ -22,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('🚩 FeatureFlags loaded:', FeatureFlags.getAll());
     }
     
-    injectAnimationConfig();
     const game = new Game();
     
     game.init().then(() => {

@@ -180,24 +180,39 @@ export class AnimationSequencer {
 
     /**
      * Calculate duration for a step with 'auto' duration
+     * Note: Most animations now use promises with animationend events,
+     * so this is mainly for backwards compatibility and fallback cases
      * @param {Object} step - Step definition
      * @returns {number} Duration in milliseconds
      */
     calculateDuration(step) {
-        // Map common animation methods to their config durations
+        // Read timing from CSS custom properties
+        const root = getComputedStyle(document.documentElement);
+        const parseTime = (value) => {
+            const trimmed = value.trim();
+            if (trimmed.endsWith('ms')) return parseFloat(trimmed);
+            if (trimmed.endsWith('s')) return parseFloat(trimmed) * 1000;
+            return parseFloat(trimmed);
+        };
+        
+        // Map common animation methods to their CSS durations
         const durationMap = {
             'randomizeTitleLetterAnimations': () => {
                 // Calculate based on letter count and timing
                 const letterCount = 6; // NOODEL
-                const interval = CONFIG.ANIMATION.TITLE_DROP_INTERVAL * 1000;
-                const dropDuration = CONFIG.ANIMATION.TITLE_DROP_DURATION * 1000;
+                const interval = parseTime(root.getPropertyValue('--animation-delay-title-drop-interval'));
+                const dropDuration = parseTime(root.getPropertyValue('--animation-duration-title-drop'));
                 return ((letterCount - 1) * interval) + dropDuration;
             },
-            'shakeAllTitleLetters': () => CONFIG.ANIMATION.TITLE_SHAKE_DURATION,
-            'dropLetterInColumn': () => CONFIG.ANIMATION.LETTER_STAGE_2_DELAY,
-            'highlightAndShakeWord': () => CONFIG.ANIMATION.WORD_ANIMATION_DURATION,
-            'showNoodelWordOverlay': () => 300,
-            'dropNoodelWordOverlay': () => 800,
+            'shakeAllTitleLetters': () => parseTime(root.getPropertyValue('--animation-duration-title-shake')),
+            'dropLetterInColumn': () => {
+                const stage2Delay = parseTime(root.getPropertyValue('--animation-delay-letter-stage2'));
+                const dropDuration = parseTime(root.getPropertyValue('--animation-duration-letter-drop'));
+                return stage2Delay + dropDuration;
+            },
+            'highlightAndShakeWord': () => parseTime(root.getPropertyValue('--animation-duration-word-found')),
+            'showNoodelWordOverlay': () => parseTime(root.getPropertyValue('--animation-duration-word-overlay-fade')),
+            'dropNoodelWordOverlay': () => parseTime(root.getPropertyValue('--animation-duration-word-overlay-drop')),
             'show': () => 400, // MenuController.show
             'hide': () => 200  // MenuController.hide
         };

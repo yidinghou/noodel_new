@@ -33,7 +33,7 @@
     border: 2px solid var(--color-border-primary);
     box-shadow: var(--shadow-block);
     transform: translateY(-300px) rotate(var(--rotation));
-    animation: dropIn var(--animation-duration-drop) ease-out forwards;
+    animation: dropIn var(--animation-duration-title-drop) ease-out forwards;
     
     /* Progress bar gradient (green to gray transition) */
     --progress-percent: 100%;
@@ -61,7 +61,7 @@
 }
 
 .letter-block.shaking {
-    animation: shake var(--animation-duration-shake) ease-in-out forwards;
+    animation: shake var(--animation-duration-title-shake) ease-in-out forwards;
 }
 
 /* Controls (Start & Mute buttons) - Now inside stats */

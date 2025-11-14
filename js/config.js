@@ -12,19 +12,8 @@ export const CONFIG = {
         // Note: Alphabet is now generated dynamically using LetterGenerator
         // based on English letter frequency distribution
     },
-    ANIMATION: {
-        TITLE_DROP_INTERVAL: 0.25,      // seconds between each title letter drop
-        TITLE_DROP_DURATION: 0.6,       // duration of title letter drop animation
-        TITLE_SHAKE_DURATION: 400,      // milliseconds for shake animation
-        CONTROLS_DELAY: 200,             // milliseconds before showing controls
-        STATS_DELAY: 500,                // milliseconds before showing stats
-        LETTER_STAGE_1_DELAY: 200,      // milliseconds for stage 1 (move to top)
-        LETTER_STAGE_2_DELAY: 600,      // milliseconds for stage 2+3 (drop + settle)
-        LETTER_DROP_START: 200,         // milliseconds before starting drop
-        LETTER_DROP_DURATION: 400,      // milliseconds for the actual drop transition TODO: calculate as stage2 - stage1
-        WORD_ANIMATION_DURATION: 400,   // milliseconds for word highlight and shake
-        WORD_CLEAR_DELAY: 100           // milliseconds to wait before clearing word cells
-    },
+    // Note: Animation timing moved to CSS custom properties in base.css
+    // AnimationController reads these values dynamically from CSS
     COLORS: {
         TITLE_ACTIVE: '#4CAF50'
     },

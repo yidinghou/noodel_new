@@ -262,7 +262,10 @@ export const WORD_FOUND_SEQUENCE = [
         name: 'clearWordCells',
         method: 'clearWords', // Custom method we'll add to AnimationController
         target: 'animator',
-        duration: CONFIG.ANIMATION.WORD_CLEAR_DELAY,
+        duration: (() => {
+            const root = getComputedStyle(document.documentElement);
+            return parseFloat(root.getPropertyValue('--animation-delay-word-clear').trim());
+        })(),
         parallel: false,
         onBefore: (ctx) => {
             // Clear all word cells

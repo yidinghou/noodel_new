@@ -74,9 +74,25 @@
     --transition-standard: 0.6s ease-out;
     --transition-quick: 0.3s;
     --transition-fast: 0.2s;
-    --animation-duration-drop: 0.6s;
-    --animation-duration-shake: 0.4s;
+    
+    /* Animation Durations - Single Source of Truth */
+    --animation-duration-title-drop: 0.6s;
+    --animation-duration-title-shake: 0.4s;
+    --animation-duration-controls-fade: 0.3s;
+    --animation-duration-stats-fade: 0.3s;
+    --animation-duration-word-overlay-fade: 0.3s;
+    --animation-duration-word-overlay-drop: 0.8s;
+    --animation-duration-letter-stage1: 0.3s;
+    --animation-duration-letter-drop: 0.4s;
+    --animation-duration-word-found: 0.6s;
     --animation-duration-pulse: 1.2s;
+    
+    /* Animation Delays */
+    --animation-delay-title-drop-interval: 0.25s;
+    --animation-delay-controls: 0.2s;
+    --animation-delay-stats: 0.4s;
+    --animation-delay-letter-stage2: 0.2s;
+    --animation-delay-word-clear: 0.1s;
 }
 
 body {
