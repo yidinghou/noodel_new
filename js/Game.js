@@ -157,18 +157,13 @@ export class Game {
         this.dom.grid.innerHTML = '';
         this.grid.generate();
         
-        // Clear words list and reset score controller
-        this.dom.wordsList.innerHTML = '';
-        this.score.madeWords = [];
-        
-        // Update UI displays
-        this.dom.scoreValue.textContent = this.state.score;
-        this.dom.lettersRemaining.textContent = this.state.lettersRemaining;
-        
         // Generate new letter sequence
         this.letters.initialize();
         
-        // Hide preview and reset button
+        // Clear preview tiles
+        this.menu.clearPreviewTiles();
+        
+        // Hide preview row and change button back to start
         this.dom.preview.classList.remove('visible');
         this.dom.startBtn.textContent = '🎮';
         
@@ -177,14 +172,8 @@ export class Game {
             this.menu.show(true); // Pass true to use flip animation
         }
         
-        // Then shake title and add NOODEL word
+        // Then shake title
         await this.animator.shakeAllTitleLetters();
-        
-        // Add NOODEL word to made words list
-        const noodelDef = this.wordResolver.dictionary.get('NOODEL') || CONFIG.GAME_INFO.NOODEL_DEFINITION;
-        const noodelScore = calculateWordScore('NOODEL');
-        const noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
-        this.score.addWord(noodelItem);
     }
 
     handleSquareClick(e) {

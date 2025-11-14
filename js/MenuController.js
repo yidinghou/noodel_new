@@ -46,6 +46,7 @@ export class MenuController {
      */
     show(useFlip = false) {
         this.isMenuActive = true;
+        this.menuButtonsData = []; // Store for later drop animation
         
         // Clear the grid first
         const squares = this.dom.getAllGridSquares();
@@ -66,6 +67,9 @@ export class MenuController {
             menuButtons.push(...buttonData);
         });
         
+        // Store button data for later use
+        this.menuButtonsData = menuButtons;
+        
         // Choose animation based on mode
         if (useFlip) {
             this.animateMenuFlip(menuButtons);
@@ -78,19 +82,14 @@ export class MenuController {
                 this.addMenuClickHandlers();
             }, totalFlipTime);
         } else {
-            // Animate buttons dropping in with randomized order
-            this.animateMenuDrop(menuButtons);
+            // Show buttons in preview position (no drop animation yet)
+            this.showMenuButtonsInPreview(menuButtons);
             
-            // Add click handlers after all animations complete
-            // Calculate total animation time: (number of buttons × interval) + drop duration
-            const dropInterval = 80;
-            const dropDuration = 420;
-            const totalAnimationTime = (menuButtons.length * dropInterval) + dropDuration;
+            // Setup grid click listener to trigger drop
+            this.setupGridClickListener();
             
-            setTimeout(() => {
-                console.log('Adding menu click handlers...');
-                this.addMenuClickHandlers();
-            }, totalAnimationTime);
+            // Add click handlers after drop completes
+            // (Will be called from animateMenuDrop)
         }
     }
 
@@ -182,6 +181,38 @@ export class MenuController {
     }
 
     /**
+     * Show menu buttons in preview position without dropping (for initial menu display)
+     */
+    showMenuButtonsInPreview(menuButtons) {
+        menuButtons.forEach(buttonData => {
+            const { square, letter, className, word, isArrow } = buttonData;
+            
+            // Get preview spacer for this column
+            const spacer = this.dom.preview.querySelector(`[data-column="${buttonData.col}"]`);
+            
+            if (spacer) {
+                // Show letter in preview position
+                spacer.textContent = letter;
+                spacer.classList.add('filled', isArrow ? 'menu-arrow' : 'menu-button', className);
+                if (!isArrow) {
+                    spacer.dataset.menuButton = word;
+                }
+                
+                // Store reference for click handler
+                buttonData.previewElement = spacer;
+            }
+        });
+        
+        this.waitingForGridClick = true; // Flag to indicate we're waiting for grid click
+        
+        // Add click handlers immediately to preview buttons
+        setTimeout(() => {
+            console.log('Adding menu click handlers to preview...');
+            this.addMenuClickHandlers();
+        }, 100);
+    }
+
+    /**
      * Animate menu buttons dropping in place (similar to dropLetterInColumn)
      */
     animateMenuDrop(menuButtons) {
@@ -202,6 +233,17 @@ export class MenuController {
                 this.dropMenuButton(buttonData);
             }, delay);
         });
+        
+        this.waitingForGridClick = false; // No longer waiting
+        
+        // Add click handlers after all animations complete
+        const dropDuration = 420;
+        const totalAnimationTime = (menuButtons.length * dropInterval) + dropDuration;
+        
+        setTimeout(() => {
+            console.log('Adding menu click handlers...');
+            this.addMenuClickHandlers();
+        }, totalAnimationTime);
     }
 
     /**
@@ -250,15 +292,25 @@ export class MenuController {
     }
 
     /**
-     * Add click handlers for menu buttons
+     * Add click handlers for menu buttons (both in grid and in preview)
      */
     addMenuClickHandlers() {
-        const squares = this.dom.getAllGridSquares();
         let handlerCount = 0;
         
+        // Add handlers to grid squares
+        const squares = this.dom.getAllGridSquares();
         squares.forEach(square => {
             if (square.classList.contains('menu-button')) {
                 square.addEventListener('click', (e) => this.handleMenuClick(e));
+                handlerCount++;
+            }
+        });
+        
+        // Add handlers to preview elements (if menu is in preview mode)
+        const spacers = this.dom.preview.querySelectorAll('.preview-letter-block');
+        spacers.forEach(spacer => {
+            if (spacer.classList.contains('menu-button')) {
+                spacer.addEventListener('click', (e) => this.handleMenuClick(e));
                 handlerCount++;
             }
         });
@@ -297,10 +349,44 @@ export class MenuController {
     }
 
     /**
+     * Trigger the drop animation when grid is clicked
+     */
+    triggerDrop() {
+        if (!this.waitingForGridClick || !this.menuButtonsData) return;
+        
+        // Clear preview elements
+        const spacers = this.dom.preview.querySelectorAll('.preview-letter-block');
+        spacers.forEach(spacer => {
+            spacer.textContent = '';
+            spacer.classList.remove('filled', 'menu-button', 'menu-start', 'menu-login', 'menu-more', 'menu-arrow');
+            delete spacer.dataset.menuButton;
+        });
+        
+        // Trigger the drop animation
+        this.animateMenuDrop(this.menuButtonsData);
+    }
+
+    /**
+     * Clear preview tiles (for reset)
+     */
+    clearPreviewTiles() {
+        const spacers = this.dom.preview.querySelectorAll('.preview-letter-block');
+        spacers.forEach(spacer => {
+            spacer.textContent = '';
+            spacer.classList.remove('filled', 'menu-button', 'menu-start', 'menu-login', 'menu-more', 'menu-arrow');
+            delete spacer.dataset.menuButton;
+        });
+    }
+
+    /**
      * Hide the menu and clear the grid
      */
     hide() {
         this.isMenuActive = false;
+        this.waitingForGridClick = false;
+        
+        // Clear preview elements
+        this.clearPreviewTiles();
         
         // Clear all menu buttons and arrows from the grid
         const squares = this.dom.getAllGridSquares();
@@ -314,6 +400,28 @@ export class MenuController {
         
         // Keep preview spacers visible (they stay for the entire session)
         // Preview will be replaced with actual letter preview when game starts
+    }
+
+    /**
+     * Setup a one-time click listener on the grid to trigger drop
+     */
+    setupGridClickListener() {
+        if (this.gridClickHandler) {
+            // Remove existing handler if present
+            this.dom.grid.removeEventListener('click', this.gridClickHandler);
+        }
+        
+        this.gridClickHandler = (e) => {
+            // Only trigger if we're waiting and click is on a grid square
+            if (this.waitingForGridClick && e.target.classList.contains('grid-square')) {
+                this.triggerDrop();
+                // Remove the handler after first click
+                this.dom.grid.removeEventListener('click', this.gridClickHandler);
+                this.gridClickHandler = null;
+            }
+        };
+        
+        this.dom.grid.addEventListener('click', this.gridClickHandler);
     }
 
     /**
