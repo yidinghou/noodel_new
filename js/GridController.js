@@ -1,4 +1,5 @@
 import { CONFIG } from './config.js';
+import { FeatureFlags } from './FeatureFlags.js';
 
 /**
  * GridController class - Manages grid generation and interactions
@@ -105,7 +106,7 @@ export class GridController {
 
     // Load debug grid pattern for testing (only in DEBUG mode)
     loadDebugGrid() {
-        if (!CONFIG.DEBUG || !CONFIG.DEBUG_GRID_ENABLED || !CONFIG.DEBUG_GRID) {
+        if (!FeatureFlags.isEnabled('debug.gridPattern') || !CONFIG.DEBUG_GRID) {
             return;
         }
 

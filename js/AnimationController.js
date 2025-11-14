@@ -1,4 +1,5 @@
 import { CONFIG } from './config.js';
+import { FeatureFlags } from './FeatureFlags.js';
 
 /**
  * AnimationController class - Handles all game animations
@@ -242,6 +243,11 @@ export class AnimationController {
      * Supports partial filling of individual letters
      */
     updateLetterProgress(lettersRemaining, totalLetters) {
+        // Check if progress bar feature is enabled
+        if (!FeatureFlags.isEnabled('titleProgressBar')) {
+            return;
+        }
+        
         const percentRemaining = (lettersRemaining / totalLetters) * 100;
         const letterBlocks = this.dom.getTitleLetterBlocks();
         const lettersCount = letterBlocks.length; // 6 for NOODEL

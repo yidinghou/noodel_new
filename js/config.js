@@ -1,11 +1,6 @@
 // Configuration constants
+// Note: Feature flags moved to FeatureFlags.js for better organization
 export const CONFIG = {
-    // DEBUG MODE: Set to true to skip intro animations for faster testing
-    DEBUG: false,
-    
-    // DEBUG GRID: Set to true to pre-populate grid with test pattern
-    DEBUG_GRID_ENABLED: true,
-    
     GRID: {
         ROWS: 6,
         COLUMNS: 7,
@@ -35,9 +30,6 @@ export const CONFIG = {
     },
     GAME_INFO: {
         NOODEL_DEFINITION: 'A Word Game\nClick Grid, Place Letters, Make Words.'
-    },
-    FEATURES: {
-        TITLE_PROGRESS_BAR: true  // Show progress bar in NOODEL title (green to gray as letters are used)
     },
     
     // DEBUG GRID PATTERNS

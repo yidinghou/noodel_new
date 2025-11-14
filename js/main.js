@@ -1,5 +1,6 @@
 import { Game } from './Game.js';
 import { CONFIG } from './config.js';
+import { FeatureFlags } from './FeatureFlags.js';
 
 /**
  * Inject animation configuration as CSS custom properties
@@ -13,7 +14,20 @@ function injectAnimationConfig() {
  * Main entry point - Initialize the game when DOM is ready
  */
 document.addEventListener('DOMContentLoaded', () => {
+    // Load feature flags from URL parameters (e.g., ?debug=true&skipAnimations=true)
+    FeatureFlags.loadFromURL();
+    
+    // Log active flags in debug mode
+    if (FeatureFlags.isEnabled('debug.enabled')) {
+        console.log('🚩 FeatureFlags loaded:', FeatureFlags.getAll());
+    }
+    
     injectAnimationConfig();
     const game = new Game();
+    
+    // Expose game and FeatureFlags globally for console access
+    window.game = game;
+    window.FeatureFlags = FeatureFlags;
+    
     game.init();
 });

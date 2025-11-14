@@ -1,4 +1,5 @@
 import { CONFIG } from './config.js';
+import { FeatureFlags } from './FeatureFlags.js';
 import { GameState } from './GameState.js';
 import { DOMCache } from './DOMCache.js';
 import { AnimationController } from './AnimationController.js';
@@ -49,22 +50,26 @@ export class Game {
         this.letters.initialize();
         
         // Load debug grid if enabled (for testing word detection)
-        if (CONFIG.DEBUG && CONFIG.DEBUG_GRID_ENABLED) {
+        if (FeatureFlags.isEnabled('debug.enabled') && FeatureFlags.isEnabled('debug.gridPattern')) {
             this.grid.loadDebugGrid();
         }
         
-        if (CONFIG.DEBUG) {
+        if (FeatureFlags.isEnabled('debug.enabled')) {
             // DEBUG mode: Skip animations and show UI immediately
             await this.commonSetup();
             this.dom.stats.classList.add('visible');
             // Show menu after a short delay
             setTimeout(() => this.menu.show(), 300);
         } else {
-            // Normal mode: Run NOODEL falling animation first
-            await this.animator.randomizeTitleLetterAnimations();
+            // Normal mode: Run NOODEL falling animation first (if enabled)
+            if (FeatureFlags.isEnabled('animations.titleDrop')) {
+                await this.animator.randomizeTitleLetterAnimations();
+            }
             
-            // Shake NOODEL title
-            await this.animator.shakeAllTitleLetters();
+            // Shake NOODEL title (if enabled)
+            if (FeatureFlags.isEnabled('animations.titleShake')) {
+                await this.animator.shakeAllTitleLetters();
+            }
             
             // Create NOODEL word item and store it for later
             const noodelDef = this.wordResolver.dictionary.get('NOODEL') || CONFIG.GAME_INFO.NOODEL_DEFINITION;
@@ -84,8 +89,10 @@ export class Game {
 
     // Common setup for both init and reset - shakes NOODEL and adds word
     async commonSetup() {
-        // Shake NOODEL title letters
-        await this.animator.shakeAllTitleLetters();
+        // Shake NOODEL title letters (if enabled)
+        if (FeatureFlags.isEnabled('animations.titleShake')) {
+            await this.animator.shakeAllTitleLetters();
+        }
         
         // Add NOODEL word to made words list
         const noodelDef = this.wordResolver.dictionary.get('NOODEL') || CONFIG.GAME_INFO.NOODEL_DEFINITION;
@@ -127,13 +134,11 @@ export class Game {
             this.noodelItem = null; // Clear reference after adding
         }
         
-        // Initialize progress bar (all letters available = 100%) - if feature enabled
-        if (CONFIG.FEATURES.TITLE_PROGRESS_BAR) {
-            this.animator.updateLetterProgress(
-                this.state.lettersRemaining,
-                CONFIG.GAME.INITIAL_LETTERS
-            );
-        }
+        // Initialize progress bar (all letters available = 100%)
+        this.animator.updateLetterProgress(
+            this.state.lettersRemaining,
+            CONFIG.GAME.INITIAL_LETTERS
+        );
         
         // Show next letters preview
         this.dom.preview.classList.add('visible');
@@ -168,13 +173,11 @@ export class Game {
         // Generate new letter sequence
         this.letters.initialize();
         
-        // Reset progress bar to 100% - if feature enabled
-        if (CONFIG.FEATURES.TITLE_PROGRESS_BAR) {
-            this.animator.updateLetterProgress(
-                CONFIG.GAME.INITIAL_LETTERS,
-                CONFIG.GAME.INITIAL_LETTERS
-            );
-        }
+        // Reset progress bar to 100%
+        this.animator.updateLetterProgress(
+            CONFIG.GAME.INITIAL_LETTERS,
+            CONFIG.GAME.INITIAL_LETTERS
+        );
         
         // Clear preview tiles
         this.menu.clearPreviewTiles();
@@ -224,16 +227,16 @@ export class Game {
             this.letters.advance();
             this.score.updateLettersRemaining();
             
-            // Update progress bar in NOODEL title (if feature enabled)
-            if (CONFIG.FEATURES.TITLE_PROGRESS_BAR) {
-                this.animator.updateLetterProgress(
-                    this.state.lettersRemaining,
-                    CONFIG.GAME.INITIAL_LETTERS
-                );
-            }
+            // Update progress bar in NOODEL title
+            this.animator.updateLetterProgress(
+                this.state.lettersRemaining,
+                CONFIG.GAME.INITIAL_LETTERS
+            );
             
-            // Check for words after the letter has been placed
-            await this.checkAndProcessWords();
+            // Check for words after the letter has been placed (if enabled)
+            if (FeatureFlags.isEnabled('wordDetection')) {
+                await this.checkAndProcessWords();
+            }
         });
     }
 
@@ -249,14 +252,19 @@ export class Game {
             while (wordsFound) {
                 const foundWords = this.wordResolver.checkForWords();
                 
+                // Check if word highlighting animation is enabled
+                const shouldAnimate = FeatureFlags.isEnabled('animations.wordHighlight');
+                
                 if (foundWords.length > 0) {
-                    // Animate all words in this game state SIMULTANEOUSLY
-                    const animationPromises = foundWords.map(wordData => 
-                        this.animator.highlightAndShakeWord(wordData.positions)
-                    );
-                    
-                    // Wait for all animations to complete together
-                    await Promise.all(animationPromises);
+                    // Animate all words in this game state SIMULTANEOUSLY (if enabled)
+                    if (shouldAnimate) {
+                        const animationPromises = foundWords.map(wordData => 
+                            this.animator.highlightAndShakeWord(wordData.positions)
+                        );
+                        
+                        // Wait for all animations to complete together
+                        await Promise.all(animationPromises);
+                    }
                     
                     // Add all words to made words list
                     foundWords.forEach(wordData => {
@@ -270,13 +278,17 @@ export class Game {
                         this.animator.clearWordCells(wordData.positions);
                     });
                     
-                    // Wait a bit before applying gravity
-                    await new Promise(resolve => 
-                        setTimeout(resolve, CONFIG.ANIMATION.WORD_CLEAR_DELAY)
-                    );
+                    // Wait a bit before applying gravity (if animation was shown)
+                    if (shouldAnimate) {
+                        await new Promise(resolve => 
+                            setTimeout(resolve, CONFIG.ANIMATION.WORD_CLEAR_DELAY)
+                        );
+                    }
                     
-                    // Apply gravity to drop letters down (creates new game state)
-                    this.grid.applyGravity();
+                    // Apply gravity to drop letters down (creates new game state) - if enabled
+                    if (FeatureFlags.isEnabled('gravityPhysics')) {
+                        this.grid.applyGravity();
+                    }
                     
                     // Short delay before checking for new words in the new game state
                     await new Promise(resolve => setTimeout(resolve, 300));
