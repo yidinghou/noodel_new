@@ -1,4 +1,4 @@
-import { CONFIG } from '../config.js';
+import { CONFIG, GameModes } from '../config.js';
 import { LetterGenerator } from '../letter/LetterGenerator.js';
 import { calculateWordScore } from '../scoring/ScoringUtils.js';
 
@@ -6,10 +6,14 @@ import { calculateWordScore } from '../scoring/ScoringUtils.js';
  * GameState class - Manages all game state data
  */
 export class GameState {
-    constructor() {
+    constructor(gameMode = GameModes.CLASSIC) {
         // Game flow state
         this.started = false;
         this.isFirstLoad = true; // Track if this is the first load (shows NOODEL overlay) vs a reset
+        
+        // Game mode
+        this.gameMode = gameMode;
+        this.isClearMode = gameMode === GameModes.CLEAR;
         
         // Score tracking (starts negative to account for NOODEL title word)
         this.score = -calculateWordScore('NOODEL');
@@ -22,6 +26,14 @@ export class GameState {
         
         // Grid state
         this.columnFillCounts = Array(CONFIG.GRID.COLUMNS).fill(0);
+        
+        // Clear Mode specific state
+        if (this.isClearMode) {
+            this.initialGridState = [];           // Store initial populated grid
+            this.cellsClearedCount = 0;           // Track cleared cells
+            this.targetCellsToClear = null;       // Set during init
+            this.lettersRemaining = Infinity;     // Unlimited letters in Clear Mode
+        }
     }
 
     /**
@@ -86,17 +98,27 @@ export class GameState {
         this.started = false;
         this.isFirstLoad = false; // After first reset, we're no longer in first load
         
+        // Game mode stays the same, just reset with current mode
+        // this.gameMode and this.isClearMode are preserved
+        
         // Score tracking (starts negative to account for NOODEL title word)
         this.score = -calculateWordScore('NOODEL');
         
         // Letter management - generate fresh sequence
         this.letterSequence = this.generateLetterSequence();
         this.currentLetterIndex = 0;
-        this.lettersRemaining = CONFIG.GAME.INITIAL_LETTERS;
+        this.lettersRemaining = this.isClearMode ? Infinity : CONFIG.GAME.INITIAL_LETTERS;
         this.nextLetters = [];
         
         // Grid state
         this.columnFillCounts = Array(CONFIG.GRID.COLUMNS).fill(0);
+        
+        // Clear Mode specific state
+        if (this.isClearMode) {
+            this.initialGridState = [];
+            this.cellsClearedCount = 0;
+            this.targetCellsToClear = null;
+        }
     }
 
     isColumnFull(column) {

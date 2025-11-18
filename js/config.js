@@ -1,3 +1,9 @@
+// Game modes
+export const GameModes = {
+    CLASSIC: 'classic',     // Original mode: fill grid, run out of letters
+    CLEAR: 'clear'          // New mode: clear populated grid
+};
+
 // Configuration constants
 // Note: Feature flags moved to FeatureFlags.js for better organization
 export const CONFIG = {
@@ -8,7 +14,8 @@ export const CONFIG = {
     },
     GAME: {
         INITIAL_LETTERS: 100,
-        PREVIEW_COUNT: 5
+        PREVIEW_COUNT: 5,
+        CLEAR_MODE_CELL_PERCENTAGE: 0.5  // 50% of grid populated in Clear Mode
         // Note: Alphabet is now generated dynamically using LetterGenerator
         // based on English letter frequency distribution
     },
