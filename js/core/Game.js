@@ -1,5 +1,5 @@
 import { CONFIG } from '../config.js';
-import { FeatureFlags } from './FeatureFlags.js';
+import { FeatureManager } from './FeatureManager.js';
 import { GameState } from './GameState.js';
 import { DOMCache } from './DOMCache.js';
 import { AnimationController } from '../animation/AnimationController.js';
@@ -10,6 +10,7 @@ import { WordResolver } from '../word/WordResolver.js';
 import { WordItem } from '../word/WordItem.js';
 import { calculateWordScore } from '../scoring/ScoringUtils.js';
 import { MenuController } from '../menu/MenuController.js';
+import { StartMenuPreview } from '../menu/StartMenuPreview.js';
 import { AnimationSequencer } from '../animation/AnimationSequencer.js';
 import { SEQUENCES } from '../animation/AnimationSequences.js';
 
@@ -22,10 +23,13 @@ export class Game {
         this.state = new GameState();
         this.dom = new DOMCache();
         
+        // Initialize feature manager
+        this.features = new FeatureManager();
+        
         // Initialize controllers
         this.grid = new GridController(this.state, this.dom);
         this.letters = new LetterController(this.state, this.dom);
-        this.animator = new AnimationController(this.dom);
+        this.animator = new AnimationController(this.dom, this.features);
         this.score = new ScoreController(this.state, this.dom);
         this.wordResolver = null; // Will be initialized asynchronously
         
@@ -37,15 +41,22 @@ export class Game {
             () => this.handleMore()       // onMore callback
         );
         
+        // Initialize START menu preview (alternative to grid-based menu)
+        this.startMenuPreview = new StartMenuPreview(
+            this.dom,
+            () => this.startFromPreview() // onStart callback
+        );
+        
         // Initialize animation sequencer with all controllers
         this.sequencer = new AnimationSequencer({
             animator: this.animator,
             menu: this.menu,
+            startMenuPreview: this.startMenuPreview,
             grid: this.grid,
             letters: this.letters,
             score: this.score,
             game: this  // Add game controller for timer methods
-        });
+        }, this.features);
         
         // Load predefined sequences
         this.sequencer.loadSequences(SEQUENCES);
@@ -64,12 +75,15 @@ export class Game {
         this.wordResolver = await WordResolver.create(this.state, this.dom);
         console.log('Dictionary loaded successfully!');
         
+        // Initialize score display with config values
+        this.score.init();
+        
         // Setup grid and letters
         this.grid.generate();
         this.letters.initialize();
         
         // Load debug grid if enabled (for testing word detection)
-        if (FeatureFlags.isEnabled('debug.enabled') && FeatureFlags.isEnabled('debug.gridPattern')) {
+        if (this.features.isEnabled('debug.enabled') && this.features.isEnabled('debug.gridPattern')) {
             this.grid.loadDebugGrid();
         }
         
@@ -83,7 +97,7 @@ export class Game {
         };
         
         // Play appropriate intro sequence based on debug mode
-        if (FeatureFlags.isEnabled('debug.enabled')) {
+        if (this.features.isEnabled('debug.enabled')) {
             await this.sequencer.play('debugIntro', context);
         } else {
             await this.sequencer.play('intro', context);
@@ -125,7 +139,8 @@ export class Game {
             noodelItem: this.noodelItem,
             state: this.state,
             dom: this.dom,
-            score: this.score
+            score: this.score,
+            dictionary: this.wordResolver?.dictionary
         };
         
         // Play game start sequence
@@ -141,6 +156,45 @@ export class Game {
         this.hasClickedGrid = false;
         
         // Start new inactivity timer for gameplay (pulsate if no click within 5 seconds)
+        this.startInactivityTimer();
+    }
+
+    /**
+     * Start game from preview menu (runs START animation sequence)
+     */
+    async startFromPreview() {
+        // Clear inactivity timer
+        this.clearInactivityTimer();
+        this.hasClickedGrid = true;
+        
+        this.state.started = true;
+        this.dom.startBtn.textContent = '🔄';
+        
+        // Create context for animation sequence
+        const context = {
+            noodelItem: this.noodelItem,
+            state: this.state,
+            dom: this.dom,
+            score: this.score,
+            animator: this.animator,
+            letterController: this.letters,
+            startMenuPreview: this.startMenuPreview,
+            dictionary: this.wordResolver?.dictionary
+        };
+        
+        // Play START preview game start sequence
+        await this.sequencer.play('startPreviewGameStart', context);
+        
+        // Clear noodelItem reference after it's been added
+        this.noodelItem = null;
+        
+        // Add click handlers to grid squares
+        this.grid.addClickHandlers((e) => this.handleSquareClick(e));
+        
+        // Reset flag for gameplay inactivity tracking
+        this.hasClickedGrid = false;
+        
+        // Start new inactivity timer for gameplay
         this.startInactivityTimer();
     }
 
@@ -167,15 +221,20 @@ export class Game {
     }
 
     async reset() {
+        // Clear inactivity timer
+        this.clearInactivityTimer();
+        this.hasClickedGrid = true;
+        
         // Reset game state (score, letters, grid data)
         this.state.reset();
         
-        // Clear and regenerate the grid
-        this.dom.grid.innerHTML = '';
-        this.grid.generate();
+        // Show preview row with new letters
+        this.dom.preview.classList.add('visible');
         
-        // Generate new letter sequence
-        this.letters.initialize();
+        // Reset all controller displays (this updates the DOM)
+        this.score.displayReset();
+        this.grid.displayReset();
+        this.letters.displayReset();
         
         // Reset progress bar to 100%
         this.animator.updateLetterProgress(
@@ -183,20 +242,41 @@ export class Game {
             CONFIG.GAME.INITIAL_LETTERS
         );
         
-        // Clear preview tiles
-        this.menu.clearPreviewTiles();
+        // Shake NOODEL title and preview letters to indicate new state
+        await Promise.all([
+            this.animator.shakeAllTitleLetters(),
+            this.animator.shakePreviewLetters()
+        ]);
         
-        // Hide preview row and change button back to start
-        this.dom.preview.classList.remove('visible');
-        this.dom.startBtn.textContent = '🎮';
+        // // Clear preview tiles and menus
+        // this.menu.clearPreviewTiles();
+        // if (this.menu.isActive()) {
+        //     this.menu.hide();
+        // }
+        // if (this.startMenuPreview && this.startMenuPreview.isMenuActive()) {
+        //     this.startMenuPreview.hide();
+        // }
         
-        // Play reset sequence (menu flip + title shake in parallel)
-        await this.sequencer.play('reset');
+        // Update button to show reset icon
+        this.dom.startBtn.textContent = '🔄';
+        
+        // Mark game as started
+        this.state.started = true;
+        
+        // Add click handlers to grid squares
+        this.grid.addClickHandlers((e) => this.handleSquareClick(e));
+        
+        // // Reset flag for gameplay inactivity tracking
+        // this.hasClickedGrid = false;
+        
+        // // Start new inactivity timer for gameplay
+        // this.startInactivityTimer();
     }
 
     handleSquareClick(e) {
         // Don't process clicks when menu is active
         if (this.menu && this.menu.isActive()) return;
+        if (this.startMenuPreview && this.startMenuPreview.isMenuActive()) return;
         
         if (!this.state.started) return;
         
@@ -239,7 +319,7 @@ export class Game {
             );
             
             // Check for words after the letter has been placed (if enabled)
-            if (FeatureFlags.isEnabled('wordDetection')) {
+            if (this.features.isEnabled('wordDetection')) {
                 await this.checkAndProcessWords();
             }
         });
@@ -258,7 +338,7 @@ export class Game {
                 const foundWords = this.wordResolver.checkForWords();
                 
                 // Check if word highlighting animation is enabled
-                const shouldAnimate = FeatureFlags.isEnabled('animations.wordHighlight');
+                const shouldAnimate = this.features.isEnabled('animations.wordHighlight');
                 
                 if (foundWords.length > 0) {
                     // Animate all words in this game state SIMULTANEOUSLY (if enabled)
@@ -293,7 +373,7 @@ export class Game {
                     }
                     
                     // Apply gravity to drop letters down (creates new game state) - if enabled
-                    if (FeatureFlags.isEnabled('gravityPhysics')) {
+                    if (this.features.isEnabled('gravityPhysics')) {
                         this.grid.applyGravity();
                     }
                     

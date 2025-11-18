@@ -244,6 +244,14 @@
     outline-color: rgba(106, 106, 106, 0.8);
 }
 
+/* Column Click Simulation (for START animation) */
+.grid-square.column-clicked {
+    background: linear-gradient(145deg, var(--color-blue-pale), var(--color-blue-pale-2));
+    border-color: var(--color-accent-primary);
+    transform: scale(0.95);
+    transition: all 0.1s ease-out;
+}
+
 /* Menu Arrow - Pulsating indicator */
 .grid-square.menu-arrow {
     cursor: pointer;

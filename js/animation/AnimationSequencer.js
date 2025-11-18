@@ -1,15 +1,15 @@
-import { FeatureFlags } from '../core/FeatureFlags.js';
 import { CONFIG } from '../config.js';
 
 /**
  * AnimationSequencer class - Orchestrates animation sequences
  * Manages declarative animation steps with parallel/sequential execution
- * Integrates with FeatureFlags to skip disabled animations
+ * Integrates with FeatureManager to skip disabled animations
  */
 export class AnimationSequencer {
-    constructor(controllers) {
+    constructor(controllers, featureManager = null) {
         // Controllers: { animator, menu, grid, etc. }
         this.controllers = controllers;
+        this.features = featureManager;
         this.sequences = new Map();
         this.running = false;
         this.paused = false;
@@ -51,7 +51,7 @@ export class AnimationSequencer {
         this.running = true;
         this.currentSequence = sequenceName;
 
-        if (FeatureFlags.isEnabled('debug.logTiming')) {
+        if (this.features?.isEnabled('debug.logTiming')) {
             console.log(`🎬 Playing sequence: ${sequenceName}`);
         }
 
@@ -68,9 +68,17 @@ export class AnimationSequencer {
                 }
 
                 // Check if feature is required and enabled
-                if (step.feature && !FeatureFlags.isEnabled(step.feature)) {
-                    if (FeatureFlags.isEnabled('debug.logTiming')) {
+                if (step.feature && !this.features?.isEnabled(step.feature)) {
+                    if (this.features?.isEnabled('debug.logTiming')) {
                         console.log(`⏭️ Skipped step '${step.name}': feature '${step.feature}' disabled`);
+                    }
+                    continue;
+                }
+
+                // Check if step should run based on conditional logic
+                if (step.shouldRun && !step.shouldRun(context)) {
+                    if (this.features?.isEnabled('debug.logTiming')) {
+                        console.log(`⏭️ Skipped step '${step.name}': shouldRun condition not met`);
                     }
                     continue;
                 }
@@ -96,7 +104,7 @@ export class AnimationSequencer {
                 await Promise.all(parallelPromises);
             }
 
-            if (FeatureFlags.isEnabled('debug.logTiming')) {
+            if (this.features?.isEnabled('debug.logTiming')) {
                 console.log(`✅ Completed sequence: ${sequenceName}`);
             }
         } finally {
@@ -113,7 +121,7 @@ export class AnimationSequencer {
      * @returns {Promise} Resolves when step completes
      */
     async executeStep(step, context, index) {
-        const startTime = FeatureFlags.isEnabled('debug.logTiming') ? performance.now() : 0;
+        const startTime = this.features?.isEnabled('debug.logTiming') ? performance.now() : 0;
 
         // Get the target controller (default to animator)
         const controllerName = step.target || 'animator';
@@ -143,7 +151,7 @@ export class AnimationSequencer {
         }
 
         // Log step execution in debug mode
-        if (FeatureFlags.isEnabled('debug.logTiming')) {
+        if (this.features?.isEnabled('debug.logTiming')) {
             const parallel = step.parallel ? '⚡' : '▶️';
             console.log(`${parallel} Step ${index + 1}: ${step.name}`, args.length > 0 ? args : '');
         }
@@ -170,7 +178,7 @@ export class AnimationSequencer {
         }
 
         // Log completion in debug mode
-        if (FeatureFlags.isEnabled('debug.logTiming')) {
+        if (this.features?.isEnabled('debug.logTiming')) {
             const elapsed = performance.now() - startTime;
             console.log(`  ✓ Completed '${step.name}' in ${elapsed.toFixed(2)}ms`);
         }

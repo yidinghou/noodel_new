@@ -93,6 +93,12 @@
     --animation-delay-stats: 0.4s;
     --animation-delay-letter-stage2: 0.2s;
     --animation-delay-word-clear: 0.1s;
+    
+    /* START Menu Animation Timings */
+    --animation-duration-start-click-highlight: 150ms;
+    --animation-delay-start-letter-drop: 80ms;
+    --animation-delay-start-word-pause: 300ms;
+    --animation-delay-start-clear-pause: 150ms;
 }
 
 body {
@@ -181,5 +187,28 @@ body {
     }
     100% {
         transform: scale(1.15);
+    }
+}
+
+@keyframes previewShake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+@keyframes highlightFlash {
+    0%, 100% {
+        background-color: transparent;
+        transform: scale(1);
+    }
+    50% {
+        background-color: var(--color-orange-light);
+        transform: scale(1.1);
     }
 }

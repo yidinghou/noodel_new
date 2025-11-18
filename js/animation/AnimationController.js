@@ -1,5 +1,4 @@
 import { CONFIG } from '../config.js';
-import { FeatureFlags } from '../core/FeatureFlags.js';
 import { AnimationHelpers } from './AnimationHelpers.js';
 
 /**
@@ -7,9 +6,16 @@ import { AnimationHelpers } from './AnimationHelpers.js';
  * Uses CSS custom properties for timing and animationend events for synchronization
  */
 export class AnimationController {
-    constructor(domCache) {
+    constructor(domCache, featureManager = null) {
         this.dom = domCache;
+        this.features = featureManager;
         this.cssVars = AnimationHelpers.loadCSSTimings();
+        
+        // Load additional timing for START menu
+        const root = getComputedStyle(document.documentElement);
+        this.cssVars.startClickHighlight = AnimationHelpers.parseTime(
+            root.getPropertyValue('--animation-duration-start-click-highlight')
+        );
     }
 
     // Randomize NOODEL title letter animation delays
@@ -244,7 +250,7 @@ export class AnimationController {
      */
     updateLetterProgress(lettersRemaining, totalLetters) {
         // Check if progress bar feature is enabled
-        if (!FeatureFlags.isEnabled('titleProgressBar')) {
+        if (!this.features || !this.features.isEnabled('titleProgressBar')) {
             return;
         }
         
@@ -287,5 +293,74 @@ export class AnimationController {
         
         // Remove class after animation finishes
         grid.classList.remove('pulsating');
+    }
+
+    /**
+     * Simulate a click highlight on a grid square
+     * Used for visual feedback during automated animations
+     * @param {number} index - Grid square index
+     * @param {string} className - CSS class to apply (default: 'column-clicked')
+     * @param {number} duration - Duration in ms (optional, uses CSS timing if not provided)
+     */
+    async highlightGridSquare(index, className = 'column-clicked', duration = null) {
+        const square = this.dom.getGridSquare(index);
+        if (!square) return;
+        
+        // Add highlight class
+        square.classList.add(className);
+        
+        // Use provided duration or load from CSS
+        const highlightDuration = duration || this.cssVars.startClickHighlight || 150;
+        await new Promise(resolve => setTimeout(resolve, highlightDuration));
+        
+        // Remove highlight class
+        square.classList.remove(className);
+    }
+
+    /**
+     * Shake all preview letter blocks
+     * Used for visual feedback on reset
+     */
+    async shakePreviewLetters() {
+        const preview = this.dom.preview;
+        if (!preview) return;
+        
+        const blocks = preview.querySelectorAll('.preview-letter-block');
+        if (!blocks.length) return;
+        
+        // Add shake animation to all blocks
+        blocks.forEach(block => {
+            block.style.animation = 'previewShake 0.4s ease-in-out';
+        });
+        
+        // Wait for animation to complete
+        await new Promise(resolve => setTimeout(resolve, 400));
+        
+        // Clear animation
+        blocks.forEach(block => {
+            block.style.animation = '';
+        });
+    }
+
+    /**
+     * Highlight/flash stat elements (score and letters remaining)
+     * Used for visual feedback on reset
+     */
+    async highlightStats() {
+        const scoreValue = this.dom.scoreValue;
+        const lettersRemaining = this.dom.lettersRemaining;
+        
+        if (!scoreValue || !lettersRemaining) return;
+        
+        // Add flash animation
+        scoreValue.style.animation = 'highlightFlash 0.6s ease-in-out';
+        lettersRemaining.style.animation = 'highlightFlash 0.6s ease-in-out';
+        
+        // Wait for animation to complete
+        await new Promise(resolve => setTimeout(resolve, 600));
+        
+        // Clear animation
+        scoreValue.style.animation = '';
+        lettersRemaining.style.animation = '';
     }
 }

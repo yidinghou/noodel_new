@@ -9,6 +9,7 @@ export class GameState {
     constructor() {
         // Game flow state
         this.started = false;
+        this.isFirstLoad = true; // Track if this is the first load (shows NOODEL overlay) vs a reset
         
         // Score tracking (starts negative to account for NOODEL title word)
         this.score = -calculateWordScore('NOODEL');
@@ -83,6 +84,7 @@ export class GameState {
     reset() {
         // Game flow state
         this.started = false;
+        this.isFirstLoad = false; // After first reset, we're no longer in first load
         
         // Score tracking (starts negative to account for NOODEL title word)
         this.score = -calculateWordScore('NOODEL');

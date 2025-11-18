@@ -1,5 +1,5 @@
 import { CONFIG } from '../config.js';
-import { FeatureFlags } from '../core/FeatureFlags.js';
+
 
 /**
  * GridController class - Manages grid generation and interactions
@@ -149,5 +149,14 @@ export class GridController {
         squares.forEach(square => {
             square.classList.remove('pulsating');
         });
+    }
+
+    /**
+     * Reset display - clear and regenerate the grid
+     * Called when game is reset
+     */
+    displayReset() {
+        this.dom.grid.innerHTML = '';
+        this.generate();
     }
 }

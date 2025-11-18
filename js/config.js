@@ -7,10 +7,15 @@ export const CONFIG = {
         TOTAL_CELLS: 42
     },
     GAME: {
-        INITIAL_LETTERS: 100,
-        PREVIEW_COUNT: 4
+        INITIAL_LETTERS: 10,
+        PREVIEW_COUNT: 5
         // Note: Alphabet is now generated dynamically using LetterGenerator
         // based on English letter frequency distribution
+    },
+    START_MENU: {
+        LETTERS: ['S', 'T', 'A', 'R', 'T'],
+        COLUMNS: [1, 2, 3, 4, 5]  // First 5 columns for START letters
+        // TARGET_ROW calculated as GRID.ROWS - 1 (bottom row)
     },
     // Note: Animation timing moved to CSS custom properties in base.css
     // AnimationController reads these values dynamically from CSS

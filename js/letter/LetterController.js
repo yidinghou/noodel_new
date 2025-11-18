@@ -69,4 +69,13 @@ export class LetterController {
     getNextLetter() {
         return this.gameState.nextLetters[0];
     }
+
+    /**
+     * Reset display - reinitialize and display preview letters
+     * Called when game is reset
+     */
+    displayReset() {
+        this.initialize();
+        this.display();
+    }
 }

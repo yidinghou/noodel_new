@@ -1,5 +1,6 @@
 import { CONFIG } from '../config.js';
 
+
 /**
  * MenuController class - Manages the menu interface using grid-based buttons
  * Displays START, LOGIN, and MORE as clickable words in the game grid
@@ -83,6 +84,13 @@ export class MenuController {
                 console.log('Adding menu click handlers...');
                 this.addMenuClickHandlers();
             }, totalFlipTime);
+        } else if (!FeatureFlags.isEnabled('animations.menuDrop')) {
+            // Skip drop animation - place buttons directly in grid
+            this.showMenuButtonsDirectly(menuButtons);
+            setTimeout(() => {
+                console.log('Adding menu click handlers...');
+                this.addMenuClickHandlers();
+            }, 100);
         } else {
             // Show buttons in preview position (no drop animation yet)
             this.showMenuButtonsInPreview(menuButtons);
@@ -179,6 +187,22 @@ export class MenuController {
                     square.dataset.menuButton = word;
                 }
             }, delay);
+        });
+    }
+
+    /**
+     * Show menu buttons directly in grid (no animation)
+     */
+    showMenuButtonsDirectly(menuButtons) {
+        menuButtons.forEach(buttonData => {
+            const { square, letter, className, word, isArrow } = buttonData;
+            
+            // Place content and classes directly
+            square.textContent = letter;
+            square.classList.add('filled', isArrow ? 'menu-arrow' : 'menu-button', className);
+            if (!isArrow) {
+                square.dataset.menuButton = word;
+            }
         });
     }
 

@@ -1,4 +1,5 @@
 import { WordItem } from '../word/WordItem.js';
+import { CONFIG } from '../config.js';
 
 /**
  * ScoreController class - Manages scoring, words, and game progress
@@ -8,6 +9,18 @@ export class ScoreController {
         this.gameState = gameState;
         this.dom = domCache;
         this.madeWords = []; // Store WordItem instances for stats
+    }
+
+    /**
+     * Initialize display from config values
+     * Called once when the game initializes
+     */
+    init() {
+        // Set initial score from game state (starts negative to account for NOODEL)
+        this.dom.scoreValue.textContent = this.gameState.score;
+        
+        // Set initial letters remaining from config
+        this.dom.lettersRemaining.textContent = CONFIG.GAME.INITIAL_LETTERS;
     }
 
     // Add word to the words list
@@ -50,5 +63,20 @@ export class ScoreController {
             // Game over logic
             alert('Game Over! No more letters remaining.');
         }
+    }
+
+    /**
+     * Reset display - clear words list and update score/letters display
+     * Called when game is reset
+     */
+    displayReset() {
+        this.madeWords = [];
+        this.dom.wordsList.innerHTML = '';
+        
+        // Update score display
+        this.dom.scoreValue.textContent = this.gameState.score;
+        
+        // Update letters remaining display from config
+        this.dom.lettersRemaining.textContent = this.gameState.lettersRemaining;
     }
 }
