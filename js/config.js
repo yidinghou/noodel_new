@@ -7,7 +7,7 @@ export const CONFIG = {
         TOTAL_CELLS: 42
     },
     GAME: {
-        INITIAL_LETTERS: 10,
+        INITIAL_LETTERS: 100,
         PREVIEW_COUNT: 5
         // Note: Alphabet is now generated dynamically using LetterGenerator
         // based on English letter frequency distribution
