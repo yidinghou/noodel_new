@@ -1,7 +1,9 @@
-import { CONFIG } from '../config.js';
+import { CONFIG, GameModes } from '../config.js';
 import { FeatureManager } from './FeatureManager.js';
 import { GameState } from './GameState.js';
 import { DOMCache } from './DOMCache.js';
+import { ClearModeInitializer } from './ClearModeInitializer.js';
+import { LetterGenerator } from '../letter/LetterGenerator.js';
 import { AnimationController } from '../animation/AnimationController.js';
 import { GridController } from '../grid/GridController.js';
 import { LetterController } from '../letter/LetterController.js';
@@ -25,6 +27,9 @@ export class Game {
         
         // Initialize feature manager
         this.features = new FeatureManager();
+        
+        // Current game mode (defaults to CLASSIC)
+        this.currentGameMode = GameModes.CLASSIC;
         
         // Initialize controllers
         this.grid = new GridController(this.state, this.dom);
@@ -126,13 +131,23 @@ export class Game {
         });
     }
 
-    async start() {
+    async start(gameMode = GameModes.CLASSIC) {
         // Clear inactivity timer when menu button is clicked
         this.clearInactivityTimer();
         this.hasClickedGrid = true;
         
+        // Set game mode
+        this.currentGameMode = gameMode;
+        this.state.gameMode = gameMode;
+        this.state.isClearMode = gameMode === GameModes.CLEAR;
+        
         this.state.started = true;
         this.dom.startBtn.textContent = '🔄';
+        
+        // Handle mode-specific setup before game start sequence
+        if (gameMode === GameModes.CLEAR) {
+            await this.initializeClearMode();
+        }
         
         // Create context for game start sequence
         const context = {
@@ -157,6 +172,69 @@ export class Game {
         
         // Start new inactivity timer for gameplay (pulsate if no click within 5 seconds)
         this.startInactivityTimer();
+    }
+
+    /**
+     * Initialize Clear Mode - populate grid with ~50% letters
+     */
+    async initializeClearMode() {
+        console.log('Initializing Clear Mode...');
+        
+        // Create a letter generator for initial population
+        const letterGenerator = new LetterGenerator(CONFIG.GAME.INITIAL_LETTERS);
+        
+        // Populate grid with ~50% letters
+        const populatedCells = ClearModeInitializer.populateGridWithLetters(
+            this.state,
+            letterGenerator
+        );
+        
+        // Apply to DOM
+        ClearModeInitializer.applyGridPopulation(this.dom.grid, populatedCells);
+        ClearModeInitializer.updateGameState(this.state, populatedCells);
+        
+        // Update UI for Clear Mode
+        this.updateUIForClearMode();
+        
+        console.log(`Clear Mode initialized: ${populatedCells.length} cells populated (target: ${this.state.targetCellsToClear})`);
+    }
+
+    /**
+     * Update UI elements for Clear Mode display
+     */
+    updateUIForClearMode() {
+        // Update stats label
+        const labels = this.dom.stats.querySelectorAll('.stat-label');
+        labels.forEach(label => {
+            if (label.textContent.includes('Letters')) {
+                label.textContent = 'Grid Progress';
+                label.classList.add('clear-mode');
+            }
+        });
+        
+        // Update progress display
+        this.updateClearModeProgress();
+    }
+
+    /**
+     * Update Clear Mode progress display
+     */
+    updateClearModeProgress() {
+        if (this.state.isClearMode) {
+            const remainingCells = this.state.targetCellsToClear - this.state.cellsClearedCount;
+            const progressPercent = Math.round(this.state.getClearModeProgress());
+            
+            // Update progress display (e.g., "45/21" for remaining/total)
+            const lettersDisplay = this.dom.lettersRemaining;
+            if (lettersDisplay) {
+                lettersDisplay.textContent = `${remainingCells}/${this.state.targetCellsToClear}`;
+            }
+            
+            // Update progress bar if available
+            if (this.animator && this.animator.updateLetterProgress) {
+                this.animator.updateLetterProgress(remainingCells, this.state.targetCellsToClear);
+            }
+        }
     }
 
     /**
@@ -225,8 +303,11 @@ export class Game {
         this.clearInactivityTimer();
         this.hasClickedGrid = true;
         
-        // Reset game state (score, letters, grid data)
+        // Reset game state with current game mode (score, letters, grid data)
         this.state.reset();
+        // Preserve the game mode across resets
+        this.state.gameMode = this.currentGameMode;
+        this.state.isClearMode = this.currentGameMode === GameModes.CLEAR;
         
         // Reset all controller displays (this updates the DOM)
         this.score.displayReset();
@@ -244,6 +325,11 @@ export class Game {
         
         // Mark game as started
         this.state.started = true;
+        
+        // Handle mode-specific setup before game start sequence
+        if (this.currentGameMode === GameModes.CLEAR) {
+            await this.initializeClearMode();
+        }
         
         // Create context for game start sequence
         const context = {
@@ -344,7 +430,28 @@ export class Game {
                         const points = calculateWordScore(wordData.word); // Calculate points using Scrabble values + length bonus
                         const wordItem = new WordItem(wordData.word, wordData.definition, points);
                         this.score.addWord(wordItem);
+                        
+                        // Track cleared cells for Clear Mode
+                        if (this.state.isClearMode) {
+                            this.state.cellsClearedCount += wordData.positions.length;
+                        }
                     });
+                    
+                    // Check if Clear Mode is complete
+                    if (this.state.isClearMode && this.state.cellsClearedCount >= this.state.targetCellsToClear) {
+                        // Update progress display before showing victory
+                        this.updateClearModeProgress();
+                        
+                        // Handle Clear Mode complete
+                        await this.handleClearModeComplete();
+                        this.isProcessingWords = false;
+                        return;
+                    }
+                    
+                    // Update progress display for Clear Mode
+                    if (this.state.isClearMode) {
+                        this.updateClearModeProgress();
+                    }
                     
                     // Clear all word cells after animation
                     foundWords.forEach(wordData => {
@@ -383,6 +490,36 @@ export class Game {
                 this.grid.startPulsating();
             }
         }, 5000);
+    }
+
+    /**
+     * Handle Clear Mode completion
+     */
+    async handleClearModeComplete() {
+        console.log('🎉 Clear Mode Complete!');
+        
+        this.state.started = false;
+        this.dom.startBtn.textContent = '🎮';
+        
+        // Create context for victory sequence
+        const context = {
+            state: this.state,
+            dom: this.dom,
+            score: this.score,
+            animator: this.animator,
+            menu: this.menu,
+            finalScore: this.state.score,
+            game: this
+        };
+        
+        // Play Clear Mode complete sequence (animations + return to menu)
+        if (this.sequencer && this.sequencer.sequences && this.sequencer.sequences['clearModeComplete']) {
+            await this.sequencer.play('clearModeComplete', context);
+        } else {
+            // Fallback if sequence not defined yet
+            console.log('Clear Mode complete sequence not yet defined, showing menu');
+            this.menu.show();
+        }
     }
 
     // Clear the inactivity timer and stop pulsating
