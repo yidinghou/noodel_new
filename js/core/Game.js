@@ -228,19 +228,10 @@ export class Game {
         // Reset game state (score, letters, grid data)
         this.state.reset();
         
-        // Show preview row with new letters
-        this.dom.preview.classList.add('visible');
-        
         // Reset all controller displays (this updates the DOM)
         this.score.displayReset();
         this.grid.displayReset();
         this.letters.displayReset();
-        
-        // Reset progress bar to 100%
-        this.animator.updateLetterProgress(
-            CONFIG.GAME.INITIAL_LETTERS,
-            CONFIG.GAME.INITIAL_LETTERS
-        );
         
         // Shake NOODEL title and preview letters to indicate new state
         await Promise.all([
@@ -248,29 +239,26 @@ export class Game {
             this.animator.shakePreviewLetters()
         ]);
         
-        // // Clear preview tiles and menus
-        // this.menu.clearPreviewTiles();
-        // if (this.menu.isActive()) {
-        //     this.menu.hide();
-        // }
-        // if (this.startMenuPreview && this.startMenuPreview.isMenuActive()) {
-        //     this.startMenuPreview.hide();
-        // }
-        
         // Update button to show reset icon
         this.dom.startBtn.textContent = '🔄';
         
         // Mark game as started
         this.state.started = true;
         
+        // Create context for game start sequence
+        const context = {
+            noodelItem: null, // Will be created in sequence
+            state: this.state,
+            dom: this.dom,
+            score: this.score,
+            dictionary: this.wordResolver?.dictionary
+        };
+        
+        // Play game start sequence (adds NOODEL word to the list)
+        await this.sequencer.play('gameStart', context);
+        
         // Add click handlers to grid squares
         this.grid.addClickHandlers((e) => this.handleSquareClick(e));
-        
-        // // Reset flag for gameplay inactivity tracking
-        // this.hasClickedGrid = false;
-        
-        // // Start new inactivity timer for gameplay
-        // this.startInactivityTimer();
     }
 
     handleSquareClick(e) {
