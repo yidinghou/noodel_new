@@ -363,4 +363,84 @@ export class AnimationController {
         scoreValue.style.animation = '';
         lettersRemaining.style.animation = '';
     }
+
+    /**
+     * Celebrate grid being cleared (cascade effect)
+     * Used when Clear Mode is completed
+     */
+    async celebrateGridClear() {
+        return new Promise(resolve => {
+            const squares = Array.from(this.dom.getAllGridSquares());
+            
+            // Stagger celebration animation across columns
+            squares.forEach((square, index) => {
+                const delay = (index % CONFIG.GRID.COLUMNS) * 50;
+                
+                setTimeout(() => {
+                    square.classList.add('celebrate');
+                }, delay);
+            });
+            
+            // Remove celebration class after animation and resolve
+            setTimeout(() => {
+                squares.forEach(square => {
+                    square.classList.remove('celebrate');
+                });
+                resolve();
+            }, 800);
+        });
+    }
+
+    /**
+     * Show victory overlay with custom message
+     * @param {string} message - Victory message to display
+     */
+    async showVictoryOverlay(message) {
+        return new Promise(resolve => {
+            const overlay = document.createElement('div');
+            overlay.className = 'victory-overlay';
+            overlay.innerHTML = `<div class="victory-message">${message}</div>`;
+            
+            document.body.appendChild(overlay);
+            
+            // Animate in
+            setTimeout(() => overlay.classList.add('show'), 10);
+            
+            // Auto-remove overlay after animation completes
+            // (onAfter handler in sequence will call resolve)
+            // Store resolve for potential cleanup
+            overlay.dataset.resolveCallback = resolve;
+        });
+    }
+
+    /**
+     * Animate revealing grid with populated letters
+     * Used at the start of Clear Mode
+     */
+    async revealGridWithPopulation() {
+        return new Promise(resolve => {
+            const squares = Array.from(this.dom.getAllGridSquares());
+            
+            // Stagger reveal animation for populated cells
+            squares.forEach((square, index) => {
+                if (square.classList.contains('filled')) {
+                    const delay = Math.random() * 300;
+                    
+                    setTimeout(() => {
+                        square.classList.add('reveal');
+                    }, delay);
+                }
+            });
+            
+            // Remove reveal class after animation and resolve
+            setTimeout(() => {
+                squares.forEach(square => {
+                    if (square.classList.contains('filled')) {
+                        square.classList.remove('reveal');
+                    }
+                });
+                resolve();
+            }, 600);
+        });
+    }
 }

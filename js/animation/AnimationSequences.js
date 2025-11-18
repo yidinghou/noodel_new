@@ -427,6 +427,54 @@ export const START_PREVIEW_GAME_START_SEQUENCE = [
 ];
 
 /**
+ * CLEAR MODE COMPLETE SEQUENCE
+ * Plays when Clear Mode is completed (all cells cleared)
+ * - Celebrate grid with cascade animation
+ * - Show victory message overlay
+ * - Return to menu
+ */
+export const CLEAR_MODE_COMPLETE_SEQUENCE = [
+    {
+        name: 'celebrateGridClear',
+        method: 'celebrateGridClear',
+        target: 'animator',
+        duration: 800,
+        parallel: false
+    },
+    {
+        name: 'showVictoryMessage',
+        method: 'showVictoryOverlay',
+        target: 'animator',
+        duration: 1000,
+        args: (ctx) => [`🎉 Clear Mode Complete! 🎉\nScore: ${Math.round(ctx.finalScore)}`],
+        parallel: false,
+        onAfter: (ctx) => {
+            // Wait for user to acknowledge or auto-dismiss after 5 seconds
+            return new Promise(resolve => {
+                const timeoutId = setTimeout(() => {
+                    resolve();
+                }, 4000); // Auto-dismiss after 4 seconds (1s margin before next sequence)
+                
+                // Allow click to dismiss early
+                const onClick = () => {
+                    clearTimeout(timeoutId);
+                    document.removeEventListener('click', onClick);
+                    resolve();
+                };
+                document.addEventListener('click', onClick);
+            });
+        }
+    },
+    {
+        name: 'showMenu',
+        method: 'show',
+        target: 'menu',
+        duration: 400,
+        parallel: false
+    }
+];
+
+/**
  * All sequences mapped by name
  */
 export const SEQUENCES = {
@@ -436,5 +484,6 @@ export const SEQUENCES = {
     startPreviewGameStart: START_PREVIEW_GAME_START_SEQUENCE,
     reset: RESET_SEQUENCE,
     letterDrop: LETTER_DROP_SEQUENCE,
-    wordFound: WORD_FOUND_SEQUENCE
+    wordFound: WORD_FOUND_SEQUENCE,
+    clearModeComplete: CLEAR_MODE_COMPLETE_SEQUENCE
 };
