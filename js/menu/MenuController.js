@@ -1,4 +1,4 @@
-import { CONFIG } from '../config.js';
+import { CONFIG, GameModes } from '../config.js';
 
 
 /**
@@ -21,8 +21,17 @@ export class MenuController {
                 row: 1,
                 startCol: 1,
                 className: 'menu-start',
+                gameMode: GameModes.CLASSIC,
                 hasArrow: true,
                 arrowCol: 0
+            },
+            {
+                word: 'CLEAR',
+                row: 2.5,
+                startCol: 1,
+                className: 'menu-clear',
+                gameMode: GameModes.CLEAR,
+                hasArrow: false
             },
             {
                 word: 'LOGIN',
@@ -115,7 +124,7 @@ export class MenuController {
      * Collect menu button data for animation
      */
     collectMenuButtonData(menuItem) {
-        const { word, row, startCol, className, hasArrow, arrowCol } = menuItem;
+        const { word, row, startCol, className, hasArrow, arrowCol, gameMode } = menuItem;
         const buttonData = [];
         
         // Add arrow if specified
@@ -132,7 +141,8 @@ export class MenuController {
                     index: arrowIndex,
                     row: row,
                     col: arrowCol,
-                    isArrow: true
+                    isArrow: true,
+                    gameMode: gameMode
                 });
             }
         }
@@ -152,7 +162,8 @@ export class MenuController {
                     index: index,
                     row: row,
                     col: col,
-                    isArrow: false
+                    isArrow: false,
+                    gameMode: gameMode
                 });
             }
         }
@@ -195,13 +206,16 @@ export class MenuController {
      */
     showMenuButtonsDirectly(menuButtons) {
         menuButtons.forEach(buttonData => {
-            const { square, letter, className, word, isArrow } = buttonData;
+            const { square, letter, className, word, isArrow, gameMode } = buttonData;
             
             // Place content and classes directly
             square.textContent = letter;
             square.classList.add('filled', isArrow ? 'menu-arrow' : 'menu-button', className);
             if (!isArrow) {
-                square.dataset.menuButton = word;
+                square.dataset.menuButton = word.toLowerCase();
+                if (gameMode) {
+                    square.dataset.gameMode = gameMode;
+                }
             }
         });
     }
@@ -211,7 +225,7 @@ export class MenuController {
      */
     showMenuButtonsInPreview(menuButtons) {
         menuButtons.forEach(buttonData => {
-            const { square, letter, className, word, isArrow } = buttonData;
+            const { square, letter, className, word, isArrow, gameMode } = buttonData;
             
             // Get preview spacer for this column
             const spacer = this.dom.preview.querySelector(`[data-column="${buttonData.col}"]`);
@@ -221,7 +235,10 @@ export class MenuController {
                 spacer.textContent = letter;
                 spacer.classList.add('filled', isArrow ? 'menu-arrow' : 'menu-button', className);
                 if (!isArrow) {
-                    spacer.dataset.menuButton = word;
+                    spacer.dataset.menuButton = word.toLowerCase();
+                    if (gameMode) {
+                        spacer.dataset.gameMode = gameMode;
+                    }
                 }
                 
                 // Store reference for click handler
@@ -356,12 +373,14 @@ export class MenuController {
         }
         
         const buttonType = e.target.dataset.menuButton;
+        const gameMode = e.target.dataset.gameMode || GameModes.CLASSIC;
         
         switch (buttonType) {
             case 'start':
-                console.log('Starting game...');
+            case 'clear':
+                console.log(`Starting game in ${gameMode} mode...`);
                 this.hide();
-                if (this.onStart) this.onStart();
+                if (this.onStart) this.onStart(gameMode);
                 break;
             case 'login':
                 console.log('Login clicked...');
