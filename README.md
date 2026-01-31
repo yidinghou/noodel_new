@@ -45,6 +45,52 @@ npm start
 
 Visit `http://localhost:3000` to play locally.
 
+### Testing
+
+The project uses Jest with jsdom for unit testing.
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode (re-runs on file changes)
+npm run test:watch
+
+# Run tests with coverage report
+npm run test:coverage
+
+# Run specific test file
+npm test -- --testPathPattern=GridController
+```
+
+#### Test Structure
+
+```
+__tests__/
+├── setup.test.js           # Jest configuration sanity tests
+├── GridController.test.js  # Grid generation, clicks, gravity tests
+└── ...                     # Additional test files
+```
+
+#### Writing Tests
+
+Tests use mock objects to isolate modules from dependencies:
+
+```javascript
+// Example: Testing GridController
+import { jest } from '@jest/globals';
+import { GridController } from '../js/grid/GridController.js';
+
+// Create mocks for dependencies
+const mockDOM = { grid: document.createElement('div'), /* ... */ };
+const mockState = { started: false, columnFillCounts: [] };
+
+// Instantiate and test
+const controller = new GridController(mockState, mockDOM);
+controller.generate();
+expect(mockDOM.grid.children.length).toBe(42);
+```
+
 ### Debug Features
 
 Add these URL parameters for debugging:
@@ -110,6 +156,7 @@ features.enable("debug.gridPattern");
 - **Frontend**: Vanilla JavaScript ES6+ modules
 - **Backend**: Express.js (for static file serving)
 - **Deployment**: Railway with automatic deployments
+- **Testing**: Jest with jsdom for DOM testing
 - **Word Lists**: CSV-based dictionary with 3-7 letter words
 - **Animations**: CSS-based with JavaScript timing control
 
