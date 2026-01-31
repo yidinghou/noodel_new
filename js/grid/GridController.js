@@ -27,11 +27,43 @@ export class GridController {
         this.dom = domCache;
         this.clickHandler = null;
         
-        // Use injected config or fall back to global CONFIG
-        this.gridConfig = gridConfig || {
-            rows: CONFIG.GRID.ROWS,
-            columns: CONFIG.GRID.COLUMNS,
-            totalCells: CONFIG.GRID.TOTAL_CELLS
+        // Normalize and validate the grid configuration, falling back to CONFIG.GRID if needed
+        this.gridConfig = this._normalizeGridConfig(gridConfig);
+    }
+
+    /**
+     * Normalize and validate an optional grid configuration object.
+     * Ensures rows/columns are positive integers and totalCells is consistent.
+     * 
+     * @param {GridConfig|null} gridConfig
+     * @returns {GridConfig}
+     * @private
+     */
+    _normalizeGridConfig(gridConfig) {
+        const defaultRows = CONFIG.GRID.ROWS;
+        const defaultColumns = CONFIG.GRID.COLUMNS;
+
+        let rows = gridConfig && typeof gridConfig.rows === 'number' && Number.isFinite(gridConfig.rows)
+            ? gridConfig.rows
+            : defaultRows;
+        let columns = gridConfig && typeof gridConfig.columns === 'number' && Number.isFinite(gridConfig.columns)
+            ? gridConfig.columns
+            : defaultColumns;
+
+        // Coerce to integers and enforce minimum of 1
+        if (!Number.isInteger(rows) || rows <= 0) {
+            rows = defaultRows;
+        }
+        if (!Number.isInteger(columns) || columns <= 0) {
+            columns = defaultColumns;
+        }
+
+        const totalCells = rows * columns;
+
+        return {
+            rows,
+            columns,
+            totalCells
         };
     }
 
