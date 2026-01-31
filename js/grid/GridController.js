@@ -8,6 +8,7 @@ export class GridController {
     constructor(gameState, domCache) {
         this.gameState = gameState;
         this.dom = domCache;
+        this.clickHandler = null;
     }
 
     // Generate the grid
@@ -24,9 +25,25 @@ export class GridController {
 
     // Add click handlers to all grid squares
     addClickHandlers(handler) {
+        // Remove old handlers first to prevent duplicates
+        this.removeClickHandlers();
+        
+        // Store the handler reference
+        this.clickHandler = handler;
+        
         const squares = this.dom.getAllGridSquares();
         squares.forEach(square => {
             square.addEventListener('click', handler);
+        });
+    }
+
+    // Remove click handlers from all grid squares
+    removeClickHandlers() {
+        if (!this.clickHandler) return;
+        
+        const squares = this.dom.getAllGridSquares();
+        squares.forEach(square => {
+            square.removeEventListener('click', this.clickHandler);
         });
     }
 
@@ -156,6 +173,9 @@ export class GridController {
      * Called when game is reset
      */
     displayReset() {
+        // Remove click handlers before clearing
+        this.removeClickHandlers();
+        
         this.dom.grid.innerHTML = '';
         this.generate();
     }
