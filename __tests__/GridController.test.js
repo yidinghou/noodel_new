@@ -213,4 +213,101 @@ describe('GridController', () => {
       expect(result).toBeUndefined();
     });
   });
+
+  describe('applyGravity()', () => {
+    beforeEach(() => {
+      gridController.generate();
+    });
+
+    test('returns false when no letters need to move', () => {
+      // Empty grid - nothing to move
+      const result = gridController.applyGravity();
+      
+      expect(result).toBe(false);
+    });
+
+    test('returns false when letters are already at bottom', () => {
+      // Place letter at bottom of column 0
+      const bottomIndex = (CONFIG.GRID.ROWS - 1) * CONFIG.GRID.COLUMNS;
+      const square = mockDOM.getGridSquare(bottomIndex);
+      square.textContent = 'A';
+      square.classList.add('filled');
+      
+      const result = gridController.applyGravity();
+      
+      expect(result).toBe(false);
+    });
+
+    test('moves letters down to fill gaps', () => {
+      // Place letter at top of column 0, leave gap below
+      const topIndex = 0; // row 0, col 0
+      const topSquare = mockDOM.getGridSquare(topIndex);
+      topSquare.textContent = 'A';
+      topSquare.classList.add('filled');
+      
+      const result = gridController.applyGravity();
+      
+      // Letter should have moved to bottom
+      const bottomIndex = (CONFIG.GRID.ROWS - 1) * CONFIG.GRID.COLUMNS;
+      const bottomSquare = mockDOM.getGridSquare(bottomIndex);
+      
+      expect(result).toBe(true);
+      expect(bottomSquare.textContent).toBe('A');
+      expect(bottomSquare.classList.contains('filled')).toBe(true);
+      expect(topSquare.textContent).toBe('');
+      expect(topSquare.classList.contains('filled')).toBe(false);
+    });
+
+    test('updates column fill counts after gravity', () => {
+      // Place letter at bottom of column 0
+      const bottomIndex = (CONFIG.GRID.ROWS - 1) * CONFIG.GRID.COLUMNS;
+      const square = mockDOM.getGridSquare(bottomIndex);
+      square.textContent = 'A';
+      square.classList.add('filled');
+      
+      gridController.applyGravity();
+      
+      expect(mockState.columnFillCounts[0]).toBe(1);
+    });
+  });
+
+  describe('displayReset()', () => {
+    beforeEach(() => {
+      gridController.generate();
+    });
+
+    test('clears all grid content', () => {
+      // Fill a cell
+      const square = mockDOM.getGridSquare(0);
+      square.textContent = 'A';
+      square.classList.add('filled');
+      
+      gridController.displayReset();
+      
+      // Grid should be empty and regenerated
+      const newSquare = mockDOM.getGridSquare(0);
+      expect(newSquare.textContent).toBe('');
+      expect(newSquare.classList.contains('filled')).toBe(false);
+    });
+
+    test('regenerates correct number of squares', () => {
+      gridController.displayReset();
+      
+      const squares = mockDOM.getAllGridSquares();
+      expect(squares.length).toBe(CONFIG.GRID.TOTAL_CELLS);
+    });
+
+    test('removes click handlers before clearing', () => {
+      const handler = jest.fn();
+      gridController.addClickHandlers(handler);
+      
+      gridController.displayReset();
+      
+      // Old squares are gone, new squares don't have handler
+      const squares = mockDOM.getAllGridSquares();
+      squares[0].click();
+      
+      expect(handler).not.toHaveBeenCalled();
+    });
+  });
 });
