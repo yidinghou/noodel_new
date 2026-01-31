@@ -164,4 +164,47 @@ describe('LetterGenerator', () => {
       expect(generator.getRemainingCount()).toBe(98);
     });
   });
+
+  describe('frequency distribution', () => {
+    test('high frequency letters appear more often than low frequency', () => {
+      // Generate many letters to test distribution
+      const largeGenerator = new LetterGenerator(1000);
+      const letters = largeGenerator.generateAllLetters();
+      
+      // Count occurrences
+      const counts = {};
+      letters.forEach(letter => {
+        counts[letter] = (counts[letter] || 0) + 1;
+      });
+      
+      // E should appear more than Z (statistically very likely)
+      // E has weight 12.70, Z has weight 0.07
+      expect(counts['E'] || 0).toBeGreaterThan(counts['Z'] || 0);
+    });
+
+    test('all generated letters satisfy constraints', () => {
+      const largeGenerator = new LetterGenerator(500);
+      const letters = largeGenerator.generateAllLetters();
+      
+      for (let i = 2; i < letters.length; i++) {
+        // No 3 consecutive same letters
+        if (letters[i] === letters[i-1] && letters[i] === letters[i-2]) {
+          fail(`Found 3 consecutive ${letters[i]} at index ${i}`);
+        }
+        
+        // No 3 consecutive vowels or consonants
+        const isVowel = (l) => ['A', 'E', 'I', 'O', 'U'].includes(l);
+        const v1 = isVowel(letters[i]);
+        const v2 = isVowel(letters[i-1]);
+        const v3 = isVowel(letters[i-2]);
+        
+        if (v1 && v2 && v3) {
+          fail(`Found 3 consecutive vowels at index ${i}`);
+        }
+        if (!v1 && !v2 && !v3) {
+          fail(`Found 3 consecutive consonants at index ${i}`);
+        }
+      }
+    });
+  });
 });
