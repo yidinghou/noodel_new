@@ -64,7 +64,7 @@ export class GridController {
 
     // Generate the grid
     generate() {
-        const { rows, columns, totalCells } = this.gridConfig;
+        const { columns, totalCells } = this.gridConfig;
         
         for (let i = 0; i < totalCells; i++) {
             const square = document.createElement('div');
