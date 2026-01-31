@@ -158,4 +158,56 @@ describe('WordResolver', () => {
       expect(result.definition).toBe('No definition available');
     });
   });
+
+  describe('checkHorizontal()', () => {
+    test('detects horizontal word', () => {
+      placeHorizontalWord(mockDOM, 0, 0, 'CAT');
+      
+      const words = resolver.checkHorizontal();
+      
+      expect(words.length).toBe(1);
+      expect(words[0].word).toBe('CAT');
+      expect(words[0].direction).toBe('horizontal');
+    });
+
+    test('detects multiple horizontal words', () => {
+      placeHorizontalWord(mockDOM, 0, 0, 'CAT');
+      placeHorizontalWord(mockDOM, 2, 0, 'DOG');
+      
+      const words = resolver.checkHorizontal();
+      
+      expect(words.length).toBe(2);
+      expect(words.map(w => w.word)).toContain('CAT');
+      expect(words.map(w => w.word)).toContain('DOG');
+    });
+
+    test('ignores non-dictionary words', () => {
+      placeHorizontalWord(mockDOM, 0, 0, 'XYZ');
+      
+      const words = resolver.checkHorizontal();
+      
+      expect(words.length).toBe(0);
+    });
+  });
+
+  describe('checkVertical()', () => {
+    test('detects vertical word', () => {
+      placeVerticalWord(mockDOM, 0, 0, 'CAT');
+      
+      const words = resolver.checkVertical();
+      
+      expect(words.length).toBe(1);
+      expect(words[0].word).toBe('CAT');
+      expect(words[0].direction).toBe('vertical');
+    });
+
+    test('detects multiple vertical words', () => {
+      placeVerticalWord(mockDOM, 0, 0, 'CAT');
+      placeVerticalWord(mockDOM, 0, 2, 'DOG');
+      
+      const words = resolver.checkVertical();
+      
+      expect(words.length).toBe(2);
+    });
+  });
 });
