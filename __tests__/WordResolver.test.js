@@ -2,7 +2,6 @@
  * WordResolver Unit Tests
  */
 
-import { jest } from '@jest/globals';
 import { WordResolver } from '../js/word/WordResolver.js';
 import { CONFIG } from '../js/config.js';
 
