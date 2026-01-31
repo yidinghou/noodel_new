@@ -96,6 +96,9 @@ export function canExtractWord(startRow, startCol, rowDelta, colDelta, length, r
   if (!Number.isInteger(length) || length < 1) {
     return false;
   }
+  if (!Number.isFinite(rowDelta) || !Number.isFinite(colDelta)) {
+    return false;
+  }
   if (!isWithinBounds(startRow, startCol, rows, columns)) {
     return false;
   }
