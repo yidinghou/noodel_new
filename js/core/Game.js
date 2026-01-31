@@ -371,9 +371,8 @@ export class Game {
         
         const column = parseInt(e.target.dataset.column);
         
-        // Validate column
+        // Validate column (silent failure for consistency with GridController)
         if (isNaN(column) || column < 0 || column >= CONFIG.GRID.COLUMNS) {
-            console.error('Invalid column:', column);
             return;
         }
         
