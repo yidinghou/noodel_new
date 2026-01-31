@@ -2,6 +2,7 @@
  * GridController Unit Tests
  */
 
+import { jest } from '@jest/globals';
 import { GridController } from '../js/grid/GridController.js';
 import { CONFIG } from '../js/config.js';
 
@@ -95,6 +96,60 @@ describe('GridController', () => {
       gridController.generate();
       
       expect(mockDOM.grid.children.length).toBe(CONFIG.GRID.TOTAL_CELLS);
+    });
+  });
+
+  describe('addClickHandlers() and removeClickHandlers()', () => {
+    beforeEach(() => {
+      gridController.generate();
+    });
+
+    test('adds click handler to all squares', () => {
+      const handler = jest.fn();
+      gridController.addClickHandlers(handler);
+      
+      const squares = mockDOM.getAllGridSquares();
+      squares[0].click();
+      
+      expect(handler).toHaveBeenCalledTimes(1);
+    });
+
+    test('stores handler reference', () => {
+      const handler = jest.fn();
+      gridController.addClickHandlers(handler);
+      
+      expect(gridController.clickHandler).toBe(handler);
+    });
+
+    test('removes old handlers before adding new ones', () => {
+      const handler1 = jest.fn();
+      const handler2 = jest.fn();
+      
+      gridController.addClickHandlers(handler1);
+      gridController.addClickHandlers(handler2);
+      
+      const squares = mockDOM.getAllGridSquares();
+      squares[0].click();
+      
+      // Only handler2 should be called, handler1 should have been removed
+      expect(handler1).not.toHaveBeenCalled();
+      expect(handler2).toHaveBeenCalledTimes(1);
+    });
+
+    test('removeClickHandlers removes handler from all squares', () => {
+      const handler = jest.fn();
+      gridController.addClickHandlers(handler);
+      gridController.removeClickHandlers();
+      
+      const squares = mockDOM.getAllGridSquares();
+      squares[0].click();
+      
+      expect(handler).not.toHaveBeenCalled();
+    });
+
+    test('removeClickHandlers does nothing if no handler set', () => {
+      // Should not throw
+      expect(() => gridController.removeClickHandlers()).not.toThrow();
     });
   });
 });
