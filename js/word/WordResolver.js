@@ -1,5 +1,6 @@
 import { CONFIG } from '../config.js';
 import { DictionaryManager } from './DictionaryManager.js';
+import { calculateIndex } from '../grid/gridUtils.js';
 
 /**
  * WordResolver class - Detects and validates words on the game grid
@@ -140,7 +141,7 @@ export class WordResolver {
         for (let i = 0; i < length; i++) {
             const currentRow = row + (i * rowDelta);
             const currentCol = col + (i * colDelta);
-            const index = currentRow * CONFIG.GRID.COLUMNS + currentCol;
+            const index = calculateIndex(currentRow, currentCol, CONFIG.GRID.COLUMNS);
             const square = this.dom.getGridSquare(index);
             
             if (!square || !square.classList.contains('filled')) {

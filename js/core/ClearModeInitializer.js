@@ -1,5 +1,6 @@
 import { CONFIG, GameModes } from '../config.js';
 import { LetterGenerator } from '../letter/LetterGenerator.js';
+import { calculateIndex } from '../grid/gridUtils.js';
 
 /**
  * ClearModeInitializer - Handles initialization of Clear Mode
@@ -54,7 +55,7 @@ export class ClearModeInitializer {
      */
     static applyGridPopulation(gameGrid, populatedCells) {
         populatedCells.forEach(({ row, col, letter }) => {
-            const index = row * CONFIG.GRID.COLUMNS + col;
+            const index = calculateIndex(row, col, CONFIG.GRID.COLUMNS);
             const square = gameGrid.children[index];
             
             if (square) {

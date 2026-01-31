@@ -1,4 +1,5 @@
 import { CONFIG } from '../config.js';
+import { calculateIndex, calculateRowCol, isValidColumn } from './gridUtils.js';
 
 
 /**
@@ -17,8 +18,11 @@ export class GridController {
             const square = document.createElement('div');
             square.className = 'block-base grid-square';
             square.dataset.index = i;
-            square.dataset.column = i % CONFIG.GRID.COLUMNS;
-            square.dataset.row = Math.floor(i / CONFIG.GRID.COLUMNS);
+            
+            const { row, col } = calculateRowCol(i, CONFIG.GRID.COLUMNS);
+            square.dataset.column = col;
+            square.dataset.row = row;
+            
             this.dom.grid.appendChild(square);
         }
     }
@@ -54,8 +58,7 @@ export class GridController {
         const column = parseInt(e.target.dataset.column);
         
         // Validate column
-        if (isNaN(column) || column < 0 || column >= CONFIG.GRID.COLUMNS) {
-            console.error('Invalid column:', column);
+        if (!isValidColumn(column, CONFIG.GRID.COLUMNS)) {
             return;
         }
         
@@ -74,14 +77,14 @@ export class GridController {
         for (let col = 0; col < CONFIG.GRID.COLUMNS; col++) {
             // Start from bottom row and work upwards
             for (let row = CONFIG.GRID.ROWS - 1; row >= 0; row--) {
-                const currentIndex = row * CONFIG.GRID.COLUMNS + col;
+                const currentIndex = calculateIndex(row, col, CONFIG.GRID.COLUMNS);
                 const currentSquare = this.dom.getGridSquare(currentIndex);
                 
                 // If current cell is empty, look for filled cells above it
                 if (!currentSquare.classList.contains('filled')) {
                     // Search upwards for a filled cell
                     for (let searchRow = row - 1; searchRow >= 0; searchRow--) {
-                        const searchIndex = searchRow * CONFIG.GRID.COLUMNS + col;
+                        const searchIndex = calculateIndex(searchRow, col, CONFIG.GRID.COLUMNS);
                         const searchSquare = this.dom.getGridSquare(searchIndex);
                         
                         if (searchSquare.classList.contains('filled')) {
@@ -109,7 +112,7 @@ export class GridController {
         for (let col = 0; col < CONFIG.GRID.COLUMNS; col++) {
             let count = 0;
             for (let row = CONFIG.GRID.ROWS - 1; row >= 0; row--) {
-                const index = row * CONFIG.GRID.COLUMNS + col;
+                const index = calculateIndex(row, col, CONFIG.GRID.COLUMNS);
                 const square = this.dom.getGridSquare(index);
                 if (square.classList.contains('filled')) {
                     count++;
@@ -135,7 +138,7 @@ export class GridController {
                 const letter = CONFIG.DEBUG_GRID[row][col];
                 
                 if (letter && letter !== '') {
-                    const index = row * CONFIG.GRID.COLUMNS + col;
+                    const index = calculateIndex(row, col, CONFIG.GRID.COLUMNS);
                     const square = this.dom.getGridSquare(index);
                     
                     if (square) {

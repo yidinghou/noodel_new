@@ -1,5 +1,6 @@
 import { CONFIG } from '../config.js';
 import { AnimationHelpers } from './AnimationHelpers.js';
+import { calculateIndex } from '../grid/gridUtils.js';
 
 /**
  * AnimationController class - Handles all game animations
@@ -162,7 +163,7 @@ export class AnimationController {
         const nextUpRect = nextUpBlock.getBoundingClientRect();
         
         // Calculate target position
-        const targetIndex = targetRow * CONFIG.GRID.COLUMNS + column;
+        const targetIndex = calculateIndex(targetRow, column, CONFIG.GRID.COLUMNS);
         const targetSquare = this.dom.getGridSquare(targetIndex);
         const targetRect = targetSquare.getBoundingClientRect();
         

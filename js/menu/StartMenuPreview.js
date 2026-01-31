@@ -1,5 +1,6 @@
 import { CONFIG } from '../config.js';
 import { AnimationHelpers } from '../animation/AnimationHelpers.js';
+import { calculateIndex } from '../grid/gridUtils.js';
 
 /**
  * StartMenuPreview class - Displays START in the letter preview area
@@ -164,7 +165,7 @@ export class StartMenuPreview {
         const targetRow = CONFIG.GRID.ROWS - 1; // Bottom row
         
         CONFIG.START_MENU.COLUMNS.forEach(col => {
-            const index = targetRow * CONFIG.GRID.COLUMNS + col;
+            const index = calculateIndex(targetRow, col, CONFIG.GRID.COLUMNS);
             positions.push({ index, row: targetRow, col });
         });
         
