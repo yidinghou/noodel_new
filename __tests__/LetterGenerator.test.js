@@ -92,4 +92,76 @@ describe('LetterGenerator', () => {
       expect(generator.isValidLetter('C')).toBe(true);
     });
   });
+
+  describe('getWeightedRandomLetter()', () => {
+    test('returns a valid letter', () => {
+      const letter = generator.getWeightedRandomLetter();
+      
+      expect(letter).toMatch(/^[A-Z]$/);
+    });
+
+    test('returns letters from frequency table', () => {
+      const validLetters = generator.letterFrequencies.map(f => f.letter);
+      const letter = generator.getWeightedRandomLetter();
+      
+      expect(validLetters).toContain(letter);
+    });
+  });
+
+  describe('forceValidLetter()', () => {
+    test('returns a valid letter when constraints are tight', () => {
+      generator.generatedLetters = ['A', 'A'];
+      
+      const letter = generator.forceValidLetter();
+      
+      expect(generator.isValidLetter(letter)).toBe(true);
+    });
+
+    test('returns high frequency letter when possible', () => {
+      // First letter should be E (highest frequency) if valid
+      const letter = generator.forceValidLetter();
+      
+      expect(letter).toBe('E');
+    });
+  });
+
+  describe('utility methods', () => {
+    test('generateAllLetters() generates all letters', () => {
+      const smallGenerator = new LetterGenerator(10);
+      const letters = smallGenerator.generateAllLetters();
+      
+      expect(letters.length).toBe(10);
+      letters.forEach(letter => {
+        expect(letter).toMatch(/^[A-Z]$/);
+      });
+    });
+
+    test('getGeneratedLetters() returns copy of array', () => {
+      generator.generateLetter();
+      generator.generateLetter();
+      
+      const letters = generator.getGeneratedLetters();
+      letters.push('Z'); // Modify the copy
+      
+      expect(generator.generatedLetters.length).toBe(2);
+    });
+
+    test('reset() clears generated letters', () => {
+      generator.generateLetter();
+      generator.generateLetter();
+      generator.reset();
+      
+      expect(generator.generatedLetters).toEqual([]);
+    });
+
+    test('getRemainingCount() returns correct count', () => {
+      expect(generator.getRemainingCount()).toBe(100);
+      
+      generator.generateLetter();
+      expect(generator.getRemainingCount()).toBe(99);
+      
+      generator.generateLetter();
+      expect(generator.getRemainingCount()).toBe(98);
+    });
+  });
 });
