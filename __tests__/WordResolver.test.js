@@ -270,4 +270,44 @@ describe('WordResolver', () => {
       expect(filtered).toEqual([]);
     });
   });
+
+  describe('checkForWords()', () => {
+    test('finds words in all directions', () => {
+      // Place horizontal CAT
+      placeHorizontalWord(mockDOM, 0, 0, 'CAT');
+      // Place vertical DOG (not overlapping)
+      placeVerticalWord(mockDOM, 3, 4, 'DOG');
+      
+      const words = resolver.checkForWords();
+      
+      expect(words.length).toBe(2);
+      expect(words.map(w => w.word)).toContain('CAT');
+      expect(words.map(w => w.word)).toContain('DOG');
+    });
+
+    test('returns empty array when no words found', () => {
+      // Place non-dictionary word
+      placeHorizontalWord(mockDOM, 0, 0, 'XYZ');
+      
+      const words = resolver.checkForWords();
+      
+      expect(words.length).toBe(0);
+    });
+
+    test('returns empty array for empty grid', () => {
+      const words = resolver.checkForWords();
+      
+      expect(words.length).toBe(0);
+    });
+  });
+
+  describe('getDirectionName()', () => {
+    test('returns correct direction names', () => {
+      expect(resolver.getDirectionName(0, 1)).toBe('horizontal');
+      expect(resolver.getDirectionName(1, 0)).toBe('vertical');
+      expect(resolver.getDirectionName(1, 1)).toBe('diagonal-down-right');
+      expect(resolver.getDirectionName(-1, 1)).toBe('diagonal-up-right');
+      expect(resolver.getDirectionName(0, 0)).toBe('unknown');
+    });
+  });
 });
