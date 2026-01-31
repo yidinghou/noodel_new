@@ -210,4 +210,64 @@ describe('WordResolver', () => {
       expect(words.length).toBe(2);
     });
   });
+
+  describe('checkDiagonals()', () => {
+    test('detects diagonal down-right word', () => {
+      // Place CAT diagonally: (0,0), (1,1), (2,2)
+      placeLetter(mockDOM, 0, 0, 'C');
+      placeLetter(mockDOM, 1, 1, 'A');
+      placeLetter(mockDOM, 2, 2, 'T');
+      
+      const words = resolver.checkDiagonals();
+      
+      expect(words.length).toBe(1);
+      expect(words[0].word).toBe('CAT');
+      expect(words[0].direction).toBe('diagonal-down-right');
+    });
+
+    test('detects diagonal up-right word', () => {
+      // Place CAT diagonally up-right: (2,0), (1,1), (0,2)
+      placeLetter(mockDOM, 2, 0, 'C');
+      placeLetter(mockDOM, 1, 1, 'A');
+      placeLetter(mockDOM, 0, 2, 'T');
+      
+      const words = resolver.checkDiagonals();
+      
+      expect(words.length).toBe(1);
+      expect(words[0].word).toBe('CAT');
+      expect(words[0].direction).toBe('diagonal-up-right');
+    });
+  });
+
+  describe('filterOverlappingWords()', () => {
+    test('keeps longer word when words overlap', () => {
+      // Create overlapping words where one contains the other
+      const words = [
+        { word: 'CAT', positions: [{ row: 0, col: 0 }, { row: 0, col: 1 }, { row: 0, col: 2 }] },
+        { word: 'CATS', positions: [{ row: 0, col: 0 }, { row: 0, col: 1 }, { row: 0, col: 2 }, { row: 0, col: 3 }] }
+      ];
+      
+      const filtered = resolver.filterOverlappingWords(words);
+      
+      expect(filtered.length).toBe(1);
+      expect(filtered[0].word).toBe('CATS');
+    });
+
+    test('keeps non-overlapping words', () => {
+      const words = [
+        { word: 'CAT', positions: [{ row: 0, col: 0 }, { row: 0, col: 1 }, { row: 0, col: 2 }] },
+        { word: 'DOG', positions: [{ row: 1, col: 0 }, { row: 1, col: 1 }, { row: 1, col: 2 }] }
+      ];
+      
+      const filtered = resolver.filterOverlappingWords(words);
+      
+      expect(filtered.length).toBe(2);
+    });
+
+    test('returns empty array for empty input', () => {
+      const filtered = resolver.filterOverlappingWords([]);
+      
+      expect(filtered).toEqual([]);
+    });
+  });
 });
