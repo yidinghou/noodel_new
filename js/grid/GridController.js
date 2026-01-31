@@ -1,27 +1,81 @@
 import { CONFIG } from '../config.js';
 import { calculateIndex, calculateRowCol, isValidColumn } from './gridUtils.js';
 
+/**
+ * @typedef {Object} GridConfig
+ * @property {number} rows - Number of rows in the grid
+ * @property {number} columns - Number of columns in the grid
+ * @property {number} totalCells - Total number of cells (rows * columns)
+ */
 
 /**
  * GridController class - Manages grid generation and interactions
+ * 
+ * Dependencies are injected via constructor for testability:
+ * - gameState: Game state object with column tracking
+ * - domCache: DOM element cache with grid accessors
+ * - gridConfig: Grid dimensions (optional, defaults to CONFIG.GRID)
  */
 export class GridController {
-    constructor(gameState, domCache) {
+    /**
+     * @param {Object} gameState - Game state with column fill tracking
+     * @param {Object} domCache - DOM cache with grid element accessors
+     * @param {GridConfig} [gridConfig] - Optional grid configuration (defaults to CONFIG.GRID)
+     */
+    constructor(gameState, domCache, gridConfig = null) {
         this.gameState = gameState;
         this.dom = domCache;
         this.clickHandler = null;
+        
+        // Use injected config or fall back to global CONFIG
+        this.gridConfig = gridConfig || {
+            rows: CONFIG.GRID.ROWS,
+            columns: CONFIG.GRID.COLUMNS,
+            totalCells: CONFIG.GRID.TOTAL_CELLS
+        };
+    }
+
+    /**
+     * Factory method to create a GridController with default configuration
+     * @param {Object} gameState - Game state object
+     * @param {Object} domCache - DOM cache object
+     * @returns {GridController} New GridController instance
+     */
+    static create(gameState, domCache) {
+        return new GridController(gameState, domCache);
+    }
+
+    /**
+     * Factory method to create a GridController with custom grid dimensions
+     * Useful for testing or alternative grid sizes
+     * @param {Object} gameState - Game state object
+     * @param {Object} domCache - DOM cache object
+     * @param {number} rows - Number of rows
+     * @param {number} columns - Number of columns
+     * @returns {GridController} New GridController instance
+     */
+    static createWithDimensions(gameState, domCache, rows, columns) {
+        return new GridController(gameState, domCache, {
+            rows,
+            columns,
+            totalCells: rows * columns
+        });
     }
 
     // Generate the grid
     generate() {
-        for (let i = 0; i < CONFIG.GRID.TOTAL_CELLS; i++) {
+        const { rows, columns, totalCells } = this.gridConfig;
+        
+        for (let i = 0; i < totalCells; i++) {
             const square = document.createElement('div');
             square.className = 'block-base grid-square';
             square.dataset.index = i;
             
-            const { row, col } = calculateRowCol(i, CONFIG.GRID.COLUMNS);
-            square.dataset.column = col;
-            square.dataset.row = row;
+            const result = calculateRowCol(i, columns);
+            if (result) {
+                square.dataset.column = result.col;
+                square.dataset.row = result.row;
+            }
             
             this.dom.grid.appendChild(square);
         }
@@ -57,8 +111,8 @@ export class GridController {
         
         const column = parseInt(e.target.dataset.column);
         
-        // Validate column
-        if (!isValidColumn(column, CONFIG.GRID.COLUMNS)) {
+        // Validate column using injected config
+        if (!isValidColumn(column, this.gridConfig.columns)) {
             return;
         }
         
@@ -72,19 +126,20 @@ export class GridController {
     // Apply gravity - make letters fall down after cells are cleared
     applyGravity() {
         let moved = false;
+        const { rows, columns } = this.gridConfig;
         
         // Process each column from bottom to top
-        for (let col = 0; col < CONFIG.GRID.COLUMNS; col++) {
+        for (let col = 0; col < columns; col++) {
             // Start from bottom row and work upwards
-            for (let row = CONFIG.GRID.ROWS - 1; row >= 0; row--) {
-                const currentIndex = calculateIndex(row, col, CONFIG.GRID.COLUMNS);
+            for (let row = rows - 1; row >= 0; row--) {
+                const currentIndex = calculateIndex(row, col, columns);
                 const currentSquare = this.dom.getGridSquare(currentIndex);
                 
                 // If current cell is empty, look for filled cells above it
                 if (!currentSquare.classList.contains('filled')) {
                     // Search upwards for a filled cell
                     for (let searchRow = row - 1; searchRow >= 0; searchRow--) {
-                        const searchIndex = calculateIndex(searchRow, col, CONFIG.GRID.COLUMNS);
+                        const searchIndex = calculateIndex(searchRow, col, columns);
                         const searchSquare = this.dom.getGridSquare(searchIndex);
                         
                         if (searchSquare.classList.contains('filled')) {
@@ -109,10 +164,12 @@ export class GridController {
 
     // Update column fill counts based on actual grid state
     updateColumnFillCounts() {
-        for (let col = 0; col < CONFIG.GRID.COLUMNS; col++) {
+        const { rows, columns } = this.gridConfig;
+        
+        for (let col = 0; col < columns; col++) {
             let count = 0;
-            for (let row = CONFIG.GRID.ROWS - 1; row >= 0; row--) {
-                const index = calculateIndex(row, col, CONFIG.GRID.COLUMNS);
+            for (let row = rows - 1; row >= 0; row--) {
+                const index = calculateIndex(row, col, columns);
                 const square = this.dom.getGridSquare(index);
                 if (square.classList.contains('filled')) {
                     count++;
@@ -131,14 +188,15 @@ export class GridController {
         }
 
         console.log('🔧 Loading debug grid pattern...');
+        const { rows, columns } = this.gridConfig;
 
         // Iterate through the debug grid pattern
-        for (let row = 0; row < CONFIG.GRID.ROWS; row++) {
-            for (let col = 0; col < CONFIG.GRID.COLUMNS; col++) {
-                const letter = CONFIG.DEBUG_GRID[row][col];
+        for (let row = 0; row < rows; row++) {
+            for (let col = 0; col < columns; col++) {
+                const letter = CONFIG.DEBUG_GRID[row]?.[col];
                 
                 if (letter && letter !== '') {
-                    const index = calculateIndex(row, col, CONFIG.GRID.COLUMNS);
+                    const index = calculateIndex(row, col, columns);
                     const square = this.dom.getGridSquare(index);
                     
                     if (square) {

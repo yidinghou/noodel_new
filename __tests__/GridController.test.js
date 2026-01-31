@@ -311,4 +311,80 @@ describe('GridController', () => {
       expect(handler).not.toHaveBeenCalled();
     });
   });
+
+  describe('Dependency Injection', () => {
+    test('uses default CONFIG when no gridConfig provided', () => {
+      const controller = new GridController(mockState, mockDOM);
+      
+      expect(controller.gridConfig.rows).toBe(CONFIG.GRID.ROWS);
+      expect(controller.gridConfig.columns).toBe(CONFIG.GRID.COLUMNS);
+      expect(controller.gridConfig.totalCells).toBe(CONFIG.GRID.TOTAL_CELLS);
+    });
+
+    test('uses injected gridConfig when provided', () => {
+      const customConfig = { rows: 4, columns: 5, totalCells: 20 };
+      const controller = new GridController(mockState, mockDOM, customConfig);
+      
+      expect(controller.gridConfig.rows).toBe(4);
+      expect(controller.gridConfig.columns).toBe(5);
+      expect(controller.gridConfig.totalCells).toBe(20);
+    });
+
+    test('generates grid with custom dimensions', () => {
+      const customConfig = { rows: 3, columns: 4, totalCells: 12 };
+      const controller = new GridController(mockState, mockDOM, customConfig);
+      
+      controller.generate();
+      
+      const squares = mockDOM.getAllGridSquares();
+      expect(squares.length).toBe(12);
+    });
+
+    test('validates columns using injected config', () => {
+      const customConfig = { rows: 3, columns: 4, totalCells: 12 };
+      const controller = new GridController(mockState, mockDOM, customConfig);
+      mockState.started = true;
+      mockState.columnFillCounts = [0, 0, 0, 0];
+      mockState.isColumnFull = (col) => false;
+      
+      controller.generate();
+      
+      // Column 3 is valid (0-3 for 4 columns)
+      const validSquare = mockDOM.getGridSquare(3);
+      const validResult = controller.handleSquareClick({ target: validSquare });
+      expect(validResult).toBe(3);
+      
+      // Column 4 would be invalid for 4-column grid
+      const mockEvent = { target: { dataset: { column: '4' } } };
+      const invalidResult = controller.handleSquareClick(mockEvent);
+      expect(invalidResult).toBeUndefined();
+    });
+  });
+
+  describe('Factory Methods', () => {
+    test('create() returns GridController with default config', () => {
+      const controller = GridController.create(mockState, mockDOM);
+      
+      expect(controller).toBeInstanceOf(GridController);
+      expect(controller.gridConfig.rows).toBe(CONFIG.GRID.ROWS);
+      expect(controller.gridConfig.columns).toBe(CONFIG.GRID.COLUMNS);
+    });
+
+    test('createWithDimensions() returns GridController with custom config', () => {
+      const controller = GridController.createWithDimensions(mockState, mockDOM, 5, 8);
+      
+      expect(controller).toBeInstanceOf(GridController);
+      expect(controller.gridConfig.rows).toBe(5);
+      expect(controller.gridConfig.columns).toBe(8);
+      expect(controller.gridConfig.totalCells).toBe(40);
+    });
+
+    test('createWithDimensions() generates correct grid size', () => {
+      const controller = GridController.createWithDimensions(mockState, mockDOM, 2, 3);
+      controller.generate();
+      
+      const squares = mockDOM.getAllGridSquares();
+      expect(squares.length).toBe(6);
+    });
+  });
 });
