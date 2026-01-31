@@ -129,6 +129,9 @@ export class Game {
         this.dom.muteBtn.addEventListener('click', () => {
             this.dom.muteBtn.textContent = this.dom.muteBtn.textContent === '🔊' ? '🔇' : '🔊';
         });
+        
+        // Setup grid click handlers once during initialization
+        this.grid.addClickHandlers((e) => this.handleSquareClick(e));
     }
 
     async start(gameMode = GameModes.CLASSIC) {
@@ -164,8 +167,8 @@ export class Game {
         // Clear noodelItem reference after it's been added
         this.noodelItem = null;
         
-        // Add click handlers to grid squares
-        this.grid.addClickHandlers((e) => this.handleSquareClick(e));
+        // Click handlers are already set up in setupEventListeners()
+        // No need to add them again here
         
         // Reset flag for gameplay inactivity tracking
         this.hasClickedGrid = false;
@@ -343,8 +346,14 @@ export class Game {
         // Play game start sequence (adds NOODEL word to the list)
         await this.sequencer.play('gameStart', context);
         
-        // Add click handlers to grid squares
+        // Re-add click handlers after grid regeneration
         this.grid.addClickHandlers((e) => this.handleSquareClick(e));
+        
+        // Reset flag for gameplay inactivity tracking
+        this.hasClickedGrid = false;
+        
+        // Start new inactivity timer for gameplay
+        this.startInactivityTimer();
     }
 
     handleSquareClick(e) {
