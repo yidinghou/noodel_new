@@ -1,6 +1,6 @@
 import { CONFIG } from '../config.js';
 import { DictionaryManager } from './DictionaryManager.js';
-import { calculateIndex } from '../grid/gridUtils.js';
+import { calculateIndex, canExtractWord } from '../grid/gridUtils.js';
 
 /**
  * WordResolver class - Detects and validates words on the game grid
@@ -135,6 +135,11 @@ export class WordResolver {
      * @returns {object|null} Word data object or null if invalid
      */
     extractWord(row, col, rowDelta, colDelta, length) {
+        // Early bounds check using gridUtils
+        if (!canExtractWord(row, col, rowDelta, colDelta, length, CONFIG.GRID.ROWS, CONFIG.GRID.COLUMNS)) {
+            return null;
+        }
+        
         let word = '';
         const positions = [];
         

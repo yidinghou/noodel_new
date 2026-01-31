@@ -5,7 +5,10 @@
 import {
   calculateIndex,
   calculateRowCol,
-  isValidColumn
+  isValidColumn,
+  isValidRow,
+  isWithinBounds,
+  canExtractWord
 } from '../js/grid/gridUtils.js';
 
 describe('gridUtils', () => {
@@ -185,6 +188,162 @@ describe('gridUtils', () => {
     test('returns null for Infinity inputs', () => {
       expect(calculateRowCol(Infinity, 7)).toBeNull();
       expect(calculateRowCol(10, Infinity)).toBeNull();
+    });
+  });
+
+  describe('isValidRow()', () => {
+    test('returns true for valid row', () => {
+      expect(isValidRow(3, 6)).toBe(true);
+    });
+
+    test('returns true for first row', () => {
+      expect(isValidRow(0, 6)).toBe(true);
+    });
+
+    test('returns true for last row', () => {
+      expect(isValidRow(5, 6)).toBe(true);
+    });
+
+    test('returns false for negative row', () => {
+      expect(isValidRow(-1, 6)).toBe(false);
+    });
+
+    test('returns false for row equal to max', () => {
+      expect(isValidRow(6, 6)).toBe(false);
+    });
+
+    test('returns false for NaN row', () => {
+      expect(isValidRow(NaN, 6)).toBe(false);
+    });
+
+    test('returns false when rows is 0', () => {
+      expect(isValidRow(0, 0)).toBe(false);
+    });
+
+    test('returns false when rows is negative', () => {
+      expect(isValidRow(0, -1)).toBe(false);
+    });
+
+    test('returns false when rows is NaN', () => {
+      expect(isValidRow(0, NaN)).toBe(false);
+    });
+
+    test('returns false for non-integer row', () => {
+      expect(isValidRow(1.5, 6)).toBe(false);
+    });
+  });
+
+  describe('isWithinBounds()', () => {
+    test('returns true for valid position', () => {
+      expect(isWithinBounds(2, 3, 6, 7)).toBe(true);
+    });
+
+    test('returns true for origin (0,0)', () => {
+      expect(isWithinBounds(0, 0, 6, 7)).toBe(true);
+    });
+
+    test('returns true for bottom-right corner', () => {
+      expect(isWithinBounds(5, 6, 6, 7)).toBe(true);
+    });
+
+    test('returns false for negative row', () => {
+      expect(isWithinBounds(-1, 0, 6, 7)).toBe(false);
+    });
+
+    test('returns false for negative col', () => {
+      expect(isWithinBounds(0, -1, 6, 7)).toBe(false);
+    });
+
+    test('returns false for row out of bounds', () => {
+      expect(isWithinBounds(6, 0, 6, 7)).toBe(false);
+    });
+
+    test('returns false for col out of bounds', () => {
+      expect(isWithinBounds(0, 7, 6, 7)).toBe(false);
+    });
+
+    test('returns false for invalid grid dimensions', () => {
+      expect(isWithinBounds(0, 0, 0, 7)).toBe(false);
+      expect(isWithinBounds(0, 0, 6, 0)).toBe(false);
+    });
+  });
+
+  describe('canExtractWord()', () => {
+    // Standard 6x7 grid (6 rows, 7 columns)
+    const ROWS = 6;
+    const COLS = 7;
+
+    describe('horizontal words (rowDelta=0, colDelta=1)', () => {
+      test('returns true for valid horizontal word', () => {
+        expect(canExtractWord(0, 0, 0, 1, 3, ROWS, COLS)).toBe(true);
+      });
+
+      test('returns true for horizontal word at end of row', () => {
+        expect(canExtractWord(0, 4, 0, 1, 3, ROWS, COLS)).toBe(true); // cols 4,5,6
+      });
+
+      test('returns false for horizontal word extending past grid', () => {
+        expect(canExtractWord(0, 5, 0, 1, 3, ROWS, COLS)).toBe(false); // would need cols 5,6,7
+      });
+    });
+
+    describe('vertical words (rowDelta=1, colDelta=0)', () => {
+      test('returns true for valid vertical word', () => {
+        expect(canExtractWord(0, 0, 1, 0, 3, ROWS, COLS)).toBe(true);
+      });
+
+      test('returns true for vertical word at bottom', () => {
+        expect(canExtractWord(3, 0, 1, 0, 3, ROWS, COLS)).toBe(true); // rows 3,4,5
+      });
+
+      test('returns false for vertical word extending past grid', () => {
+        expect(canExtractWord(4, 0, 1, 0, 3, ROWS, COLS)).toBe(false); // would need rows 4,5,6
+      });
+    });
+
+    describe('diagonal words (rowDelta=1, colDelta=1)', () => {
+      test('returns true for valid diagonal word down-right', () => {
+        expect(canExtractWord(0, 0, 1, 1, 3, ROWS, COLS)).toBe(true);
+      });
+
+      test('returns false for diagonal word extending past rows', () => {
+        expect(canExtractWord(4, 0, 1, 1, 3, ROWS, COLS)).toBe(false);
+      });
+
+      test('returns false for diagonal word extending past columns', () => {
+        expect(canExtractWord(0, 5, 1, 1, 3, ROWS, COLS)).toBe(false);
+      });
+    });
+
+    describe('diagonal words up-right (rowDelta=-1, colDelta=1)', () => {
+      test('returns true for valid diagonal word up-right', () => {
+        expect(canExtractWord(5, 0, -1, 1, 3, ROWS, COLS)).toBe(true);
+      });
+
+      test('returns false for diagonal word extending past top', () => {
+        expect(canExtractWord(1, 0, -1, 1, 3, ROWS, COLS)).toBe(false);
+      });
+    });
+
+    describe('edge cases', () => {
+      test('returns false for invalid starting position', () => {
+        expect(canExtractWord(-1, 0, 0, 1, 3, ROWS, COLS)).toBe(false);
+        expect(canExtractWord(0, -1, 0, 1, 3, ROWS, COLS)).toBe(false);
+      });
+
+      test('returns false for invalid length', () => {
+        expect(canExtractWord(0, 0, 0, 1, 0, ROWS, COLS)).toBe(false);
+        expect(canExtractWord(0, 0, 0, 1, -1, ROWS, COLS)).toBe(false);
+      });
+
+      test('returns true for single cell word', () => {
+        expect(canExtractWord(0, 0, 0, 1, 1, ROWS, COLS)).toBe(true);
+      });
+
+      test('returns false for invalid grid dimensions', () => {
+        expect(canExtractWord(0, 0, 0, 1, 3, 0, 7)).toBe(false);
+        expect(canExtractWord(0, 0, 0, 1, 3, 6, 0)).toBe(false);
+      });
     });
   });
 });
