@@ -259,14 +259,15 @@ describe('GridController', () => {
     });
 
     test('updates column fill counts after gravity', () => {
-      // Place letter at bottom of column 0
-      const bottomIndex = (CONFIG.GRID.ROWS - 1) * CONFIG.GRID.COLUMNS;
-      const square = mockDOM.getGridSquare(bottomIndex);
-      square.textContent = 'A';
-      square.classList.add('filled');
+      // Place letter at top of column 0 so gravity will move it
+      const topIndex = 0; // row 0, col 0
+      const topSquare = mockDOM.getGridSquare(topIndex);
+      topSquare.textContent = 'A';
+      topSquare.classList.add('filled');
       
       gridController.applyGravity();
       
+      // After gravity, the column should have exactly one filled cell
       expect(mockState.columnFillCounts[0]).toBe(1);
     });
   });
