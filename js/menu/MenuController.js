@@ -1,4 +1,5 @@
 import { CONFIG, GameModes } from '../config.js';
+import { calculateIndex } from '../grid/gridUtils.js';
 
 
 /**
@@ -129,7 +130,7 @@ export class MenuController {
         
         // Add arrow if specified
         if (hasArrow && arrowCol !== undefined) {
-            const arrowIndex = row * CONFIG.GRID.COLUMNS + arrowCol;
+            const arrowIndex = calculateIndex(row, arrowCol, CONFIG.GRID.COLUMNS);
             const arrowSquare = this.dom.getGridSquare(arrowIndex);
             
             if (arrowSquare) {
@@ -150,7 +151,7 @@ export class MenuController {
         // Add word letters
         for (let i = 0; i < word.length; i++) {
             const col = Math.floor(startCol + i);
-            const index = row * CONFIG.GRID.COLUMNS + col;
+            const index = calculateIndex(row, col, CONFIG.GRID.COLUMNS);
             const square = this.dom.getGridSquare(index);
             
             if (square) {
