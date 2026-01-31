@@ -152,4 +152,65 @@ describe('GridController', () => {
       expect(() => gridController.removeClickHandlers()).not.toThrow();
     });
   });
+
+  describe('handleSquareClick()', () => {
+    beforeEach(() => {
+      gridController.generate();
+    });
+
+    test('returns undefined when game not started', () => {
+      mockState.started = false;
+      const event = { target: { dataset: { column: '3' } } };
+      
+      const result = gridController.handleSquareClick(event);
+      
+      expect(result).toBeUndefined();
+    });
+
+    test('returns column number when game is started', () => {
+      mockState.started = true;
+      const event = { target: { dataset: { column: '3' } } };
+      
+      const result = gridController.handleSquareClick(event);
+      
+      expect(result).toBe(3);
+    });
+
+    test('returns undefined for invalid column (NaN)', () => {
+      mockState.started = true;
+      const event = { target: { dataset: { column: 'invalid' } } };
+      
+      const result = gridController.handleSquareClick(event);
+      
+      expect(result).toBeUndefined();
+    });
+
+    test('returns undefined for column out of range (negative)', () => {
+      mockState.started = true;
+      const event = { target: { dataset: { column: '-1' } } };
+      
+      const result = gridController.handleSquareClick(event);
+      
+      expect(result).toBeUndefined();
+    });
+
+    test('returns undefined for column out of range (too high)', () => {
+      mockState.started = true;
+      const event = { target: { dataset: { column: String(CONFIG.GRID.COLUMNS) } } };
+      
+      const result = gridController.handleSquareClick(event);
+      
+      expect(result).toBeUndefined();
+    });
+
+    test('returns undefined when column is full', () => {
+      mockState.started = true;
+      mockState.columnFillCounts[3] = CONFIG.GRID.ROWS; // Fill column 3
+      const event = { target: { dataset: { column: '3' } } };
+      
+      const result = gridController.handleSquareClick(event);
+      
+      expect(result).toBeUndefined();
+    });
+  });
 });
