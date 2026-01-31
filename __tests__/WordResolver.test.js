@@ -110,4 +110,52 @@ describe('WordResolver', () => {
     expect(resolver.dom).toBe(mockDOM);
     expect(resolver.dictionary).toBe(mockDictionary);
   });
+
+  describe('extractWord()', () => {
+    test('extracts horizontal word correctly', () => {
+      placeHorizontalWord(mockDOM, 0, 0, 'CAT');
+      
+      const result = resolver.extractWord(0, 0, 0, 1, 3);
+      
+      expect(result.word).toBe('CAT');
+      expect(result.direction).toBe('horizontal');
+      expect(result.positions.length).toBe(3);
+    });
+
+    test('extracts vertical word correctly', () => {
+      placeVerticalWord(mockDOM, 0, 0, 'DOG');
+      
+      const result = resolver.extractWord(0, 0, 1, 0, 3);
+      
+      expect(result.word).toBe('DOG');
+      expect(result.direction).toBe('vertical');
+      expect(result.positions.length).toBe(3);
+    });
+
+    test('returns null for empty cells', () => {
+      placeLetter(mockDOM, 0, 0, 'C');
+      placeLetter(mockDOM, 0, 1, 'A');
+      // No letter at (0, 2)
+      
+      const result = resolver.extractWord(0, 0, 0, 1, 3);
+      
+      expect(result).toBeNull();
+    });
+
+    test('includes definition from dictionary', () => {
+      placeHorizontalWord(mockDOM, 0, 0, 'CAT');
+      
+      const result = resolver.extractWord(0, 0, 0, 1, 3);
+      
+      expect(result.definition).toBe('Definition of CAT');
+    });
+
+    test('provides fallback definition for unknown words', () => {
+      placeHorizontalWord(mockDOM, 0, 0, 'XYZ');
+      
+      const result = resolver.extractWord(0, 0, 0, 1, 3);
+      
+      expect(result.definition).toBe('No definition available');
+    });
+  });
 });
