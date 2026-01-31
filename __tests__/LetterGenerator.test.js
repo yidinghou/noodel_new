@@ -2,7 +2,6 @@
  * LetterGenerator Unit Tests
  */
 
-import { jest } from '@jest/globals';
 import { LetterGenerator } from '../js/letter/LetterGenerator.js';
 
 describe('LetterGenerator', () => {
