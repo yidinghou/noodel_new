@@ -82,11 +82,20 @@ export class GridController {
      * Useful for testing or alternative grid sizes
      * @param {Object} gameState - Game state object
      * @param {Object} domCache - DOM cache object
-     * @param {number} rows - Number of rows
-     * @param {number} columns - Number of columns
+     * @param {number} rows - Number of rows (must be positive integer)
+     * @param {number} columns - Number of columns (must be positive integer)
      * @returns {GridController} New GridController instance
+     * @throws {Error} If rows or columns are not positive integers
      */
     static createWithDimensions(gameState, domCache, rows, columns) {
+        // Validate inputs are positive integers
+        if (!Number.isInteger(rows) || rows <= 0) {
+            throw new Error(`Invalid rows: ${rows}. Must be a positive integer.`);
+        }
+        if (!Number.isInteger(columns) || columns <= 0) {
+            throw new Error(`Invalid columns: ${columns}. Must be a positive integer.`);
+        }
+        
         return new GridController(gameState, domCache, {
             rows,
             columns,

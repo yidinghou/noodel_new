@@ -386,5 +386,32 @@ describe('GridController', () => {
       const squares = mockDOM.getAllGridSquares();
       expect(squares.length).toBe(6);
     });
+
+    test('createWithDimensions() throws for non-integer rows', () => {
+      expect(() => GridController.createWithDimensions(mockState, mockDOM, 2.5, 3))
+        .toThrow('Invalid rows: 2.5. Must be a positive integer.');
+    });
+
+    test('createWithDimensions() throws for non-integer columns', () => {
+      expect(() => GridController.createWithDimensions(mockState, mockDOM, 2, 3.5))
+        .toThrow('Invalid columns: 3.5. Must be a positive integer.');
+    });
+
+    test('createWithDimensions() throws for zero rows', () => {
+      expect(() => GridController.createWithDimensions(mockState, mockDOM, 0, 3))
+        .toThrow('Invalid rows: 0. Must be a positive integer.');
+    });
+
+    test('createWithDimensions() throws for negative columns', () => {
+      expect(() => GridController.createWithDimensions(mockState, mockDOM, 2, -1))
+        .toThrow('Invalid columns: -1. Must be a positive integer.');
+    });
+
+    test('createWithDimensions() throws for string inputs', () => {
+      expect(() => GridController.createWithDimensions(mockState, mockDOM, '2', 3))
+        .toThrow('Invalid rows');
+      expect(() => GridController.createWithDimensions(mockState, mockDOM, 2, '3'))
+        .toThrow('Invalid columns');
+    });
   });
 });
