@@ -13,6 +13,7 @@ import { WordItem } from '../word/WordItem.js';
 import { calculateWordScore } from '../scoring/ScoringUtils.js';
 import { MenuController } from '../menu/MenuController.js';
 import { StartMenuPreview } from '../menu/StartMenuPreview.js';
+import { isValidColumn } from '../grid/gridUtils.js';
 import { AnimationSequencer } from '../animation/AnimationSequencer.js';
 import { SEQUENCES } from '../animation/AnimationSequences.js';
 
@@ -371,8 +372,8 @@ export class Game {
         
         const column = parseInt(e.target.dataset.column);
         
-        // Validate column (silent failure for consistency with GridController)
-        if (isNaN(column) || column < 0 || column >= CONFIG.GRID.COLUMNS) {
+        // Validate column using gridUtils for consistency
+        if (!isValidColumn(column, CONFIG.GRID.COLUMNS)) {
             return;
         }
         
