@@ -2,6 +2,7 @@
  * LetterGenerator Unit Tests
  */
 
+import { jest } from '@jest/globals';
 import { LetterGenerator } from '../js/letter/LetterGenerator.js';
 
 describe('LetterGenerator', () => {
@@ -165,20 +166,54 @@ describe('LetterGenerator', () => {
   });
 
   describe('frequency distribution', () => {
-    test('high frequency letters appear more often than low frequency', () => {
-      // Generate many letters to test distribution
-      const largeGenerator = new LetterGenerator(1000);
-      const letters = largeGenerator.generateAllLetters();
+    test('getWeightedRandomLetter returns E for low random values', () => {
+      // E has weight 12.70, cumulative weight ~12.70
+      // Random value of 0 should return E (first in list)
+      jest.spyOn(Math, 'random').mockReturnValue(0);
       
-      // Count occurrences
-      const counts = {};
-      letters.forEach(letter => {
-        counts[letter] = (counts[letter] || 0) + 1;
-      });
+      const letter = generator.getWeightedRandomLetter();
       
-      // E should appear more than Z (statistically very likely)
-      // E has weight 12.70, Z has weight 0.07
-      expect(counts['E'] || 0).toBeGreaterThan(counts['Z'] || 0);
+      expect(letter).toBe('E');
+      
+      Math.random.mockRestore();
+    });
+
+    test('getWeightedRandomLetter returns Z for high random values', () => {
+      // Z is last in the list with cumulative weight ~100
+      // Random value near 1 (scaled by totalWeight) should return Z
+      jest.spyOn(Math, 'random').mockReturnValue(0.9999);
+      
+      const letter = generator.getWeightedRandomLetter();
+      
+      expect(letter).toBe('Z');
+      
+      Math.random.mockRestore();
+    });
+
+    test('getWeightedRandomLetter returns middle letters for middle random values', () => {
+      // T has cumulative weight ~21.76 (E:12.70 + T:9.06)
+      // A has cumulative weight ~29.93
+      // Random value around 0.25 should hit somewhere in this range
+      jest.spyOn(Math, 'random').mockReturnValue(0.25);
+      
+      const letter = generator.getWeightedRandomLetter();
+      
+      // Should be one of the higher-frequency letters
+      expect(['E', 'T', 'A', 'O', 'I', 'N']).toContain(letter);
+      
+      Math.random.mockRestore();
+    });
+
+    test('cumulative weights are correctly calculated', () => {
+      // Verify the cumulative weights structure is correct
+      expect(generator.cumulativeWeights.length).toBe(26);
+      expect(generator.cumulativeWeights[0].letter).toBe('E');
+      expect(generator.cumulativeWeights[0].cumWeight).toBeCloseTo(12.70, 1);
+      
+      // Last entry should have cumulative weight equal to totalWeight
+      const lastEntry = generator.cumulativeWeights[generator.cumulativeWeights.length - 1];
+      expect(lastEntry.letter).toBe('Z');
+      expect(lastEntry.cumWeight).toBeCloseTo(generator.totalWeight, 1);
     });
 
     test('all generated letters satisfy constraints', () => {
