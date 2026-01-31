@@ -112,6 +112,36 @@ describe('gridUtils', () => {
     test('returns -1 for non-integer inputs', () => {
       expect(calculateIndex(1.5, 2, 7)).toBe(-1);
     });
+
+    test('returns -1 for non-integer col', () => {
+      expect(calculateIndex(0, 2.5, 7)).toBe(-1);
+    });
+
+    test('returns -1 for non-integer columns', () => {
+      expect(calculateIndex(0, 0, 7.5)).toBe(-1);
+    });
+
+    test('handles very large values correctly', () => {
+      expect(calculateIndex(1000, 500, 1000)).toBe(1000500); // 1000*1000 + 500
+    });
+
+    test('returns -1 for NaN row', () => {
+      expect(calculateIndex(NaN, 0, 7)).toBe(-1);
+    });
+
+    test('returns -1 for NaN col', () => {
+      expect(calculateIndex(0, NaN, 7)).toBe(-1);
+    });
+
+    test('returns -1 for NaN columns', () => {
+      expect(calculateIndex(0, 0, NaN)).toBe(-1);
+    });
+
+    test('returns -1 for Infinity inputs', () => {
+      expect(calculateIndex(Infinity, 0, 7)).toBe(-1);
+      expect(calculateIndex(0, Infinity, 7)).toBe(-1);
+      expect(calculateIndex(0, 0, Infinity)).toBe(-1);
+    });
   });
 
   describe('calculateRowCol() - edge cases', () => {
@@ -129,6 +159,32 @@ describe('gridUtils', () => {
 
     test('returns null for non-integer index', () => {
       expect(calculateRowCol(1.5, 7)).toBeNull();
+    });
+
+    test('returns null for non-integer columns', () => {
+      expect(calculateRowCol(10, 7.5)).toBeNull();
+    });
+
+    test('handles very large index values correctly', () => {
+      expect(calculateRowCol(1000500, 1000)).toEqual({ row: 1000, col: 500 });
+    });
+
+    test('handles index larger than typical grid capacity', () => {
+      // Index 100 in a 7-column grid = row 14, col 2
+      expect(calculateRowCol(100, 7)).toEqual({ row: 14, col: 2 });
+    });
+
+    test('returns null for NaN index', () => {
+      expect(calculateRowCol(NaN, 7)).toBeNull();
+    });
+
+    test('returns null for NaN columns', () => {
+      expect(calculateRowCol(10, NaN)).toBeNull();
+    });
+
+    test('returns null for Infinity inputs', () => {
+      expect(calculateRowCol(Infinity, 7)).toBeNull();
+      expect(calculateRowCol(10, Infinity)).toBeNull();
     });
   });
 });
