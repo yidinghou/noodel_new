@@ -1,4 +1,5 @@
 import { CONFIG } from '../config.js';
+import { calculateRowCol, isValidColumn } from './gridUtils.js';
 
 
 /**
@@ -17,8 +18,11 @@ export class GridController {
             const square = document.createElement('div');
             square.className = 'block-base grid-square';
             square.dataset.index = i;
-            square.dataset.column = i % CONFIG.GRID.COLUMNS;
-            square.dataset.row = Math.floor(i / CONFIG.GRID.COLUMNS);
+            
+            const { row, col } = calculateRowCol(i, CONFIG.GRID.COLUMNS);
+            square.dataset.column = col;
+            square.dataset.row = row;
+            
             this.dom.grid.appendChild(square);
         }
     }
@@ -54,8 +58,7 @@ export class GridController {
         const column = parseInt(e.target.dataset.column);
         
         // Validate column
-        if (isNaN(column) || column < 0 || column >= CONFIG.GRID.COLUMNS) {
-            console.error('Invalid column:', column);
+        if (!isValidColumn(column, CONFIG.GRID.COLUMNS)) {
             return;
         }
         
