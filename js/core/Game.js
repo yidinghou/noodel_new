@@ -78,6 +78,11 @@ export class Game {
         this.isTutorialMode = false;
         this.tutorialCompleted = localStorage.getItem('tutorialCompleted') === 'true';
         console.log('🎮 Game initialized. Tutorial completed:', this.tutorialCompleted);
+        
+        // Tutorial letter sequence tracking
+        this.tutorialLetters = ['S', 'T', 'A', 'R', 'T'];
+        this.tutorialColumns = [1, 2, 3, 4, 5];
+        this.tutorialLetterIndex = 0;
     }
 
     async init() {
