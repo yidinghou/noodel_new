@@ -73,6 +73,10 @@ export class Game {
         // Timer for initial user guidance (pulsate grid if no click within 5 seconds)
         this.inactivityTimer = null;
         this.hasClickedGrid = false;
+        
+        // Tutorial state tracking
+        this.isTutorialMode = false;
+        this.tutorialCompleted = localStorage.getItem('tutorialCompleted') === 'true';
     }
 
     async init() {
