@@ -264,6 +264,13 @@
     border: 1px solid var(--color-orange-primary) !important;
 }
 
+/* Tutorial target column highlight */
+.grid-square.tutorial-target {
+    animation: squareOrangePulsate 1.2s ease-in-out infinite;
+    border: 2px solid var(--color-orange-primary) !important;
+    box-shadow: 0 0 15px rgba(255, 152, 0, 0.6) !important;
+}
+
 /* Menu Button Styles - Greyish Monotone (No Gradients) */
 .grid-square.menu-button {
     cursor: pointer;
