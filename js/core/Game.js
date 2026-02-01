@@ -189,6 +189,17 @@ export class Game {
     }
 
     /**
+     * Start tutorial mode - show orange pulsating grid
+     */
+    async startTutorial() {
+        console.log('🎓 Starting tutorial mode...');
+        this.isTutorialMode = true;
+        
+        // Start orange pulsation to indicate user should click
+        this.grid.startOrangePulsating();
+    }
+
+    /**
      * Initialize Clear Mode - populate grid with ~50% letters
      */
     async initializeClearMode() {
