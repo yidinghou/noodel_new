@@ -152,6 +152,12 @@ export class Game {
         this.state.started = true;
         this.dom.startBtn.textContent = '🔄';
         
+        // Check if we should show tutorial (not completed before)
+        if (!this.tutorialCompleted) {
+            await this.startTutorial();
+            return;
+        }
+        
         // Handle mode-specific setup before game start sequence
         if (gameMode === GameModes.CLEAR) {
             await this.initializeClearMode();
