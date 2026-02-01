@@ -512,9 +512,32 @@ export class Game {
         const squares = this.dom.getAllGridSquares();
         squares.forEach(sq => sq.classList.remove('tutorial-target'));
         
-        console.log('📍 Transitioning to normal gameplay...');
+        console.log('🎉 Tutorial complete! Auto-transitioning to normal gameplay...');
         
-        // TODO: Transition to normal game - detect START word and clear it, then continue
+        // Reset tutorial state and start normal game
+        this.tutorialLetterIndex = 0;
+        this.state.started = true;
+        
+        // Create context for game start sequence
+        const context = {
+            noodelItem: this.noodelItem,
+            state: this.state,
+            dom: this.dom,
+            score: this.score,
+            dictionary: this.wordResolver?.dictionary
+        };
+        
+        // Play game start sequence
+        await this.sequencer.play('gameStart', context);
+        
+        // Clear noodelItem reference
+        this.noodelItem = null;
+        
+        // Reset flag for gameplay inactivity tracking
+        this.hasClickedGrid = false;
+        
+        // Start new inactivity timer for gameplay
+        this.startInactivityTimer();
     }
 
     dropLetter(column) {
