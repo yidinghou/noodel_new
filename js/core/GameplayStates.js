@@ -14,6 +14,7 @@
  */
 export const GameplayStates = {
     BOARD_READY: 'board_ready',           // Grid initialized, ready for play
+    TUTORIAL: 'tutorial',                 // Tutorial mode - user spells START
     AWAITING_INPUT: 'awaiting_input',     // Waiting for user to place a letter
     PROCESSING_WORDS: 'processing_words', // Checking for completed words
     GAME_OVER: 'game_over'                // No more moves, game ended
@@ -23,7 +24,8 @@ export const GameplayStates = {
  * Valid transitions between game states
  */
 export const GameplayStateTransitions = {
-    [GameplayStates.BOARD_READY]: [GameplayStates.AWAITING_INPUT],
+    [GameplayStates.BOARD_READY]: [GameplayStates.TUTORIAL, GameplayStates.AWAITING_INPUT],
+    [GameplayStates.TUTORIAL]: [GameplayStates.AWAITING_INPUT],
     [GameplayStates.AWAITING_INPUT]: [GameplayStates.PROCESSING_WORDS, GameplayStates.GAME_OVER],
     [GameplayStates.PROCESSING_WORDS]: [GameplayStates.AWAITING_INPUT, GameplayStates.GAME_OVER],
     [GameplayStates.GAME_OVER]: [GameplayStates.BOARD_READY] // Can reset to start new game
@@ -36,6 +38,10 @@ export const GameplayStateMetadata = {
     [GameplayStates.BOARD_READY]: {
         description: 'Grid initialized, ready to start gameplay',
         isPlaying: false
+    },
+    [GameplayStates.TUTORIAL]: {
+        description: 'Tutorial mode - user spells START',
+        isPlaying: true
     },
     [GameplayStates.AWAITING_INPUT]: {
         description: 'Waiting for user to place a letter',
