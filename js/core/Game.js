@@ -486,7 +486,31 @@ export class Game {
         // TODO: Transition to normal game - detect START word and clear it, then continue
     }
 
-    dropLetter(column) {    // Check for words and process them with animation
+    dropLetter(column) {
+        const nextLetter = this.letters.getNextLetter();
+        const targetRow = this.state.getLowestAvailableRow(column);
+        
+        // Use animation controller with callback
+        this.animator.dropLetterInColumn(column, nextLetter, targetRow, async () => {
+            // Update game state after animation completes
+            this.state.incrementColumnFill(column);
+            this.letters.advance();
+            this.score.updateLettersRemaining();
+            
+            // Update progress bar in NOODEL title
+            this.animator.updateLetterProgress(
+                this.state.lettersRemaining,
+                CONFIG.GAME.INITIAL_LETTERS
+            );
+            
+            // Check for words after the letter has been placed (if enabled)
+            if (this.features.isEnabled('wordDetection')) {
+                await this.checkAndProcessWords();
+            }
+        });
+    }
+
+    // Check for words and process them with animation
     async checkAndProcessWords() {
         // Prevent overlapping word processing
         if (this.isProcessingWords) return;
