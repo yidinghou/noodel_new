@@ -122,6 +122,14 @@ export class Game {
         // Store noodelItem for later use in start()
         this.noodelItem = context.noodelItem;
         
+        // Auto-start tutorial if not completed
+        if (!this.tutorialCompleted) {
+            console.log('🎓 Auto-starting tutorial after intro...');
+            this.state.started = true;
+            this.dom.startBtn.textContent = '🔄';
+            await this.startTutorial();
+        }
+        
         // Setup event listeners
         this.setupEventListeners();
     }
