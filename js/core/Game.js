@@ -77,6 +77,7 @@ export class Game {
         // Tutorial state tracking
         this.isTutorialMode = false;
         this.tutorialCompleted = localStorage.getItem('tutorialCompleted') === 'true';
+        console.log('🎮 Game initialized. Tutorial completed:', this.tutorialCompleted);
     }
 
     async init() {
@@ -140,6 +141,8 @@ export class Game {
     }
 
     async start(gameMode = GameModes.CLASSIC) {
+        console.log('📍 start() called. isTutorialMode:', this.isTutorialMode, 'tutorialCompleted:', this.tutorialCompleted);
+        
         // Clear inactivity timer when menu button is clicked
         this.clearInactivityTimer();
         this.hasClickedGrid = true;
@@ -154,9 +157,12 @@ export class Game {
         
         // Check if we should show tutorial (not completed before)
         if (!this.tutorialCompleted) {
+            console.log('📍 Entering tutorial...');
             await this.startTutorial();
             return;
         }
+        
+        console.log('📍 Starting normal game...');
         
         // Handle mode-specific setup before game start sequence
         if (gameMode === GameModes.CLEAR) {
@@ -266,6 +272,18 @@ export class Game {
      * Start game from preview menu (runs START animation sequence)
      */
     async startFromPreview() {
+        console.log('📍 startFromPreview() called. tutorialCompleted:', this.tutorialCompleted);
+        
+        // Check if we should show tutorial (not completed before)
+        if (!this.tutorialCompleted) {
+            console.log('📍 Entering tutorial from preview...');
+            this.state.started = true;
+            await this.startTutorial();
+            return;
+        }
+        
+        console.log('📍 Starting normal game from preview...');
+        
         // Clear inactivity timer
         this.clearInactivityTimer();
         this.hasClickedGrid = true;
