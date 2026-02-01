@@ -222,6 +222,44 @@
     animation: squarePulsate 1.5s ease-in-out infinite;
 }
 
+/* Orange pulsate animation for tutorial guidance */
+@keyframes orangePulsate {
+    0% {
+        box-shadow: var(--shadow-card), 0 0 0 0 rgba(255, 152, 0, 0.7);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: var(--shadow-card), 0 0 20px 10px rgba(255, 152, 0, 0.3);
+        transform: scale(1.015);
+    }
+    100% {
+        box-shadow: var(--shadow-card), 0 0 0 0 rgba(255, 152, 0, 0);
+        transform: scale(1);
+    }
+}
+
+.game-grid.pulsating-orange {
+    animation: orangePulsate 1.2s ease-in-out infinite;
+    border: 2px solid var(--color-orange-primary);
+}
+
+/* Individual grid square orange pulsating animation */
+@keyframes squareOrangePulsate {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.grid-square.pulsating-orange {
+    animation: squareOrangePulsate 1.2s ease-in-out infinite;
+}
+
 /* Menu Button Styles - Greyish Monotone (No Gradients) */
 .grid-square.menu-button {
     cursor: pointer;
