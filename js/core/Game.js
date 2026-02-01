@@ -408,6 +408,12 @@ export class Game {
         
         if (!this.state.started) return;
         
+        // Handle tutorial mode clicks
+        if (this.isTutorialMode) {
+            this.handleTutorialClick(e);
+            return;
+        }
+        
         // Clear inactivity timer and stop pulsating on first grid click during gameplay
         if (!this.hasClickedGrid) {
             this.clearInactivityTimer();
@@ -428,7 +434,27 @@ export class Game {
         this.dropLetter(column);
     }
 
-    dropLetter(column) {
+    handleTutorialClick(e) {
+        const column = parseInt(e.target.dataset.column);
+        const expectedColumn = this.tutorialColumns[this.tutorialLetterIndex];
+        
+        console.log(`📍 Tutorial click on column ${column}, expecting column ${expectedColumn}`);
+        
+        // Validate column - must be the expected one
+        if (column !== expectedColumn) {
+            console.log('❌ Wrong column! Expected', expectedColumn);
+            return;
+        }
+        
+        // Check if column is full
+        if (this.state.isColumnFull(column)) return;
+        
+        // Drop the tutorial letter
+        const tutorialLetter = this.tutorialLetters[this.tutorialLetterIndex];
+        this.dropTutorialLetter(column, tutorialLetter);
+    }
+
+    dropTutorialLetter(column, letter) {
         const nextLetter = this.letters.getNextLetter();
         const targetRow = this.state.getLowestAvailableRow(column);
         
