@@ -488,6 +488,9 @@ export class Game {
             if (this.tutorialLetterIndex >= this.tutorialLetters.length) {
                 console.log('🎉 Tutorial complete! User spelled START!');
                 await this.completeTutorial();
+            } else {
+                // Move highlight to next target column
+                this.highlightTutorialTarget();
             }
         });
     }
@@ -497,8 +500,9 @@ export class Game {
         this.tutorialCompleted = true;
         localStorage.setItem('tutorialCompleted', 'true');
         
-        // Stop orange pulsation
-        this.grid.stopOrangePulsating();
+        // Remove tutorial highlighting
+        const squares = this.dom.getAllGridSquares();
+        squares.forEach(sq => sq.classList.remove('tutorial-target'));
         
         console.log('📍 Transitioning to normal gameplay...');
         
