@@ -200,14 +200,33 @@ export class Game {
     }
 
     /**
-     * Start tutorial mode - show orange pulsating grid
+     * Start tutorial mode - highlight first target column in row 0
      */
     async startTutorial() {
         console.log('🎓 Starting tutorial mode...');
         this.isTutorialMode = true;
+        this.tutorialLetterIndex = 0;
         
-        // Start orange pulsation to indicate user should click
-        this.grid.startOrangePulsating();
+        // Highlight the first target square (column 1, row 0)
+        this.highlightTutorialTarget();
+    }
+
+    /**
+     * Highlight the current tutorial target square
+     */
+    highlightTutorialTarget() {
+        // Clear previous highlight
+        const squares = this.dom.getAllGridSquares();
+        squares.forEach(sq => sq.classList.remove('tutorial-target'));
+        
+        // Highlight the target square (row 0, target column)
+        const targetColumn = this.tutorialColumns[this.tutorialLetterIndex];
+        const targetSquare = this.dom.getGridSquare(targetColumn); // Row 0 = first cells (0-6)
+        
+        if (targetSquare) {
+            targetSquare.classList.add('tutorial-target');
+            console.log(`📍 Tutorial target: Column ${targetColumn}, letter ${this.tutorialLetters[this.tutorialLetterIndex]}`);
+        }
     }
 
     /**
