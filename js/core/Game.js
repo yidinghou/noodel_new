@@ -455,30 +455,38 @@ export class Game {
     }
 
     dropTutorialLetter(column, letter) {
-        const nextLetter = this.letters.getNextLetter();
         const targetRow = this.state.getLowestAvailableRow(column);
         
-        // Use animation controller with callback
-        this.animator.dropLetterInColumn(column, nextLetter, targetRow, async () => {
+        // Use animation controller with callback for tutorial letter
+        this.animator.dropLetterInColumn(column, letter, targetRow, async () => {
             // Update game state after animation completes
             this.state.incrementColumnFill(column);
-            this.letters.advance();
-            this.score.updateLettersRemaining();
+            this.tutorialLetterIndex++;
             
-            // Update progress bar in NOODEL title
-            this.animator.updateLetterProgress(
-                this.state.lettersRemaining,
-                CONFIG.GAME.INITIAL_LETTERS
-            );
+            console.log(`✅ Placed ${letter} at column ${column}. Progress: ${this.tutorialLetterIndex}/${this.tutorialLetters.length}`);
             
-            // Check for words after the letter has been placed (if enabled)
-            if (this.features.isEnabled('wordDetection')) {
-                await this.checkAndProcessWords();
+            // Check if all 5 letters of START have been placed
+            if (this.tutorialLetterIndex >= this.tutorialLetters.length) {
+                console.log('🎉 Tutorial complete! User spelled START!');
+                await this.completeTutorial();
             }
         });
     }
 
-    // Check for words and process them with animation
+    async completeTutorial() {
+        this.isTutorialMode = false;
+        this.tutorialCompleted = true;
+        localStorage.setItem('tutorialCompleted', 'true');
+        
+        // Stop orange pulsation
+        this.grid.stopOrangePulsating();
+        
+        console.log('📍 Transitioning to normal gameplay...');
+        
+        // TODO: Transition to normal game - detect START word and clear it, then continue
+    }
+
+    dropLetter(column) {    // Check for words and process them with animation
     async checkAndProcessWords() {
         // Prevent overlapping word processing
         if (this.isProcessingWords) return;
