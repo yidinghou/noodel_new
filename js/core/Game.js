@@ -223,67 +223,6 @@ export class Game {
         }
     }
 
-    /**
-     * Start game from preview menu (runs START animation sequence)
-     */
-    async startFromPreview() {
-        // Clear inactivity timer
-        this.clearInactivityTimer();
-        this.hasClickedGrid = true;
-        
-        this.state.started = true;
-        this.dom.startBtn.textContent = '🔄';
-        
-        // Create context for animation sequence
-        const context = {
-            noodelItem: this.noodelItem,
-            state: this.state,
-            dom: this.dom,
-            score: this.score,
-            animator: this.animator,
-            letterController: this.letters,
-            startMenuPreview: this.startMenuPreview,
-            dictionary: this.wordResolver?.dictionary
-        };
-        
-        // Play START preview game start sequence
-        await this.sequencer.play('startPreviewGameStart', context);
-        
-        // Clear noodelItem reference after it's been added
-        this.noodelItem = null;
-        
-        // Add click handlers to grid squares
-        this.grid.addClickHandlers((e) => this.handleSquareClick(e));
-        
-        // Reset flag for gameplay inactivity tracking
-        this.hasClickedGrid = false;
-        
-        // Start new inactivity timer for gameplay
-        this.startInactivityTimer();
-    }
-
-    handleLogin() {
-        // Clear inactivity timer when menu button is clicked
-        this.clearInactivityTimer();
-        this.hasClickedGrid = true;
-        
-        console.log('Login button clicked');
-        alert('Login feature coming soon!');
-    }
-
-    handleMore() {
-        // Clear inactivity timer when menu button is clicked
-        this.clearInactivityTimer();
-        this.hasClickedGrid = true;
-        
-        console.log('More button clicked');
-        const choice = confirm('More options:\n\nWould you like to reset the game?');
-        if (choice && this.menu) {
-            this.menu.hide();
-            this.reset();
-        }
-    }
-
     async reset() {
         // Clear inactivity timer
         this.clearInactivityTimer();
