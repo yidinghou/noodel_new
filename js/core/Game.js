@@ -15,6 +15,7 @@ import { isValidColumn, calculateIndex, isWithinBounds } from '../grid/gridUtils
 import { AnimationSequencer } from '../animation/AnimationSequencer.js';
 import { SEQUENCES } from '../animation/AnimationSequences.js';
 import { StartSequenceController } from './StartSequenceController.js';
+import { GameStateMachine, GamePhase } from './GameStateMachine.js';
 
 /**
  * Game class - Main orchestrator that coordinates all controllers
@@ -50,6 +51,9 @@ export class Game {
         // Load predefined sequences
         this.sequencer.loadSequences(SEQUENCES);
         
+        // Initialize game state machine for tracking game phases
+        this.stateMachine = new GameStateMachine();
+        
         // Flag to prevent multiple simultaneous word checks
         this.isProcessingWords = false;
         
@@ -84,6 +88,9 @@ export class Game {
     }
 
     async init() {
+        // Transition to loading phase
+        this.stateMachine.transition(GamePhase.LOADING);
+        
         // Load dictionary and initialize WordResolver
         console.log('Loading dictionary...');
         this.wordResolver = await WordResolver.create(this.state, this.dom);
@@ -111,12 +118,18 @@ export class Game {
             game: this
         };
         
+        // Transition to intro animation phase
+        this.stateMachine.transition(GamePhase.INTRO_ANIMATION);
+        
         // Play appropriate intro sequence based on debug mode
         if (this.features.isEnabled('debug.enabled')) {
             await this.sequencer.play('debugIntro', context);
         } else {
             await this.sequencer.play('intro', context);
         }
+        
+        // Transition to START sequence phase
+        this.stateMachine.transition(GamePhase.START_SEQUENCE);
         
         // Store noodelItem for later use in start()
         this.noodelItem = context.noodelItem;
@@ -466,6 +479,11 @@ export class Game {
             this.letters.advance();
             this.score.updateLettersRemaining();
             
+            // Transition to PLAYING phase on first letter drop (if not already playing)
+            if (this.stateMachine.is(GamePhase.GAME_READY)) {
+                this.stateMachine.transition(GamePhase.PLAYING);
+            }
+            
             // Update progress bar in NOODEL title
             this.animator.updateLetterProgress(
                 this.state.lettersRemaining,
@@ -484,6 +502,9 @@ export class Game {
      * Handles NOODEL overlay drop and game component initialization
      */
     async initializeGameAfterStartSequence() {
+        // Transition to game ready phase
+        this.stateMachine.transition(GamePhase.GAME_READY);
+        
         // Mark game as started
         this.state.started = true;
         this.dom.startBtn.textContent = '🔄';
@@ -529,6 +550,11 @@ export class Game {
         // Prevent overlapping word processing
         if (this.isProcessingWords) return;
         this.isProcessingWords = true;
+        
+        // Transition to word processing phase
+        if (this.stateMachine.is(GamePhase.PLAYING)) {
+            this.stateMachine.transition(GamePhase.WORD_PROCESSING);
+        }
         
         try {
             // Keep checking for words until no more are found (each iteration is a new game state)
@@ -610,6 +636,11 @@ export class Game {
             }
         } finally {
             this.isProcessingWords = false;
+            
+            // Transition back to PLAYING phase after word processing completes
+            if (this.stateMachine.is(GamePhase.WORD_PROCESSING)) {
+                this.stateMachine.transition(GamePhase.PLAYING);
+            }
         }
     }
 
