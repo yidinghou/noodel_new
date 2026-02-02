@@ -328,7 +328,22 @@ export class Game {
         
         // Check if clicked position matches expected position
         if (column === expectedPosition.column && row === expectedPosition.row) {
-            console.log(`Correct! Clicked on ${CONFIG.PREVIEW_START.LETTERS[this.currentStartLetterIndex]} position`);
+            console.log(`Correct! Clicking ${CONFIG.PREVIEW_START.LETTERS[this.currentStartLetterIndex]} on position (${column}, ${row})`);
+            
+            // Get the current START letter to drop
+            const currentLetter = CONFIG.PREVIEW_START.LETTERS[this.currentStartLetterIndex];
+            const targetRow = this.state.getLowestAvailableRow(column);
+            
+            // Drop the letter with animation
+            this.animator.dropLetterInColumn(column, currentLetter, targetRow, () => {
+                // Update game state after drop completes
+                this.state.incrementColumnFill(column);
+                
+                // Update preview: remove first letter and shift remaining
+                this.updateStartPreviewAfterDrop();
+                
+                console.log(`Dropped ${currentLetter} in column ${column}`);
+            });
             
             // Move to next letter
             this.currentStartLetterIndex++;
@@ -343,6 +358,29 @@ export class Game {
             console.log(`Wrong position! Expected column ${expectedPosition.column}, row ${expectedPosition.row}`);
             // Do nothing - ignore wrong clicks
         }
+    }
+
+    updateStartPreviewAfterDrop() {
+        const previewBlocks = this.dom.preview.querySelectorAll('.preview-letter-block');
+        const remainingLetters = CONFIG.PREVIEW_START.LETTERS.slice(this.currentStartLetterIndex);
+        
+        // Update preview blocks with remaining START letters
+        previewBlocks.forEach((block, index) => {
+            if (index < remainingLetters.length) {
+                block.textContent = remainingLetters[index];
+                // First remaining letter gets next-up styling
+                if (index === 0) {
+                    block.classList.add('next-up');
+                } else {
+                    block.classList.remove('next-up');
+                }
+            } else {
+                // Empty blocks for remaining slots
+                block.textContent = '';
+                block.classList.remove('next-up');
+                block.classList.add('empty');
+            }
+        });
     }
 
     dropLetter(column) {
