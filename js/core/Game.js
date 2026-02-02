@@ -405,7 +405,7 @@ export class Game {
         
         // Reset column fill counts for columns that had START letters
         for (let col = 1; col <= 5; col++) {
-            this.state.decrementColumnFill(col);
+            this.state.columnFillCounts[col]--;
         }
         
         // Wait a moment for clearing animation
