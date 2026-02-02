@@ -386,6 +386,9 @@ export class Game {
                     
                     // Show and populate letter preview
                     this.dom.preview.classList.add('visible');
+                    
+                    // Initialize and display letters (ensure nextLetters are populated)
+                    this.letters.initialize();
                     this.letters.display();
                     
                     console.log('Game fully started with preview and overlay drop!');
