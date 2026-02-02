@@ -12,7 +12,7 @@ export class StartMenuPreview {
         this.dom = domCache;
         this.onStart = onStart;
         this.isActive = false;
-        this.clickHandlers = []; // Store handlers for cleanup
+        // this.clickHandlers = []; // Removed: click handler storage
         
         // Use CONFIG for letters
         this.startLetters = CONFIG.START_MENU.LETTERS;
@@ -62,59 +62,19 @@ export class StartMenuPreview {
                 block.classList.add('next-up');
             }
             
-            // Store reference for click handler
-            block.dataset.startMenuLetter = letter;
+            // Only store letter index for styling/logic, no click handler
             block.dataset.letterIndex = index;
         });
         
         // Make preview visible
         this.dom.preview.classList.add('visible');
         
-        // Add click handlers
-        this.addClickHandlers();
+        // Removed: addClickHandlers (no click logic)
     }
 
-    /**
-     * Add click handlers to START letters
-     */
-    addClickHandlers() {
-        const previewBlocks = this.dom.preview.querySelectorAll('.preview-letter-block');
-        
-        // Clear previous handlers
-        this.clickHandlers.forEach(({ element, handler }) => {
-            element.removeEventListener('click', handler);
-        });
-        this.clickHandlers = [];
-        
-        previewBlocks.forEach(block => {
-            if (block.dataset.startMenuLetter) {
-                const handler = () => this.handleClick(block);
-                block.addEventListener('click', handler);
-                this.clickHandlers.push({ element: block, handler });
-            }
-        });
-    }
 
-    /**
-     * Handle click on any START letter - triggers the animation sequence
-     */
-    handleClick(clickedBlock) {
-        if (!this.isActive) return;
-        
-        console.log('START clicked in preview');
-        this.isActive = false; // Prevent further clicks
-        
-        // Remove click handlers
-        this.clickHandlers.forEach(({ element, handler }) => {
-            element.removeEventListener('click', handler);
-        });
-        this.clickHandlers = [];
-        
-        // Trigger the onStart callback which will run the animation sequence
-        if (this.onStart) {
-            this.onStart();
-        }
-    }
+
+
 
     /**
      * Drop each START letter sequentially into columns 0-4
