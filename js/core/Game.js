@@ -59,6 +59,25 @@ export class Game {
         // START sequence state
         this.isStartSequenceActive = false;
         this.currentStartLetterIndex = 0; // Which letter in START we're waiting for (0=S, 1=T, etc.)
+        
+        // Validate PREVIEW_START config at construction time
+        this.validatePreviewStartConfig();
+    }
+    
+    /**
+     * Validate that PREVIEW_START config is consistent with PREVIEW_COUNT
+     */
+    validatePreviewStartConfig() {
+        const lettersLength = CONFIG.PREVIEW_START.LETTERS.length;
+        const positionsLength = CONFIG.PREVIEW_START.POSITIONS.length;
+        const previewCount = CONFIG.GAME.PREVIEW_COUNT;
+        
+        if (lettersLength !== previewCount) {
+            console.warn(`Config mismatch: PREVIEW_START.LETTERS.length (${lettersLength}) !== PREVIEW_COUNT (${previewCount})`);
+        }
+        if (positionsLength !== lettersLength) {
+            console.warn(`Config mismatch: PREVIEW_START.POSITIONS.length (${positionsLength}) !== LETTERS.length (${lettersLength})`);
+        }
     }
 
     async init() {
@@ -364,8 +383,9 @@ export class Game {
                     this.isStartSequenceActive = false;
                     console.log('START sequence complete - initializing game');
                     
-                    // Start the game
+                    // Start the game and update button
                     this.state.started = true;
+                    this.dom.startBtn.textContent = '🔄';
                     
                     // Drop NOODEL overlay if it exists
                     const noodelOverlay = document.getElementById('noodel-word-overlay');
@@ -606,18 +626,17 @@ export class Game {
             dom: this.dom,
             score: this.score,
             animator: this.animator,
-            menu: this.menu,
             finalScore: this.state.score,
             game: this
         };
         
-        // Play Clear Mode complete sequence (animations + return to menu)
+        // Play Clear Mode complete sequence (animations + restart option)
         if (this.sequencer && this.sequencer.sequences && this.sequencer.sequences['clearModeComplete']) {
             await this.sequencer.play('clearModeComplete', context);
         } else {
-            // Fallback if sequence not defined yet
-            console.log('Clear Mode complete sequence not yet defined, showing menu');
-            this.menu.show();
+            // Fallback if sequence not defined yet - restart the game via START sequence
+            console.log('Clear Mode complete sequence not yet defined, restarting via reset');
+            this.reset();
         }
     }
 

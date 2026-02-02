@@ -20,6 +20,8 @@ export const CONFIG = {
         // based on English letter frequency distribution
     },
     PREVIEW_START: {
+        // IMPORTANT: LETTERS.length must equal GAME.PREVIEW_COUNT (both are 5)
+        // POSITIONS.length must also equal LETTERS.length
         LETTERS: ['S', 'T', 'R', 'T', 'A'],
         POSITIONS: [1, 2, 4, 5, 3], // Column positions for each letter (S->1, T->2, R->4, T->5, A->3)
     },
