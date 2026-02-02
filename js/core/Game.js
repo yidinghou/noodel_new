@@ -11,8 +11,6 @@ import { ScoreController } from '../scoring/ScoreController.js';
 import { WordResolver } from '../word/WordResolver.js';
 import { WordItem } from '../word/WordItem.js';
 import { calculateWordScore } from '../scoring/ScoringUtils.js';
-import { MenuController } from '../menu/MenuController.js';
-import { StartMenuPreview } from '../menu/StartMenuPreview.js';
 import { isValidColumn } from '../grid/gridUtils.js';
 import { AnimationSequencer } from '../animation/AnimationSequencer.js';
 import { SEQUENCES } from '../animation/AnimationSequences.js';
@@ -39,25 +37,9 @@ export class Game {
         this.score = new ScoreController(this.state, this.dom);
         this.wordResolver = null; // Will be initialized asynchronously
         
-        // Initialize menu controller with callbacks
-        this.menu = new MenuController(
-            this.dom,
-            () => this.start(),           // onStart callback
-            () => this.handleLogin(),     // onLogin callback
-            () => this.handleMore()       // onMore callback
-        );
-        
-        // Initialize START menu preview (alternative to grid-based menu)
-        this.startMenuPreview = new StartMenuPreview(
-            this.dom,
-            () => this.startFromPreview() // onStart callback
-        );
-        
         // Initialize animation sequencer with all controllers
         this.sequencer = new AnimationSequencer({
             animator: this.animator,
-            menu: this.menu,
-            startMenuPreview: this.startMenuPreview,
             grid: this.grid,
             letters: this.letters,
             score: this.score,
