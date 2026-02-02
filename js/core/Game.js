@@ -390,11 +390,13 @@ export class Game {
     async completeStartSequence() {
         console.log('Clearing START word and starting game...');
         
-        // Get positions of the START word (columns 1-5, row 0)
+        // Get positions of the START word (columns 1-5, bottom row)
         const startPositions = [];
+        const bottomRow = CONFIG.GRID.ROWS - 1; // Bottom row (row 5)
+        
         for (let col = 1; col <= 5; col++) {
-            const index = col; // row 0, so index equals column
-            startPositions.push({ index, row: 0, col });
+            const index = (bottomRow * CONFIG.GRID.COLUMNS) + col; // Calculate grid index
+            startPositions.push({ index, row: bottomRow, col });
         }
         
         // Highlight and shake the START word
