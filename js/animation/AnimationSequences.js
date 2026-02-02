@@ -50,7 +50,14 @@ export const INTRO_SEQUENCE = [
         method: 'displayPreviewStart',
         target: 'letters',
         duration: 0,
-        parallel: false
+        parallel: false,
+        onAfter: (ctx) => {
+            // Enable START sequence mode after preview letters are shown
+            if (ctx.game) {
+                ctx.game.isStartSequenceActive = true;
+                ctx.game.currentStartLetterIndex = 0;
+            }
+        }
     }
 ];
 

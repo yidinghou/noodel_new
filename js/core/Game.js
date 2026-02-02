@@ -55,6 +55,10 @@ export class Game {
         // Timer for initial user guidance (pulsate grid if no click within 5 seconds)
         this.inactivityTimer = null;
         this.hasClickedGrid = false;
+        
+        // START sequence state
+        this.isStartSequenceActive = false;
+        this.currentStartLetterIndex = 0; // Which letter in START we're waiting for (0=S, 1=T, etc.)
     }
 
     async init() {
@@ -280,6 +284,11 @@ export class Game {
     }
 
     handleSquareClick(e) {
+        // Handle START sequence clicks (before game is started)
+        if (this.isStartSequenceActive && !this.state.started) {
+            return this.handleStartSequenceClick(e);
+        }
+        
         if (!this.state.started) return;
         
         // Clear inactivity timer and stop pulsating on first grid click during gameplay
@@ -300,6 +309,40 @@ export class Game {
         
         // Drop the letter
         this.dropLetter(column);
+    }
+
+    handleStartSequenceClick(e) {
+        const column = parseInt(e.target.dataset.column);
+        const row = parseInt(e.target.dataset.row);
+        
+        // Define the expected positions for each START letter
+        const startPositions = [
+            { column: 1, row: 0 }, // S
+            { column: 2, row: 0 }, // T
+            { column: 3, row: 0 }, // A
+            { column: 4, row: 0 }, // R
+            { column: 5, row: 0 }  // T
+        ];
+        
+        const expectedPosition = startPositions[this.currentStartLetterIndex];
+        
+        // Check if clicked position matches expected position
+        if (column === expectedPosition.column && row === expectedPosition.row) {
+            console.log(`Correct! Clicked on ${CONFIG.PREVIEW_START.LETTERS[this.currentStartLetterIndex]} position`);
+            
+            // Move to next letter
+            this.currentStartLetterIndex++;
+            
+            // Check if sequence is complete
+            if (this.currentStartLetterIndex >= CONFIG.PREVIEW_START.LETTERS.length) {
+                console.log('START sequence complete!');
+                this.isStartSequenceActive = false;
+                // TODO: Start the actual game here
+            }
+        } else {
+            console.log(`Wrong position! Expected column ${expectedPosition.column}, row ${expectedPosition.row}`);
+            // Do nothing - ignore wrong clicks
+        }
     }
 
     dropLetter(column) {
