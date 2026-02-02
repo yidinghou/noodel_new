@@ -352,7 +352,11 @@ export class Game {
             if (this.currentStartLetterIndex >= CONFIG.PREVIEW_START.LETTERS.length) {
                 console.log('START sequence complete!');
                 this.isStartSequenceActive = false;
-                // TODO: Start the actual game here
+                
+                // Delay to let the last letter finish dropping, then clear word and start game
+                setTimeout(() => {
+                    this.completeStartSequence();
+                }, 500);
             }
         } else {
             console.log(`Wrong position! Expected column ${expectedPosition.column}, row ${expectedPosition.row}`);
@@ -381,6 +385,40 @@ export class Game {
                 block.classList.add('empty');
             }
         });
+    }
+
+    async completeStartSequence() {
+        console.log('Clearing START word and starting game...');
+        
+        // Get positions of the START word (columns 1-5, row 0)
+        const startPositions = [];
+        for (let col = 1; col <= 5; col++) {
+            const index = col; // row 0, so index equals column
+            startPositions.push({ index, row: 0, col });
+        }
+        
+        // Highlight and shake the START word
+        await this.animator.highlightAndShakeWord(startPositions);
+        
+        // Clear the START word from the grid
+        this.animator.clearWordCells(startPositions);
+        
+        // Reset column fill counts for columns that had START letters
+        for (let col = 1; col <= 5; col++) {
+            this.state.decrementColumnFill(col);
+        }
+        
+        // Wait a moment for clearing animation
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Initialize normal letter sequence and start the game
+        this.letters.initialize();
+        this.letters.display();
+        
+        // Start the actual game
+        await this.start();
+        
+        console.log('Game started!');
     }
 
     dropLetter(column) {
