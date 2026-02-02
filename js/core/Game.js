@@ -315,8 +315,8 @@ export class Game {
         const column = parseInt(e.target.dataset.column);
         const row = parseInt(e.target.dataset.row);
         
-        // Calculate expected position dynamically using gridUtils
-        const startColumn = 1 + this.currentStartLetterIndex; // S=1, T=2, A=3, R=4, T=5
+        // Get expected position from config instead of hardcoding
+        const startColumn = CONFIG.PREVIEW_START.POSITIONS[this.currentStartLetterIndex];
         const expectedRow = 0; // All START letters go on top row
         
         // Validate the expected position is within grid bounds

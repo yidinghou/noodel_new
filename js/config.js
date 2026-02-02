@@ -21,6 +21,7 @@ export const CONFIG = {
     },
     PREVIEW_START: {
         LETTERS: ['S', 'T', 'R', 'T', 'A'],
+        POSITIONS: [1, 2, 4, 5, 3], // Column positions for each letter (S->1, T->2, R->4, T->5, A->3)
     },
     // Note: Animation timing moved to CSS custom properties in base.css
     // AnimationController reads these values dynamically from CSS
