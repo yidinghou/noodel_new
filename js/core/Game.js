@@ -374,7 +374,7 @@ export class Game {
                     
                     // Start the game and trigger game start sequence
                     this.state.started = true;
-                    await this.sequencer.play('GAME_START_SEQUENCE', context);
+                    await this.sequencer.play('gameStart', context);
                     
                     console.log('Game fully started with preview and overlay!');
                 }
