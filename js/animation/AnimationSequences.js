@@ -84,51 +84,18 @@ export const DEBUG_INTRO_SEQUENCE = [
         target: 'animator',
         duration: 0,
         parallel: false
-    },
-    {
-        name: 'showMenu',
-        method: 'show',
-        target: 'menu',
-        duration: 300,
-        parallel: false,
-        feature: 'gridStartMenu'
-    },
-    {
-        name: 'showStartPreview',
-        method: 'show',
-        target: 'startMenuPreview',
-        duration: 200,
-        parallel: false,
-        feature: 'previewStartMenu'
     }
 ];
 
 /**
  * GAME START SEQUENCE
  * Plays when the START button is clicked
- * - Hide menu
  * - Drop NOODEL word to made words list (only on first load)
  * - Show stats (parallel with drop)
  * - Initialize progress bar
  * - Show letter preview
  */
 export const GAME_START_SEQUENCE = [
-    {
-        name: 'hideMenu',
-        method: 'hide',
-        target: 'menu',
-        duration: 0,
-        parallel: false,
-        feature: 'gridStartMenu'
-    },
-    {
-        name: 'hideStartPreview',
-        method: 'hide',
-        target: 'startMenuPreview',
-        duration: 0,
-        parallel: false,
-        feature: 'previewStartMenu'
-    },
     {
         name: 'dropNoodelWord',
         method: 'dropNoodelWordOverlay',
