@@ -458,25 +458,14 @@ export class Game {
         const expected = this.startSequence.getCurrentExpectedPosition();
         const column = expected.column;
 
-        // Highlight the entire column for the START guide
-        for (let row = 0; row < CONFIG.GRID.ROWS; row++) {
-            const gridIndex = calculateIndex(row, column, CONFIG.GRID.COLUMNS);
-            const square = this.dom.getGridSquare(gridIndex);
-            if (square) {
-                square.classList.add('start-guide');
-                // remove any previous focus on the column
-                square.classList.remove('start-guide-focus');
-            }
-        }
-
-        // Add a stronger focus class to the configured row for this letter
+        // Highlight only the configured focus square for this letter
         const focusIndex = calculateIndex(expected.row, column, CONFIG.GRID.COLUMNS);
         const focusSquare = this.dom.getGridSquare(focusIndex);
         if (focusSquare) {
-            focusSquare.classList.add('start-guide-focus');
+            focusSquare.classList.add('start-guide');
         }
 
-        console.log(`Highlighting column ${column} with focus at row ${expected.row}`);
+        console.log(`Highlighting single square at row ${expected.row}, column ${column}`);
     }
 
     /**
@@ -489,7 +478,6 @@ export class Game {
             sq.classList.remove('start-guide');
             sq.classList.remove('start-guide-focus');
         });
-        }
     }
 
     /**
