@@ -531,10 +531,11 @@ export class Game {
             const noodelDef = this.wordResolver?.dictionary?.get('NOODEL') || CONFIG.GAME_INFO.NOODEL_DEFINITION;
             const noodelScore = calculateWordScore('NOODEL');
             const noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
-            
+
             // Drop the overlay and wait for animation to complete
+            // Add NOODEL to the made-words list but do NOT alter game score.
             await this.animator.dropNoodelWordOverlay(() => {
-                this.score.addWord(noodelItem);
+                this.score.addWord(noodelItem, false);
             });
         }
         
@@ -552,6 +553,8 @@ export class Game {
         this.letters.display();
         
         console.log('Game fully initialized after START sequence!');
+        // Enable scoring from this point forward (game has started)
+        this.state.scoringEnabled = true;
     }
 
     // Check for words and process them with animation
