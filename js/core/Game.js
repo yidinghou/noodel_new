@@ -335,6 +335,9 @@ export class Game {
             
             // Drop the letter with animation (enable word detection for final letter)
             this.animator.dropLetterInColumn(column, currentLetter, targetRow, async () => {
+                // Move to next letter FIRST (before other operations)
+                this.currentStartLetterIndex++;
+                
                 // Update game state after drop completes
                 this.state.incrementColumnFill(column);
                 
@@ -344,7 +347,7 @@ export class Game {
                 console.log(`Dropped ${currentLetter} in column ${column}`);
                 
                 // Check if this is the final letter in START sequence
-                const isLastLetter = (this.currentStartLetterIndex + 1) >= CONFIG.PREVIEW_START.LETTERS.length;
+                const isLastLetter = this.currentStartLetterIndex >= CONFIG.PREVIEW_START.LETTERS.length;
                 
                 if (isLastLetter) {
                     console.log('Final START letter placed - checking for word detection');
@@ -361,10 +364,7 @@ export class Game {
                 }
             });
             
-            // Move to next letter
-            this.currentStartLetterIndex++;
-            
-            // Note: Game start logic moved to drop callback for proper timing
+            // Note: currentStartLetterIndex increment moved to animation callback for proper timing
         } else {
             console.log(`Wrong position! Expected column ${startColumn}, row ${expectedRow}`);
             // Do nothing - ignore wrong clicks
