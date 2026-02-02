@@ -14,6 +14,7 @@ import { calculateWordScore } from '../scoring/ScoringUtils.js';
 import { isValidColumn, calculateIndex, isWithinBounds } from '../grid/gridUtils.js';
 import { AnimationSequencer } from '../animation/AnimationSequencer.js';
 import { SEQUENCES } from '../animation/AnimationSequences.js';
+import { StartSequenceController } from './StartSequenceController.js';
 
 /**
  * Game class - Main orchestrator that coordinates all controllers
@@ -59,9 +60,8 @@ export class Game {
         this.inactivityTimer = null;
         this.hasClickedGrid = false;
         
-        // START sequence state
-        this.isStartSequenceActive = false;
-        this.currentStartLetterIndex = 0; // Which letter in START we're waiting for (0=S, 1=T, etc.)
+        // START sequence controller
+        this.startSequence = new StartSequenceController(this);
         
         // Validate PREVIEW_START config at construction time
         this.validatePreviewStartConfig();
