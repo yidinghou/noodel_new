@@ -20,7 +20,7 @@ export const CONFIG = {
         // based on English letter frequency distribution
     },
     PREVIEW_START: {
-        LETTERS: ['S', 'T', 'A', 'R', 'T'],
+        LETTERS: ['S', 'T', 'R', 'T', 'A'],
     },
     // Note: Animation timing moved to CSS custom properties in base.css
     // AnimationController reads these values dynamically from CSS
