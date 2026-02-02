@@ -364,6 +364,20 @@ export class Game {
                     // Start the game
                     this.state.started = true;
                     
+                    // Drop NOODEL overlay if it exists
+                    const noodelOverlay = document.getElementById('noodel-word-overlay');
+                    if (noodelOverlay) {
+                        // Create NOODEL word item for the made words list
+                        const noodelDef = this.wordResolver?.dictionary?.get('NOODEL') || CONFIG.GAME_INFO.NOODEL_DEFINITION;
+                        const noodelScore = calculateWordScore('NOODEL');
+                        const noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
+                        
+                        // Drop the overlay with callback to add word
+                        this.animator.dropNoodelWordOverlay(() => {
+                            this.score.addWord(noodelItem);
+                        });
+                    }
+                    
                     // Initialize progress bar
                     this.animator.updateLetterProgress(
                         this.state.lettersRemaining,
@@ -374,7 +388,7 @@ export class Game {
                     this.dom.preview.classList.add('visible');
                     this.letters.display();
                     
-                    console.log('Game fully started with preview and progress bar!');
+                    console.log('Game fully started with preview and overlay drop!');
                 }
             });
             
