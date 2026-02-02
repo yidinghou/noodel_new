@@ -279,10 +279,6 @@ export class Game {
     }
 
     handleSquareClick(e) {
-        // Don't process clicks when menu is active
-        if (this.menu && this.menu.isActive()) return;
-        if (this.startMenuPreview && this.startMenuPreview.isMenuActive()) return;
-        
         if (!this.state.started) return;
         
         // Clear inactivity timer and stop pulsating on first grid click during gameplay
