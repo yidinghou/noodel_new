@@ -222,6 +222,29 @@
     animation: squarePulsate 1.5s ease-in-out infinite;
 }
 
+/* START sequence guide - orange glow pulsate */
+@keyframes startGuideGlow {
+    0% {
+        box-shadow: 0 0 5px 2px rgba(255, 152, 0, 0.6);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 0 20px 10px rgba(255, 152, 0, 0.8);
+        transform: scale(1.08);
+    }
+    100% {
+        box-shadow: 0 0 5px 2px rgba(255, 152, 0, 0.6);
+        transform: scale(1);
+    }
+}
+
+.grid-square.start-guide {
+    animation: startGuideGlow 1s ease-in-out infinite;
+    border: 2px solid #FF9800;
+    background: rgba(255, 152, 0, 0.15);
+    z-index: 10;
+}
+
 /* Menu Button Styles - Greyish Monotone (No Gradients) */
 .grid-square.menu-button {
     cursor: pointer;

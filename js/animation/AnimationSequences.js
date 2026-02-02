@@ -52,10 +52,9 @@ export const INTRO_SEQUENCE = [
         duration: 0,
         parallel: false,
         onAfter: (ctx) => {
-            // Enable START sequence mode after preview letters are shown
+            // Enable START sequence mode and highlight first square
             if (ctx.game) {
-                ctx.game.isStartSequenceActive = true;
-                ctx.game.currentStartLetterIndex = 0;
+                ctx.game.initStartSequenceGuide();
             }
         }
     }

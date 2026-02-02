@@ -329,6 +329,9 @@ export class Game {
         if (column === startColumn && row === expectedRow) {
             console.log(`Correct! Clicking ${CONFIG.PREVIEW_START.LETTERS[this.currentStartLetterIndex]} on position (${column}, ${row})`);
             
+            // Remove glow from current square
+            this.clearStartGuide();
+            
             // Get the current START letter to drop
             const currentLetter = CONFIG.PREVIEW_START.LETTERS[this.currentStartLetterIndex];
             const targetRow = this.state.getLowestAvailableRow(column);
@@ -392,6 +395,9 @@ export class Game {
                     this.letters.display();
                     
                     console.log('Game fully started with preview and overlay drop!');
+                } else {
+                    // Highlight the next square to click
+                    this.highlightNextStartGuide();
                 }
             });
             
@@ -423,6 +429,44 @@ export class Game {
                 block.classList.add('empty');
             }
         });
+    }
+
+    /**
+     * Highlight the next grid square in the START sequence
+     */
+    highlightNextStartGuide() {
+        if (this.currentStartLetterIndex >= CONFIG.PREVIEW_START.LETTERS.length) {
+            return; // No more letters to highlight
+        }
+        
+        const nextColumn = CONFIG.PREVIEW_START.POSITIONS[this.currentStartLetterIndex];
+        const expectedRow = 0;
+        const gridIndex = calculateIndex(expectedRow, nextColumn, CONFIG.GRID.COLUMNS);
+        const square = this.dom.getGridSquare(gridIndex);
+        
+        if (square) {
+            square.classList.add('start-guide');
+            console.log(`Highlighting next START guide: row ${expectedRow}, col ${nextColumn}`);
+        }
+    }
+
+    /**
+     * Clear the current START guide highlight
+     */
+    clearStartGuide() {
+        const currentSquare = this.dom.grid.querySelector('.start-guide');
+        if (currentSquare) {
+            currentSquare.classList.remove('start-guide');
+        }
+    }
+
+    /**
+     * Initialize the START sequence and highlight the first square
+     */
+    initStartSequenceGuide() {
+        this.currentStartLetterIndex = 0;
+        this.isStartSequenceActive = true;
+        this.highlightNextStartGuide();
     }
 
     dropLetter(column) {
