@@ -183,14 +183,6 @@ export const RESET_SEQUENCE = [
         duration: 'auto',
         parallel: true,
         feature: 'animations.titleShake'
-    },
-    {
-        name: 'showStartPreview',
-        method: 'show',
-        target: 'startMenuPreview',
-        duration: 300,
-        parallel: true,
-        feature: 'previewStartMenu'
     }
 ];
 
