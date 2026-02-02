@@ -171,24 +171,6 @@ export class GridController {
         });
     }
 
-    // Start orange pulsating animation on grid and squares
-    startOrangePulsating() {
-        this.dom.grid.classList.add('pulsating-orange');
-        const squares = this.dom.getAllGridSquares();
-        squares.forEach(square => {
-            square.classList.add('pulsating-orange');
-        });
-    }
-
-    // Stop orange pulsating animation on grid and squares
-    stopOrangePulsating() {
-        this.dom.grid.classList.remove('pulsating-orange');
-        const squares = this.dom.getAllGridSquares();
-        squares.forEach(square => {
-            square.classList.remove('pulsating-orange');
-        });
-    }
-
     /**
      * Reset display - clear and regenerate the grid
      * Called when game is reset
