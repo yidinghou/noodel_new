@@ -68,7 +68,7 @@ export class Game {
         
         // Setup grid and letters
         this.grid.generate();
-        this.letters.initialize();
+        this.letters.displayPreviewStart(); // Show PREVIEW_START letters (S-T-A-R-T) instead of normal game letters
         
         // Load debug grid if enabled (for testing word detection)
         if (this.features.isEnabled('debug.enabled') && this.features.isEnabled('debug.gridPattern')) {
