@@ -11,9 +11,7 @@ import { ScoreController } from '../scoring/ScoreController.js';
 import { WordResolver } from '../word/WordResolver.js';
 import { WordItem } from '../word/WordItem.js';
 import { calculateWordScore } from '../scoring/ScoringUtils.js';
-import { MenuController } from '../menu/MenuController.js';
-import { StartMenuPreview } from '../menu/StartMenuPreview.js';
-import { isValidColumn } from '../grid/gridUtils.js';
+import { isValidColumn, calculateIndex, isWithinBounds } from '../grid/gridUtils.js';
 import { AnimationSequencer } from '../animation/AnimationSequencer.js';
 import { SEQUENCES } from '../animation/AnimationSequences.js';
 
@@ -39,25 +37,9 @@ export class Game {
         this.score = new ScoreController(this.state, this.dom);
         this.wordResolver = null; // Will be initialized asynchronously
         
-        // Initialize menu controller with callbacks
-        this.menu = new MenuController(
-            this.dom,
-            () => this.start(),           // onStart callback
-            () => this.handleLogin(),     // onLogin callback
-            () => this.handleMore()       // onMore callback
-        );
-        
-        // Initialize START menu preview (alternative to grid-based menu)
-        this.startMenuPreview = new StartMenuPreview(
-            this.dom,
-            () => this.startFromPreview() // onStart callback
-        );
-        
         // Initialize animation sequencer with all controllers
         this.sequencer = new AnimationSequencer({
             animator: this.animator,
-            menu: this.menu,
-            startMenuPreview: this.startMenuPreview,
             grid: this.grid,
             letters: this.letters,
             score: this.score,
@@ -73,6 +55,29 @@ export class Game {
         // Timer for initial user guidance (pulsate grid if no click within 5 seconds)
         this.inactivityTimer = null;
         this.hasClickedGrid = false;
+        
+        // START sequence state
+        this.isStartSequenceActive = false;
+        this.currentStartLetterIndex = 0; // Which letter in START we're waiting for (0=S, 1=T, etc.)
+        
+        // Validate PREVIEW_START config at construction time
+        this.validatePreviewStartConfig();
+    }
+    
+    /**
+     * Validate that PREVIEW_START config is consistent with PREVIEW_COUNT
+     */
+    validatePreviewStartConfig() {
+        const lettersLength = CONFIG.PREVIEW_START.LETTERS.length;
+        const positionsLength = CONFIG.PREVIEW_START.POSITIONS.length;
+        const previewCount = CONFIG.GAME.PREVIEW_COUNT;
+        
+        if (lettersLength !== previewCount) {
+            console.warn(`Config mismatch: PREVIEW_START.LETTERS.length (${lettersLength}) !== PREVIEW_COUNT (${previewCount})`);
+        }
+        if (positionsLength !== lettersLength) {
+            console.warn(`Config mismatch: PREVIEW_START.POSITIONS.length (${positionsLength}) !== LETTERS.length (${lettersLength})`);
+        }
     }
 
     async init() {
@@ -86,7 +91,7 @@ export class Game {
         
         // Setup grid and letters
         this.grid.generate();
-        this.letters.initialize();
+        // Note: displayPreviewStart() will be called by the intro animation sequence
         
         // Load debug grid if enabled (for testing word detection)
         if (this.features.isEnabled('debug.enabled') && this.features.isEnabled('debug.gridPattern')) {
@@ -99,6 +104,7 @@ export class Game {
             state: this.state,
             dom: this.dom,
             score: this.score,
+            letters: this.letters,
             game: this
         };
         
@@ -241,67 +247,6 @@ export class Game {
         }
     }
 
-    /**
-     * Start game from preview menu (runs START animation sequence)
-     */
-    async startFromPreview() {
-        // Clear inactivity timer
-        this.clearInactivityTimer();
-        this.hasClickedGrid = true;
-        
-        this.state.started = true;
-        this.dom.startBtn.textContent = '🔄';
-        
-        // Create context for animation sequence
-        const context = {
-            noodelItem: this.noodelItem,
-            state: this.state,
-            dom: this.dom,
-            score: this.score,
-            animator: this.animator,
-            letterController: this.letters,
-            startMenuPreview: this.startMenuPreview,
-            dictionary: this.wordResolver?.dictionary
-        };
-        
-        // Play START preview game start sequence
-        await this.sequencer.play('startPreviewGameStart', context);
-        
-        // Clear noodelItem reference after it's been added
-        this.noodelItem = null;
-        
-        // Add click handlers to grid squares
-        this.grid.addClickHandlers((e) => this.handleSquareClick(e));
-        
-        // Reset flag for gameplay inactivity tracking
-        this.hasClickedGrid = false;
-        
-        // Start new inactivity timer for gameplay
-        this.startInactivityTimer();
-    }
-
-    handleLogin() {
-        // Clear inactivity timer when menu button is clicked
-        this.clearInactivityTimer();
-        this.hasClickedGrid = true;
-        
-        console.log('Login button clicked');
-        alert('Login feature coming soon!');
-    }
-
-    handleMore() {
-        // Clear inactivity timer when menu button is clicked
-        this.clearInactivityTimer();
-        this.hasClickedGrid = true;
-        
-        console.log('More button clicked');
-        const choice = confirm('More options:\n\nWould you like to reset the game?');
-        if (choice && this.menu) {
-            this.menu.hide();
-            this.reset();
-        }
-    }
-
     async reset() {
         // Clear inactivity timer
         this.clearInactivityTimer();
@@ -358,9 +303,10 @@ export class Game {
     }
 
     handleSquareClick(e) {
-        // Don't process clicks when menu is active
-        if (this.menu && this.menu.isActive()) return;
-        if (this.startMenuPreview && this.startMenuPreview.isMenuActive()) return;
+        // Handle START sequence clicks (before game is started)
+        if (this.isStartSequenceActive && !this.state.started) {
+            return this.handleStartSequenceClick(e);
+        }
         
         if (!this.state.started) return;
         
@@ -382,6 +328,165 @@ export class Game {
         
         // Drop the letter
         this.dropLetter(column);
+    }
+
+    handleStartSequenceClick(e) {
+        const column = parseInt(e.target.dataset.column);
+        const row = parseInt(e.target.dataset.row);
+        
+        // Get expected position from config instead of hardcoding
+        const startColumn = CONFIG.PREVIEW_START.POSITIONS[this.currentStartLetterIndex];
+        const expectedRow = 0; // All START letters go on top row
+        
+        // Validate the expected position is within grid bounds
+        if (!isWithinBounds(expectedRow, startColumn, CONFIG.GRID.ROWS, CONFIG.GRID.COLUMNS)) {
+            console.error(`Invalid expected position: row ${expectedRow}, column ${startColumn}`);
+            return;
+        }
+        
+        // Check if clicked position matches expected position
+        if (column === startColumn && row === expectedRow) {
+            console.log(`Correct! Clicking ${CONFIG.PREVIEW_START.LETTERS[this.currentStartLetterIndex]} on position (${column}, ${row})`);
+            
+            // Remove glow from current square
+            this.clearStartGuide();
+            
+            // Get the current START letter to drop
+            const currentLetter = CONFIG.PREVIEW_START.LETTERS[this.currentStartLetterIndex];
+            const targetRow = this.state.getLowestAvailableRow(column);
+            
+            // Drop the letter with animation (enable word detection for final letter)
+            this.animator.dropLetterInColumn(column, currentLetter, targetRow, async () => {
+                // Move to next letter FIRST (before other operations)
+                this.currentStartLetterIndex++;
+                
+                // Update game state after drop completes
+                this.state.incrementColumnFill(column);
+                
+                // Update preview: remove first letter and shift remaining
+                this.updateStartPreviewAfterDrop();
+                
+                console.log(`Dropped ${currentLetter} in column ${column}`);
+                
+                // Check if this is the final letter in START sequence
+                const isLastLetter = this.currentStartLetterIndex >= CONFIG.PREVIEW_START.LETTERS.length;
+                
+                if (isLastLetter) {
+                    console.log('Final START letter placed - checking for word detection');
+                    // Enable word detection for the final letter to detect and animate START word
+                    // but don't add to score (addScore = false)
+                    if (this.features.isEnabled('wordDetection')) {
+                        await this.checkAndProcessWords(false);
+                    }
+                    
+                    // After START word is cleared, initialize game components
+                    this.isStartSequenceActive = false;
+                    console.log('START sequence complete - initializing game');
+                    
+                    // Start the game and update button
+                    this.state.started = true;
+                    this.dom.startBtn.textContent = '🔄';
+                    
+                    // Drop NOODEL overlay if it exists
+                    const noodelOverlay = document.getElementById('noodel-word-overlay');
+                    if (noodelOverlay) {
+                        // Create NOODEL word item for the made words list
+                        const noodelDef = this.wordResolver?.dictionary?.get('NOODEL') || CONFIG.GAME_INFO.NOODEL_DEFINITION;
+                        const noodelScore = calculateWordScore('NOODEL');
+                        const noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
+                        
+                        // Drop the overlay with callback to add word
+                        this.animator.dropNoodelWordOverlay(() => {
+                            this.score.addWord(noodelItem);
+                        });
+                    }
+                    
+                    // Initialize progress bar
+                    this.animator.updateLetterProgress(
+                        this.state.lettersRemaining,
+                        CONFIG.GAME.INITIAL_LETTERS
+                    );
+                    
+                    // Show and populate letter preview
+                    this.dom.preview.classList.add('visible');
+                    
+                    // Initialize and display letters (ensure nextLetters are populated)
+                    this.letters.initialize();
+                    this.letters.display();
+                    
+                    console.log('Game fully started with preview and overlay drop!');
+                } else {
+                    // Highlight the next square to click
+                    this.highlightNextStartGuide();
+                }
+            });
+            
+            // Note: currentStartLetterIndex increment moved to animation callback for proper timing
+        } else {
+            console.log(`Wrong position! Expected column ${startColumn}, row ${expectedRow}`);
+            // Do nothing - ignore wrong clicks
+        }
+    }
+
+    updateStartPreviewAfterDrop() {
+        const previewBlocks = this.dom.preview.querySelectorAll('.preview-letter-block');
+        const remainingLetters = CONFIG.PREVIEW_START.LETTERS.slice(this.currentStartLetterIndex);
+        
+        // Update preview blocks with remaining START letters
+        previewBlocks.forEach((block, index) => {
+            if (index < remainingLetters.length) {
+                block.textContent = remainingLetters[index];
+                // First remaining letter gets next-up styling
+                if (index === 0) {
+                    block.classList.add('next-up');
+                } else {
+                    block.classList.remove('next-up');
+                }
+            } else {
+                // Empty blocks for remaining slots
+                block.textContent = '';
+                block.classList.remove('next-up');
+                block.classList.add('empty');
+            }
+        });
+    }
+
+    /**
+     * Highlight the next grid square in the START sequence
+     */
+    highlightNextStartGuide() {
+        if (this.currentStartLetterIndex >= CONFIG.PREVIEW_START.LETTERS.length) {
+            return; // No more letters to highlight
+        }
+        
+        const nextColumn = CONFIG.PREVIEW_START.POSITIONS[this.currentStartLetterIndex];
+        const expectedRow = 0;
+        const gridIndex = calculateIndex(expectedRow, nextColumn, CONFIG.GRID.COLUMNS);
+        const square = this.dom.getGridSquare(gridIndex);
+        
+        if (square) {
+            square.classList.add('start-guide');
+            console.log(`Highlighting next START guide: row ${expectedRow}, col ${nextColumn}`);
+        }
+    }
+
+    /**
+     * Clear the current START guide highlight
+     */
+    clearStartGuide() {
+        const currentSquare = this.dom.grid.querySelector('.start-guide');
+        if (currentSquare) {
+            currentSquare.classList.remove('start-guide');
+        }
+    }
+
+    /**
+     * Initialize the START sequence and highlight the first square
+     */
+    initStartSequenceGuide() {
+        this.currentStartLetterIndex = 0;
+        this.isStartSequenceActive = true;
+        this.highlightNextStartGuide();
     }
 
     dropLetter(column) {
@@ -409,7 +514,7 @@ export class Game {
     }
 
     // Check for words and process them with animation
-    async checkAndProcessWords() {
+    async checkAndProcessWords(addScore = true) {
         // Prevent overlapping word processing
         if (this.isProcessingWords) return;
         this.isProcessingWords = true;
@@ -434,11 +539,16 @@ export class Game {
                         await Promise.all(animationPromises);
                     }
                     
-                    // Add all words to made words list
+                    // Add all words to made words list (if addScore is true)
                     foundWords.forEach(wordData => {
                         const points = calculateWordScore(wordData.word); // Calculate points using Scrabble values + length bonus
                         const wordItem = new WordItem(wordData.word, wordData.definition, points);
-                        this.score.addWord(wordItem);
+                        
+                        if (addScore) {
+                            this.score.addWord(wordItem);
+                        } else {
+                            console.log(`Word "${wordData.word}" detected but not added to score (START sequence)`);
+                        }
                         
                         // Track cleared cells for Clear Mode
                         if (this.state.isClearMode) {
@@ -516,18 +626,17 @@ export class Game {
             dom: this.dom,
             score: this.score,
             animator: this.animator,
-            menu: this.menu,
             finalScore: this.state.score,
             game: this
         };
         
-        // Play Clear Mode complete sequence (animations + return to menu)
+        // Play Clear Mode complete sequence (animations + restart option)
         if (this.sequencer && this.sequencer.sequences && this.sequencer.sequences['clearModeComplete']) {
             await this.sequencer.play('clearModeComplete', context);
         } else {
-            // Fallback if sequence not defined yet
-            console.log('Clear Mode complete sequence not yet defined, showing menu');
-            this.menu.show();
+            // Fallback if sequence not defined yet - restart the game via START sequence
+            console.log('Clear Mode complete sequence not yet defined, restarting via reset');
+            this.reset();
         }
     }
 

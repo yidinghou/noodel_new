@@ -19,10 +19,11 @@ export const CONFIG = {
         // Note: Alphabet is now generated dynamically using LetterGenerator
         // based on English letter frequency distribution
     },
-    START_MENU: {
-        LETTERS: ['S', 'T', 'A', 'R', 'T'],
-        COLUMNS: [1, 2, 3, 4, 5]  // First 5 columns for START letters
-        // TARGET_ROW calculated as GRID.ROWS - 1 (bottom row)
+    PREVIEW_START: {
+        // IMPORTANT: LETTERS.length must equal GAME.PREVIEW_COUNT (both are 5)
+        // POSITIONS.length must also equal LETTERS.length
+        LETTERS: ['S', 'T', 'R', 'T', 'A'],
+        POSITIONS: [1, 2, 4, 5, 3], // Column positions for each letter (S->1, T->2, R->4, T->5, A->3)
     },
     // Note: Animation timing moved to CSS custom properties in base.css
     // AnimationController reads these values dynamically from CSS

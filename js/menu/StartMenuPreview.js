@@ -12,10 +12,10 @@ export class StartMenuPreview {
         this.dom = domCache;
         this.onStart = onStart;
         this.isActive = false;
-        this.clickHandlers = []; // Store handlers for cleanup
+        // this.clickHandlers = []; // Removed: click handler storage
         
         // Use CONFIG for letters
-        this.startLetters = CONFIG.START_MENU.LETTERS;
+        this.startLetters = CONFIG.PREVIEW_START.LETTERS;
         
         // Load timing from CSS (following AnimationController pattern)
         this.timings = this.loadStartMenuTimings();
@@ -62,157 +62,19 @@ export class StartMenuPreview {
                 block.classList.add('next-up');
             }
             
-            // Store reference for click handler
-            block.dataset.startMenuLetter = letter;
+            // Only store letter index for styling/logic, no click handler
             block.dataset.letterIndex = index;
         });
         
         // Make preview visible
         this.dom.preview.classList.add('visible');
         
-        // Add click handlers
-        this.addClickHandlers();
+        // Removed: addClickHandlers (no click logic)
     }
 
-    /**
-     * Add click handlers to START letters
-     */
-    addClickHandlers() {
-        const previewBlocks = this.dom.preview.querySelectorAll('.preview-letter-block');
-        
-        // Clear previous handlers
-        this.clickHandlers.forEach(({ element, handler }) => {
-            element.removeEventListener('click', handler);
-        });
-        this.clickHandlers = [];
-        
-        previewBlocks.forEach(block => {
-            if (block.dataset.startMenuLetter) {
-                const handler = () => this.handleClick(block);
-                block.addEventListener('click', handler);
-                this.clickHandlers.push({ element: block, handler });
-            }
-        });
-    }
 
-    /**
-     * Handle click on any START letter - triggers the animation sequence
-     */
-    handleClick(clickedBlock) {
-        if (!this.isActive) return;
-        
-        console.log('START clicked in preview');
-        this.isActive = false; // Prevent further clicks
-        
-        // Remove click handlers
-        this.clickHandlers.forEach(({ element, handler }) => {
-            element.removeEventListener('click', handler);
-        });
-        this.clickHandlers = [];
-        
-        // Trigger the onStart callback which will run the animation sequence
-        if (this.onStart) {
-            this.onStart();
-        }
-    }
 
-    /**
-     * Drop each START letter sequentially into columns 0-4
-     * Called by AnimationSequencer
-     */
-    async dropStartLettersSequence(animator, letterController) {
-        const targetRow = CONFIG.GRID.ROWS - 1; // Bottom row
-        
-        // Drop each letter sequentially
-        for (let i = 0; i < this.startLetters.length; i++) {
-            const letter = this.startLetters[i];
-            const column = CONFIG.START_MENU.COLUMNS[i];
-            
-            // Simulate click using AnimationController helper
-            await animator.highlightGridSquare(column, 'column-clicked');
-            
-            // Drop letter
-            await new Promise(resolve => {
-                animator.dropLetterInColumn(column, letter, targetRow, resolve);
-            });
-            
-            // Update preview with next letters
-            this.updatePreviewAfterDrop(i, letterController);
-            
-            // Wait before next drop (using timing from CSS)
-            if (i < this.startLetters.length - 1) {
-                await new Promise(resolve => setTimeout(resolve, this.timings.letterDrop));
-            }
-        }
-        
-        // Pause to show complete word
-        await new Promise(resolve => setTimeout(resolve, this.timings.wordPause));
-        
-        // Animate word found (highlight and shake)
-        const positions = this.getStartWordPositions();
-        await animator.highlightAndShakeWord(positions);
-        
-        // Clear the word
-        animator.clearWordCells(positions);
-        await new Promise(resolve => setTimeout(resolve, this.timings.clearPause));
-    }
 
-    /**
-     * Get positions for START word in grid
-     */
-    getStartWordPositions() {
-        const positions = [];
-        const targetRow = CONFIG.GRID.ROWS - 1; // Bottom row
-        
-        CONFIG.START_MENU.COLUMNS.forEach(col => {
-            const index = calculateIndex(targetRow, col, CONFIG.GRID.COLUMNS);
-            positions.push({ index, row: targetRow, col });
-        });
-        
-        return positions;
-    }
-
-    /**
-     * Update preview after a letter drop - shift remaining START letters and add next game letter
-     */
-    updatePreviewAfterDrop(droppedIndex, letterController) {
-        const previewBlocks = this.dom.preview.querySelectorAll('.preview-letter-block');
-        const remainingStartLetters = this.startLetters.length - droppedIndex - 1;
-        
-        // Update all preview blocks
-        for (let i = 0; i < CONFIG.GAME.PREVIEW_COUNT; i++) {
-            const block = previewBlocks[i];
-            
-            if (i < remainingStartLetters) {
-                // Remaining START letters (not yet dropped)
-                const letterIndex = droppedIndex + 1 + i;
-                block.textContent = this.startLetters[letterIndex];
-                block.dataset.startMenuLetter = this.startLetters[letterIndex];
-                
-                // First letter gets next-up styling
-                if (i === 0) {
-                    block.classList.add('next-up');
-                } else {
-                    block.classList.remove('next-up');
-                }
-            } else {
-                // Fill with next game letters from the sequence
-                const gameLetterOffset = i - remainingStartLetters;
-                const gameLetter = letterController.gameState.letterSequence[gameLetterOffset];
-                
-                if (gameLetter) {
-                    block.textContent = gameLetter;
-                    block.classList.remove('next-up');
-                    delete block.dataset.startMenuLetter;
-                } else {
-                    block.textContent = '';
-                    block.classList.add('empty');
-                    block.classList.remove('next-up');
-                    delete block.dataset.startMenuLetter;
-                }
-            }
-        }
-    }
 
     /**
      * Hide the START menu

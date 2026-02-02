@@ -5,21 +5,19 @@
  * Import from this file to get all animations
  */
 
-import { menuAnimations } from './menuAnimations.js';
 import { gameAnimations } from './gameAnimations.js';
 
 /**
  * All animation definitions combined
  */
 export const allAnimations = {
-    ...menuAnimations,
     ...gameAnimations
 };
 
 /**
  * Export individual animation sets
  */
-export { menuAnimations, gameAnimations };
+export { gameAnimations };
 
 /**
  * Get animation by name

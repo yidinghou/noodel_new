@@ -46,27 +46,17 @@ export const INTRO_SEQUENCE = [
         args: (ctx) => [ctx.noodelItem]
     },
     {
-        name: 'showMenu',
-        method: 'show',
-        target: 'menu',
-        duration: 400,
+        name: 'showPreviewStart',
+        method: 'displayPreviewStart',
+        target: 'letters',
+        duration: 0,
         parallel: false,
-        feature: 'gridStartMenu',
-        args: (ctx) => [false, ctx.game], // Pass useFlip=false and game instance
         onAfter: (ctx) => {
-            // Start timer that will pulsate grid if user doesn't click menu within 5 seconds
-            if (ctx.game && !ctx.game.hasClickedGrid) {
-                ctx.game.startInactivityTimer();
+            // Enable START sequence mode and highlight first square
+            if (ctx.game) {
+                ctx.game.initStartSequenceGuide();
             }
         }
-    },
-    {
-        name: 'showStartPreview',
-        method: 'show',
-        target: 'startMenuPreview',
-        duration: 300,
-        parallel: false,
-        feature: 'previewStartMenu'
     }
 ];
 
@@ -107,51 +97,18 @@ export const DEBUG_INTRO_SEQUENCE = [
         target: 'animator',
         duration: 0,
         parallel: false
-    },
-    {
-        name: 'showMenu',
-        method: 'show',
-        target: 'menu',
-        duration: 300,
-        parallel: false,
-        feature: 'gridStartMenu'
-    },
-    {
-        name: 'showStartPreview',
-        method: 'show',
-        target: 'startMenuPreview',
-        duration: 200,
-        parallel: false,
-        feature: 'previewStartMenu'
     }
 ];
 
 /**
  * GAME START SEQUENCE
  * Plays when the START button is clicked
- * - Hide menu
  * - Drop NOODEL word to made words list (only on first load)
  * - Show stats (parallel with drop)
  * - Initialize progress bar
  * - Show letter preview
  */
 export const GAME_START_SEQUENCE = [
-    {
-        name: 'hideMenu',
-        method: 'hide',
-        target: 'menu',
-        duration: 0,
-        parallel: false,
-        feature: 'gridStartMenu'
-    },
-    {
-        name: 'hideStartPreview',
-        method: 'hide',
-        target: 'startMenuPreview',
-        duration: 0,
-        parallel: false,
-        feature: 'previewStartMenu'
-    },
     {
         name: 'dropNoodelWord',
         method: 'dropNoodelWordOverlay',
@@ -239,14 +196,6 @@ export const RESET_SEQUENCE = [
         duration: 'auto',
         parallel: true,
         feature: 'animations.titleShake'
-    },
-    {
-        name: 'showStartPreview',
-        method: 'show',
-        target: 'startMenuPreview',
-        duration: 300,
-        parallel: true,
-        feature: 'previewStartMenu'
     }
 ];
 
@@ -355,78 +304,6 @@ export const WORD_FOUND_SEQUENCE = [
 ];
 
 /**
- * START PREVIEW GAME START SEQUENCE
- * Plays when any letter in "START" preview is clicked
- * - Drop each START letter sequentially into columns 0-4
- * - Preview updates with next game letters as START letters drop
- * - Word forms briefly, then animates (highlight/shake) and clears
- * - Drop NOODEL word to made words list (only on first load)
- * - Show stats and initialize game
- */
-export const START_PREVIEW_GAME_START_SEQUENCE = [
-    {
-        name: 'dropStartLetters',
-        method: 'dropStartLettersSequence',
-        target: 'startMenuPreview',
-        duration: 0, // Handled internally by the method
-        parallel: false,
-        feature: 'previewStartMenu',
-        args: (ctx) => [ctx.animator, ctx.letterController]
-    },
-    {
-        name: 'dropNoodelWord',
-        method: 'dropNoodelWordOverlay',
-        target: 'animator',
-        duration: 'auto',
-        parallel: false,
-        // Only run if this is the first load (NOODEL overlay exists)
-        shouldRun: (ctx) => ctx.state.isFirstLoad && document.getElementById('noodel-word-overlay') !== null,
-        onBefore: (ctx) => {
-            // Set up callback to add word after drop animation
-            ctx.addWordCallback = () => {
-                if (ctx.noodelItem) {
-                    ctx.score.addWord(ctx.noodelItem);
-                }
-            };
-        },
-        args: (ctx) => [ctx.addWordCallback]
-    },
-    {
-        name: 'addNoodelWordDirectly',
-        method: 'addWord',
-        target: 'score',
-        duration: 0,
-        parallel: false,
-        // Only run if this is NOT the first load (no overlay to drop)
-        shouldRun: (ctx) => !ctx.state.isFirstLoad,
-        onBefore: (ctx) => {
-            // Create and add NOODEL word directly without animation
-            if (!ctx.noodelItem) {
-                const noodelDef = ctx.dictionary?.get('NOODEL') || CONFIG.GAME_INFO.NOODEL_DEFINITION;
-                const noodelScore = calculateWordScore('NOODEL');
-                ctx.noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
-            }
-        },
-        args: (ctx) => [ctx.noodelItem]
-    },
-    {
-        name: 'initProgressBar',
-        method: 'updateLetterProgress',
-        target: 'animator',
-        duration: 0,
-        parallel: false,
-        args: (ctx) => [ctx.state.lettersRemaining, CONFIG.GAME.INITIAL_LETTERS]
-    },
-    {
-        name: 'showPreview',
-        method: 'display',
-        target: 'letters',
-        duration: 0,
-        parallel: false
-    }
-];
-
-/**
  * CLEAR MODE COMPLETE SEQUENCE
  * Plays when Clear Mode is completed (all cells cleared)
  * - Celebrate grid with cascade animation
@@ -481,7 +358,6 @@ export const SEQUENCES = {
     intro: INTRO_SEQUENCE,
     debugIntro: DEBUG_INTRO_SEQUENCE,
     gameStart: GAME_START_SEQUENCE,
-    startPreviewGameStart: START_PREVIEW_GAME_START_SEQUENCE,
     reset: RESET_SEQUENCE,
     letterDrop: LETTER_DROP_SEQUENCE,
     wordFound: WORD_FOUND_SEQUENCE,

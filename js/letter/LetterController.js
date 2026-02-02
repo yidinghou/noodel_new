@@ -47,6 +47,30 @@ export class LetterController {
         });
     }
 
+    // Show PREVIEW_START letters in preview tiles
+    displayPreviewStart() {
+        this.dom.preview.innerHTML = '';
+        
+        CONFIG.PREVIEW_START.LETTERS.forEach((letter, index) => {
+            const letterBlock = document.createElement('div');
+            letterBlock.className = 'block-base preview-letter-block';
+            letterBlock.textContent = letter;
+            
+            // First letter gets next-up styling
+            if (index === 0) {
+                letterBlock.classList.add('next-up');
+            }
+            
+            // Add data attribute for column positioning
+            letterBlock.dataset.column = index;
+            
+            this.dom.preview.appendChild(letterBlock);
+        });
+        
+        // Make preview visible
+        this.dom.preview.classList.add('visible');
+    }
+
     // Advance to next letter in sequence
     advance() {
         // Remove first letter and add new one at the end
