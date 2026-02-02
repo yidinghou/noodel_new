@@ -357,10 +357,26 @@ export class Game {
                         await this.checkAndProcessWords(false);
                     }
                     
-                    // Start the actual game after word processing is complete
-                    this.state.started = true;
+                    // After START word is cleared, trigger full game start sequence
                     this.isStartSequenceActive = false;
-                    console.log('START sequence complete - game started!');
+                    console.log('START sequence complete - starting full game sequence');
+                    
+                    // Prepare context for game start sequence
+                    const context = {
+                        state: this.state,
+                        dom: this.dom,
+                        animator: this.animator,
+                        score: this.score,
+                        letters: this.letters,
+                        game: this,
+                        dictionary: this.wordResolver?.dictionary
+                    };
+                    
+                    // Start the game and trigger game start sequence
+                    this.state.started = true;
+                    await this.sequencer.play('GAME_START_SEQUENCE', context);
+                    
+                    console.log('Game fully started with preview and overlay!');
                 }
             });
             
