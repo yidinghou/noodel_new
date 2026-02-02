@@ -44,6 +44,13 @@ export const INTRO_SEQUENCE = [
             ctx.noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
         },
         args: (ctx) => [ctx.noodelItem]
+    },
+    {
+        name: 'showPreviewStart',
+        method: 'displayPreviewStart',
+        target: 'letters',
+        duration: 0,
+        parallel: false
     }
 ];
 

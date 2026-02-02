@@ -68,7 +68,7 @@ export class Game {
         
         // Setup grid and letters
         this.grid.generate();
-        this.letters.displayPreviewStart(); // Show PREVIEW_START letters (S-T-A-R-T) instead of normal game letters
+        // Note: displayPreviewStart() will be called by the intro animation sequence
         
         // Load debug grid if enabled (for testing word detection)
         if (this.features.isEnabled('debug.enabled') && this.features.isEnabled('debug.gridPattern')) {
@@ -81,6 +81,7 @@ export class Game {
             state: this.state,
             dom: this.dom,
             score: this.score,
+            letters: this.letters,
             game: this
         };
         
