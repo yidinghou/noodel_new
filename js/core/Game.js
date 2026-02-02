@@ -357,26 +357,24 @@ export class Game {
                         await this.checkAndProcessWords(false);
                     }
                     
-                    // After START word is cleared, trigger full game start sequence
+                    // After START word is cleared, initialize game components
                     this.isStartSequenceActive = false;
-                    console.log('START sequence complete - starting full game sequence');
+                    console.log('START sequence complete - initializing game');
                     
-                    // Prepare context for game start sequence
-                    const context = {
-                        state: this.state,
-                        dom: this.dom,
-                        animator: this.animator,
-                        score: this.score,
-                        letters: this.letters,
-                        game: this,
-                        dictionary: this.wordResolver?.dictionary
-                    };
-                    
-                    // Start the game and trigger game start sequence
+                    // Start the game
                     this.state.started = true;
-                    await this.sequencer.play('gameStart', context);
                     
-                    console.log('Game fully started with preview and overlay!');
+                    // Initialize progress bar
+                    this.animator.updateLetterProgress(
+                        this.state.lettersRemaining,
+                        CONFIG.GAME.INITIAL_LETTERS
+                    );
+                    
+                    // Show and populate letter preview
+                    this.dom.preview.classList.add('visible');
+                    this.letters.display();
+                    
+                    console.log('Game fully started with preview and progress bar!');
                 }
             });
             
