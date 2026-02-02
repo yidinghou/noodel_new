@@ -485,7 +485,7 @@ export class Game {
         this.state.started = true;
         this.dom.startBtn.textContent = '🔄';
         
-        // Drop NOODEL overlay if it exists
+        // Drop NOODEL overlay if it exists and await the animation
         const noodelOverlay = document.getElementById('noodel-word-overlay');
         if (noodelOverlay) {
             // Create NOODEL word item for the made words list
@@ -493,8 +493,8 @@ export class Game {
             const noodelScore = calculateWordScore('NOODEL');
             const noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
             
-            // Drop the overlay with callback to add word
-            this.animator.dropNoodelWordOverlay(() => {
+            // Drop the overlay and wait for animation to complete
+            await this.animator.dropNoodelWordOverlay(() => {
                 this.score.addWord(noodelItem);
             });
         }
