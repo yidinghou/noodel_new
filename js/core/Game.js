@@ -456,22 +456,39 @@ export class Game {
         }
         
         const expected = this.startSequence.getCurrentExpectedPosition();
-        const gridIndex = calculateIndex(expected.row, expected.column, CONFIG.GRID.COLUMNS);
-        const square = this.dom.getGridSquare(gridIndex);
-        
-        if (square) {
-            square.classList.add('start-guide');
-            console.log(`Highlighting next START guide: row ${expected.row}, col ${expected.column}`);
+        const column = expected.column;
+
+        // Highlight the entire column for the START guide
+        for (let row = 0; row < CONFIG.GRID.ROWS; row++) {
+            const gridIndex = calculateIndex(row, column, CONFIG.GRID.COLUMNS);
+            const square = this.dom.getGridSquare(gridIndex);
+            if (square) {
+                square.classList.add('start-guide');
+                // remove any previous focus on the column
+                square.classList.remove('start-guide-focus');
+            }
         }
+
+        // Add a stronger focus class to the configured row for this letter
+        const focusIndex = calculateIndex(expected.row, column, CONFIG.GRID.COLUMNS);
+        const focusSquare = this.dom.getGridSquare(focusIndex);
+        if (focusSquare) {
+            focusSquare.classList.add('start-guide-focus');
+        }
+
+        console.log(`Highlighting column ${column} with focus at row ${expected.row}`);
     }
 
     /**
      * Clear the current START guide highlight
      */
     clearStartGuide() {
-        const currentSquare = this.dom.grid.querySelector('.start-guide');
-        if (currentSquare) {
-            currentSquare.classList.remove('start-guide');
+        // Remove start-guide and focus classes from all highlighted squares
+        const highlighted = this.dom.grid.querySelectorAll('.start-guide, .start-guide-focus');
+        highlighted.forEach(sq => {
+            sq.classList.remove('start-guide');
+            sq.classList.remove('start-guide-focus');
+        });
         }
     }
 

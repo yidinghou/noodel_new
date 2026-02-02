@@ -245,6 +245,16 @@
     z-index: 10;
 }
 
+/* Focused square within a highlighted column (stronger visual) */
+.grid-square.start-guide-focus {
+    animation: startGuideGlow 1s ease-in-out infinite;
+    border: 3px solid #FF6D00;
+    background: rgba(255, 152, 0, 0.28);
+    box-shadow: 0 0 24px 12px rgba(255, 152, 0, 0.75);
+    transform: scale(1.06);
+    z-index: 11;
+}
+
 /* Menu Button Styles - Greyish Monotone (No Gradients) */
 .grid-square.menu-button {
     cursor: pointer;

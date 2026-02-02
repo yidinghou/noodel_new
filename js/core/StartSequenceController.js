@@ -34,9 +34,19 @@ export class StartSequenceController {
      * @returns {Object} {column, row}
      */
     getCurrentExpectedPosition() {
+        // Prefer per-letter `ROWS` if provided, otherwise fall back to EXPECTED_ROW
+        let row = this.config.EXPECTED_ROW;
+        if (Array.isArray(this.config.ROWS) && this.config.ROWS.length === this.config.LETTERS.length) {
+            const candidate = this.config.ROWS[this.currentIndex];
+            // validate candidate is a number
+            if (Number.isInteger(candidate)) {
+                row = candidate;
+            }
+        }
+
         return {
             column: this.config.POSITIONS[this.currentIndex],
-            row: this.config.EXPECTED_ROW
+            row: row
         };
     }
 
@@ -111,11 +121,15 @@ export class StartSequenceController {
             );
         }
 
-        // Validate all positions are within grid bounds
+        // Validate all positions and optional rows are within grid bounds
         this.config.POSITIONS.forEach((col, index) => {
-            if (!isWithinBounds(this.config.EXPECTED_ROW, col, CONFIG.GRID.ROWS, CONFIG.GRID.COLUMNS)) {
+            const expectedRow = (Array.isArray(this.config.ROWS) && this.config.ROWS.length === this.config.LETTERS.length)
+                ? this.config.ROWS[index]
+                : this.config.EXPECTED_ROW;
+
+            if (!isWithinBounds(expectedRow, col, CONFIG.GRID.ROWS, CONFIG.GRID.COLUMNS)) {
                 errors.push(
-                    `POSITIONS[${index}] (col ${col}) is out of grid bounds`
+                    `LETTER[${index}] (row ${expectedRow}, col ${col}) is out of grid bounds`
                 );
             }
         });
