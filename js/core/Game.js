@@ -60,6 +60,9 @@ export class Game {
         // Flag to control word detection globally (can be paused for sequences)
         this.wordDetectionEnabled = true;
         
+        // Flag to prevent re-entrance in START sequence (prevents multiple animations queueing)
+        this.isStartDropInProgress = false;
+        
         // Timer for initial user guidance (pulsate grid if no click within 5 seconds)
         this.inactivityTimer = null;
         this.hasClickedGrid = false;
@@ -361,6 +364,12 @@ export class Game {
     }
 
     handleStartSequenceClick(e) {
+        // Prevent re-entrance: ignore clicks while animation is in progress
+        if (this.isStartDropInProgress) {
+            console.log('START drop already in progress - ignoring click');
+            return;
+        }
+        
         const column = parseInt(e.target.dataset.column);
         const row = parseInt(e.target.dataset.row);
         
@@ -380,29 +389,37 @@ export class Game {
         
         console.log(`Correct! Clicking ${currentLetter} on position (${column}, ${row})`);
         
+        // LOCK: Prevent re-entrance until animation completes
+        this.isStartDropInProgress = true;
+        
         // Remove glow from current square
         this.clearStartGuide();
         
         // Drop the letter with animation callback
         this.animator.dropLetterInColumn(column, currentLetter, targetRow, async () => {
-            // Update game state after drop completes
-            this.state.incrementColumnFill(column);
-            
-            // Advance to next letter
-            this.startSequence.advance();
-            
-            // Update preview: remove first letter and shift remaining
-            this.updateStartPreviewAfterDrop();
-            
-            console.log(`Dropped ${currentLetter} in column ${column}`);
-            
-            // Check if the letter we just placed was the final one
-            if (isThisLastLetter) {
-                console.log('Final START letter placed - completing sequence');
-                await this.startSequence.complete();
-            } else {
-                // Highlight the next square to click
-                this.highlightNextStartGuide();
+            try {
+                // Update game state after drop completes
+                this.state.incrementColumnFill(column);
+                
+                // Advance to next letter
+                this.startSequence.advance();
+                
+                // Update preview: remove first letter and shift remaining
+                this.updateStartPreviewAfterDrop();
+                
+                console.log(`Dropped ${currentLetter} in column ${column}`);
+                
+                // Check if the letter we just placed was the final one
+                if (isThisLastLetter) {
+                    console.log('Final START letter placed - completing sequence');
+                    await this.startSequence.complete();
+                } else {
+                    // Highlight the next square to click
+                    this.highlightNextStartGuide();
+                }
+            } finally {
+                // UNLOCK: Allow next click after callback completes
+                this.isStartDropInProgress = false;
             }
         });
     }
