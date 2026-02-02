@@ -598,9 +598,15 @@ export class Game {
                     foundWords.forEach(wordData => {
                         const points = calculateWordScore(wordData.word); // Calculate points using Scrabble values + length bonus
                         const wordItem = new WordItem(wordData.word, wordData.definition, points);
-                        
-                        if (addScore) {
-                            this.score.addWord(wordItem);
+
+                        const willDisplay = addScore; // preserve original behavior: only display when addScore is true
+                        const willAddToScore = addScore && this.state.scoringEnabled;
+
+                        if (willDisplay) {
+                            this.score.addWord(wordItem, willAddToScore);
+                            if (!willAddToScore) {
+                                console.log(`Word "${wordData.word}" detected but not added to score (scoring disabled)`);
+                            }
                         } else {
                             console.log(`Word "${wordData.word}" detected but not added to score (START sequence)`);
                         }
