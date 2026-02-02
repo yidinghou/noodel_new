@@ -88,9 +88,7 @@ export class Game {
     }
 
     async init() {
-        // Transition to loading phase
-        this.stateMachine.transition(GamePhase.LOADING);
-        
+        // Note: GameStateMachine starts in LOADING phase by default
         // Load dictionary and initialize WordResolver
         console.log('Loading dictionary...');
         this.wordResolver = await WordResolver.create(this.state, this.dom);
