@@ -25,7 +25,6 @@ export const CONFIG = {
         LETTERS: ['S', 'T', 'R', 'T', 'A'],
         POSITIONS: [1, 2, 4, 5, 3], // Column positions for each letter (S->1, T->2, R->4, T->5, A->3)
         EXPECTED_ROW: 0,              // Row where clicks are expected
-        COMPLETION_WORD: 'START',     // Word that forms when sequence completes
         ADD_TO_SCORE: false,          // Whether to add START word to score
         TRIGGER_GAME_START: true      // Whether to start game after sequence
     },
