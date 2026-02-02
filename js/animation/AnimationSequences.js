@@ -8,6 +8,90 @@ import { calculateWordScore } from '../scoring/ScoringUtils.js';
 import { CONFIG } from '../config.js';
 
 /**
+ * ATOMIC_ANIMATIONS - Reusable animation building blocks
+ * These can be composed to create larger sequences
+ * @type {Object<string, Object>}
+ */
+export const ATOMIC_ANIMATIONS = {
+    /**
+     * Drop and show NOODEL word overlay
+     */
+    dropNoodelWord: {
+        name: 'dropNoodelWord',
+        method: 'dropNoodelWordOverlay',
+        target: 'animator',
+        duration: 'auto',
+        parallel: false,
+        shouldRun: (ctx) => ctx.state.isFirstLoad && document.getElementById('noodel-word-overlay') !== null,
+        onBefore: (ctx) => {
+            ctx.addWordCallback = () => {
+                if (ctx.noodelItem) {
+                    ctx.score.addWord(ctx.noodelItem);
+                }
+            };
+        },
+        args: (ctx) => [ctx.addWordCallback]
+    },
+    
+    /**
+     * Add NOODEL word directly (no animation)
+     */
+    addNoodelWordDirectly: {
+        name: 'addNoodelWordDirectly',
+        method: 'addWord',
+        target: 'score',
+        duration: 0,
+        parallel: false,
+        shouldRun: (ctx) => !ctx.state.isFirstLoad,
+        onBefore: (ctx) => {
+            if (!ctx.noodelItem) {
+                const noodelDef = ctx.dictionary?.get('NOODEL') || CONFIG.GAME_INFO.NOODEL_DEFINITION;
+                const noodelScore = calculateWordScore('NOODEL');
+                ctx.noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
+            }
+        },
+        args: (ctx) => [ctx.noodelItem]
+    },
+    
+    /**
+     * Initialize progress bar display
+     */
+    initProgressBar: {
+        name: 'initProgressBar',
+        method: 'updateLetterProgress',
+        target: 'animator',
+        duration: 0,
+        parallel: false,
+        args: (ctx) => [ctx.state.lettersRemaining, CONFIG.GAME.INITIAL_LETTERS]
+    },
+    
+    /**
+     * Initialize and show letter preview
+     */
+    showPreview: {
+        name: 'showPreview',
+        method: 'display',
+        target: 'letters',
+        duration: 0,
+        parallel: false,
+        onBefore: (ctx) => {
+            ctx.dom.preview.classList.add('visible');
+        }
+    },
+    
+    /**
+     * Initialize letters (populate nextLetters array)
+     */
+    initLetters: {
+        name: 'initLetters',
+        method: 'initialize',
+        target: 'letters',
+        duration: 0,
+        parallel: false
+    }
+};
+
+/**
  * INTRO SEQUENCE
  * Plays when the game first loads (normal mode)
  * - Title letters drop and shake
@@ -109,60 +193,11 @@ export const DEBUG_INTRO_SEQUENCE = [
  * - Show letter preview
  */
 export const GAME_START_SEQUENCE = [
-    {
-        name: 'dropNoodelWord',
-        method: 'dropNoodelWordOverlay',
-        target: 'animator',
-        duration: 'auto',
-        parallel: false,
-        // Only run if this is the first load (NOODEL overlay exists)
-        shouldRun: (ctx) => ctx.state.isFirstLoad && document.getElementById('noodel-word-overlay') !== null,
-        onBefore: (ctx) => {
-            // Set up callback to add word after drop animation
-            ctx.addWordCallback = () => {
-                if (ctx.noodelItem) {
-                    ctx.score.addWord(ctx.noodelItem);
-                }
-            };
-        },
-        args: (ctx) => [ctx.addWordCallback]
-    },
-    {
-        name: 'addNoodelWordDirectly',
-        method: 'addWord',
-        target: 'score',
-        duration: 0,
-        parallel: false,
-        // Only run if this is NOT the first load (no overlay to drop)
-        shouldRun: (ctx) => !ctx.state.isFirstLoad,
-        onBefore: (ctx) => {
-            // Create and add NOODEL word directly without animation
-            if (!ctx.noodelItem) {
-                const noodelDef = ctx.dictionary?.get('NOODEL') || CONFIG.GAME_INFO.NOODEL_DEFINITION;
-                const noodelScore = calculateWordScore('NOODEL');
-                ctx.noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
-            }
-        },
-        args: (ctx) => [ctx.noodelItem]
-    },
-    {
-        name: 'initProgressBar',
-        method: 'updateLetterProgress',
-        target: 'animator',
-        duration: 0,
-        parallel: false,
-        args: (ctx) => [ctx.state.lettersRemaining, CONFIG.GAME.INITIAL_LETTERS]
-    },
-    {
-        name: 'showPreview',
-        method: 'display',
-        target: 'letters',
-        duration: 0,
-        parallel: false,
-        onBefore: (ctx) => {
-            ctx.dom.preview.classList.add('visible');
-        }
-    }
+    ATOMIC_ANIMATIONS.dropNoodelWord,
+    ATOMIC_ANIMATIONS.addNoodelWordDirectly,
+    ATOMIC_ANIMATIONS.initProgressBar,
+    ATOMIC_ANIMATIONS.initLetters,
+    ATOMIC_ANIMATIONS.showPreview
 ];
 
 /**
@@ -352,14 +387,28 @@ export const CLEAR_MODE_COMPLETE_SEQUENCE = [
 ];
 
 /**
+ * SequenceNames - Enum for type-safe sequence name references
+ * @enum {string}
+ */
+export const SequenceNames = {
+    INTRO: 'intro',
+    DEBUG_INTRO: 'debugIntro',
+    GAME_START: 'gameStart',
+    RESET: 'reset',
+    LETTER_DROP: 'letterDrop',
+    WORD_FOUND: 'wordFound',
+    CLEAR_MODE_COMPLETE: 'clearModeComplete'
+};
+
+/**
  * All sequences mapped by name
  */
 export const SEQUENCES = {
-    intro: INTRO_SEQUENCE,
-    debugIntro: DEBUG_INTRO_SEQUENCE,
-    gameStart: GAME_START_SEQUENCE,
-    reset: RESET_SEQUENCE,
-    letterDrop: LETTER_DROP_SEQUENCE,
-    wordFound: WORD_FOUND_SEQUENCE,
-    clearModeComplete: CLEAR_MODE_COMPLETE_SEQUENCE
+    [SequenceNames.INTRO]: INTRO_SEQUENCE,
+    [SequenceNames.DEBUG_INTRO]: DEBUG_INTRO_SEQUENCE,
+    [SequenceNames.GAME_START]: GAME_START_SEQUENCE,
+    [SequenceNames.RESET]: RESET_SEQUENCE,
+    [SequenceNames.LETTER_DROP]: LETTER_DROP_SEQUENCE,
+    [SequenceNames.WORD_FOUND]: WORD_FOUND_SEQUENCE,
+    [SequenceNames.CLEAR_MODE_COMPLETE]: CLEAR_MODE_COMPLETE_SEQUENCE
 };
