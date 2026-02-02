@@ -364,6 +364,9 @@ export class Game {
         const currentLetter = this.startSequence.getCurrentLetter();
         const targetRow = this.state.getLowestAvailableRow(column);
         
+        // Check if THIS letter we're about to drop is the final one (before advancing)
+        const isThisLastLetter = this.startSequence.currentIndex === CONFIG.PREVIEW_START.LETTERS.length - 1;
+        
         console.log(`Correct! Clicking ${currentLetter} on position (${column}, ${row})`);
         
         // Remove glow from current square
@@ -382,8 +385,8 @@ export class Game {
             
             console.log(`Dropped ${currentLetter} in column ${column}`);
             
-            // Check if this is the final letter in START sequence
-            if (this.startSequence.isLastLetter()) {
+            // Check if the letter we just placed was the final one
+            if (isThisLastLetter) {
                 console.log('Final START letter placed - completing sequence');
                 await this.startSequence.complete();
             } else {
