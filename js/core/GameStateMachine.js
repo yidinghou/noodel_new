@@ -30,7 +30,43 @@ export const ValidTransitions = {
 
 /**
  * GameStateMachine - Manages explicit game state transitions
- * Provides type-safe state management and transition validation
+ * 
+ * USAGE:
+ * ------
+ * const machine = new GameStateMachine();
+ * 
+ * // Check current state
+ * if (machine.is(GamePhase.PLAYING)) {
+ *     console.log('Game is playing');
+ * }
+ * 
+ * // Validate transition
+ * if (machine.canTransitionTo(GamePhase.WORD_PROCESSING)) {
+ *     machine.transition(GamePhase.WORD_PROCESSING);
+ * }
+ * 
+ * // Listen for transitions
+ * machine.onTransition((from, to) => {
+ *     console.log(`State changed: ${from} → ${to}`);
+ * });
+ * 
+ * STATE DIAGRAM:
+ * ---------------
+ * LOADING
+ *    ↓
+ * INTRO_ANIMATION
+ *    ↓
+ * START_SEQUENCE
+ *    ↓
+ * GAME_READY
+ *    ↓
+ * PLAYING ←→ WORD_PROCESSING
+ *    ↓
+ * GAME_OVER
+ *    ↓
+ * RESETTING → INTRO_ANIMATION or START_SEQUENCE
+ * 
+ * Provides type-safe, auditable state management
  */
 export class GameStateMachine {
     constructor() {
