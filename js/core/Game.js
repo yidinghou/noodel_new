@@ -52,6 +52,9 @@ export class Game {
         // Flag to prevent multiple simultaneous word checks
         this.isProcessingWords = false;
         
+        // Flag to control word detection globally (can be paused for sequences)
+        this.wordDetectionEnabled = true;
+        
         // Timer for initial user guidance (pulsate grid if no click within 5 seconds)
         this.inactivityTimer = null;
         this.hasClickedGrid = false;
@@ -139,6 +142,22 @@ export class Game {
         
         // Setup grid click handlers once during initialization
         this.grid.addClickHandlers((e) => this.handleSquareClick(e));
+    }
+
+    /**
+     * Pause word detection globally (e.g., during START sequence)
+     */
+    pauseWordDetection() {
+        this.wordDetectionEnabled = false;
+        console.log('Word detection paused');
+    }
+
+    /**
+     * Resume word detection globally
+     */
+    resumeWordDetection() {
+        this.wordDetectionEnabled = true;
+        console.log('Word detection resumed');
     }
 
     async start(gameMode = GameModes.CLASSIC) {
@@ -515,6 +534,12 @@ export class Game {
 
     // Check for words and process them with animation
     async checkAndProcessWords(addScore = true) {
+        // Skip if word detection is paused (e.g., during sequences)
+        if (!this.wordDetectionEnabled) {
+            console.log('Word detection is paused');
+            return;
+        }
+        
         // Prevent overlapping word processing
         if (this.isProcessingWords) return;
         this.isProcessingWords = true;
