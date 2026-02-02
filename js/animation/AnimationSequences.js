@@ -352,14 +352,28 @@ export const CLEAR_MODE_COMPLETE_SEQUENCE = [
 ];
 
 /**
+ * SequenceNames - Enum for type-safe sequence name references
+ * @enum {string}
+ */
+export const SequenceNames = {
+    INTRO: 'intro',
+    DEBUG_INTRO: 'debugIntro',
+    GAME_START: 'gameStart',
+    RESET: 'reset',
+    LETTER_DROP: 'letterDrop',
+    WORD_FOUND: 'wordFound',
+    CLEAR_MODE_COMPLETE: 'clearModeComplete'
+};
+
+/**
  * All sequences mapped by name
  */
 export const SEQUENCES = {
-    intro: INTRO_SEQUENCE,
-    debugIntro: DEBUG_INTRO_SEQUENCE,
-    gameStart: GAME_START_SEQUENCE,
-    reset: RESET_SEQUENCE,
-    letterDrop: LETTER_DROP_SEQUENCE,
-    wordFound: WORD_FOUND_SEQUENCE,
-    clearModeComplete: CLEAR_MODE_COMPLETE_SEQUENCE
+    [SequenceNames.INTRO]: INTRO_SEQUENCE,
+    [SequenceNames.DEBUG_INTRO]: DEBUG_INTRO_SEQUENCE,
+    [SequenceNames.GAME_START]: GAME_START_SEQUENCE,
+    [SequenceNames.RESET]: RESET_SEQUENCE,
+    [SequenceNames.LETTER_DROP]: LETTER_DROP_SEQUENCE,
+    [SequenceNames.WORD_FOUND]: WORD_FOUND_SEQUENCE,
+    [SequenceNames.CLEAR_MODE_COMPLETE]: CLEAR_MODE_COMPLETE_SEQUENCE
 };
