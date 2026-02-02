@@ -334,9 +334,9 @@ export class Game {
         const column = parseInt(e.target.dataset.column);
         const row = parseInt(e.target.dataset.row);
         
-        // Get expected position from config instead of hardcoding
+        // Get expected position from config
         const startColumn = CONFIG.PREVIEW_START.POSITIONS[this.currentStartLetterIndex];
-        const expectedRow = 0; // All START letters go on top row
+        const expectedRow = CONFIG.PREVIEW_START.EXPECTED_ROW;
         
         // Validate the expected position is within grid bounds
         if (!isWithinBounds(expectedRow, startColumn, CONFIG.GRID.ROWS, CONFIG.GRID.COLUMNS)) {
@@ -374,9 +374,9 @@ export class Game {
                 if (isLastLetter) {
                     console.log('Final START letter placed - checking for word detection');
                     // Enable word detection for the final letter to detect and animate START word
-                    // but don't add to score (addScore = false)
+                    // Use ADD_TO_SCORE config to control scoring behavior
                     if (this.features.isEnabled('wordDetection')) {
-                        await this.checkAndProcessWords(false);
+                        await this.checkAndProcessWords(CONFIG.PREVIEW_START.ADD_TO_SCORE);
                     }
                     
                     // After START word is cleared, initialize game components
