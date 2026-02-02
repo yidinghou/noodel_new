@@ -7,6 +7,7 @@ export class LetterController {
     constructor(gameState, domCache) {
         this.gameState = gameState;
         this.dom = domCache;
+        this.isInitialized = false;  // Track initialization state
     }
 
     // Initialize next letters
@@ -21,10 +22,17 @@ export class LetterController {
                 this.gameState.nextLetters.push('');
             }
         }
+        this.isInitialized = true;  // Mark as initialized
     }
 
     // Display next letters preview
     display() {
+        // Validate prerequisites - auto-initialize if needed
+        if (!this.isInitialized || this.gameState.nextLetters.length === 0) {
+            console.warn('LetterController.display() called before initialize() - auto-initializing');
+            this.initialize();
+        }
+        
         this.dom.preview.innerHTML = '';
         
         this.gameState.nextLetters.forEach((letter, index) => {
