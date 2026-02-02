@@ -24,21 +24,23 @@ export class ScoreController {
     }
 
     // Add word to the words list
-    addWord(wordItem) {
+    addWord(wordItem, addToScore = true) {
         // Store the word item for stats tracking
         this.madeWords.push(wordItem);
-        
+
         // Create DOM element and display in format: Word (pts) Definition
         const wordDiv = document.createElement('div');
         wordDiv.className = 'word-item';
         wordDiv.innerHTML = `<strong>${wordItem.text}</strong> <small>(${wordItem.points} pts)</small> <span>${wordItem.definition}</span>`;
-        
+
         // Insert at the top (prepend) so newest words appear first
         this.dom.wordsList.insertBefore(wordDiv, this.dom.wordsList.firstChild);
-        
-        // Update score
-        this.gameState.addToScore(wordItem.points);
-        this.dom.scoreValue.textContent = this.gameState.score;
+
+        // Update score if requested
+        if (addToScore) {
+            this.gameState.addToScore(wordItem.points);
+            this.dom.scoreValue.textContent = this.gameState.score;
+        }
     }
 
     // Get stats about all words made during the game

@@ -531,10 +531,11 @@ export class Game {
             const noodelDef = this.wordResolver?.dictionary?.get('NOODEL') || CONFIG.GAME_INFO.NOODEL_DEFINITION;
             const noodelScore = calculateWordScore('NOODEL');
             const noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
-            
+
             // Drop the overlay and wait for animation to complete
+            // Add NOODEL to the made-words list but do NOT alter game score.
             await this.animator.dropNoodelWordOverlay(() => {
-                this.score.addWord(noodelItem);
+                this.score.addWord(noodelItem, false);
             });
         }
         
@@ -552,6 +553,8 @@ export class Game {
         this.letters.display();
         
         console.log('Game fully initialized after START sequence!');
+        // Enable scoring from this point forward (game has started)
+        this.state.scoringEnabled = true;
     }
 
     // Check for words and process them with animation
@@ -595,9 +598,15 @@ export class Game {
                     foundWords.forEach(wordData => {
                         const points = calculateWordScore(wordData.word); // Calculate points using Scrabble values + length bonus
                         const wordItem = new WordItem(wordData.word, wordData.definition, points);
-                        
-                        if (addScore) {
-                            this.score.addWord(wordItem);
+
+                        const willDisplay = addScore; // preserve original behavior: only display when addScore is true
+                        const willAddToScore = addScore && this.state.scoringEnabled;
+
+                        if (willDisplay) {
+                            this.score.addWord(wordItem, willAddToScore);
+                            if (!willAddToScore) {
+                                console.log(`Word "${wordData.word}" detected but not added to score (scoring disabled)`);
+                            }
                         } else {
                             console.log(`Word "${wordData.word}" detected but not added to score (START sequence)`);
                         }

@@ -15,8 +15,11 @@ export class GameState {
         this.gameMode = gameMode;
         this.isClearMode = gameMode === GameModes.CLEAR;
         
-        // Score tracking (starts negative to account for NOODEL title word)
-        this.score = -calculateWordScore('NOODEL');
+        // Score tracking
+        // Do not apply a hardcoded NOODEL offset here; scoring is controlled
+        // by `scoringEnabled` which starts disabled during the START sequence.
+        this.score = 0;
+        this.scoringEnabled = false;
         
         // Letter management
         this.letterSequence = this.generateLetterSequence();  // The actual 100-letter sequence
@@ -101,8 +104,9 @@ export class GameState {
         // Game mode stays the same, just reset with current mode
         // this.gameMode and this.isClearMode are preserved
         
-        // Score tracking (starts negative to account for NOODEL title word)
-        this.score = -calculateWordScore('NOODEL');
+        // Score tracking
+        this.score = 0;
+        this.scoringEnabled = false;
         
         // Letter management - generate fresh sequence
         this.letterSequence = this.generateLetterSequence();
