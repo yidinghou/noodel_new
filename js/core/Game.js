@@ -333,8 +333,8 @@ export class Game {
             const currentLetter = CONFIG.PREVIEW_START.LETTERS[this.currentStartLetterIndex];
             const targetRow = this.state.getLowestAvailableRow(column);
             
-            // Drop the letter with animation (no word detection during START sequence)
-            this.animator.dropLetterInColumn(column, currentLetter, targetRow, () => {
+            // Drop the letter with animation (enable word detection for final letter)
+            this.animator.dropLetterInColumn(column, currentLetter, targetRow, async () => {
                 // Update game state after drop completes
                 this.state.incrementColumnFill(column);
                 
@@ -343,59 +343,32 @@ export class Game {
                 
                 console.log(`Dropped ${currentLetter} in column ${column}`);
                 
-                // NOTE: No word detection during START sequence - game not started yet
+                // Check if this is the final letter in START sequence
+                const isLastLetter = (this.currentStartLetterIndex + 1) >= CONFIG.PREVIEW_START.LETTERS.length;
+                
+                if (isLastLetter) {
+                    console.log('Final START letter placed - checking for word detection');
+                    // Enable word detection for the final letter to detect and animate START word
+                    // but don't add to score (addScore = false)
+                    if (this.features.isEnabled('wordDetection')) {
+                        await this.checkAndProcessWords(false);
+                    }
+                    
+                    // Start the actual game after word processing is complete
+                    this.state.started = true;
+                    this.isStartSequenceActive = false;
+                    console.log('START sequence complete - game started!');
+                }
             });
             
             // Move to next letter
             this.currentStartLetterIndex++;
             
-            // Check if sequence is complete
-            if (this.currentStartLetterIndex >= CONFIG.PREVIEW_START.LETTERS.length) {
-                console.log('START sequence complete!');
-                this.isStartSequenceActive = false;
-                // Complete the START sequence by clearing the word and starting game
-                this.completeStartSequence();
-            }
+            // Note: Game start logic moved to drop callback for proper timing
         } else {
             console.log(`Wrong position! Expected column ${startColumn}, row ${expectedRow}`);
             // Do nothing - ignore wrong clicks
         }
-    }
-
-    /**
-     * Complete the START sequence by clearing the word and starting the game
-     */
-    completeStartSequence() {
-        // Calculate bottom row dynamically
-        const bottomRow = CONFIG.GRID.ROWS - 1;
-        
-        // Clear each START letter position using calculateIndex
-        for (let i = 0; i < CONFIG.PREVIEW_START.LETTERS.length; i++) {
-            const column = 1 + i; // START letters are in columns 1-5
-            
-            // Validate position is within bounds before clearing
-            if (isWithinBounds(bottomRow, column, CONFIG.GRID.ROWS, CONFIG.GRID.COLUMNS)) {
-                const gridIndex = calculateIndex(bottomRow, column, CONFIG.GRID.COLUMNS);
-                const square = this.dom.getGridSquare(gridIndex);
-                
-                if (square) {
-                    // Clear the letter
-                    square.textContent = '';
-                    square.classList.remove('filled');
-                    
-                    // Decrement column fill count
-                    if (this.state.columnFillCounts[column] > 0) {
-                        this.state.columnFillCounts[column]--;
-                    }
-                }
-            }
-        }
-        
-        console.log('START word cleared from bottom row - game starting!');
-        
-        // Now start the actual game
-        this.state.started = true;
-        // Additional game start logic can be added here
     }
 
     updateStartPreviewAfterDrop() {
@@ -446,7 +419,7 @@ export class Game {
     }
 
     // Check for words and process them with animation
-    async checkAndProcessWords() {
+    async checkAndProcessWords(addScore = true) {
         // Prevent overlapping word processing
         if (this.isProcessingWords) return;
         this.isProcessingWords = true;
@@ -471,11 +444,16 @@ export class Game {
                         await Promise.all(animationPromises);
                     }
                     
-                    // Add all words to made words list
+                    // Add all words to made words list (if addScore is true)
                     foundWords.forEach(wordData => {
                         const points = calculateWordScore(wordData.word); // Calculate points using Scrabble values + length bonus
                         const wordItem = new WordItem(wordData.word, wordData.definition, points);
-                        this.score.addWord(wordItem);
+                        
+                        if (addScore) {
+                            this.score.addWord(wordItem);
+                        } else {
+                            console.log(`Word "${wordData.word}" detected but not added to score (START sequence)`);
+                        }
                         
                         // Track cleared cells for Clear Mode
                         if (this.state.isClearMode) {
