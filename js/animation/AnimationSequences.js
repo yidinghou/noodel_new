@@ -44,29 +44,6 @@ export const INTRO_SEQUENCE = [
             ctx.noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
         },
         args: (ctx) => [ctx.noodelItem]
-    },
-    {
-        name: 'showMenu',
-        method: 'show',
-        target: 'menu',
-        duration: 400,
-        parallel: false,
-        feature: 'gridStartMenu',
-        args: (ctx) => [false, ctx.game], // Pass useFlip=false and game instance
-        onAfter: (ctx) => {
-            // Start timer that will pulsate grid if user doesn't click menu within 5 seconds
-            if (ctx.game && !ctx.game.hasClickedGrid) {
-                ctx.game.startInactivityTimer();
-            }
-        }
-    },
-    {
-        name: 'showStartPreview',
-        method: 'show',
-        target: 'startMenuPreview',
-        duration: 300,
-        parallel: false,
-        feature: 'previewStartMenu'
     }
 ];
 
