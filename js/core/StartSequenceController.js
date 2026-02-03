@@ -34,15 +34,8 @@ export class StartSequenceController {
      * @returns {Object} {column, row}
      */
     getCurrentExpectedPosition() {
-        // Prefer per-letter `ROWS` if provided, otherwise fall back to EXPECTED_ROW
-        let row = this.config.EXPECTED_ROW;
-        if (Array.isArray(this.config.ROWS) && this.config.ROWS.length === this.config.LETTERS.length) {
-            const candidate = this.config.ROWS[this.currentIndex];
-            // validate candidate is a number
-            if (Number.isInteger(candidate)) {
-                row = candidate;
-            }
-        }
+        // Use per-letter ROWS array (required to be defined)
+        const row = this.config.ROWS[this.currentIndex];
 
         return {
             column: this.config.POSITIONS[this.currentIndex],
@@ -121,15 +114,21 @@ export class StartSequenceController {
             );
         }
 
-        // Validate all positions and optional rows are within grid bounds
-        this.config.POSITIONS.forEach((col, index) => {
-            const expectedRow = (Array.isArray(this.config.ROWS) && this.config.ROWS.length === this.config.LETTERS.length)
-                ? this.config.ROWS[index]
-                : this.config.EXPECTED_ROW;
+        // Validate ROWS is defined and has correct length
+        if (!Array.isArray(this.config.ROWS) || this.config.ROWS.length !== this.config.LETTERS.length) {
+            errors.push(
+                `ROWS must be an array with length ${this.config.LETTERS.length} (got ${Array.isArray(this.config.ROWS) ? this.config.ROWS.length : 'not an array'})`
+            );
+            return { isValid: false, errors };
+        }
 
-            if (!isWithinBounds(expectedRow, col, CONFIG.GRID.ROWS, CONFIG.GRID.COLUMNS)) {
+        // Validate all positions and rows are within grid bounds
+        this.config.POSITIONS.forEach((col, index) => {
+            const row = this.config.ROWS[index];
+
+            if (!isWithinBounds(row, col, CONFIG.GRID.ROWS, CONFIG.GRID.COLUMNS)) {
                 errors.push(
-                    `LETTER[${index}] (row ${expectedRow}, col ${col}) is out of grid bounds`
+                    `LETTER[${index}] (row ${row}, col ${col}) is out of grid bounds`
                 );
             }
         });

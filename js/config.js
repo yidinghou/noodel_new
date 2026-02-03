@@ -21,13 +21,10 @@ export const CONFIG = {
     },
     PREVIEW_START: {
         // IMPORTANT: LETTERS.length must equal GAME.PREVIEW_COUNT (both are 5)
-        // POSITIONS.length must also equal LETTERS.length
+        // POSITIONS.length and ROWS.length must also equal LETTERS.length
         LETTERS: ['S', 'T', 'R', 'T', 'A'],
         POSITIONS: [1, 2, 4, 5, 3], // Column positions for each letter (S->1, T->2, R->4, T->5, A->3)
-        // Optional per-letter rows (index aligned with LETTERS/POSITIONS).
-        // If omitted or invalid, `EXPECTED_ROW` is used as fallback.
-        ROWS: [5, 0, 3, 4, 1],        // Preferred row to click for each preview letter (S,T,R,T,A)
-        EXPECTED_ROW: 0,              // Default fallback row where clicks are expected
+        ROWS: [5, 0, 3, 4, 1],        // Row to highlight for each preview letter (S,T,R,T,A)
         ADD_TO_SCORE: false,          // Whether to add START word to score
         TRIGGER_GAME_START: true      // Whether to start game after sequence
     },
