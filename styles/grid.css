@@ -20,7 +20,7 @@
 /* Next Letters Preview (Queue of upcoming letters) */
 .next-letters-preview {
     display: none;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 5px;
     opacity: 0;
     transition: opacity var(--transition-standard);
