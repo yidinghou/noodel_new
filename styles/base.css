@@ -272,7 +272,7 @@ body {
     color: var(--color-text-white);
     border: none;
     border-radius: var(--size-border-radius-button);
-    font-size: var(--size-font-button);
+    font-size: clamp(14px, 1.5vw, 16px);
     font-weight: 600;
     cursor: pointer;
     box-shadow: var(--shadow-button);
