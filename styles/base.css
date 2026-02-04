@@ -262,3 +262,30 @@ body {
     }
 }
 
+/* Skip Tutorial Button */
+.skip-tutorial-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    padding: 8px 14px;
+    background-color: var(--color-accent-secondary);
+    color: var(--color-text-white);
+    border: none;
+    border-radius: var(--size-border-radius-button);
+    font-size: var(--size-font-button);
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--shadow-button);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+    z-index: 100;
+}
+
+.skip-tutorial-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 5px 18px rgba(255, 152, 0, 0.4);
+}
+
+.skip-tutorial-btn:active {
+    transform: scale(0.98);
+}
+
