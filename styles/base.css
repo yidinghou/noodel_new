@@ -138,21 +138,24 @@ body {
     }
 }
 
+/* Generic shake animation - supports scale and rotation via CSS variables
+   --shake-scale (default: 1) - scale factor during shake
+   --rotation (default: 0deg) - rotation to maintain during shake */
 @keyframes shake {
     0% {
-        transform: translateY(0) translateX(0) rotate(var(--rotation));
+        transform: translateY(0) translateX(0) scale(var(--shake-scale, 1)) rotate(var(--rotation, 0deg));
     }
     25% {
-        transform: translateY(0) translateX(-5px) rotate(var(--rotation));
+        transform: translateY(0) translateX(-5px) scale(var(--shake-scale, 1)) rotate(var(--rotation, 0deg));
     }
     50% {
-        transform: translateY(0) translateX(5px) rotate(var(--rotation));
+        transform: translateY(0) translateX(5px) scale(var(--shake-scale, 1)) rotate(var(--rotation, 0deg));
     }
     75% {
-        transform: translateY(0) translateX(-5px) rotate(var(--rotation));
+        transform: translateY(0) translateX(-5px) scale(var(--shake-scale, 1)) rotate(var(--rotation, 0deg));
     }
     100% {
-        transform: translateY(0) translateX(0) rotate(var(--rotation));
+        transform: translateY(0) translateX(0) scale(var(--shake-scale, 1)) rotate(var(--rotation, 0deg));
     }
 }
 
@@ -178,6 +181,23 @@ body {
     }
 }
 
+/* Generic pulse animation - supports scale and opacity via CSS variables
+   --pulse-scale-start (default: 1) - starting scale
+   --pulse-scale-end (default: 1.1) - peak scale at midpoint
+   --pulse-opacity-start (default: 1) - starting opacity
+   --pulse-opacity-end (default: 1) - peak opacity at midpoint */
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(var(--pulse-scale-start, 1));
+        opacity: var(--pulse-opacity-start, 1);
+    }
+    50% {
+        transform: scale(var(--pulse-scale-end, 1.1));
+        opacity: var(--pulse-opacity-end, 1);
+    }
+}
+
+/* Legacy animation names for backward compatibility */
 @keyframes previewPulse {
     0% {
         transform: scale(1.15);
@@ -187,6 +207,17 @@ body {
     }
     100% {
         transform: scale(1.15);
+    }
+}
+
+@keyframes victoryPulse {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
     }
 }
 
