@@ -492,8 +492,15 @@ export class Game {
         const nextLetter = this.letters.getNextLetter();
         const targetRow = this.state.getLowestAvailableRow(column);
         
+        // Calculate the index where the letter will be placed
+        // calculateIndex is imported from gridUtils.js
+        const placedCellIndex = calculateIndex(targetRow, column, CONFIG.GRID.COLUMNS);
+        
         // Use animation controller with callback
         this.animator.dropLetterInColumn(column, nextLetter, targetRow, async () => {
+            // Cancel any active resolve graces that intersect with the placed cell
+            this.animator.cancelResolveGracesIntersecting(placedCellIndex);
+            
             // Update game state after animation completes
             this.state.incrementColumnFill(column);
             this.letters.advance();
@@ -589,14 +596,20 @@ export class Game {
                 const shouldAnimate = this.features.isEnabled('animations.wordHighlight');
                 
                 if (foundWords.length > 0) {
-                    // Animate all words in this game state SIMULTANEOUSLY (if enabled)
+                    // Start resolve grace animation for all words (if enabled)
                     if (shouldAnimate) {
-                        const animationPromises = foundWords.map(wordData => 
-                            this.animator.highlightAndShakeWord(wordData.positions)
+                        // Start resolve controllers for each found word
+                        const resolveControllers = foundWords.map(wordData => 
+                            this.animator.startResolveGrace(wordData.positions, 1000)
                         );
                         
-                        // Wait for all animations to complete together
-                        await Promise.all(animationPromises);
+                        // Wait for all grace periods to complete
+                        await Promise.all(resolveControllers.map(c => c.promise));
+                        
+                        // Finalize each controller
+                        resolveControllers.forEach(c => {
+                            this.animator.finalizeResolveGrace(c);
+                        });
                     }
                     
                     // Add all words to made words list (if addScore is true)
