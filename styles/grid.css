@@ -106,6 +106,8 @@
     border-radius: var(--size-border-radius-small);
     font-size: var(--size-font-grid);
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
 }
 
 /* Filled Grid Square */
@@ -114,6 +116,31 @@
     color: var(--color-text-white);
     border: 2px solid var(--color-border-primary);
     cursor: default;
+}
+
+/* Fill Overlay - Animates from left to right for resolving words */
+.grid-square .fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    background: var(--color-green);
+    opacity: 0.8;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Resolving state - animating fill */
+.grid-square.resolving .fill {
+    width: 100%;
+    transition: width 1s linear;
+}
+
+/* Resolved state - completed fill (keeps green) */
+.grid-square.resolved .fill {
+    width: 100%;
+    opacity: 1;
 }
 
 /* Dropping Letter Overlay (animated letter during drop) */

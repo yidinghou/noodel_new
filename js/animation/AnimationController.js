@@ -238,7 +238,13 @@ export class AnimationController {
             const square = this.dom.getGridSquare(pos.index);
             if (square) {
                 square.textContent = '';
-                square.classList.remove('filled', 'word-found');
+                square.classList.remove('filled', 'word-found', 'resolved');
+                
+                // Remove fill element if it exists
+                const fillElement = square.querySelector('.fill');
+                if (fillElement) {
+                    fillElement.remove();
+                }
             }
         });
     }
@@ -362,5 +368,98 @@ export class AnimationController {
         // Clear animation
         scoreValue.style.animation = '';
         lettersRemaining.style.animation = '';
+    }
+
+    /**
+     * Start resolve grace period animation for found words
+     * @param {Array} positions - Array of position objects with index property
+     * @param {number} duration - Duration in milliseconds (default: 1000)
+     * @returns {Object} Controller object with promise, cancel, finalize, and nodes
+     */
+    startResolveGrace(positions, duration = 1000) {
+        const nodes = [];
+        let timerId = null;
+        let promiseResolve = null;
+        let cancelled = false;
+        
+        // Create promise that resolves after duration
+        const promise = new Promise((resolve) => {
+            promiseResolve = resolve;
+            
+            // Setup each grid square with fill element and classes
+            positions.forEach(pos => {
+                const square = this.dom.getGridSquare(pos.index);
+                if (!square) return;
+                
+                // Ensure .fill element exists
+                let fillElement = square.querySelector('.fill');
+                if (!fillElement) {
+                    fillElement = document.createElement('div');
+                    fillElement.className = 'fill';
+                    square.appendChild(fillElement);
+                }
+                
+                // Add resolving and word-found classes
+                square.classList.add('resolving', 'word-found');
+                
+                nodes.push(square);
+            });
+            
+            // Start timer to resolve after duration
+            timerId = setTimeout(() => {
+                if (!cancelled) {
+                    resolve();
+                }
+            }, duration);
+        });
+        
+        // Controller object with cancel and finalize methods
+        const controller = {
+            promise,
+            nodes,
+            cancel: () => {
+                cancelled = true;
+                if (timerId) {
+                    clearTimeout(timerId);
+                    timerId = null;
+                }
+                // Remove resolving class from all nodes
+                nodes.forEach(square => {
+                    square.classList.remove('resolving', 'word-found');
+                });
+                if (promiseResolve) {
+                    promiseResolve();
+                }
+            },
+            finalize: () => {
+                // Remove resolving class and add resolved class
+                nodes.forEach(square => {
+                    square.classList.remove('resolving');
+                    square.classList.add('resolved');
+                });
+            }
+        };
+        
+        return controller;
+    }
+
+    /**
+     * Cancel resolve grace period animation
+     * @param {Object} controller - Controller object returned from startResolveGrace
+     */
+    cancelResolveGrace(controller) {
+        if (controller && controller.cancel) {
+            controller.cancel();
+        }
+    }
+
+    /**
+     * Finalize resolve grace period animation (apply final resolved state)
+     * @param {Object} controller - Controller object returned from startResolveGrace
+     */
+    finalizeResolveGrace(controller) {
+        if (controller && controller.finalize) {
+            controller.finalize();
+        }
     }
 }
