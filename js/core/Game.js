@@ -285,6 +285,11 @@ export class Game {
         this.clearInactivityTimer();
         this.hasClickedGrid = true;
         
+        // Cancel all active resolve controllers
+        if (this.animator && this.animator.cancelAllResolveGraces) {
+            this.animator.cancelAllResolveGraces();
+        }
+        
         // Reset game state with current game mode (score, letters, grid data)
         this.state.reset();
         // Preserve the game mode across resets
@@ -492,8 +497,14 @@ export class Game {
         const nextLetter = this.letters.getNextLetter();
         const targetRow = this.state.getLowestAvailableRow(column);
         
+        // Calculate the cell index where the letter will be placed
+        const placedCellIndex = calculateIndex(targetRow, column, CONFIG.GRID.COLUMNS);
+        
         // Use animation controller with callback
         this.animator.dropLetterInColumn(column, nextLetter, targetRow, async () => {
+            // Cancel any resolve controllers that intersect with the newly placed cell
+            this.animator.cancelResolveGracesIntersecting(placedCellIndex);
+            
             // Update game state after animation completes
             this.state.incrementColumnFill(column);
             this.letters.advance();

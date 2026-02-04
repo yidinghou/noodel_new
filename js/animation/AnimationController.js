@@ -17,6 +17,9 @@ export class AnimationController {
         this.cssVars.startClickHighlight = AnimationHelpers.parseTime(
             root.getPropertyValue('--animation-duration-start-click-highlight')
         );
+        
+        // Registry for active resolve controllers
+        this._activeResolveControllers = [];
     }
 
     // Randomize NOODEL title letter animation delays
@@ -239,7 +242,12 @@ export class AnimationController {
             const square = this.dom.getGridSquare(pos.index);
             if (square) {
                 square.textContent = '';
-                square.classList.remove('filled', 'word-found');
+                square.classList.remove('filled', 'word-found', 'resolving', 'resolved');
+                // Remove fill overlay if present
+                const fillElement = square.querySelector('.fill');
+                if (fillElement) {
+                    fillElement.remove();
+                }
             }
         });
     }
@@ -442,6 +450,159 @@ export class AnimationController {
                 });
                 resolve();
             }, 600);
+        });
+    }
+
+    /**
+     * Start resolve/grace animation for word positions
+     * @param {Array} positions - Array of position objects with index property
+     * @param {number} duration - Duration in milliseconds (default 1000)
+     * @returns {Object} Controller object with promise, cancel, finalize, nodes, and positions
+     */
+    startResolveGrace(positions, duration = 1000) {
+        const nodes = [];
+        let timer = null;
+        let canceled = false;
+        let promiseResolve = null;
+        
+        // Create the promise that resolves after duration
+        const promise = new Promise(resolve => {
+            promiseResolve = resolve;
+        });
+        
+        // Process each position
+        positions.forEach(pos => {
+            const square = this.dom.getGridSquare(pos.index);
+            if (!square) return;
+            
+            // Ensure .fill overlay exists
+            let fillElement = square.querySelector('.fill');
+            if (!fillElement) {
+                fillElement = document.createElement('div');
+                fillElement.className = 'fill';
+                // Insert as first child so it's behind the letter
+                square.insertBefore(fillElement, square.firstChild);
+            }
+            
+            // Wrap text content in .letter-content if not already wrapped
+            if (!square.querySelector('.letter-content')) {
+                const textNode = Array.from(square.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
+                if (textNode) {
+                    const letterContent = document.createElement('span');
+                    letterContent.className = 'letter-content';
+                    letterContent.textContent = textNode.textContent;
+                    square.replaceChild(letterContent, textNode);
+                }
+            }
+            
+            // Add classes for animation
+            square.classList.add('word-found', 'resolving');
+            nodes.push(square);
+        });
+        
+        // Set timeout to resolve after duration
+        timer = setTimeout(() => {
+            if (!canceled) {
+                promiseResolve({ positions, nodes, canceled: false });
+            }
+        }, duration);
+        
+        // Create controller object
+        const controller = {
+            promise,
+            cancel: () => {
+                if (!canceled) {
+                    canceled = true;
+                    if (timer) {
+                        clearTimeout(timer);
+                    }
+                    // Remove resolving class
+                    nodes.forEach(node => {
+                        node.classList.remove('resolving');
+                    });
+                    // Resolve with canceled flag
+                    promiseResolve({ positions, nodes, canceled: true });
+                }
+            },
+            finalize: () => {
+                nodes.forEach(node => {
+                    node.classList.remove('resolving');
+                    node.classList.add('resolved');
+                });
+            },
+            nodes,
+            positions
+        };
+        
+        // Add to registry
+        this._activeResolveControllers.push(controller);
+        
+        return controller;
+    }
+
+    /**
+     * Cancel a specific resolve controller
+     * @param {Object} controller - The controller to cancel
+     */
+    cancelResolveGrace(controller) {
+        if (!controller) return;
+        
+        // Call cancel on the controller
+        controller.cancel();
+        
+        // Remove from registry
+        const index = this._activeResolveControllers.indexOf(controller);
+        if (index > -1) {
+            this._activeResolveControllers.splice(index, 1);
+        }
+    }
+
+    /**
+     * Cancel all resolve controllers that intersect with the given cell index
+     * @param {number} cellIndex - The cell index to check for intersections
+     */
+    cancelResolveGracesIntersecting(cellIndex) {
+        // Find controllers that have a node with this cell index
+        const controllersToCancel = this._activeResolveControllers.filter(controller => {
+            return controller.nodes.some(node => {
+                return node.dataset.index === String(cellIndex);
+            });
+        });
+        
+        // Cancel each intersecting controller
+        controllersToCancel.forEach(controller => {
+            this.cancelResolveGrace(controller);
+        });
+    }
+
+    /**
+     * Finalize a resolve controller (move from resolving to resolved state)
+     * @param {Object} controller - The controller to finalize
+     */
+    finalizeResolveGrace(controller) {
+        if (!controller) return;
+        
+        // Call finalize on the controller
+        if (controller.finalize) {
+            controller.finalize();
+        }
+        
+        // Remove from registry
+        const index = this._activeResolveControllers.indexOf(controller);
+        if (index > -1) {
+            this._activeResolveControllers.splice(index, 1);
+        }
+    }
+
+    /**
+     * Cancel all active resolve controllers
+     * Used for cleanup on reset or game end
+     */
+    cancelAllResolveGraces() {
+        // Create a copy of the array since cancelResolveGrace modifies it
+        const controllers = [...this._activeResolveControllers];
+        controllers.forEach(controller => {
+            this.cancelResolveGrace(controller);
         });
     }
 }
