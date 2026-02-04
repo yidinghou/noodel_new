@@ -11,6 +11,16 @@
     border-radius: var(--size-border-radius-card);
     padding: var(--size-padding-made-words);
     box-shadow: var(--shadow-card);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity var(--transition-standard), transform var(--transition-standard);
+    pointer-events: none;
+}
+
+.made-words-container.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
 }
 
 /* Made Words Title */
