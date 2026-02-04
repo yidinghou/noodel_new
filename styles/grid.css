@@ -14,6 +14,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+    position: relative;
 }
 
 /* Next Letters Preview (Queue of upcoming letters) */
