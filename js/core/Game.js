@@ -494,6 +494,14 @@ export class Game {
         
         // Use animation controller with callback
         this.animator.dropLetterInColumn(column, nextLetter, targetRow, async () => {
+            // Calculate the placed cell index
+            const placedIndex = targetRow * CONFIG.GRID.COLUMNS + column;
+            
+            // Cancel any intersecting resolve controllers for the newly placed cell
+            if (this.animator && this.animator.cancelResolveGracesIntersecting) {
+                this.animator.cancelResolveGracesIntersecting(placedIndex);
+            }
+            
             // Update game state after animation completes
             this.state.incrementColumnFill(column);
             this.letters.advance();

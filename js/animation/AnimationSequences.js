@@ -270,7 +270,8 @@ export const LETTER_DROP_SEQUENCE = [
 /**
  * WORD FOUND SEQUENCE (Single Iteration)
  * Plays when words are detected on the grid
- * - Highlight and shake all found words (parallel)
+ * - Start resolve grace animation for all found words (1s fill animation)
+ * - Wait for resolve animations to complete
  * - Add words to score
  * - Clear word cells
  * - Apply gravity
@@ -278,22 +279,28 @@ export const LETTER_DROP_SEQUENCE = [
  */
 export const WORD_FOUND_SEQUENCE = [
     {
-        name: 'highlightWords',
-        method: 'highlightWords', // Custom method we'll add to handle multiple words
+        name: 'startResolveGrace',
+        method: 'startResolveGrace',
         target: 'animator',
         duration: 'auto',
         parallel: false,
         feature: 'animations.wordHighlight',
         onBefore: (ctx) => {
-            // Store promises for parallel word animations
-            ctx.animationPromises = ctx.foundWords.map(wordData => 
-                ctx.animator.highlightAndShakeWord(wordData.positions)
+            // Create resolve controllers for each found word
+            ctx.resolveControllers = ctx.foundWords.map(wordData =>
+                ctx.animator.startResolveGrace(wordData.positions, 1000)
             );
         },
         onAfter: async (ctx) => {
-            // Wait for all word animations to complete
-            if (ctx.animationPromises && ctx.animationPromises.length > 0) {
-                await Promise.all(ctx.animationPromises);
+            // Wait for all resolve animations to complete
+            if (ctx.resolveControllers && ctx.resolveControllers.length > 0) {
+                const results = await Promise.all(ctx.resolveControllers.map(c => c.promise));
+                // Finalize only those not canceled
+                ctx.resolveControllers.forEach((c, i) => {
+                    if (results[i] && !results[i].canceled) {
+                        c.finalize && c.finalize();
+                    }
+                });
             }
         }
     },
