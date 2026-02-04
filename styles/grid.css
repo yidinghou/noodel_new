@@ -52,12 +52,14 @@
 
 /* Preview Next-Up (Pulse + Glow effect) */
 .preview-letter-block.next-up {
+    --pulse-scale-start: 1.15;
+    --pulse-scale-mid: 1.22;
     border-color: var(--color-accent-secondary);
     transform: scale(1.15);
     background: var(--color-next-up);
     color: var(--color-text-primary);
     box-shadow: var(--shadow-next-up);
-    animation: previewPulse var(--animation-duration-pulse) ease-in-out infinite;
+    animation: pulse var(--animation-duration-pulse) ease-in-out infinite;
 }
 
 /* Empty Preview Letter Block (no letters remaining) - Supersedes next-up styling */
@@ -300,28 +302,17 @@
 
 /* Menu Arrow - Pulsating indicator */
 .grid-square.menu-arrow {
+    --pulse-scale-start: 0.9;
+    --pulse-scale-mid: 1;
+    --pulse-opacity-start: 0.7;
+    --pulse-opacity-mid: 1;
     cursor: pointer;
     font-weight: 900;
     font-size: clamp(24px, 3vw, 32px);
     background: rgba(154, 154, 154, 0.3);
     color: #000000;
     border: 2px solid #6a6a6a;
-    animation: menuArrowPulse 1.2s ease-in-out infinite;
-}
-
-@keyframes menuArrowPulse {
-    0% {
-        transform: scale(0.9);
-        opacity: 0.7;
-    }
-    50% {
-        transform: scale(1);
-        opacity: 1.5    ;
-    }
-    100% {
-        transform: scale(0.9);
-        opacity: 0.7;
-    }
+    animation: pulse 1.2s ease-in-out infinite;
 }
 
 /* Menu Flip-in Animation (for reset) */
@@ -346,7 +337,7 @@
 
 .grid-square.menu-arrow.flipping {
     /* Flip in, then start pulsating */
-    animation: menuFlipIn 0.4s ease-out forwards, menuArrowPulse 1.2s ease-in-out 0.4s infinite;
+    animation: menuFlipIn 0.4s ease-out forwards, pulse 1.2s ease-in-out 0.4s infinite;
 }
 
 /* ============================
