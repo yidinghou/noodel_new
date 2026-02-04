@@ -601,6 +601,11 @@ export class Game {
             await this.animator.dropNoodelWordOverlay(() => {
                 this.score.addWord(noodelItem, false);
             });
+            
+            // Show made-words container after NOODEL overlay drops
+            if (this.dom.madeWordsContainer) {
+                this.dom.madeWordsContainer.classList.add('visible');
+            }
         }
         
         // Initialize progress bar
