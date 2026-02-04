@@ -475,13 +475,17 @@ export class AnimationController {
             const square = this.dom.getGridSquare(pos.index);
             if (!square) return;
             
-            // Ensure .fill overlay exists
+            // Ensure .fill overlay exists and is in clean state
             let fillElement = square.querySelector('.fill');
             if (!fillElement) {
                 fillElement = document.createElement('div');
                 fillElement.className = 'fill';
                 // Insert as first child so it's behind the letter
                 square.insertBefore(fillElement, square.firstChild);
+            } else {
+                // Reset fill element to clean state
+                fillElement.style.width = '0%';
+                fillElement.style.transition = '';
             }
             
             // Wrap text content in .letter-content if not already wrapped
@@ -603,6 +607,27 @@ export class AnimationController {
         const controllers = [...this._activeResolveControllers];
         controllers.forEach(controller => {
             this.cancelResolveGrace(controller);
+        });
+    }
+
+    /**
+     * Await and finalize multiple resolve controllers
+     * @param {Array} controllers - Array of resolve controllers
+     * @returns {Promise} - Promise that resolves when all controllers complete
+     */
+    async awaitAndFinalizeResolveGraces(controllers) {
+        if (!controllers || controllers.length === 0) {
+            return;
+        }
+        
+        // Wait for all resolve animations to complete
+        const results = await Promise.all(controllers.map(c => c.promise));
+        
+        // Finalize only non-canceled controllers
+        controllers.forEach((controller, index) => {
+            if (results[index] && !results[index].canceled && controller.finalize) {
+                controller.finalize();
+            }
         });
     }
 }

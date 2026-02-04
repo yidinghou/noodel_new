@@ -607,15 +607,8 @@ export class Game {
                             this.animator.startResolveGrace(wordData.positions, 1000)
                         );
                         
-                        // Wait for all resolve animations to complete
-                        const results = await Promise.all(resolveControllers.map(c => c.promise));
-                        
-                        // Finalize only non-canceled controllers
-                        resolveControllers.forEach((controller, index) => {
-                            if (results[index] && !results[index].canceled && controller.finalize) {
-                                controller.finalize();
-                            }
-                        });
+                        // Wait for all resolve animations to complete and finalize them
+                        await this.animator.awaitAndFinalizeResolveGraces(resolveControllers);
                     }
                     
                     // Add all words to made words list (if addScore is true)

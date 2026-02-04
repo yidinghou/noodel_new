@@ -291,16 +291,8 @@ export const WORD_FOUND_SEQUENCE = [
             );
         },
         onAfter: async (ctx) => {
-            // Wait for all resolve controllers to complete
-            if (ctx.resolveControllers && ctx.resolveControllers.length > 0) {
-                const results = await Promise.all(ctx.resolveControllers.map(c => c.promise));
-                // Finalize only non-canceled controllers
-                ctx.resolveControllers.forEach((controller, index) => {
-                    if (results[index] && !results[index].canceled && controller.finalize) {
-                        controller.finalize();
-                    }
-                });
-            }
+            // Wait for all resolve controllers to complete and finalize them
+            await ctx.animator.awaitAndFinalizeResolveGraces(ctx.resolveControllers);
         }
     },
     {
