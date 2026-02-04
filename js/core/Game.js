@@ -18,6 +18,15 @@ import { StartSequenceController } from './StartSequenceController.js';
 import { GameStateMachine, GamePhase } from './GameStateMachine.js';
 
 /**
+ * Tutorial UI state constants
+ */
+const TutorialUIState = {
+    INACTIVE: 'inactive',
+    ACTIVE: 'active',
+    COMPLETED: 'completed'
+};
+
+/**
  * Game class - Main orchestrator that coordinates all controllers
  */
 export class Game {
@@ -28,6 +37,9 @@ export class Game {
         
         // Initialize feature manager
         this.features = new FeatureManager();
+        
+        // Tutorial UI state management
+        this.tutorialUIState = TutorialUIState.INACTIVE;
         
         // Current game mode (defaults to CLASSIC)
         this.currentGameMode = GameModes.CLASSIC;
@@ -163,6 +175,20 @@ export class Game {
         
         // Setup grid click handlers once during initialization
         this.grid.addClickHandlers((e) => this.handleSquareClick(e));
+    }
+
+    /**
+     * Update tutorial UI visibility based on tutorial state
+     * Single source of truth for tutorial UI state
+     */
+    updateTutorialUI() {
+        const isActive = this.tutorialUIState === TutorialUIState.ACTIVE;
+        if (this.dom.skipTutorialBtn) {
+            this.dom.skipTutorialBtn.style.display = isActive ? 'block' : 'none';
+        }
+        if (this.features.isEnabled('debug.enabled')) {
+            console.log(`Tutorial UI state: ${this.tutorialUIState}`);
+        }
     }
 
     /**
@@ -494,10 +520,9 @@ export class Game {
         this.startSequence.start();
         this.highlightNextStartGuide();
         
-        // Show skip tutorial button
-        if (this.dom.skipTutorialBtn) {
-            this.dom.skipTutorialBtn.style.display = 'block';
-        }
+        // Update tutorial UI state and visibility
+        this.tutorialUIState = TutorialUIState.ACTIVE;
+        this.updateTutorialUI();
     }
 
     /**
@@ -517,10 +542,9 @@ export class Game {
         // Complete the START sequence to initialize the game
         await this.startSequence.complete();
         
-        // Hide skip button
-        if (this.dom.skipTutorialBtn) {
-            this.dom.skipTutorialBtn.style.display = 'none';
-        }
+        // Update tutorial UI state and hide button
+        this.tutorialUIState = TutorialUIState.COMPLETED;
+        this.updateTutorialUI();
     }
 
     dropLetter(column) {
