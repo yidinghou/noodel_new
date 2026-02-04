@@ -446,10 +446,6 @@ export class Game {
                 if (isThisLastLetter) {
                     console.log('Final START letter placed - completing sequence');
                     await this.startSequence.complete();
-                    
-                    // Update tutorial UI state and hide skip button
-                    this.tutorialUIState = TutorialUIState.COMPLETED;
-                    this.updateTutorialUI();
                 } else {
                     // Highlight the next square to click
                     this.highlightNextStartGuide();
@@ -685,6 +681,13 @@ export class Game {
                             }
                         } else {
                             console.log(`Word "${wordData.word}" detected but not added to score (START sequence)`);
+                        }
+                        
+                        // If word is "START" and tutorial is active, mark tutorial as completed
+                        if (wordData.word === 'START' && this.tutorialUIState === TutorialUIState.ACTIVE) {
+                            console.log('START word found - completing tutorial');
+                            this.tutorialUIState = TutorialUIState.COMPLETED;
+                            this.updateTutorialUI();
                         }
                         
                         // Track cleared cells for Clear Mode
