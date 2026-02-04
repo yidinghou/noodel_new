@@ -545,7 +545,7 @@ export class AnimationController {
         this._activeResolveControllers.forEach(controller => {
             if (controller.nodes && controller.nodes.length > 0) {
                 const hasIntersection = controller.nodes.some(node => {
-                    return node.dataset.index == cellIndex;
+                    return parseInt(node.dataset.index, 10) === cellIndex;
                 });
                 if (hasIntersection) {
                     controllersToCancel.push(controller);

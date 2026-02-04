@@ -270,7 +270,7 @@ export const LETTER_DROP_SEQUENCE = [
 /**
  * WORD FOUND SEQUENCE (Single Iteration)
  * Plays when words are detected on the grid
- * - Start resolve grace animation for all found words (1s fill animation)
+ * - Start resolve grace animation for all found words (default 1s fill animation)
  * - Wait for resolve animations to complete
  * - Add words to score
  * - Clear word cells
