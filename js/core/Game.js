@@ -285,6 +285,11 @@ export class Game {
         this.clearInactivityTimer();
         this.hasClickedGrid = true;
         
+        // Cancel all active resolve controllers
+        if (this.animator && this.animator.cancelAllResolveGraces) {
+            this.animator.cancelAllResolveGraces();
+        }
+        
         // Reset game state with current game mode (score, letters, grid data)
         this.state.reset();
         // Preserve the game mode across resets
@@ -492,8 +497,14 @@ export class Game {
         const nextLetter = this.letters.getNextLetter();
         const targetRow = this.state.getLowestAvailableRow(column);
         
+        // Calculate the cell index where the letter will be placed
+        const placedCellIndex = calculateIndex(targetRow, column, CONFIG.GRID.COLUMNS);
+        
         // Use animation controller with callback
         this.animator.dropLetterInColumn(column, nextLetter, targetRow, async () => {
+            // Cancel any resolve controllers that intersect with the newly placed cell
+            this.animator.cancelResolveGracesIntersecting(placedCellIndex);
+            
             // Update game state after animation completes
             this.state.incrementColumnFill(column);
             this.letters.advance();
@@ -589,14 +600,15 @@ export class Game {
                 const shouldAnimate = this.features.isEnabled('animations.wordHighlight');
                 
                 if (foundWords.length > 0) {
-                    // Animate all words in this game state SIMULTANEOUSLY (if enabled)
+                    // Start resolve/grace animation for all words SIMULTANEOUSLY (if enabled)
                     if (shouldAnimate) {
-                        const animationPromises = foundWords.map(wordData => 
-                            this.animator.highlightAndShakeWord(wordData.positions)
+                        // Start resolve controllers for all found words
+                        const resolveControllers = foundWords.map(wordData =>
+                            this.animator.startResolveGrace(wordData.positions, 1000)
                         );
                         
-                        // Wait for all animations to complete together
-                        await Promise.all(animationPromises);
+                        // Wait for all resolve animations to complete and finalize them
+                        await this.animator.awaitAndFinalizeResolveGraces(resolveControllers);
                     }
                     
                     // Add all words to made words list (if addScore is true)
