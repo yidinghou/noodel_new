@@ -493,6 +493,7 @@ export class Game {
         const targetRow = this.state.getLowestAvailableRow(column);
         
         // Calculate the index where the letter will be placed
+        // calculateIndex is imported from gridUtils.js
         const placedCellIndex = calculateIndex(targetRow, column, CONFIG.GRID.COLUMNS);
         
         // Use animation controller with callback

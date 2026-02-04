@@ -466,12 +466,13 @@ export class AnimationController {
             const square = this.dom.getGridSquare(pos.index);
             if (!square) return;
             
-            // Ensure .fill overlay exists
+            // Ensure .fill overlay exists - insert at the beginning so it's behind content
             let fillOverlay = square.querySelector('.fill');
             if (!fillOverlay) {
                 fillOverlay = document.createElement('div');
                 fillOverlay.className = 'fill';
-                // Insert before the text content
+                // Insert as first child - CSS z-index will handle layering
+                // The .fill has z-index: 1, letter text content has relative positioning
                 square.insertBefore(fillOverlay, square.firstChild);
             }
             
@@ -553,7 +554,12 @@ export class AnimationController {
         // Find controllers that have nodes intersecting with cellIndex
         this._activeResolveControllers.forEach(controller => {
             const hasIntersection = controller.nodes.some(node => {
-                const nodeIndex = parseInt(node.dataset.index);
+                const nodeIndexStr = node.dataset.index;
+                if (!nodeIndexStr) return false; // Skip if index is missing
+                
+                const nodeIndex = parseInt(nodeIndexStr, 10);
+                if (isNaN(nodeIndex)) return false; // Skip if index is invalid
+                
                 return nodeIndex === cellIndex;
             });
             
