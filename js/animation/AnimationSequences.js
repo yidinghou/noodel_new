@@ -32,7 +32,10 @@ export const ATOMIC_ANIMATIONS = {
         },
         onAfter: (ctx) => {
             // Show made-words container when NOODEL overlay drops to it
-            document.querySelector('.made-words-container').classList.add('visible');
+            if (ctx.dom && ctx.dom.madeWordsContainer) {
+                ctx.dom.madeWordsContainer.classList.add('visible');
+                console.log('Made-words container shown');
+            }
         },
         args: (ctx) => [ctx.addWordCallback]
     },
