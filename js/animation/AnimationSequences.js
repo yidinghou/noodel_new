@@ -139,6 +139,8 @@ export const INTRO_SEQUENCE = [
             // Show the letter preview grid and game grid after NOODEL overlay appears
             ctx.dom.preview.classList.add('visible');
             ctx.dom.grid.classList.add('visible');
+            // Show made-words container as NOODEL overlay drops to it
+            document.querySelector('.made-words-container').classList.add('visible');
         },
         args: () => [0, 0]
     },
