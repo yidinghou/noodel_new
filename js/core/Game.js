@@ -748,6 +748,10 @@ export class Game {
      * Cancel resolve controllers that intersect the given cell index
      * Used when a new letter is placed that touches resolving cells
      * @param {number} cellIndex - Grid cell index
+     * 
+     * Note: Current implementation is O(n*m) where n = number of controllers, 
+     * m = average nodes per controller. For better performance with many 
+     * concurrent animations, consider maintaining a Map<cellIndex, controller[]>.
      */
     cancelResolveControllersForCell(cellIndex) {
         // Filter out controllers that contain this cell

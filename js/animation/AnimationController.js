@@ -238,13 +238,7 @@ export class AnimationController {
         positions.forEach(pos => {
             const square = this.dom.getGridSquare(pos.index);
             if (square) {
-                // Remove letter content wrapper if it exists
-                const letterContent = square.querySelector('.letter-content');
-                if (letterContent) {
-                    square.textContent = '';
-                } else {
-                    square.textContent = '';
-                }
+                square.textContent = '';
                 
                 // Remove all animation-related classes
                 square.classList.remove('filled', 'word-found', 'resolving', 'resolved');
@@ -477,6 +471,9 @@ export class AnimationController {
             const square = this.dom.getGridSquare(pos.index);
             if (!square) return;
             
+            // Extract letter text before adding fill element
+            const letterText = square.textContent.trim();
+            
             // Ensure .fill element exists inside the square (create if missing)
             let fillElement = square.querySelector('.fill');
             if (!fillElement) {
@@ -487,7 +484,6 @@ export class AnimationController {
             
             // Wrap letter content if not already wrapped
             if (!square.querySelector('.letter-content')) {
-                const letterText = square.textContent;
                 square.textContent = '';
                 const letterContent = document.createElement('div');
                 letterContent.className = 'letter-content';
