@@ -182,43 +182,25 @@ body {
 }
 
 /* Generic pulse animation - supports scale and opacity via CSS variables
-   --pulse-scale-start (default: 1) - starting scale
-   --pulse-scale-end (default: 1.1) - peak scale at midpoint
-   --pulse-opacity-start (default: 1) - starting opacity
-   --pulse-opacity-end (default: 1) - peak opacity at midpoint */
+   --pulse-scale-start (default: 1) - starting/ending scale
+   --pulse-scale-mid (default: 1.1) - peak scale at midpoint
+   --pulse-opacity-start (default: 1) - starting/ending opacity
+   --pulse-opacity-mid (default: 1) - peak opacity at midpoint */
 @keyframes pulse {
     0%, 100% {
         transform: scale(var(--pulse-scale-start, 1));
         opacity: var(--pulse-opacity-start, 1);
     }
     50% {
-        transform: scale(var(--pulse-scale-end, 1.1));
-        opacity: var(--pulse-opacity-end, 1);
+        transform: scale(var(--pulse-scale-mid, 1.1));
+        opacity: var(--pulse-opacity-mid, 1);
     }
 }
 
-/* Legacy animation names for backward compatibility */
+/* Backward compatibility aliases */
 @keyframes previewPulse {
-    0% {
-        transform: scale(1.15);
-    }
-    50% {
-        transform: scale(1.22);
-    }
-    100% {
-        transform: scale(1.15);
-    }
-}
-
-@keyframes victoryPulse {
-    0% {
-        transform: scale(0.5);
-        opacity: 0;
-    }
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
+    0%, 100% { transform: scale(1.15); }
+    50% { transform: scale(1.22); }
 }
 
 @keyframes previewShake {
@@ -282,6 +264,8 @@ body {
     white-space: pre-line;
 }
 
+/* Victory pulse grows from 0 to full size (one-time animation)
+   Note: This is not a looping pulse, it's a grow-in effect */
 @keyframes victoryPulse {
     0% {
         transform: scale(0.5);
