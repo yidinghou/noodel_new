@@ -33,8 +33,14 @@ export const ATOMIC_ANIMATIONS = {
         onAfter: (ctx) => {
             // Show made-words container when NOODEL overlay drops to it
             if (ctx.dom && ctx.dom.madeWordsContainer) {
+                console.log('Adding visible class to made-words-container');
+                console.log('Element exists:', ctx.dom.madeWordsContainer);
+                console.log('Current classes:', ctx.dom.madeWordsContainer.className);
                 ctx.dom.madeWordsContainer.classList.add('visible');
-                console.log('Made-words container shown');
+                console.log('Classes after add:', ctx.dom.madeWordsContainer.className);
+                console.log('Computed opacity:', window.getComputedStyle(ctx.dom.madeWordsContainer).opacity);
+            } else {
+                console.error('Made-words container not found in DOM cache');
             }
         },
         args: (ctx) => [ctx.addWordCallback]
