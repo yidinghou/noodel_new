@@ -138,21 +138,24 @@ body {
     }
 }
 
+/* Generic shake animation - supports scale and rotation via CSS variables
+   --shake-scale (default: 1) - scale factor during shake
+   --rotation (default: 0deg) - rotation to maintain during shake */
 @keyframes shake {
     0% {
-        transform: translateY(0) translateX(0) rotate(var(--rotation));
+        transform: translateY(0) translateX(0) scale(var(--shake-scale, 1)) rotate(var(--rotation, 0deg));
     }
     25% {
-        transform: translateY(0) translateX(-5px) rotate(var(--rotation));
+        transform: translateY(0) translateX(-5px) scale(var(--shake-scale, 1)) rotate(var(--rotation, 0deg));
     }
     50% {
-        transform: translateY(0) translateX(5px) rotate(var(--rotation));
+        transform: translateY(0) translateX(5px) scale(var(--shake-scale, 1)) rotate(var(--rotation, 0deg));
     }
     75% {
-        transform: translateY(0) translateX(-5px) rotate(var(--rotation));
+        transform: translateY(0) translateX(-5px) scale(var(--shake-scale, 1)) rotate(var(--rotation, 0deg));
     }
     100% {
-        transform: translateY(0) translateX(0) rotate(var(--rotation));
+        transform: translateY(0) translateX(0) scale(var(--shake-scale, 1)) rotate(var(--rotation, 0deg));
     }
 }
 
