@@ -75,8 +75,10 @@ export class LetterController {
             this.dom.preview.appendChild(letterBlock);
         });
         
-        // Make preview visible
+        // Make preview visible - override inline styles and add class
         this.dom.preview.classList.add('visible');
+        this.dom.preview.style.opacity = '1';
+        this.dom.preview.style.visibility = 'visible';
     }
 
     // Advance to next letter in sequence

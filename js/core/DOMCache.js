@@ -13,6 +13,8 @@ export class DOMCache {
         this.lettersRemaining = document.getElementById('lettersRemaining');
         this.controls = document.querySelector('.controls');
         this.stats = document.querySelector('.stats');
+        this.skipTutorialBtn = document.getElementById('skipTutorialBtn');
+        this.madeWordsContainer = document.querySelector('.made-words-container');
     }
 
     getAllGridSquares() {

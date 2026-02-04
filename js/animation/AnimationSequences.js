@@ -30,6 +30,11 @@ export const ATOMIC_ANIMATIONS = {
                 }
             };
         },
+        // Visibility of the made-words container is now handled in initializeGameAfterStartSequence (Game.js)
+        // to avoid duplicate logic and potential race conditions.
+        onAfter: (ctx) => {
+            // No-op: keep hook available for future use without changing container visibility here.
+        },
         args: (ctx) => [ctx.addWordCallback]
     },
     
@@ -127,7 +132,25 @@ export const INTRO_SEQUENCE = [
             const noodelScore = calculateWordScore('NOODEL');
             ctx.noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
         },
+        onAfter: (ctx) => {
+            // Show preview after NOODEL animation completes
+            ctx.dom.preview.classList.add('visible');
+            ctx.dom.preview.style.opacity = '1';
+            ctx.dom.preview.style.visibility = 'visible';
+        },
         args: (ctx) => [ctx.noodelItem]
+    },
+    {
+        name: 'showPreviewGrid',
+        method: 'updateLetterProgress',
+        target: 'animator',
+        duration: 0,
+        parallel: false,
+        onBefore: (ctx) => {
+            // Show the game grid after NOODEL overlay appears; preview visibility is handled by displayPreviewStart
+            ctx.dom.grid.classList.add('visible');
+        },
+        args: () => [0, 0]
     },
     {
         name: 'showPreviewStart',

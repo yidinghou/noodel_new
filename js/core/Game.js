@@ -18,6 +18,15 @@ import { StartSequenceController } from './StartSequenceController.js';
 import { GameStateMachine, GamePhase } from './GameStateMachine.js';
 
 /**
+ * Tutorial UI state constants
+ */
+const TutorialUIState = {
+    INACTIVE: 'inactive',
+    ACTIVE: 'active',
+    COMPLETED: 'completed'
+};
+
+/**
  * Game class - Main orchestrator that coordinates all controllers
  */
 export class Game {
@@ -28,6 +37,9 @@ export class Game {
         
         // Initialize feature manager
         this.features = new FeatureManager();
+        
+        // Tutorial UI state management
+        this.tutorialUIState = TutorialUIState.INACTIVE;
         
         // Current game mode (defaults to CLASSIC)
         this.currentGameMode = GameModes.CLASSIC;
@@ -154,8 +166,29 @@ export class Game {
             this.dom.muteBtn.textContent = this.dom.muteBtn.textContent === '🔊' ? '🔇' : '🔊';
         });
         
+        // Skip Tutorial button
+        if (this.dom.skipTutorialBtn) {
+            this.dom.skipTutorialBtn.addEventListener('click', () => {
+                this.skipTutorial();
+            });
+        }
+        
         // Setup grid click handlers once during initialization
         this.grid.addClickHandlers((e) => this.handleSquareClick(e));
+    }
+
+    /**
+     * Update tutorial UI visibility based on tutorial state
+     * Single source of truth for tutorial UI state
+     */
+    updateTutorialUI() {
+        const isActive = this.tutorialUIState === TutorialUIState.ACTIVE;
+        if (this.dom.skipTutorialBtn) {
+            this.dom.skipTutorialBtn.style.display = isActive ? 'block' : 'none';
+        }
+        if (this.features.isEnabled('debug.enabled')) {
+            console.log(`Tutorial UI state: ${this.tutorialUIState}`);
+        }
     }
 
     /**
@@ -486,6 +519,35 @@ export class Game {
     initStartSequenceGuide() {
         this.startSequence.start();
         this.highlightNextStartGuide();
+        
+        // Update tutorial UI state and visibility
+        this.tutorialUIState = TutorialUIState.ACTIVE;
+        this.updateTutorialUI();
+    }
+
+    /**
+     * Skip the tutorial and go directly to the game
+     */
+    async skipTutorial() {
+        if (!this.startSequence.isActive || this.state.started) {
+            console.log('Tutorial not active or game already started');
+            return;
+        }
+        
+        console.log('Skipping tutorial...');
+        
+        // Clear any START sequence highlights
+        this.clearStartGuide();
+        
+        // Complete the START sequence, skipping word processing since letters weren't placed
+        await this.startSequence.complete(true);
+        
+        // Update tutorial UI state and hide button
+        this.tutorialUIState = TutorialUIState.COMPLETED;
+        this.updateTutorialUI();
+        
+        // Ensure preview remains visible after tutorial
+        this.dom.preview.classList.add('visible');
     }
 
     dropLetter(column) {
@@ -542,6 +604,11 @@ export class Game {
             await this.animator.dropNoodelWordOverlay(() => {
                 this.score.addWord(noodelItem, false);
             });
+            
+            // Show made-words container after NOODEL overlay drops
+            if (this.dom.madeWordsContainer) {
+                this.dom.madeWordsContainer.classList.add('visible');
+            }
         }
         
         // Initialize progress bar

@@ -79,13 +79,14 @@ export class StartSequenceController {
 
     /**
      * Complete the START sequence and initialize game
+     * @param {boolean} skipWordProcessing - If true, skip word detection processing (e.g., when skipping tutorial)
      */
-    async complete() {
+    async complete(skipWordProcessing = false) {
         this.isActive = false;
         this.game.resumeWordDetection();
 
-        // Process the completion word using configured settings
-        if (this.game.features.isEnabled('wordDetection')) {
+        // Process the completion word using configured settings (unless skipped)
+        if (!skipWordProcessing && this.game.features.isEnabled('wordDetection')) {
             await this.game.checkAndProcessWords(this.config.ADD_TO_SCORE);
         }
 
