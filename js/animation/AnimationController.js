@@ -423,18 +423,22 @@ export class AnimationController {
                     clearTimeout(timerId);
                     timerId = null;
                 }
-                // Remove resolving class from all nodes
+                // Remove resolving class and fill element from all nodes
                 nodes.forEach(square => {
                     square.classList.remove('resolving', 'word-found');
+                    const fillElement = square.querySelector('.fill');
+                    if (fillElement) {
+                        fillElement.remove();
+                    }
                 });
                 if (promiseResolve) {
                     promiseResolve();
                 }
             },
             finalize: () => {
-                // Remove resolving class and add resolved class
+                // Remove resolving and word-found classes, add resolved class
                 nodes.forEach(square => {
-                    square.classList.remove('resolving');
+                    square.classList.remove('resolving', 'word-found');
                     square.classList.add('resolved');
                 });
             }
