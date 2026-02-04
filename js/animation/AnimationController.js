@@ -238,8 +238,22 @@ export class AnimationController {
         positions.forEach(pos => {
             const square = this.dom.getGridSquare(pos.index);
             if (square) {
-                square.textContent = '';
-                square.classList.remove('filled', 'word-found');
+                // Remove letter content wrapper if it exists
+                const letterContent = square.querySelector('.letter-content');
+                if (letterContent) {
+                    square.textContent = '';
+                } else {
+                    square.textContent = '';
+                }
+                
+                // Remove all animation-related classes
+                square.classList.remove('filled', 'word-found', 'resolving', 'resolved');
+                
+                // Remove fill element if it exists
+                const fillElement = square.querySelector('.fill');
+                if (fillElement) {
+                    fillElement.remove();
+                }
             }
         });
     }
