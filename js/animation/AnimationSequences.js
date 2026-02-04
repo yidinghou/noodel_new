@@ -30,18 +30,10 @@ export const ATOMIC_ANIMATIONS = {
                 }
             };
         },
+        // Visibility of the made-words container is now handled in initializeGameAfterStartSequence (Game.js)
+        // to avoid duplicate logic and potential race conditions.
         onAfter: (ctx) => {
-            // Show made-words container when NOODEL overlay drops to it
-            if (ctx.dom && ctx.dom.madeWordsContainer) {
-                console.log('Adding visible class to made-words-container');
-                console.log('Element exists:', ctx.dom.madeWordsContainer);
-                console.log('Current classes:', ctx.dom.madeWordsContainer.className);
-                ctx.dom.madeWordsContainer.classList.add('visible');
-                console.log('Classes after add:', ctx.dom.madeWordsContainer.className);
-                console.log('Computed opacity:', window.getComputedStyle(ctx.dom.madeWordsContainer).opacity);
-            } else {
-                console.error('Made-words container not found in DOM cache');
-            }
+            // No-op: keep hook available for future use without changing container visibility here.
         },
         args: (ctx) => [ctx.addWordCallback]
     },
