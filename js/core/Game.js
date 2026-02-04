@@ -64,6 +64,9 @@ export class Game {
         // Flag to prevent multiple simultaneous word checks
         this.isProcessingWords = false;
         
+        // Track active resolve controllers for cancellation when extending words
+        this.resolveControllers = [];
+        
         // Timer for initial user guidance (pulsate grid if no click within 5 seconds)
         this.inactivityTimer = null;
         this.hasClickedGrid = false;
@@ -306,6 +309,10 @@ export class Game {
                 CONFIG.GAME.INITIAL_LETTERS
             );
             
+            // Cancel any active resolve controllers for the newly placed cell
+            const targetIndex = targetRow * CONFIG.GRID.COLUMNS + column;
+            this.cancelResolveControllersForCell(targetIndex);
+            
             // Check for words after the letter has been placed (if enabled)
             if (this.features.isEnabled('wordDetection')) {
                 await this.checkAndProcessWords();
@@ -329,14 +336,27 @@ export class Game {
                 const shouldAnimate = this.features.isEnabled('animations.wordHighlight');
                 
                 if (foundWords.length > 0) {
-                    // Animate all words in this game state SIMULTANEOUSLY (if enabled)
                     if (shouldAnimate) {
-                        const animationPromises = foundWords.map(wordData => 
-                            this.animator.highlightAndShakeWord(wordData.positions)
+                        // Start resolve grace for all found words
+                        const controllers = foundWords.map(wordData => 
+                            this.animator.startResolveGrace(wordData.positions, 1000)
                         );
                         
-                        // Wait for all animations to complete together
-                        await Promise.all(animationPromises);
+                        // Store controllers so they can be cancelled if needed
+                        this.resolveControllers.push(...controllers);
+                        
+                        // Wait for all resolve grace periods to complete (1s)
+                        await Promise.all(controllers.map(c => c.promise));
+                        
+                        // Finalize each controller (apply final resolved state)
+                        controllers.forEach(controller => {
+                            this.animator.finalizeResolveGrace(controller);
+                        });
+                        
+                        // Remove controllers from tracking list
+                        this.resolveControllers = this.resolveControllers.filter(
+                            c => !controllers.includes(c)
+                        );
                     }
                     
                     // Add all words to made words list
@@ -393,5 +413,30 @@ export class Game {
         }
         // Stop pulsating when user interacts
         this.grid.stopPulsating();
+    }
+
+    /**
+     * Cancel resolve controllers that include the specified cell
+     * This allows word extension during the grace period
+     * @param {number} cellIndex - Grid square index
+     */
+    cancelResolveControllersForCell(cellIndex) {
+        // Filter out controllers that contain this cell
+        const controllersToCancel = this.resolveControllers.filter(controller => {
+            return controller.nodes.some(node => {
+                const index = parseInt(node.dataset.index);
+                return index === cellIndex;
+            });
+        });
+        
+        // Cancel each matching controller
+        controllersToCancel.forEach(controller => {
+            this.animator.cancelResolveGrace(controller);
+        });
+        
+        // Remove cancelled controllers from the list
+        this.resolveControllers = this.resolveControllers.filter(
+            controller => !controllersToCancel.includes(controller)
+        );
     }
 }
