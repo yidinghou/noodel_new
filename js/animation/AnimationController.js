@@ -17,6 +17,9 @@ export class AnimationController {
         this.cssVars.startClickHighlight = AnimationHelpers.parseTime(
             root.getPropertyValue('--animation-duration-start-click-highlight')
         );
+        
+        // Registry for active resolve/grace controllers
+        this._activeResolveControllers = [];
     }
 
     // Randomize NOODEL title letter animation delays
@@ -443,5 +446,152 @@ export class AnimationController {
                 resolve();
             }, 600);
         });
+    }
+
+    /**
+     * Start a resolve/grace period for found words
+     * Creates a fill animation overlay for each position
+     * @param {Array} positions - Array of {index, row, col} positions
+     * @param {number} duration - Duration in ms (default: 1000)
+     * @returns {Object} Controller object with {promise, cancel, finalize, nodes, positions}
+     */
+    startResolveGrace(positions, duration = 1000) {
+        const nodes = [];
+        let timerId = null;
+        let isCanceled = false;
+        let resolvePromise = null;
+        
+        // For each position, prepare the grid square with fill overlay
+        positions.forEach(pos => {
+            const square = this.dom.getGridSquare(pos.index);
+            if (!square) return;
+            
+            // Ensure .fill overlay exists
+            let fillOverlay = square.querySelector('.fill');
+            if (!fillOverlay) {
+                fillOverlay = document.createElement('div');
+                fillOverlay.className = 'fill';
+                // Insert before the text content
+                square.insertBefore(fillOverlay, square.firstChild);
+            }
+            
+            // Add classes
+            square.classList.add('word-found', 'resolving');
+            
+            nodes.push(square);
+        });
+        
+        // Create promise that resolves after duration
+        const promise = new Promise((resolve) => {
+            resolvePromise = resolve;
+            timerId = setTimeout(() => {
+                if (!isCanceled) {
+                    resolve({ positions, nodes });
+                }
+            }, duration);
+        });
+        
+        // Create controller object
+        const controller = {
+            promise,
+            cancel: () => {
+                if (timerId) {
+                    clearTimeout(timerId);
+                    timerId = null;
+                }
+                isCanceled = true;
+                
+                // Remove resolving class but keep word-found for visual feedback
+                nodes.forEach(node => {
+                    node.classList.remove('resolving');
+                });
+                
+                // Resolve the promise immediately on cancel
+                if (resolvePromise) {
+                    resolvePromise({ positions, nodes, canceled: true });
+                }
+            },
+            finalize: () => {
+                nodes.forEach(node => {
+                    node.classList.remove('resolving');
+                    node.classList.add('resolved');
+                });
+            },
+            nodes,
+            positions
+        };
+        
+        // Add to active controllers
+        this._activeResolveControllers.push(controller);
+        
+        return controller;
+    }
+
+    /**
+     * Cancel a specific resolve grace controller
+     * @param {Object} controller - The controller to cancel
+     */
+    cancelResolveGrace(controller) {
+        if (!controller) return;
+        
+        controller.cancel();
+        
+        // Remove from active controllers
+        const index = this._activeResolveControllers.indexOf(controller);
+        if (index > -1) {
+            this._activeResolveControllers.splice(index, 1);
+        }
+    }
+
+    /**
+     * Cancel all resolve graces that intersect with a specific cell
+     * @param {number} cellIndex - The grid cell index to check intersection
+     */
+    cancelResolveGracesIntersecting(cellIndex) {
+        const controllersToCancel = [];
+        
+        // Find controllers that have nodes intersecting with cellIndex
+        this._activeResolveControllers.forEach(controller => {
+            const hasIntersection = controller.nodes.some(node => {
+                const nodeIndex = parseInt(node.dataset.index);
+                return nodeIndex === cellIndex;
+            });
+            
+            if (hasIntersection) {
+                controllersToCancel.push(controller);
+            }
+        });
+        
+        // Cancel all intersecting controllers
+        controllersToCancel.forEach(controller => {
+            this.cancelResolveGrace(controller);
+        });
+    }
+
+    /**
+     * Cancel all active resolve graces
+     */
+    cancelAllResolveGraces() {
+        // Make a copy of the array since cancelResolveGrace modifies it
+        const controllers = [...this._activeResolveControllers];
+        controllers.forEach(controller => {
+            this.cancelResolveGrace(controller);
+        });
+    }
+
+    /**
+     * Finalize a resolve grace (mark as resolved)
+     * @param {Object} controller - The controller to finalize
+     */
+    finalizeResolveGrace(controller) {
+        if (!controller) return;
+        
+        controller.finalize();
+        
+        // Remove from active controllers
+        const index = this._activeResolveControllers.indexOf(controller);
+        if (index > -1) {
+            this._activeResolveControllers.splice(index, 1);
+        }
     }
 }

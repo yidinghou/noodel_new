@@ -270,7 +270,8 @@ export const LETTER_DROP_SEQUENCE = [
 /**
  * WORD FOUND SEQUENCE (Single Iteration)
  * Plays when words are detected on the grid
- * - Highlight and shake all found words (parallel)
+ * - Start resolve grace (1s fill animation) for all found words
+ * - Wait for grace period to complete
  * - Add words to score
  * - Clear word cells
  * - Apply gravity
@@ -278,22 +279,27 @@ export const LETTER_DROP_SEQUENCE = [
  */
 export const WORD_FOUND_SEQUENCE = [
     {
-        name: 'highlightWords',
-        method: 'highlightWords', // Custom method we'll add to handle multiple words
+        name: 'startResolveGrace',
+        method: 'startResolveGrace', // We'll handle this in a custom way
         target: 'animator',
         duration: 'auto',
         parallel: false,
         feature: 'animations.wordHighlight',
         onBefore: (ctx) => {
-            // Store promises for parallel word animations
-            ctx.animationPromises = ctx.foundWords.map(wordData => 
-                ctx.animator.highlightAndShakeWord(wordData.positions)
+            // Start resolve controllers for each found word
+            ctx.resolveControllers = ctx.foundWords.map(wordData => 
+                ctx.animator.startResolveGrace(wordData.positions, 1000)
             );
         },
         onAfter: async (ctx) => {
-            // Wait for all word animations to complete
-            if (ctx.animationPromises && ctx.animationPromises.length > 0) {
-                await Promise.all(ctx.animationPromises);
+            // Wait for all grace periods to complete
+            if (ctx.resolveControllers && ctx.resolveControllers.length > 0) {
+                await Promise.all(ctx.resolveControllers.map(c => c.promise));
+                
+                // Finalize each controller
+                ctx.resolveControllers.forEach(c => {
+                    ctx.animator.finalizeResolveGrace(c);
+                });
             }
         }
     },

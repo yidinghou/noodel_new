@@ -492,8 +492,14 @@ export class Game {
         const nextLetter = this.letters.getNextLetter();
         const targetRow = this.state.getLowestAvailableRow(column);
         
+        // Calculate the index where the letter will be placed
+        const placedCellIndex = calculateIndex(targetRow, column, CONFIG.GRID.COLUMNS);
+        
         // Use animation controller with callback
         this.animator.dropLetterInColumn(column, nextLetter, targetRow, async () => {
+            // Cancel any active resolve graces that intersect with the placed cell
+            this.animator.cancelResolveGracesIntersecting(placedCellIndex);
+            
             // Update game state after animation completes
             this.state.incrementColumnFill(column);
             this.letters.advance();
