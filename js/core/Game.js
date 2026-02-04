@@ -446,6 +446,10 @@ export class Game {
                 if (isThisLastLetter) {
                     console.log('Final START letter placed - completing sequence');
                     await this.startSequence.complete();
+                    
+                    // Update tutorial UI state and hide skip button
+                    this.tutorialUIState = TutorialUIState.COMPLETED;
+                    this.updateTutorialUI();
                 } else {
                     // Highlight the next square to click
                     this.highlightNextStartGuide();
