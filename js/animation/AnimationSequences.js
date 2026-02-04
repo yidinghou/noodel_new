@@ -130,6 +130,18 @@ export const INTRO_SEQUENCE = [
         args: (ctx) => [ctx.noodelItem]
     },
     {
+        name: 'showPreviewGrid',
+        method: 'updateLetterProgress',
+        target: 'animator',
+        duration: 0,
+        parallel: false,
+        onBefore: (ctx) => {
+            // Show the letter preview grid after NOODEL overlay appears
+            ctx.dom.preview.classList.add('visible');
+        },
+        args: () => [0, 0]
+    },
+    {
         name: 'showPreviewStart',
         method: 'displayPreviewStart',
         target: 'letters',
