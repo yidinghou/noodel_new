@@ -149,8 +149,7 @@ export const INTRO_SEQUENCE = [
         duration: 0,
         parallel: false,
         onBefore: (ctx) => {
-            // Show the letter preview grid and game grid after NOODEL overlay appears
-            ctx.dom.preview.classList.add('visible');
+            // Show the game grid after NOODEL overlay appears; preview visibility is handled by displayPreviewStart
             ctx.dom.grid.classList.add('visible');
         },
         args: () => [0, 0]
