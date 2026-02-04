@@ -127,7 +127,7 @@
     width: 0;
     background: var(--color-green);
     opacity: 0.8;
-    z-index: 1;
+    z-index: 0;
     pointer-events: none;
 }
 
