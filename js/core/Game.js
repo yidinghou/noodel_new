@@ -539,12 +539,15 @@ export class Game {
         // Clear any START sequence highlights
         this.clearStartGuide();
         
-        // Complete the START sequence to initialize the game
-        await this.startSequence.complete();
+        // Complete the START sequence, skipping word processing since letters weren't placed
+        await this.startSequence.complete(true);
         
         // Update tutorial UI state and hide button
         this.tutorialUIState = TutorialUIState.COMPLETED;
         this.updateTutorialUI();
+        
+        // Ensure preview remains visible after tutorial
+        this.dom.preview.classList.add('visible');
     }
 
     dropLetter(column) {

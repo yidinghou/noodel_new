@@ -132,6 +132,12 @@ export const INTRO_SEQUENCE = [
             const noodelScore = calculateWordScore('NOODEL');
             ctx.noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
         },
+        onAfter: (ctx) => {
+            // Show preview after NOODEL animation completes
+            ctx.dom.preview.classList.add('visible');
+            ctx.dom.preview.style.opacity = '1';
+            ctx.dom.preview.style.visibility = 'visible';
+        },
         args: (ctx) => [ctx.noodelItem]
     },
     {
