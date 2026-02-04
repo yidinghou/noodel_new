@@ -97,6 +97,12 @@
     max-height: 70dvh;
     max-width: 900px;
     margin: 0 auto;
+    opacity: 0;
+    transition: opacity var(--transition-standard);
+}
+
+.game-grid.visible {
+    opacity: 1;
 }
 
 /* Individual Grid Square - Extends .block-base */

@@ -136,8 +136,9 @@ export const INTRO_SEQUENCE = [
         duration: 0,
         parallel: false,
         onBefore: (ctx) => {
-            // Show the letter preview grid after NOODEL overlay appears
+            // Show the letter preview grid and game grid after NOODEL overlay appears
             ctx.dom.preview.classList.add('visible');
+            ctx.dom.grid.classList.add('visible');
         },
         args: () => [0, 0]
     },
