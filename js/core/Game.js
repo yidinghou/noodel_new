@@ -154,6 +154,13 @@ export class Game {
             this.dom.muteBtn.textContent = this.dom.muteBtn.textContent === '🔊' ? '🔇' : '🔊';
         });
         
+        // Skip Tutorial button
+        if (this.dom.skipTutorialBtn) {
+            this.dom.skipTutorialBtn.addEventListener('click', () => {
+                this.skipTutorial();
+            });
+        }
+        
         // Setup grid click handlers once during initialization
         this.grid.addClickHandlers((e) => this.handleSquareClick(e));
     }
@@ -486,6 +493,34 @@ export class Game {
     initStartSequenceGuide() {
         this.startSequence.start();
         this.highlightNextStartGuide();
+        
+        // Show skip tutorial button
+        if (this.dom.skipTutorialBtn) {
+            this.dom.skipTutorialBtn.style.display = 'block';
+        }
+    }
+
+    /**
+     * Skip the tutorial and go directly to the game
+     */
+    async skipTutorial() {
+        if (!this.startSequence.isActive || this.state.started) {
+            console.log('Tutorial not active or game already started');
+            return;
+        }
+        
+        console.log('Skipping tutorial...');
+        
+        // Clear any START sequence highlights
+        this.clearStartGuide();
+        
+        // Complete the START sequence to initialize the game
+        await this.startSequence.complete();
+        
+        // Hide skip button
+        if (this.dom.skipTutorialBtn) {
+            this.dom.skipTutorialBtn.style.display = 'none';
+        }
     }
 
     dropLetter(column) {
