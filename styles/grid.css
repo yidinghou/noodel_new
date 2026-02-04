@@ -106,6 +106,8 @@
     border-radius: var(--size-border-radius-small);
     font-size: var(--size-font-grid);
     cursor: pointer;
+    position: relative; /* ensure overlay can be absolutely positioned */
+    overflow: hidden;
 }
 
 /* Filled Grid Square */
@@ -114,6 +116,35 @@
     color: var(--color-text-white);
     border: 2px solid var(--color-border-primary);
     cursor: default;
+}
+
+/* Fill overlay for resolve/grace animation */
+.grid-square .fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0%;
+    height: 100%;
+    background: var(--color-green);
+    opacity: 0.18; /* subtle overlay to match existing highlight */
+    transition: width 1s linear;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.grid-square .letter-content {
+    position: relative;
+    z-index: 3;
+}
+
+.grid-square.resolving .fill {
+    width: 100%;
+}
+
+.grid-square.resolved .fill {
+    width: 100%;
+    opacity: 0.9;
+    transition: none;
 }
 
 /* Dropping Letter Overlay (animated letter during drop) */

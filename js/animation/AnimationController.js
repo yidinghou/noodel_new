@@ -444,4 +444,102 @@ export class AnimationController {
             }, 600);
         });
     }
+
+    /**
+     * Start resolve grace period for found words
+     * Returns a controller object with promise, cancel, and finalize methods
+     * @param {Array} positions - Array of position objects {index, row, column, letter}
+     * @param {number} duration - Duration in milliseconds (default: 1000)
+     * @returns {Object} Controller with { promise, cancel, finalize, nodes }
+     */
+    startResolveGrace(positions, duration = 1000) {
+        const nodes = [];
+        let timer = null;
+        let resolveCallback = null;
+        let isCancelled = false;
+        
+        // For each position, get DOM element and add resolving state
+        positions.forEach(pos => {
+            const square = this.dom.getGridSquare(pos.index);
+            if (!square) return;
+            
+            // Ensure .fill element exists inside the square (create if missing)
+            let fillElement = square.querySelector('.fill');
+            if (!fillElement) {
+                fillElement = document.createElement('div');
+                fillElement.className = 'fill';
+                square.appendChild(fillElement);
+            }
+            
+            // Wrap letter content if not already wrapped
+            if (!square.querySelector('.letter-content')) {
+                const letterText = square.textContent;
+                square.textContent = '';
+                const letterContent = document.createElement('div');
+                letterContent.className = 'letter-content';
+                letterContent.textContent = letterText;
+                square.appendChild(letterContent);
+            }
+            
+            // Add classes 'word-found' and 'resolving' (so existing highlight + shake visuals remain)
+            square.classList.add('word-found', 'resolving');
+            
+            nodes.push(square);
+        });
+        
+        // Create promise that resolves after duration
+        const promise = new Promise((resolve) => {
+            resolveCallback = resolve;
+            timer = setTimeout(() => {
+                if (!isCancelled) {
+                    resolve({ positions, nodes });
+                }
+            }, duration);
+        });
+        
+        // Cancel function: clears timer and removes 'resolving' class
+        const cancel = () => {
+            isCancelled = true;
+            if (timer) {
+                clearTimeout(timer);
+                timer = null;
+            }
+            nodes.forEach(node => {
+                node.classList.remove('resolving', 'word-found');
+            });
+            if (resolveCallback) {
+                resolveCallback({ positions, nodes, cancelled: true });
+            }
+        };
+        
+        // Finalize function: removes 'resolving' and adds 'resolved' class
+        const finalize = () => {
+            nodes.forEach(node => {
+                node.classList.remove('resolving');
+                node.classList.add('resolved');
+            });
+        };
+        
+        return { promise, cancel, finalize, nodes };
+    }
+
+    /**
+     * Cancel resolve grace period
+     * @param {Object} controller - Controller object returned by startResolveGrace
+     */
+    cancelResolveGrace(controller) {
+        if (controller && controller.cancel) {
+            controller.cancel();
+        }
+    }
+
+    /**
+     * Finalize resolve grace period
+     * @param {Object} controller - Controller object returned by startResolveGrace
+     */
+    finalizeResolveGrace(controller) {
+        if (controller && controller.finalize) {
+            controller.finalize();
+        }
+    }
 }

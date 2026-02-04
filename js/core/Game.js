@@ -63,6 +63,9 @@ export class Game {
         // Flag to prevent re-entrance in START sequence (prevents multiple animations queueing)
         this.isStartDropInProgress = false;
         
+        // Track active resolve controllers for grace period animations
+        this.resolveControllers = [];
+        
         // Timer for initial user guidance (pulsate grid if no click within 5 seconds)
         this.inactivityTimer = null;
         this.hasClickedGrid = false;
@@ -285,6 +288,9 @@ export class Game {
         this.clearInactivityTimer();
         this.hasClickedGrid = true;
         
+        // Cancel any active resolve controllers
+        this.cancelAllResolveControllers();
+        
         // Reset game state with current game mode (score, letters, grid data)
         this.state.reset();
         // Preserve the game mode across resets
@@ -491,6 +497,10 @@ export class Game {
     dropLetter(column) {
         const nextLetter = this.letters.getNextLetter();
         const targetRow = this.state.getLowestAvailableRow(column);
+        const targetIndex = calculateIndex(targetRow, column, CONFIG.GRID.COLUMNS);
+        
+        // Cancel any active resolve controllers that intersect the newly placed cell
+        this.cancelResolveControllersForCell(targetIndex);
         
         // Use animation controller with callback
         this.animator.dropLetterInColumn(column, nextLetter, targetRow, async () => {
@@ -589,14 +599,27 @@ export class Game {
                 const shouldAnimate = this.features.isEnabled('animations.wordHighlight');
                 
                 if (foundWords.length > 0) {
-                    // Animate all words in this game state SIMULTANEOUSLY (if enabled)
+                    // Start resolve grace for all words (if animation enabled)
                     if (shouldAnimate) {
-                        const animationPromises = foundWords.map(wordData => 
-                            this.animator.highlightAndShakeWord(wordData.positions)
-                        );
+                        // Clear any previous resolve controllers
+                        this.resolveControllers = [];
                         
-                        // Wait for all animations to complete together
-                        await Promise.all(animationPromises);
+                        // Start resolve grace for each found word
+                        foundWords.forEach(wordData => {
+                            const controller = this.animator.startResolveGrace(wordData.positions, 1000);
+                            this.resolveControllers.push(controller);
+                        });
+                        
+                        // Wait for all grace periods to complete
+                        await Promise.all(this.resolveControllers.map(c => c.promise));
+                        
+                        // Finalize all controllers to apply final visuals
+                        this.resolveControllers.forEach(controller => {
+                            this.animator.finalizeResolveGrace(controller);
+                        });
+                        
+                        // Clear the controllers list
+                        this.resolveControllers = [];
                     }
                     
                     // Add all words to made words list (if addScore is true)
@@ -719,5 +742,41 @@ export class Game {
         }
         // Stop pulsating when user interacts
         this.grid.stopPulsating();
+    }
+
+    /**
+     * Cancel resolve controllers that intersect the given cell index
+     * Used when a new letter is placed that touches resolving cells
+     * @param {number} cellIndex - Grid cell index
+     */
+    cancelResolveControllersForCell(cellIndex) {
+        // Filter out controllers that contain this cell
+        const controllersToCancel = this.resolveControllers.filter(controller => {
+            return controller.nodes.some(node => {
+                const nodeIndex = parseInt(node.dataset.index);
+                return nodeIndex === cellIndex;
+            });
+        });
+        
+        // Cancel each matching controller
+        controllersToCancel.forEach(controller => {
+            this.animator.cancelResolveGrace(controller);
+        });
+        
+        // Remove cancelled controllers from the list
+        this.resolveControllers = this.resolveControllers.filter(
+            controller => !controllersToCancel.includes(controller)
+        );
+    }
+
+    /**
+     * Cancel all active resolve controllers
+     * Used when resetting the game
+     */
+    cancelAllResolveControllers() {
+        this.resolveControllers.forEach(controller => {
+            this.animator.cancelResolveGrace(controller);
+        });
+        this.resolveControllers = [];
     }
 }
