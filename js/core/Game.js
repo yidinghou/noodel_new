@@ -683,6 +683,13 @@ export class Game {
                             console.log(`Word "${wordData.word}" detected but not added to score (START sequence)`);
                         }
                         
+                        // If word is "START" and tutorial is active, mark tutorial as completed
+                        if (wordData.word === 'START' && this.tutorialUIState === TutorialUIState.ACTIVE) {
+                            console.log('START word found - completing tutorial');
+                            this.tutorialUIState = TutorialUIState.COMPLETED;
+                            this.updateTutorialUI();
+                        }
+                        
                         // Track cleared cells for Clear Mode
                         if (this.state.isClearMode) {
                             this.state.cellsClearedCount += wordData.positions.length;
