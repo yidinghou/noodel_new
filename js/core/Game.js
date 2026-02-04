@@ -600,14 +600,22 @@ export class Game {
                 const shouldAnimate = this.features.isEnabled('animations.wordHighlight');
                 
                 if (foundWords.length > 0) {
-                    // Animate all words in this game state SIMULTANEOUSLY (if enabled)
+                    // Start resolve/grace animation for all words SIMULTANEOUSLY (if enabled)
                     if (shouldAnimate) {
-                        const animationPromises = foundWords.map(wordData => 
-                            this.animator.highlightAndShakeWord(wordData.positions)
+                        // Start resolve controllers for all found words
+                        const resolveControllers = foundWords.map(wordData =>
+                            this.animator.startResolveGrace(wordData.positions, 1000)
                         );
                         
-                        // Wait for all animations to complete together
-                        await Promise.all(animationPromises);
+                        // Wait for all resolve animations to complete
+                        const results = await Promise.all(resolveControllers.map(c => c.promise));
+                        
+                        // Finalize only non-canceled controllers
+                        resolveControllers.forEach((controller, index) => {
+                            if (results[index] && !results[index].canceled && controller.finalize) {
+                                controller.finalize();
+                            }
+                        });
                     }
                     
                     // Add all words to made words list (if addScore is true)
