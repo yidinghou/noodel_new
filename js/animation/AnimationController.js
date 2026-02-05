@@ -242,9 +242,11 @@ export class AnimationController {
 
     // Clear word cells after animation
     clearWordCells(positions) {
+        console.log('[DEBUG] clearWordCells called with positions:', positions.map(p => `(${p.row},${p.col})`));
         positions.forEach(pos => {
             const square = this.dom.getGridSquare(pos.index);
             if (square) {
+                console.log(`[DEBUG] Clearing cell at index ${pos.index}, had filled: ${square.classList.contains('filled')}`);
                 square.textContent = '';
                 square.classList.remove('filled', 'word-found', 'word-pending');
             }
