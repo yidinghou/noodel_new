@@ -800,6 +800,9 @@ export class Game {
         // Apply gravity to drop letters down - if enabled
         if (this.features.isEnabled('gravityPhysics')) {
             this.grid.applyGravity();
+        } else {
+            // Even without gravity, update column fill counts based on actual grid state
+            this.grid.updateColumnFillCounts();
         }
         
         // Short delay before checking for new words
@@ -851,6 +854,9 @@ export class Game {
         // Apply gravity to drop letters down (creates new game state) - if enabled
         if (this.features.isEnabled('gravityPhysics')) {
             this.grid.applyGravity();
+        } else {
+            // Even without gravity, update column fill counts based on actual grid state
+            this.grid.updateColumnFillCounts();
         }
         
         // Check if Clear Mode is complete
