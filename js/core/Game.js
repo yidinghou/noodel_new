@@ -692,24 +692,34 @@ export class Game {
         
         // Process each found word through grace period system
         for (const wordData of foundWords) {
+            const wordKey = this.gracePeriodManager.generateWordKey(wordData);
+            
+            // If this exact word is already pending, skip it entirely
+            // (don't reset timer just because the same word was re-detected)
+            if (this.gracePeriodManager.pendingWords.has(wordKey)) {
+                continue;
+            }
+            
             // Check for intersections with existing pending words
             const intersectingKeys = this.gracePeriodManager.getIntersectingWordKeys(wordData.positions);
             
             if (intersectingKeys.length > 0) {
                 // Check if this word is an extension of any pending word
                 let isExtending = false;
-                for (const wordKey of intersectingKeys) {
-                    if (this.gracePeriodManager.isExtension(wordData.positions, wordKey)) {
+                for (const existingKey of intersectingKeys) {
+                    if (this.gracePeriodManager.isExtension(wordData.positions, existingKey)) {
                         isExtending = true;
-                        // Remove the extended word(s)
+                        // This is a longer word that extends an existing pending word
+                        // Remove the shorter word and add the longer one with fresh timer
                         this.gracePeriodManager.handleWordExtension(wordData, intersectingKeys);
                         break;
                     }
                 }
                 
-                // If not extending, reset intersecting word timers
+                // If not extending, this is a NEW word that crosses an existing pending word
+                // Add as new pending word (don't reset existing word timers)
                 if (!isExtending) {
-                    this.gracePeriodManager.resetIntersectingWords(wordData.positions);
+                    this.gracePeriodManager.addPendingWord(wordData);
                 }
             } else {
                 // No intersections - add as new pending word
