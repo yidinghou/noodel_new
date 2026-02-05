@@ -201,14 +201,21 @@ export class AnimationController {
         }, this.cssVars.letterStage2Delay);
         
         // Stage 3: Settlement (after drop completes)
+        // Wrapped in try/finally to ensure cleanup even if callback errors
         setTimeout(() => {
-            targetSquare.textContent = letter;
-            targetSquare.classList.add('filled');
-            document.body.removeChild(overlay);
-            
-            // Call completion callback
-            if (onComplete) {
-                onComplete();
+            try {
+                targetSquare.textContent = letter;
+                targetSquare.classList.add('filled');
+                
+                // Call completion callback
+                if (onComplete) {
+                    onComplete();
+                }
+            } finally {
+                // Always clean up overlay from DOM
+                if (overlay && overlay.parentNode) {
+                    document.body.removeChild(overlay);
+                }
             }
         }, this.cssVars.letterStage2Delay + this.cssVars.letterDrop);
     }
