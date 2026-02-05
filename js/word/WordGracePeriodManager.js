@@ -136,6 +136,31 @@ export class WordGracePeriodManager {
     }
 
     /**
+     * Get all intersecting words with their direction info
+     * @param {Array} positions - Positions to check {row, col, index}
+     * @returns {Array<{wordKey: string, direction: string}>} Array of intersecting word info
+     */
+    getIntersectingWordsWithDirection(positions) {
+        const posSet = this.positionsToSet(positions);
+        const intersecting = [];
+        
+        for (const [wordKey, pending] of this.pendingWords) {
+            // Check if any position overlaps
+            for (const pos of posSet) {
+                if (pending.positionSet.has(pos)) {
+                    intersecting.push({
+                        wordKey,
+                        direction: pending.wordData.direction
+                    });
+                    break;
+                }
+            }
+        }
+        
+        return intersecting;
+    }
+
+    /**
      * Reset grace periods for all words intersecting given positions
      * @param {Array} positions - Positions that triggered the reset
      */
