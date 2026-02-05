@@ -451,4 +451,53 @@ export class AnimationController {
             }, 600);
         });
     }
+
+    /**
+     * Start word pending animation (grace period visual)
+     * Adds word-pending class to cells, which triggers fillGreen animation
+     * @param {Array} positions - Array of {row, col, index} objects
+     */
+    startWordPendingAnimation(positions) {
+        positions.forEach(pos => {
+            const square = this.dom.getGridSquare(pos.index);
+            if (square) {
+                square.classList.add('word-pending');
+            }
+        });
+    }
+
+    /**
+     * Reset word pending animation (restart the grace period visual)
+     * Removes and re-adds the word-pending class to trigger animation restart
+     * @param {Array} positions - Array of {row, col, index} objects
+     */
+    resetWordPendingAnimation(positions) {
+        positions.forEach(pos => {
+            const square = this.dom.getGridSquare(pos.index);
+            if (square) {
+                // Remove the class
+                square.classList.remove('word-pending');
+                
+                // Force reflow to trigger animation restart
+                square.offsetHeight;
+                
+                // Re-add the class to restart animation
+                square.classList.add('word-pending');
+            }
+        });
+    }
+
+    /**
+     * Clear word pending animation
+     * Removes the word-pending class from cells (called when word expires)
+     * @param {Array} positions - Array of {row, col, index} objects
+     */
+    clearWordPendingAnimation(positions) {
+        positions.forEach(pos => {
+            const square = this.dom.getGridSquare(pos.index);
+            if (square) {
+                square.classList.remove('word-pending');
+            }
+        });
+    }
 }
