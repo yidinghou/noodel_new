@@ -186,8 +186,8 @@
         to right,
         var(--color-green) 0%,
         var(--color-green) 50%,
-        var(--color-cell-filled) 50%,
-        var(--color-cell-filled) 100%
+        var(--color-text-muted) 50%,
+        var(--color-text-muted) 100%
     );
     background-size: 200% 100%;
     background-position: 100% 0;
