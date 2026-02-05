@@ -567,15 +567,31 @@ export class Game {
     }
 
     dropLetter(column) {
+        // Defensive validation
+        if (!isValidColumn(column, CONFIG.GRID.COLUMNS)) {
+            return;
+        }
+        if (this.state.isColumnFull(column)) {
+            return;
+        }
+        
         const nextLetter = this.letters.getNextLetter();
-        const targetRow = this.state.getLowestAvailableRow(column);
+        
+        // Update game state IMMEDIATELY (before animation starts)
+        // This prevents duplicate placements on rapid clicks
+        this.state.incrementPendingFill(column);
+        this.letters.advance();  // Update preview immediately
+        this.score.updateLettersRemaining();  // Update counter immediately
+        this.lastDropTime = Date.now();  // Update buffer timestamp
+        
+        // Calculate target row based on pending fills (for queuing same column)
+        const targetRow = this.state.getLowestAvailableRowWithPending(column);
         
         // Use animation controller with callback
         this.animator.dropLetterInColumn(column, nextLetter, targetRow, async () => {
-            // Update game state after animation completes
+            // Finalize game state after animation completes
+            this.state.decrementPendingFill(column);
             this.state.incrementColumnFill(column);
-            this.letters.advance();
-            this.score.updateLettersRemaining();
             
             // Transition to PLAYING phase on first letter drop (if not already playing)
             if (this.stateMachine.is(GamePhase.GAME_READY)) {
