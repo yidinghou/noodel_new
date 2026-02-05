@@ -184,12 +184,13 @@
     border-color: var(--color-green);
     background: linear-gradient(
         to right,
-        var(--color-cell-filled),
-        var(--color-cell-filled) 0%,
         var(--color-green) 0%,
-        var(--color-green)
+        var(--color-green) 50%,
+        var(--color-cell-filled) 50%,
+        var(--color-cell-filled) 100%
     );
     background-size: 200% 100%;
+    background-position: 100% 0;
     animation: fillGreen var(--animation-duration-word-grace) linear forwards;
 }
 
