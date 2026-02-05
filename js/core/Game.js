@@ -591,15 +591,16 @@ export class Game {
         
         const nextLetter = this.letters.getNextLetter();
         
-        // Update game state IMMEDIATELY (before animation starts)
+        // Calculate target row FIRST based on current fills + pending (letters already in flight)
+        const targetRow = this.state.getLowestAvailableRowWithPending(column);
+        console.log(`[DEBUG] dropLetter: col=${column}, targetRow=${targetRow}, columnFills=${JSON.stringify(this.state.columnFillCounts)}, pendingFills=${JSON.stringify(this.state.pendingColumnCounts)}`);
+        
+        // NOW update game state (after calculating target row)
         // This prevents duplicate placements on rapid clicks
         this.state.incrementPendingFill(column);
         this.letters.advance();  // Update preview immediately
         this.score.updateLettersRemaining();  // Update counter immediately
         this.lastDropTime = Date.now();  // Update buffer timestamp
-        
-        // Calculate target row based on pending fills (for queuing same column)
-        const targetRow = this.state.getLowestAvailableRowWithPending(column);
         
         // Use animation controller with callback
         this.animator.dropLetterInColumn(column, nextLetter, targetRow, async () => {
@@ -707,25 +708,42 @@ export class Game {
             }
             
             // Check for intersections with existing pending words
-            const intersectingKeys = this.gracePeriodManager.getIntersectingWordKeys(wordData.positions);
+            const intersectingWords = this.gracePeriodManager.getIntersectingWordsWithDirection(wordData.positions);
             
-            if (intersectingKeys.length > 0) {
-                // Check if this word is an extension of any pending word
+            if (intersectingWords.length > 0) {
+                // Separate intersections by direction
+                const sameDirectionKeys = intersectingWords
+                    .filter(w => w.direction === wordData.direction)
+                    .map(w => w.wordKey);
+                const differentDirectionKeys = intersectingWords
+                    .filter(w => w.direction !== wordData.direction)
+                    .map(w => w.wordKey);
+                
+                // Check if this word is an extension of any same-direction pending word
                 let isExtending = false;
-                for (const existingKey of intersectingKeys) {
+                for (const existingKey of sameDirectionKeys) {
                     if (this.gracePeriodManager.isExtension(wordData.positions, existingKey)) {
                         isExtending = true;
                         // This is a longer word that extends an existing pending word
                         // Remove the shorter word and add the longer one with fresh timer
-                        this.gracePeriodManager.handleWordExtension(wordData, intersectingKeys);
+                        this.gracePeriodManager.handleWordExtension(wordData, sameDirectionKeys);
                         break;
                     }
                 }
                 
-                // If not extending, this is a NEW word that crosses an existing pending word
-                // Add as new pending word (don't reset existing word timers)
-                if (!isExtending) {
+                // Same direction but not extending - ignore this word
+                if (sameDirectionKeys.length > 0 && !isExtending) {
+                    continue;
+                }
+                
+                // Different direction (crossing) - add as new word and reset intersecting words
+                if (differentDirectionKeys.length > 0) {
                     this.gracePeriodManager.addPendingWord(wordData);
+                    differentDirectionKeys.forEach(key => this.gracePeriodManager.resetGracePeriod(key));
+                    // Continue to add word to display below
+                } else if (!isExtending) {
+                    // No intersections handled yet, shouldn't reach here but safety fallback
+                    continue;
                 }
             } else {
                 // No intersections - add as new pending word
@@ -804,6 +822,8 @@ export class Game {
             // Even without gravity, update column fill counts based on actual grid state
             this.grid.updateColumnFillCounts();
         }
+        
+        console.log('[DEBUG] processWordsImmediately: After gravity/reset - columnFills:', JSON.stringify(this.state.columnFillCounts), 'pendingFills:', JSON.stringify(this.state.pendingColumnCounts));
         
         // Short delay before checking for new words
         await new Promise(resolve => setTimeout(resolve, 300));
