@@ -233,7 +233,7 @@ export class AnimationController {
         // Wait for animation on first square (they all finish together)
         const firstSquare = this.dom.getGridSquare(positions[0].index);
         if (firstSquare) {
-            await AnimationHelpers.waitForAnimation(firstSquare, 'wordShake');
+            await AnimationHelpers.waitForAnimation(firstSquare, 'shake');
         } else {
             // Fallback if square not found
             await new Promise(resolve => setTimeout(resolve, this.cssVars.wordFoundDuration));

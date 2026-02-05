@@ -753,6 +753,9 @@ export class Game {
     async handleWordExpired(wordData, wordKey, origCallback) {
         console.log(`Word grace period expired: ${wordData.word}`);
         
+        // First, clear the pending animation (remove word-pending class)
+        this.animator.clearWordPendingAnimation(wordData.positions);
+        
         // Animate word shake
         const shouldAnimate = this.features.isEnabled('animations.wordHighlight');
         if (shouldAnimate) {
@@ -767,7 +770,7 @@ export class Game {
             this.state.cellsClearedCount += wordData.positions.length;
         }
         
-        // Remove from pending
+        // Remove from pending (this will also try to clear animation but it's already cleared)
         this.gracePeriodManager.removePendingWord(wordKey);
         
         // Wait a bit before applying gravity (if animation was shown)
