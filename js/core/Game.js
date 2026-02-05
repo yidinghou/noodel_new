@@ -676,7 +676,7 @@ export class Game {
     }
 
     // Check for words and add them to pending grace period queue
-    async checkAndProcessWords(addScore = true) {
+    async checkAndProcessWords(addScore = true, useGracePeriod = true) {
         // Skip if word detection is paused (e.g., during sequences)
         if (!this.wordDetectionEnabled) {
             console.log('Word detection is paused');
@@ -688,6 +688,12 @@ export class Game {
         
         if (foundWords.length === 0) {
             return;  // No words found
+        }
+        
+        // If not using grace period, process words immediately (old behavior)
+        if (!useGracePeriod) {
+            await this.processWordsImmediately(foundWords, addScore);
+            return;
         }
         
         // Process each found word through grace period system
@@ -743,6 +749,66 @@ export class Game {
                 this.tutorialUIState = TutorialUIState.COMPLETED;
                 this.updateTutorialUI();
             }
+        }
+    }
+
+    /**
+     * Process words immediately without grace period (used for START sequence)
+     * This is the old behavior before grace period was added
+     */
+    async processWordsImmediately(foundWords, addScore) {
+        // Check if word highlighting animation is enabled
+        const shouldAnimate = this.features.isEnabled('animations.wordHighlight');
+        
+        if (shouldAnimate) {
+            const animationPromises = foundWords.map(wordData => 
+                this.animator.highlightAndShakeWord(wordData.positions)
+            );
+            await Promise.all(animationPromises);
+        }
+        
+        // Add all words to made words list (if addScore is true)
+        foundWords.forEach(wordData => {
+            const points = calculateWordScore(wordData.word);
+            const wordItem = new WordItem(wordData.word, wordData.definition, points);
+
+            const willDisplay = addScore;
+            const willAddToScore = addScore && this.state.scoringEnabled;
+
+            if (willDisplay) {
+                this.score.addWord(wordItem, willAddToScore);
+            }
+            
+            // Track cleared cells for Clear Mode
+            if (this.state.isClearMode) {
+                this.state.cellsClearedCount += wordData.positions.length;
+            }
+        });
+        
+        // Clear all word cells after animation
+        foundWords.forEach(wordData => {
+            this.animator.clearWordCells(wordData.positions);
+        });
+        
+        // Wait a bit before applying gravity (if animation was shown)
+        if (shouldAnimate) {
+            const root = getComputedStyle(document.documentElement);
+            const wordClearDelay = parseFloat(root.getPropertyValue('--animation-delay-word-clear').trim());
+            await new Promise(resolve => setTimeout(resolve, wordClearDelay));
+        }
+        
+        // Apply gravity to drop letters down - if enabled
+        if (this.features.isEnabled('gravityPhysics')) {
+            this.grid.applyGravity();
+        }
+        
+        // Short delay before checking for new words
+        await new Promise(resolve => setTimeout(resolve, 300));
+        
+        // Check for cascading words (also immediately)
+        const cascadeWords = this.wordResolver.checkForWords();
+        if (cascadeWords.length > 0) {
+            await this.processWordsImmediately(cascadeWords, addScore);
         }
     }
 
