@@ -27,6 +27,11 @@ const TutorialUIState = {
 };
 
 /**
+ * Input buffer constants
+ */
+const INPUT_BUFFER_MS = 250;  // Prevent clicks within 250ms of last drop
+
+/**
  * Game class - Main orchestrator that coordinates all controllers
  */
 export class Game {
@@ -34,6 +39,9 @@ export class Game {
         // Initialize core state and DOM cache
         this.state = new GameState();
         this.dom = new DOMCache();
+        
+        // Input buffering - prevent rapid clicks from stacking
+        this.lastDropTime = 0;
         
         // Initialize feature manager
         this.features = new FeatureManager();
@@ -318,6 +326,9 @@ export class Game {
         this.clearInactivityTimer();
         this.hasClickedGrid = true;
         
+        // Reset input buffer
+        this.lastDropTime = 0;
+        
         // Reset game state with current game mode (score, letters, grid data)
         this.state.reset();
         // Preserve the game mode across resets
@@ -375,6 +386,11 @@ export class Game {
         }
         
         if (!this.state.started) return;
+        
+        // Input buffer: prevent rapid clicks within 250ms
+        if (Date.now() - this.lastDropTime < INPUT_BUFFER_MS) {
+            return;
+        }
         
         // Clear inactivity timer and stop pulsating on first grid click during gameplay
         if (!this.hasClickedGrid) {
