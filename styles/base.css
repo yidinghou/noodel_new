@@ -85,6 +85,7 @@
     --animation-duration-letter-stage1: 0.3s;
     --animation-duration-letter-drop: 0.4s;
     --animation-duration-word-found: 0.6s;
+    --animation-duration-word-grace: 1s;
     --animation-duration-pulse: 1.2s;
     
     /* Animation Delays */

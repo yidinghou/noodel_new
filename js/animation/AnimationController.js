@@ -201,14 +201,21 @@ export class AnimationController {
         }, this.cssVars.letterStage2Delay);
         
         // Stage 3: Settlement (after drop completes)
+        // Wrapped in try/finally to ensure cleanup even if callback errors
         setTimeout(() => {
-            targetSquare.textContent = letter;
-            targetSquare.classList.add('filled');
-            document.body.removeChild(overlay);
-            
-            // Call completion callback
-            if (onComplete) {
-                onComplete();
+            try {
+                targetSquare.textContent = letter;
+                targetSquare.classList.add('filled');
+                
+                // Call completion callback
+                if (onComplete) {
+                    onComplete();
+                }
+            } finally {
+                // Always clean up overlay from DOM
+                if (overlay && overlay.parentNode) {
+                    document.body.removeChild(overlay);
+                }
             }
         }, this.cssVars.letterStage2Delay + this.cssVars.letterDrop);
     }
@@ -226,7 +233,7 @@ export class AnimationController {
         // Wait for animation on first square (they all finish together)
         const firstSquare = this.dom.getGridSquare(positions[0].index);
         if (firstSquare) {
-            await AnimationHelpers.waitForAnimation(firstSquare, 'wordShake');
+            await AnimationHelpers.waitForAnimation(firstSquare, 'shake');
         } else {
             // Fallback if square not found
             await new Promise(resolve => setTimeout(resolve, this.cssVars.wordFoundDuration));
@@ -235,11 +242,13 @@ export class AnimationController {
 
     // Clear word cells after animation
     clearWordCells(positions) {
+        console.log('[DEBUG] clearWordCells called with positions:', positions.map(p => `(${p.row},${p.col})`));
         positions.forEach(pos => {
             const square = this.dom.getGridSquare(pos.index);
             if (square) {
+                console.log(`[DEBUG] Clearing cell at index ${pos.index}, had filled: ${square.classList.contains('filled')}`);
                 square.textContent = '';
-                square.classList.remove('filled', 'word-found');
+                square.classList.remove('filled', 'word-found', 'word-pending');
             }
         });
     }
@@ -442,6 +451,55 @@ export class AnimationController {
                 });
                 resolve();
             }, 600);
+        });
+    }
+
+    /**
+     * Start word pending animation (grace period visual)
+     * Adds word-pending class to cells, which triggers fillGreen animation
+     * @param {Array} positions - Array of {row, col, index} objects
+     */
+    startWordPendingAnimation(positions) {
+        positions.forEach(pos => {
+            const square = this.dom.getGridSquare(pos.index);
+            if (square) {
+                square.classList.add('word-pending');
+            }
+        });
+    }
+
+    /**
+     * Reset word pending animation (restart the grace period visual)
+     * Removes and re-adds the word-pending class to trigger animation restart
+     * @param {Array} positions - Array of {row, col, index} objects
+     */
+    resetWordPendingAnimation(positions) {
+        positions.forEach(pos => {
+            const square = this.dom.getGridSquare(pos.index);
+            if (square) {
+                // Remove the class
+                square.classList.remove('word-pending');
+                
+                // Force reflow to trigger animation restart
+                square.offsetHeight;
+                
+                // Re-add the class to restart animation
+                square.classList.add('word-pending');
+            }
+        });
+    }
+
+    /**
+     * Clear word pending animation
+     * Removes the word-pending class from cells (called when word expires)
+     * @param {Array} positions - Array of {row, col, index} objects
+     */
+    clearWordPendingAnimation(positions) {
+        positions.forEach(pos => {
+            const square = this.dom.getGridSquare(pos.index);
+            if (square) {
+                square.classList.remove('word-pending');
+            }
         });
     }
 }
