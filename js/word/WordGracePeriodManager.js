@@ -57,15 +57,12 @@ export class WordGracePeriodManager {
         
         // Create timer
         const timerId = setTimeout(() => {
-            console.log(`Grace period timer fired for word: ${wordData.word}`);
             if (this.onWordExpired) {
                 this.onWordExpired(wordData, wordKey, onExpired);
             } else {
                 console.error('onWordExpired callback not set!');
             }
         }, this.gracePeriodMs);
-        
-        console.log(`Added pending word: ${wordData.word} with ${this.gracePeriodMs}ms grace period`);
         
         // Add to pending words
         this.pendingWords.set(wordKey, {
@@ -97,7 +94,6 @@ export class WordGracePeriodManager {
         
         // Create new timer
         const timerId = setTimeout(() => {
-            console.log(`Grace period timer fired for word: ${pending.wordData.word}`);
             if (this.onWordExpired) {
                 this.onWordExpired(pending.wordData, wordKey, pending.onExpired);
             } else {
