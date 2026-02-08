@@ -1,4 +1,4 @@
-import WordGracePeriodManager from '../js/word/WordGracePeriodManager.js';
+import { WordGracePeriodManager } from '../js/word/WordGracePeriodManager.js';
 
 /**
  * Mock factories for test setup
