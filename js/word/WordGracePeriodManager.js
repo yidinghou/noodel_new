@@ -234,14 +234,16 @@ export class WordGracePeriodManager {
             ? this.pendingWords.get(replacedKeys[0])?.onExpired 
             : null;
 
-        // Remove replaced pending words
+        // Remove replaced pending words (clears their timers and animations)
         replacedKeys.forEach(key => this.removePendingWord(key));
 
         // Add new extended word with fresh timer
+        // Note: addPendingWord calls startWordPendingAnimation internally,
+        // but for old positions the browser may batch the remove+add without 
+        // restarting the CSS animation. We immediately follow with 
+        // resetWordPendingAnimation which forces a reflow to guarantee all 
+        // positions (old + new) get a fresh animation restart.
         this.addPendingWord(newWordData, oldCallback);
-
-        // Reset animation on all positions (including old letters) to restart 
-        // the visual grace period along with the timer reset
         this.animator.resetWordPendingAnimation(newWordData.positions);
     }
 
