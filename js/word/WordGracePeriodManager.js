@@ -17,9 +17,6 @@ export class WordGracePeriodManager {
         // wordKey = "word_direction_startRow_startCol"
         this.pendingWords = new Map();
         
-        // Set to track all currently pending positions (for intersection detection)
-        this.allPendingPositions = new Set();
-        
         // Callbacks for when word processing completes
         this.onWordExpired = null;  // Called with (wordData, wordKey) when timer expires
     }
@@ -72,9 +69,6 @@ export class WordGracePeriodManager {
             positionSet,
             onExpired  // Store callback for later use
         });
-        
-        // Track positions for intersection detection
-        positionSet.forEach(pos => this.allPendingPositions.add(pos));
         
         // Start visual animation
         this.animator.startWordPendingAnimation(wordData.positions);
@@ -179,9 +173,6 @@ export class WordGracePeriodManager {
         // Clear timer
         clearTimeout(pending.timerId);
         
-        // Remove position tracking
-        pending.positionSet.forEach(pos => this.allPendingPositions.delete(pos));
-        
         // Remove visual animation
         this.animator.clearWordPendingAnimation(pending.wordData.positions);
         
@@ -257,7 +248,6 @@ export class WordGracePeriodManager {
         }
         
         this.pendingWords.clear();
-        this.allPendingPositions.clear();
     }
 
     /**
