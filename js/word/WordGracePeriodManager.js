@@ -1,5 +1,3 @@
-import { CONFIG } from '../config.js';
-
 /**
  * WordGracePeriodManager - Manages pending words with grace period timers
  * 
