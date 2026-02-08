@@ -593,7 +593,6 @@ export class Game {
         
         // Calculate target row FIRST based on current fills + pending (letters already in flight)
         const targetRow = this.state.getLowestAvailableRowWithPending(column);
-        console.log(`[DEBUG] dropLetter: col=${column}, targetRow=${targetRow}, columnFills=${JSON.stringify(this.state.columnFillCounts)}, pendingFills=${JSON.stringify(this.state.pendingColumnCounts)}`);
         
         // NOW update game state (after calculating target row)
         // This prevents duplicate placements on rapid clicks
@@ -822,9 +821,7 @@ export class Game {
             // Even without gravity, update column fill counts based on actual grid state
             this.grid.updateColumnFillCounts();
         }
-        
-        console.log('[DEBUG] processWordsImmediately: After gravity/reset - columnFills:', JSON.stringify(this.state.columnFillCounts), 'pendingFills:', JSON.stringify(this.state.pendingColumnCounts));
-        
+                
         // Short delay before checking for new words
         await new Promise(resolve => setTimeout(resolve, 300));
         
