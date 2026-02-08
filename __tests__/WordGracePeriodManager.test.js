@@ -173,4 +173,210 @@ describe('WordGracePeriodManager', () => {
       jest.advanceTimersByTime(1000);
     });
   });
+
+  // Test Group 5: getIntersectingWordsWithDirection
+  describe('getIntersectingWordsWithDirection', () => {
+    test('should return empty array when no intersections', () => {
+      const wordData = createWordData({
+        positions: [{ row: 0, col: 0 }, { row: 0, col: 1 }],
+      });
+      manager.addPendingWord(wordData, jest.fn());
+
+      const result = manager.getIntersectingWordsWithDirection([
+        { row: 5, col: 5 },
+        { row: 5, col: 6 },
+      ]);
+
+      expect(result).toEqual([]);
+    });
+
+    test('should detect word sharing single position', () => {
+      const wordData = createWordData({
+        word: 'test',
+        direction: 'horizontal',
+        positions: [{ row: 0, col: 0 }, { row: 0, col: 1 }],
+      });
+      manager.addPendingWord(wordData, jest.fn());
+
+      const result = manager.getIntersectingWordsWithDirection([
+        { row: 0, col: 0 },
+        { row: 1, col: 0 },
+      ]);
+
+      expect(result).toContainEqual(
+        expect.objectContaining({
+          direction: 'horizontal',
+        })
+      );
+    });
+
+    test('should detect multiple intersecting words', () => {
+      const word1 = createWordData({
+        word: 'cat',
+        direction: 'horizontal',
+        positions: [{ row: 0, col: 0 }, { row: 0, col: 1 }, { row: 0, col: 2 }],
+      });
+      const word2 = createWordData({
+        word: 'dog',
+        direction: 'vertical',
+        row: 1,
+        col: 0,
+        positions: [{ row: 1, col: 0 }, { row: 2, col: 0 }, { row: 3, col: 0 }],
+      });
+      manager.addPendingWord(word1, jest.fn());
+      manager.addPendingWord(word2, jest.fn());
+
+      const result = manager.getIntersectingWordsWithDirection([
+        { row: 0, col: 0 },
+      ]);
+
+      expect(result.length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  // Test Group 6: isExtension
+  describe('isExtension', () => {
+    test('should detect proper extension (superset of positions)', () => {
+      const originalPositions = [{ row: 0, col: 0 }, { row: 0, col: 1 }];
+      const wordData = createWordData({
+        word: 'test',
+        direction: 'horizontal',
+        positions: originalPositions,
+      });
+      manager.addPendingWord(wordData, jest.fn());
+
+      const extendedPositions = [
+        { row: 0, col: 0 },
+        { row: 0, col: 1 },
+        { row: 0, col: 2 },
+      ];
+
+      const result = manager.isExtension(
+        extendedPositions,
+        manager.generateWordKey(wordData)
+      );
+
+      expect(result).toBe(true);
+    });
+
+    test('should reject same positions as extension', () => {
+      const positions = [{ row: 0, col: 0 }, { row: 0, col: 1 }];
+      const wordData = createWordData({
+        word: 'test',
+        direction: 'horizontal',
+        positions,
+      });
+      manager.addPendingWord(wordData, jest.fn());
+
+      const result = manager.isExtension(
+        positions,
+        manager.generateWordKey(wordData)
+      );
+
+      expect(result).toBe(false);
+    });
+
+    test('should reject subset of positions as extension', () => {
+      const positions = [
+        { row: 0, col: 0 },
+        { row: 0, col: 1 },
+        { row: 0, col: 2 },
+      ];
+      const wordData = createWordData({
+        word: 'test',
+        direction: 'horizontal',
+        positions,
+      });
+      manager.addPendingWord(wordData, jest.fn());
+
+      const result = manager.isExtension(
+        [{ row: 0, col: 0 }, { row: 0, col: 1 }],
+        manager.generateWordKey(wordData)
+      );
+
+      expect(result).toBe(false);
+    });
+  });
+
+  // Test Group 7: removeWord
+  describe('removeWord', () => {
+    test('should remove pending word by key', () => {
+      const wordData = createWordData();
+      manager.addPendingWord(wordData, jest.fn());
+
+      manager.removePendingWord(manager.generateWordKey(wordData));
+
+      const pending = manager.getAllPendingWords();
+      expect(pending).toHaveLength(0);
+    });
+
+    test('should call clearWordPendingAnimation on removal', () => {
+      const wordData = createWordData();
+      manager.addPendingWord(wordData, jest.fn());
+
+      manager.removePendingWord(manager.generateWordKey(wordData));
+
+      expect(mockAnimator.clearWordPendingAnimation).toHaveBeenCalled();
+    });
+
+    test('should handle removal of nonexistent word', () => {
+      expect(() => {
+        manager.removePendingWord('nonexistent_key');
+      }).not.toThrow();
+    });
+  });
+
+  // Test Group 8: clearAll
+  describe('clearAll', () => {
+    test('should clear all pending words', () => {
+      manager.addPendingWord(createWordData({ word: 'word1' }), jest.fn());
+      manager.addPendingWord(createWordData({ word: 'word2' }), jest.fn());
+
+      manager.clearAll();
+
+      const pending = manager.getAllPendingWords();
+      expect(pending).toHaveLength(0);
+    });
+
+    test('should call clearWordPendingAnimation for each word', () => {
+      manager.addPendingWord(createWordData(), jest.fn());
+      manager.addPendingWord(createWordData(), jest.fn());
+
+      manager.clearAll();
+
+      expect(mockAnimator.clearWordPendingAnimation).toHaveBeenCalledTimes(2);
+    });
+
+    test('should handle clearAll on empty manager', () => {
+      expect(() => {
+        manager.clearAll();
+      }).not.toThrow();
+    });
+  });
+
+  // Test Group 9: getAllPendingWords
+  describe('getAllPendingWords', () => {
+    test('should return empty array initially', () => {
+      const result = manager.getAllPendingWords();
+      expect(Array.isArray(result)).toBe(true);
+      expect(result).toHaveLength(0);
+    });
+
+    test('should return all pending words', () => {
+      manager.addPendingWord(createWordData({ word: 'word1' }), jest.fn());
+      manager.addPendingWord(createWordData({ word: 'word2' }), jest.fn());
+
+      const result = manager.getAllPendingWords();
+      expect(result).toHaveLength(2);
+    });
+
+    test('should not include expired words', () => {
+      manager.addPendingWord(createWordData({ word: 'word1' }), jest.fn());
+      jest.advanceTimersByTime(1000);
+
+      const result = manager.getAllPendingWords();
+      expect(result).toHaveLength(0);
+    });
+  });
 });
+
