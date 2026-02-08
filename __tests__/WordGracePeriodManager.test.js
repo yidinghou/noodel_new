@@ -321,7 +321,7 @@ describe('WordGracePeriodManager', () => {
     });
   });
 
-  // Test Group 7: removeWord
+  // Test Group 7: removePendingWord
   describe('removePendingWord', () => {
     test('should remove pending word by key', () => {
       const wordData = createWordData();
@@ -488,6 +488,7 @@ test('should remove word from pending list when grace period expires', () => {
 
       const pending = manager.getAllPendingWords();
       expect(pending.some(w => w.wordData.word === 'cats')).toBe(true);
+      expect(pending.some(w => w.wordData.word === 'cat')).toBe(false);
     });
 
     test('should add new extended word with callback', () => {
