@@ -237,6 +237,10 @@ export class WordGracePeriodManager {
         // Remove replaced pending words
         replacedKeys.forEach(key => this.removePendingWord(key));
 
+        // Clear any residual animations on the extended word's positions to ensure 
+        // animation resets along with the timer when word extends
+        this.animator.clearWordPendingAnimation(newWordData.positions);
+
         this.addPendingWord(newWordData, oldCallback);
     }
 
