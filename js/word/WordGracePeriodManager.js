@@ -229,8 +229,7 @@ export class WordGracePeriodManager {
             }
         }
         
-        
-        // Add the new extending word with fresh timer
+        // Get the callback from the first replaced word before removing them
         const oldCallback = replacedKeys.length > 0 
             ? this.pendingWords.get(replacedKeys[0])?.onExpired 
             : null;
@@ -245,7 +244,7 @@ export class WordGracePeriodManager {
      * Clear all pending words and timers (e.g., on reset)
      */
     clearAll() {
-        for (const [wordKey, pending] of this.pendingWords) {
+        for (const [, pending] of this.pendingWords) {
             clearTimeout(pending.timerId);
             this.animator.clearWordPendingAnimation(pending.wordData.positions);
         }
