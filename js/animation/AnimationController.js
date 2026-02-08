@@ -152,7 +152,9 @@ export class AnimationController {
         
         // Add to actual made words list
         if (onComplete) {
-            onComplete();
+            Promise.resolve(onComplete()).catch(error => {
+                console.error('onComplete callback failed:', error);
+            });
         }
     }
 
@@ -207,9 +209,11 @@ export class AnimationController {
                 targetSquare.textContent = letter;
                 targetSquare.classList.add('filled');
                 
-                // Call completion callback
+                // Call completion callback with error handling
                 if (onComplete) {
-                    onComplete();
+                    Promise.resolve(onComplete()).catch(error => {
+                        console.error('onComplete callback failed:', error);
+                    });
                 }
             } finally {
                 // Always clean up overlay from DOM
