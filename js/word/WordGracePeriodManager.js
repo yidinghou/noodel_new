@@ -233,13 +233,15 @@ export class WordGracePeriodManager {
             }
         }
         
-        // Remove replaced pending words
-        replacedKeys.forEach(key => this.removePendingWord(key));
         
         // Add the new extending word with fresh timer
         const oldCallback = replacedKeys.length > 0 
             ? this.pendingWords.get(replacedKeys[0])?.onExpired 
             : null;
+
+        // Remove replaced pending words
+        replacedKeys.forEach(key => this.removePendingWord(key));
+
         this.addPendingWord(newWordData, oldCallback);
     }
 
