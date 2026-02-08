@@ -1,3 +1,4 @@
+import { jest } from '@jest/globals';
 import { WordGracePeriodManager } from '../js/word/WordGracePeriodManager.js';
 
 /**
