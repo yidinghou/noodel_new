@@ -26,7 +26,7 @@ export const ATOMIC_ANIMATIONS = {
         onBefore: (ctx) => {
             ctx.addWordCallback = () => {
                 if (ctx.noodelItem) {
-                    ctx.score.addWord(ctx.noodelItem);
+                    ctx.score.addWord(ctx.noodelItem, false);  // Don't add to score
                 }
             };
         },
@@ -55,7 +55,7 @@ export const ATOMIC_ANIMATIONS = {
                 ctx.noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
             }
         },
-        args: (ctx) => [ctx.noodelItem]
+        args: (ctx) => [ctx.noodelItem, false]  // Don't add to score on reset
     },
     
     /**
