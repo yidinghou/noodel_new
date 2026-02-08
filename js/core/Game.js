@@ -848,6 +848,10 @@ export class Game {
         this.wordExpirationQueue = this.wordExpirationQueue.then(async () => {
             console.log(`Word grace period expired: ${wordData.word}`);
             
+            // Pause word detection during clearing to prevent new words from being
+            // detected using cells that are mid-animation/about to be removed
+            this.wordDetectionEnabled = false;
+            
             // Add word to display now that it's confirmed final
             const points = calculateWordScore(wordData.word);
             const wordItem = new WordItem(wordData.word, wordData.definition, points);
@@ -898,6 +902,7 @@ export class Game {
                 
                 // Handle Clear Mode complete
                 await this.handleClearModeComplete();
+                this.wordDetectionEnabled = true;
                 return;
             }
             
@@ -908,6 +913,9 @@ export class Game {
             
             // Short delay before checking for new words (cascade effect after gravity)
             await new Promise(resolve => setTimeout(resolve, 300));
+            
+            // Re-enable word detection now that cells are settled
+            this.wordDetectionEnabled = true;
             
             // Recursively check for new words from cascading (gravity creates new words)
             await this.checkAndProcessWords(true);  // addScore=true for cascaded words
