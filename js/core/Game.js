@@ -354,7 +354,7 @@ export class Game {
         // Reset all controller displays (this updates the DOM)
         this.score.displayReset();
         this.grid.displayReset();
-        this.letters.displayReset();
+        // Note: letters will be initialized and displayed by gameStart sequence
         
         // Shake NOODEL title to indicate new state
         // (preview letters will be animated as part of gameStart sequence)
