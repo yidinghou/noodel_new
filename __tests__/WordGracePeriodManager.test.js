@@ -131,6 +131,11 @@ describe('WordGracePeriodManager', () => {
   // Test Group 4: resetGracePeriod
   describe('resetGracePeriod', () => {
     test('should reset timer for existing pending word', () => {
+      const globalCallback = jest.fn((wordData, wordKey, onExpired) => {
+        if (onExpired) onExpired();
+      });
+      manager.setOnWordExpired(globalCallback);
+
       const wordData = createWordData();
       const onExpired = jest.fn();
 
@@ -164,9 +169,8 @@ describe('WordGracePeriodManager', () => {
       }).not.toThrow();
     });
 
-    test('should handle missing onWordExpired callback', () => {
+    test('should handle missing onWordExpired callback gracefully', () => {
       const wordData = createWordData();
-      manager.setOnWordExpired(jest.fn()); // Set global callback so timer can fire
       manager.addPendingWord(wordData, jest.fn());
 
       expect(() => {
