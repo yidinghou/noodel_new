@@ -844,6 +844,12 @@ export class Game {
     async handleWordExpired(wordData, wordKey, origCallback) {
         // Chain this expiration to the queue to serialize grid mutations
         this.wordExpirationQueue = this.wordExpirationQueue.then(async () => {
+            // Staleness guard: skip if word was already cleared (reset may have happened)
+            if (!this.gracePeriodManager.pendingWords.has(wordKey)) {
+                console.log(`Word already cleared: ${wordKey}`);
+                return;
+            }
+            
             console.log(`Word grace period expired: ${wordData.word}`);
             
             // Pause word detection during clearing to prevent new words from being
