@@ -84,7 +84,8 @@ export class Game {
         this.isProcessingWords = false;
         this.wordCheckPending = false;
         
-        // Flag to control word detection globally (can be paused for sequences)
+        // Queue for serializing word expiration handling (prevents interleaved grid mutations)
+        this.wordExpirationQueue = Promise.resolve();
         this.wordDetectionEnabled = true;
         
         // Flag to prevent re-entrance in START sequence (prevents multiple animations queueing)
@@ -840,73 +841,79 @@ export class Game {
     /**
      * Handle word expiration after grace period
      * Called when a pending word's 1-second timer expires
+     * Serialized through wordExpirationQueue to prevent concurrent grid mutations
      */
     async handleWordExpired(wordData, wordKey, origCallback) {
-        console.log(`Word grace period expired: ${wordData.word}`);
-        
-        // Add word to display now that it's confirmed final
-        const points = calculateWordScore(wordData.word);
-        const wordItem = new WordItem(wordData.word, wordData.definition, points);
-        const willAddToScore = this.state.scoringEnabled;
-        this.score.addWord(wordItem, willAddToScore);
-        
-        // First, clear the pending animation (remove word-pending class)
-        this.animator.clearWordPendingAnimation(wordData.positions);
-        
-        // Animate word shake
-        const shouldAnimate = this.features.isEnabled('animations.wordHighlight');
-        if (shouldAnimate) {
-            await this.animator.highlightAndShakeWord(wordData.positions);
-        }
-        
-        // Clear word cells from grid
-        this.animator.clearWordCells(wordData.positions);
-        
-        // Track cleared cells for Clear Mode
-        if (this.state.isClearMode) {
-            this.state.cellsClearedCount += wordData.positions.length;
-        }
-        
-        // Remove from pending (this will also try to clear animation but it's already cleared)
-        this.gracePeriodManager.removePendingWord(wordKey);
-        
-        // Wait a bit before applying gravity (if animation was shown)
-        if (shouldAnimate) {
-            const root = getComputedStyle(document.documentElement);
-            const wordClearDelay = parseFloat(root.getPropertyValue('--animation-delay-word-clear').trim());
-            await new Promise(resolve => 
-                setTimeout(resolve, wordClearDelay)
-            );
-        }
-        
-        // Apply gravity to drop letters down (creates new game state) - if enabled
-        if (this.features.isEnabled('gravityPhysics')) {
-            this.grid.applyGravity();
-        } else {
-            // Even without gravity, update column fill counts based on actual grid state
-            this.grid.updateColumnFillCounts();
-        }
-        
-        // Check if Clear Mode is complete
-        if (this.state.isClearMode && this.state.cellsClearedCount >= this.state.targetCellsToClear) {
-            // Update progress display before showing victory
-            this.updateClearModeProgress();
+        // Chain this expiration to the queue to serialize grid mutations
+        this.wordExpirationQueue = this.wordExpirationQueue.then(async () => {
+            console.log(`Word grace period expired: ${wordData.word}`);
             
-            // Handle Clear Mode complete
-            await this.handleClearModeComplete();
-            return;
-        }
+            // Add word to display now that it's confirmed final
+            const points = calculateWordScore(wordData.word);
+            const wordItem = new WordItem(wordData.word, wordData.definition, points);
+            const willAddToScore = this.state.scoringEnabled;
+            this.score.addWord(wordItem, willAddToScore);
+            
+            // First, clear the pending animation (remove word-pending class)
+            this.animator.clearWordPendingAnimation(wordData.positions);
+            
+            // Animate word shake
+            const shouldAnimate = this.features.isEnabled('animations.wordHighlight');
+            if (shouldAnimate) {
+                await this.animator.highlightAndShakeWord(wordData.positions);
+            }
+            
+            // Clear word cells from grid
+            this.animator.clearWordCells(wordData.positions);
+            
+            // Track cleared cells for Clear Mode
+            if (this.state.isClearMode) {
+                this.state.cellsClearedCount += wordData.positions.length;
+            }
+            
+            // Remove from pending (this will also try to clear animation but it's already cleared)
+            this.gracePeriodManager.removePendingWord(wordKey);
+            
+            // Wait a bit before applying gravity (if animation was shown)
+            if (shouldAnimate) {
+                const root = getComputedStyle(document.documentElement);
+                const wordClearDelay = parseFloat(root.getPropertyValue('--animation-delay-word-clear').trim());
+                await new Promise(resolve => 
+                    setTimeout(resolve, wordClearDelay)
+                );
+            }
+            
+            // Apply gravity to drop letters down (creates new game state) - if enabled
+            if (this.features.isEnabled('gravityPhysics')) {
+                this.grid.applyGravity();
+            } else {
+                // Even without gravity, update column fill counts based on actual grid state
+                this.grid.updateColumnFillCounts();
+            }
+            
+            // Check if Clear Mode is complete
+            if (this.state.isClearMode && this.state.cellsClearedCount >= this.state.targetCellsToClear) {
+                // Update progress display before showing victory
+                this.updateClearModeProgress();
+                
+                // Handle Clear Mode complete
+                await this.handleClearModeComplete();
+                return;
+            }
+            
+            // Update progress display for Clear Mode
+            if (this.state.isClearMode) {
+                this.updateClearModeProgress();
+            }
+            
+            // Short delay before checking for new words (cascade effect after gravity)
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            // Recursively check for new words from cascading (gravity creates new words)
+            await this.checkAndProcessWords(true);  // addScore=true for cascaded words
+        });
         
-        // Update progress display for Clear Mode
-        if (this.state.isClearMode) {
-            this.updateClearModeProgress();
-        }
-        
-        // Short delay before checking for new words (cascade effect after gravity)
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        // Recursively check for new words from cascading (gravity creates new words)
-        await this.checkAndProcessWords(true);  // addScore=true for cascaded words
+        return this.wordExpirationQueue;
     }
 
     // Start timer to pulsate grid if user doesn't click within 5 seconds
