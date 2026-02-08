@@ -356,11 +356,9 @@ export class Game {
         this.grid.displayReset();
         this.letters.displayReset();
         
-        // Shake NOODEL title and preview letters to indicate new state
-        await Promise.all([
-            this.animator.shakeAllTitleLetters(),
-            this.animator.shakePreviewLetters()
-        ]);
+        // Shake NOODEL title to indicate new state
+        // (preview letters will be animated as part of gameStart sequence)
+        await this.animator.shakeAllTitleLetters();
         
         // Update button to show reset icon
         this.dom.startBtn.textContent = '🔄';
