@@ -591,6 +591,12 @@ export class Game {
         
         const nextLetter = this.letters.getNextLetter();
         
+        // Early guard: validate letter exists before any state mutations
+        if (!nextLetter) {
+            console.log('No more letters available - game over');
+            return;  // Game over - don't mutate state
+        }
+        
         // Calculate target row FIRST based on current fills + pending (letters already in flight)
         const targetRow = this.state.getLowestAvailableRowWithPending(column);
         
