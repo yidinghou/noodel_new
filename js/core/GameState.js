@@ -29,6 +29,7 @@ export class GameState {
         
         // Grid state
         this.columnFillCounts = Array(CONFIG.GRID.COLUMNS).fill(0);
+        this.pendingColumnCounts = Array(CONFIG.GRID.COLUMNS).fill(0);  // Tracks in-flight tiles
         
         // Clear Mode specific state
         if (this.isClearMode) {
@@ -116,6 +117,7 @@ export class GameState {
         
         // Grid state
         this.columnFillCounts = Array(CONFIG.GRID.COLUMNS).fill(0);
+        this.pendingColumnCounts = Array(CONFIG.GRID.COLUMNS).fill(0);
         
         // Clear Mode specific state
         if (this.isClearMode) {
@@ -126,15 +128,31 @@ export class GameState {
     }
 
     isColumnFull(column) {
-        return this.columnFillCounts[column] >= CONFIG.GRID.ROWS;
+        const totalFill = this.columnFillCounts[column] + this.pendingColumnCounts[column];
+        return totalFill >= CONFIG.GRID.ROWS;
     }
 
     getLowestAvailableRow(column) {
         return CONFIG.GRID.ROWS - 1 - this.columnFillCounts[column];
     }
 
+    getLowestAvailableRowWithPending(column) {
+        const totalFill = this.columnFillCounts[column] + this.pendingColumnCounts[column];
+        return CONFIG.GRID.ROWS - 1 - totalFill;
+    }
+
     incrementColumnFill(column) {
         this.columnFillCounts[column]++;
+    }
+
+    incrementPendingFill(column) {
+        this.pendingColumnCounts[column]++;
+    }
+
+    decrementPendingFill(column) {
+        if (this.pendingColumnCounts[column] > 0) {
+            this.pendingColumnCounts[column]--;
+        }
     }
 
     decrementLettersRemaining() {

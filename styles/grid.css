@@ -178,6 +178,32 @@
     animation: shake var(--animation-duration-word-found) ease-in-out forwards;
 }
 
+/* Word Pending - Grace Period Animation */
+.grid-square.word-pending {
+    color: var(--color-text-white);
+    border-color: var(--color-green);
+    background: linear-gradient(
+        to right,
+        var(--color-green) 0%,
+        var(--color-green) 50%,
+        var(--color-text-muted) 50%,
+        var(--color-text-muted) 100%
+    );
+    background-size: 200% 100%;
+    background-position: 100% 0;
+    animation: fillGreen var(--animation-duration-word-grace) linear forwards;
+}
+
+/* Grace Period Fill Animation - slowly turns green from left to right */
+@keyframes fillGreen {
+    0% {
+        background-position: 100% 0;
+    }
+    100% {
+        background-position: 0% 0;
+    }
+}
+
 /* Grid pulsate animation for user guidance */
 @keyframes gridPulsate {
     0% {

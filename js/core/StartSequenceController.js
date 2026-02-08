@@ -86,8 +86,9 @@ export class StartSequenceController {
         this.game.resumeWordDetection();
 
         // Process the completion word using configured settings (unless skipped)
+        // Use immediate processing (no grace period) for START sequence
         if (!skipWordProcessing && this.game.features.isEnabled('wordDetection')) {
-            await this.game.checkAndProcessWords(this.config.ADD_TO_SCORE);
+            await this.game.checkAndProcessWords(this.config.ADD_TO_SCORE, false);
         }
 
         // Trigger game start if configured

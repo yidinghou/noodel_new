@@ -109,6 +109,7 @@ export class GridController {
 
     // Update column fill counts based on actual grid state
     updateColumnFillCounts() {
+        const oldCounts = [...this.gameState.columnFillCounts];
         for (let col = 0; col < CONFIG.GRID.COLUMNS; col++) {
             let count = 0;
             for (let row = CONFIG.GRID.ROWS - 1; row >= 0; row--) {
@@ -130,7 +131,6 @@ export class GridController {
             return;
         }
 
-        console.log('🔧 Loading debug grid pattern...');
 
         // Iterate through the debug grid pattern
         for (let row = 0; row < CONFIG.GRID.ROWS; row++) {

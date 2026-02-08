@@ -15,7 +15,8 @@ export const CONFIG = {
     GAME: {
         INITIAL_LETTERS: 100,
         PREVIEW_COUNT: 5,
-        CLEAR_MODE_CELL_PERCENTAGE: 0.5  // 50% of grid populated in Clear Mode
+        CLEAR_MODE_CELL_PERCENTAGE: 0.5,  // 50% of grid populated in Clear Mode
+        WORD_GRACE_PERIOD_MS: 1000        // Grace period for word clearing (milliseconds)
         // Note: Alphabet is now generated dynamically using LetterGenerator
         // based on English letter frequency distribution
     },
