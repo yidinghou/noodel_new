@@ -425,7 +425,7 @@ describe('WordGracePeriodManager', () => {
       expect(globalCallback).toHaveBeenCalledWith(
         wordData,
         manager.generateWordKey(wordData),
-        undefined
+        null  // Default value for onExpired param
       );
     });
   });
