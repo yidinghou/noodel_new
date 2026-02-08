@@ -749,17 +749,6 @@ export class Game {
                 this.gracePeriodManager.addPendingWord(wordData);
             }
             
-            // Add word to display immediately even though it's pending
-            const points = calculateWordScore(wordData.word);
-            const wordItem = new WordItem(wordData.word, wordData.definition, points);
-            
-            const willDisplay = addScore;
-            const willAddToScore = addScore && this.state.scoringEnabled;
-            
-            if (willDisplay) {
-                this.score.addWord(wordItem, willAddToScore);
-            }
-            
             // If word is "START" and tutorial is active, mark tutorial as completed
             if (wordData.word === 'START' && this.tutorialUIState === TutorialUIState.ACTIVE) {
                 console.log('START word found - completing tutorial');
@@ -838,6 +827,12 @@ export class Game {
      */
     async handleWordExpired(wordData, wordKey, origCallback) {
         console.log(`Word grace period expired: ${wordData.word}`);
+        
+        // Add word to display now that it's confirmed final
+        const points = calculateWordScore(wordData.word);
+        const wordItem = new WordItem(wordData.word, wordData.definition, points);
+        const willAddToScore = this.state.scoringEnabled;
+        this.score.addWord(wordItem, willAddToScore);
         
         // First, clear the pending animation (remove word-pending class)
         this.animator.clearWordPendingAnimation(wordData.positions);
