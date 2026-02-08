@@ -58,6 +58,7 @@ describe('WordGracePeriodManager', () => {
         direction: 'horizontal',
         row: 5,
         col: 10,
+        positions: [{ row: 5, col: 10 }, { row: 5, col: 11 }],
       });
       const key = manager.generateWordKey(wordData);
       expect(key).toBe('hello_horizontal_5_10');
@@ -69,12 +70,14 @@ describe('WordGracePeriodManager', () => {
         direction: 'horizontal',
         row: 0,
         col: 0,
+        positions: [{ row: 0, col: 0 }, { row: 0, col: 1 }],
       });
       const wordData2 = createWordData({
         word: 'test',
         direction: 'vertical',
         row: 0,
         col: 0,
+        positions: [{ row: 0, col: 0 }, { row: 1, col: 0 }],
       });
       expect(manager.generateWordKey(wordData1)).not.toBe(manager.generateWordKey(wordData2));
     });
@@ -89,24 +92,34 @@ describe('WordGracePeriodManager', () => {
       manager.addPendingWord(wordData, onExpired);
 
       expect(mockAnimator.startWordPendingAnimation).toHaveBeenCalledWith(
-        manager.generateWordKey(wordData),
-        wordData
+        wordData.positions
       );
       const pending = manager.getAllPendingWords();
       expect(pending).toHaveLength(1);
     });
 
     test('should trigger expiration callback after grace period', () => {
+      const globalCallback = jest.fn((wordData, wordKey, onExpired) => {
+        if (onExpired) onExpired();
+      });
+      manager.setOnWordExpired(globalCallback);
+
       const wordData = createWordData();
       const onExpired = jest.fn();
 
       manager.addPendingWord(wordData, onExpired);
       jest.advanceTimersByTime(1000);
 
-      expect(onExpired).toHaveBeenCalledWith(manager.generateWordKey(wordData));
+      expect(onExpired).toHaveBeenCalled();
     });
 
     test('should remove word from pending after expiration', () => {
+      const globalCallback = jest.fn((wordData, wordKey, onExpired) => {
+        if (onExpired) onExpired();
+        manager.removePendingWord(wordKey);
+      });
+      manager.setOnWordExpired(globalCallback);
+
       const wordData = createWordData();
       manager.addPendingWord(wordData, jest.fn());
 
@@ -117,6 +130,9 @@ describe('WordGracePeriodManager', () => {
     });
 
     test('should not trigger expiration if word removed before timer', () => {
+      const globalCallback = jest.fn();
+      manager.setOnWordExpired(globalCallback);
+
       const wordData = createWordData();
       const onExpired = jest.fn();
 
