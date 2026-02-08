@@ -322,7 +322,7 @@ describe('WordGracePeriodManager', () => {
   });
 
   // Test Group 7: removeWord
-  describe('removeWord', () => {
+  describe('removePendingWord', () => {
     test('should remove pending word by key', () => {
       const wordData = createWordData();
       manager.addPendingWord(wordData, jest.fn());
@@ -394,7 +394,7 @@ describe('WordGracePeriodManager', () => {
       expect(result).toHaveLength(2);
     });
 
-    test('should include expired words until explicitly removed', () => {
+test('should remove word from pending list when grace period expires', () => {
       const globalCallback = jest.fn((wordData, wordKey, onExpired) => {
         manager.removePendingWord(wordKey);
       });
