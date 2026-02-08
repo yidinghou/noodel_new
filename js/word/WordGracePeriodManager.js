@@ -99,7 +99,12 @@ export class WordGracePeriodManager {
         
         // Create new timer
         const timerId = setTimeout(() => {
-            this.onWordExpired(pending.wordData, wordKey, pending.onExpired);
+            console.log(`Grace period timer fired for word: ${pending.wordData.word}`);
+            if (this.onWordExpired) {
+                this.onWordExpired(pending.wordData, wordKey, pending.onExpired);
+            } else {
+                console.error('onWordExpired callback not set!');
+            }
         }, this.gracePeriodMs);
         
         // Update entry
