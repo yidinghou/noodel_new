@@ -378,5 +378,181 @@ describe('WordGracePeriodManager', () => {
       expect(result).toHaveLength(0);
     });
   });
+
+  // Test Group 10: setOnWordExpired
+  describe('setOnWordExpired', () => {
+    test('should set global expiration callback', () => {
+      const globalCallback = jest.fn();
+      manager.setOnWordExpired(globalCallback);
+
+      const wordData = createWordData();
+      manager.addPendingWord(wordData, jest.fn());
+
+      jest.advanceTimersByTime(1000);
+
+      expect(globalCallback).toHaveBeenCalledWith(manager.generateWordKey(wordData));
+    });
+
+    test('should use per-word callback over global callback', () => {
+      const globalCallback = jest.fn();
+      const wordCallback = jest.fn();
+      manager.setOnWordExpired(globalCallback);
+
+      const wordData = createWordData();
+      manager.addPendingWord(wordData, wordCallback);
+
+      jest.advanceTimersByTime(1000);
+
+      expect(wordCallback).toHaveBeenCalled();
+      expect(globalCallback).not.toHaveBeenCalled();
+    });
+
+    test('should use global callback when no word-specific callback', () => {
+      const globalCallback = jest.fn();
+      manager.setOnWordExpired(globalCallback);
+
+      const wordData = createWordData();
+      manager.addPendingWord(wordData, undefined);
+
+      jest.advanceTimersByTime(1000);
+
+      expect(globalCallback).toHaveBeenCalledWith(manager.generateWordKey(wordData));
+    });
+  });
+
+  // Test Group 11: handleWordExtension
+  describe('handleWordExtension', () => {
+    test('should remove intersecting words on extension', () => {
+      const originalWord = createWordData({
+        word: 'cat',
+        direction: 'horizontal',
+        row: 0,
+        col: 0,
+        positions: [{ row: 0, col: 0 }, { row: 0, col: 1 }, { row: 0, col: 2 }],
+      });
+      manager.addPendingWord(originalWord, jest.fn());
+
+      const extendedWord = createWordData({
+        word: 'cats',
+        direction: 'horizontal',
+        row: 0,
+        col: 0,
+        positions: [
+          { row: 0, col: 0 },
+          { row: 0, col: 1 },
+          { row: 0, col: 2 },
+          { row: 0, col: 3 },
+        ],
+      });
+
+      const intersectingKeys = [manager.generateWordKey(originalWord)];
+      manager.handleWordExtension(extendedWord, intersectingKeys);
+
+      const pending = manager.getAllPendingWords();
+      expect(pending.length).toBeLessThan(2);
+    });
+
+    test('should add new extended word with callback', () => {
+      const originalWord = createWordData({
+        word: 'cat',
+        direction: 'horizontal',
+        positions: [{ row: 0, col: 0 }, { row: 0, col: 1 }, { row: 0, col: 2 }],
+      });
+      const originalCallback = jest.fn();
+      manager.addPendingWord(originalWord, originalCallback);
+
+      const extendedWord = createWordData({
+        word: 'cats',
+        direction: 'horizontal',
+        positions: [
+          { row: 0, col: 0 },
+          { row: 0, col: 1 },
+          { row: 0, col: 2 },
+          { row: 0, col: 3 },
+        ],
+      });
+
+      const intersectingKeys = [manager.generateWordKey(originalWord)];
+      manager.handleWordExtension(extendedWord, intersectingKeys);
+
+      const pending = manager.getAllPendingWords();
+      expect(pending.some(w => w.word === 'cats')).toBe(true);
+    });
+
+    test('should preserve original callback on extension with same direction', () => {
+      const originalWord = createWordData({
+        word: 'cat',
+        direction: 'horizontal',
+        row: 0,
+        col: 0,
+        positions: [{ row: 0, col: 0 }, { row: 0, col: 1 }, { row: 0, col: 2 }],
+      });
+      const originalCallback = jest.fn();
+      manager.addPendingWord(originalWord, originalCallback);
+
+      const extendedWord = createWordData({
+        word: 'cats',
+        direction: 'horizontal',
+        row: 0,
+        col: 0,
+        positions: [
+          { row: 0, col: 0 },
+          { row: 0, col: 1 },
+          { row: 0, col: 2 },
+          { row: 0, col: 3 },
+        ],
+      });
+
+      const intersectingKeys = [manager.generateWordKey(originalWord)];
+      manager.handleWordExtension(extendedWord, intersectingKeys);
+
+      jest.advanceTimersByTime(1000);
+
+      expect(originalCallback).toHaveBeenCalled();
+    });
+
+    test('should handle extension with no intersecting words', () => {
+      const extendedWord = createWordData({
+        word: 'cats',
+        direction: 'horizontal',
+        positions: [
+          { row: 0, col: 0 },
+          { row: 0, col: 1 },
+          { row: 0, col: 2 },
+          { row: 0, col: 3 },
+        ],
+      });
+
+      const newCallback = jest.fn();
+      expect(() => {
+        manager.handleWordExtension(extendedWord, []);
+      }).not.toThrow();
+    });
+
+    test('should call animation start on extension', () => {
+      const originalWord = createWordData({
+        word: 'cat',
+        direction: 'horizontal',
+        positions: [{ row: 0, col: 0 }, { row: 0, col: 1 }, { row: 0, col: 2 }],
+      });
+      manager.addPendingWord(originalWord, jest.fn());
+
+      const extendedWord = createWordData({
+        word: 'cats',
+        direction: 'horizontal',
+        positions: [
+          { row: 0, col: 0 },
+          { row: 0, col: 1 },
+          { row: 0, col: 2 },
+          { row: 0, col: 3 },
+        ],
+      });
+
+      manager.handleWordExtension(extendedWord, [manager.generateWordKey(originalWord)]);
+
+      expect(mockAnimator.startWordPendingAnimation).toHaveBeenCalled();
+    });
+  });
 });
+
 
