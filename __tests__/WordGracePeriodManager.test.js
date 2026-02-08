@@ -30,7 +30,7 @@ describe('WordGracePeriodManager', () => {
   beforeEach(() => {
     jest.useFakeTimers();
     mockAnimator = createMockAnimator();
-    manager = new WordGracePeriodManager(mockAnimator, 1000);
+    manager = new WordGracePeriodManager(mockAnimator, { gracePeriodMs: 1000 });
   });
 
   afterEach(() => {
