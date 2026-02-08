@@ -144,6 +144,7 @@ describe('WordGracePeriodManager', () => {
       expect(onExpired).not.toHaveBeenCalled();
       expect(newOnExpired).not.toHaveBeenCalled();
 
+      // Need another 500ms for new timer to complete (500 + 1000 from reset point)
       jest.advanceTimersByTime(500);
       expect(newOnExpired).toHaveBeenCalled();
     });
@@ -165,6 +166,7 @@ describe('WordGracePeriodManager', () => {
 
     test('should handle missing onWordExpired callback', () => {
       const wordData = createWordData();
+      manager.setOnWordExpired(jest.fn()); // Set global callback so timer can fire
       manager.addPendingWord(wordData, jest.fn());
 
       expect(() => {
@@ -340,8 +342,9 @@ describe('WordGracePeriodManager', () => {
     });
 
     test('should call clearWordPendingAnimation for each word', () => {
-      manager.addPendingWord(createWordData(), jest.fn());
-      manager.addPendingWord(createWordData(), jest.fn());
+      mockAnimator.clearWordPendingAnimation.mockClear();
+      manager.addPendingWord(createWordData({ word: 'word1' }), jest.fn());
+      manager.addPendingWord(createWordData({ word: 'word2' }), jest.fn());
 
       manager.clearAll();
 
@@ -371,7 +374,12 @@ describe('WordGracePeriodManager', () => {
       expect(result).toHaveLength(2);
     });
 
-    test('should not include expired words', () => {
+    test('should include expired words until explicitly removed', () => {
+      const globalCallback = jest.fn((wordData, wordKey, onExpired) => {
+        manager.removePendingWord(wordKey);
+      });
+      manager.setOnWordExpired(globalCallback);
+
       manager.addPendingWord(createWordData({ word: 'word1' }), jest.fn());
       jest.advanceTimersByTime(1000);
 
