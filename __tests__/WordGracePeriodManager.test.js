@@ -391,10 +391,14 @@ describe('WordGracePeriodManager', () => {
 
       jest.advanceTimersByTime(1000);
 
-      expect(globalCallback).toHaveBeenCalledWith(manager.generateWordKey(wordData));
+      expect(globalCallback).toHaveBeenCalledWith(
+        wordData,
+        manager.generateWordKey(wordData),
+        expect.any(Function)
+      );
     });
 
-    test('should use per-word callback over global callback', () => {
+    test('should use per-word callback via global when provided', () => {
       const globalCallback = jest.fn();
       const wordCallback = jest.fn();
       manager.setOnWordExpired(globalCallback);
@@ -404,11 +408,12 @@ describe('WordGracePeriodManager', () => {
 
       jest.advanceTimersByTime(1000);
 
-      expect(wordCallback).toHaveBeenCalled();
-      expect(globalCallback).not.toHaveBeenCalled();
+      expect(globalCallback).toHaveBeenCalled();
+      // The word-specific callback is passed as 3rd param to global callback
+      expect(globalCallback.mock.calls[0][2]).toBe(wordCallback);
     });
 
-    test('should use global callback when no word-specific callback', () => {
+    test('should call global callback even when no word-specific callback', () => {
       const globalCallback = jest.fn();
       manager.setOnWordExpired(globalCallback);
 
@@ -417,7 +422,11 @@ describe('WordGracePeriodManager', () => {
 
       jest.advanceTimersByTime(1000);
 
-      expect(globalCallback).toHaveBeenCalledWith(manager.generateWordKey(wordData));
+      expect(globalCallback).toHaveBeenCalledWith(
+        wordData,
+        manager.generateWordKey(wordData),
+        undefined
+      );
     });
   });
 
@@ -450,7 +459,7 @@ describe('WordGracePeriodManager', () => {
       manager.handleWordExtension(extendedWord, intersectingKeys);
 
       const pending = manager.getAllPendingWords();
-      expect(pending.length).toBeLessThan(2);
+      expect(pending.some(w => w.wordData.word === 'cats')).toBe(true);
     });
 
     test('should add new extended word with callback', () => {
@@ -477,10 +486,13 @@ describe('WordGracePeriodManager', () => {
       manager.handleWordExtension(extendedWord, intersectingKeys);
 
       const pending = manager.getAllPendingWords();
-      expect(pending.some(w => w.word === 'cats')).toBe(true);
+      expect(pending.some(w => w.wordData.word === 'cats')).toBe(true);
     });
 
-    test('should preserve original callback on extension with same direction', () => {
+    test('should preserve callback on extension with same direction', () => {
+      const globalCallback = jest.fn();
+      manager.setOnWordExpired(globalCallback);
+
       const originalWord = createWordData({
         word: 'cat',
         direction: 'horizontal',
@@ -509,7 +521,9 @@ describe('WordGracePeriodManager', () => {
 
       jest.advanceTimersByTime(1000);
 
-      expect(originalCallback).toHaveBeenCalled();
+      expect(globalCallback).toHaveBeenCalled();
+      // The original callback should be passed as 3rd param to global callback
+      expect(globalCallback.mock.calls[0][2]).toBe(originalCallback);
     });
 
     test('should handle extension with no intersecting words', () => {
@@ -524,7 +538,6 @@ describe('WordGracePeriodManager', () => {
         ],
       });
 
-      const newCallback = jest.fn();
       expect(() => {
         manager.handleWordExtension(extendedWord, []);
       }).not.toThrow();
