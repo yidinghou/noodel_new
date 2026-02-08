@@ -82,6 +82,7 @@ export class Game {
         
         // Flag to prevent multiple simultaneous word checks
         this.isProcessingWords = false;
+        this.wordCheckPending = false;
         
         // Flag to control word detection globally (can be paused for sequences)
         this.wordDetectionEnabled = true;
@@ -679,22 +680,29 @@ export class Game {
     async checkAndProcessWords(addScore = true, useGracePeriod = true) {
         // Skip if word detection is paused (e.g., during sequences)
         if (!this.wordDetectionEnabled) {
-            console.log('Word detection is paused');
             return;
         }
         
-        // Find all words on current grid state
-        const foundWords = this.wordResolver.checkForWords();
-        
-        if (foundWords.length === 0) {
-            return;  // No words found
-        }
-        
-        // If not using grace period, process words immediately (old behavior)
-        if (!useGracePeriod) {
-            await this.processWordsImmediately(foundWords, addScore);
+        // Re-entrancy guard: if already processing, flag for re-check after completion
+        if (this.isProcessingWords) {
+            this.wordCheckPending = true;
             return;
         }
+        
+        this.isProcessingWords = true;
+        try {
+            // Find all words on current grid state
+            const foundWords = this.wordResolver.checkForWords();
+            
+            if (foundWords.length === 0) {
+                return;  // No words found
+            }
+            
+            // If not using grace period, process words immediately (old behavior)
+            if (!useGracePeriod) {
+                await this.processWordsImmediately(foundWords, addScore);
+                return;
+            }
         
         // Process each found word through grace period system
         for (const wordData of foundWords) {
@@ -754,6 +762,14 @@ export class Game {
                 console.log('START word found - completing tutorial');
                 this.tutorialUIState = TutorialUIState.COMPLETED;
                 this.updateTutorialUI();
+            }
+        }
+        } finally {
+            this.isProcessingWords = false;
+            // If another call came in while we were processing, re-check with fresh grid state
+            if (this.wordCheckPending) {
+                this.wordCheckPending = false;
+                await this.checkAndProcessWords(addScore, useGracePeriod);
             }
         }
     }
