@@ -208,15 +208,6 @@ export class Game {
             this.dom.skipTutorialBtn.style.display = isActive ? 'block' : 'none';
         }
         
-        // Toggle letters remaining visibility based on tutorial state
-        if (this.dom.lettersRemainingContainer) {
-            if (isActive) {
-                this.dom.lettersRemainingContainer.classList.remove('visible');
-            } else {
-                this.dom.lettersRemainingContainer.classList.add('visible');
-            }
-        }
-        
         if (this.features.isEnabled('debug.enabled')) {
             console.log(`Tutorial UI state: ${this.tutorialUIState}`);
         }
@@ -342,6 +333,11 @@ export class Game {
     }
 
     async reset() {
+        // Show letters-remaining counter at game start/reset (independent of tutorial state)
+        if (this.dom.lettersRemainingContainer) {
+            this.dom.lettersRemainingContainer.classList.add('visible');
+        }
+        
         // Clear inactivity timer
         this.clearInactivityTimer();
         this.hasClickedGrid = true;
