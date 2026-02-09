@@ -20,7 +20,9 @@ export class ScoreController {
         this.dom.scoreValue.textContent = this.gameState.score;
         
         // Set initial letters remaining from config
-        this.dom.lettersRemaining.textContent = CONFIG.GAME.INITIAL_LETTERS;
+        if (this.dom.lettersRemainingValue) {
+            this.dom.lettersRemainingValue.textContent = CONFIG.GAME.INITIAL_LETTERS;
+        }
     }
 
     // Add word to the words list
@@ -59,7 +61,9 @@ export class ScoreController {
     // Update letters remaining counter
     updateLettersRemaining() {
         this.gameState.decrementLettersRemaining();
-        this.dom.lettersRemaining.textContent = this.gameState.lettersRemaining;
+        if (this.dom.lettersRemainingValue) {
+            this.dom.lettersRemainingValue.textContent = this.gameState.lettersRemaining;
+        }
         
         if (this.gameState.isGameOver()) {
             // Game over logic
@@ -79,6 +83,8 @@ export class ScoreController {
         this.dom.scoreValue.textContent = this.gameState.score;
         
         // Update letters remaining display from config
-        this.dom.lettersRemaining.textContent = this.gameState.lettersRemaining;
+        if (this.dom.lettersRemainingValue) {
+            this.dom.lettersRemainingValue.textContent = this.gameState.lettersRemaining;
+        }
     }
 }

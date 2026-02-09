@@ -207,6 +207,7 @@ export class Game {
         if (this.dom.skipTutorialBtn) {
             this.dom.skipTutorialBtn.style.display = isActive ? 'block' : 'none';
         }
+        
         if (this.features.isEnabled('debug.enabled')) {
             console.log(`Tutorial UI state: ${this.tutorialUIState}`);
         }
@@ -300,14 +301,12 @@ export class Game {
      * Update UI elements for Clear Mode display
      */
     updateUIForClearMode() {
-        // Update stats label
-        const labels = this.dom.stats.querySelectorAll('.stat-label');
-        labels.forEach(label => {
-            if (label.textContent.includes('Letters')) {
-                label.textContent = 'Grid Progress';
-                label.classList.add('clear-mode');
-            }
-        });
+        // Update letters remaining label to show grid progress
+        const label = this.dom.lettersRemainingContainer?.querySelector('.letters-remaining-label');
+        if (label) {
+            label.textContent = 'Grid Progress';
+            label.classList.add('clear-mode');
+        }
         
         // Update progress display
         this.updateClearModeProgress();
@@ -321,10 +320,9 @@ export class Game {
             const remainingCells = this.state.targetCellsToClear - this.state.cellsClearedCount;
             const progressPercent = Math.round(this.state.getClearModeProgress());
             
-            // Update progress display (e.g., "45/21" for remaining/total)
-            const lettersDisplay = this.dom.lettersRemaining;
-            if (lettersDisplay) {
-                lettersDisplay.textContent = `${remainingCells}/${this.state.targetCellsToClear}`;
+            // Update progress display (e.g., "45/100" for remaining/total)
+            if (this.dom.lettersRemainingValue) {
+                this.dom.lettersRemainingValue.textContent = `${remainingCells}/${this.state.targetCellsToClear}`;
             }
             
             // Update progress bar if available
@@ -335,6 +333,11 @@ export class Game {
     }
 
     async reset() {
+        // Show letters-remaining counter at game start/reset (independent of tutorial state)
+        if (this.dom.lettersRemainingContainer) {
+            this.dom.lettersRemainingContainer.classList.add('visible');
+        }
+        
         // Clear inactivity timer
         this.clearInactivityTimer();
         this.hasClickedGrid = true;

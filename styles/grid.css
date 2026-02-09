@@ -17,6 +17,13 @@
     position: relative;
 }
 
+/* Preview Row (contains preview tiles and letters remaining) */
+.preview-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 /* Next Letters Preview (Queue of upcoming letters) */
 .next-letters-preview {
     display: none;

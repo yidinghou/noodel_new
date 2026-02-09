@@ -28,10 +28,6 @@
                     <div class="stat-label">Score</div>
                     <div class="stat-value" id="scoreValue">0</div>
                 </div>
-                <div class="stat-group">
-                    <div class="stat-label">Letters Remaining</div>
-                    <div class="stat-value" id="lettersRemaining">100</div>
-                </div>
                 <div class="controls">
                     <button class="start-btn" id="startBtn">🎮</button>
                     <button class="mute-btn" id="muteBtn">🔊</button>
@@ -41,13 +37,20 @@
         
         <!-- Game Grid Section (Middle) -->
         <div class="game-grid-wrapper">
-            <div class="next-letters-preview" id="nextLettersPreview" style="display: flex; opacity: 0; visibility: hidden;">
-                <!-- Preview blocks (5 for letter preview or START menu) -->
-                <div class="block-base preview-letter-block" data-column="0"></div>
-                <div class="block-base preview-letter-block" data-column="1"></div>
-                <div class="block-base preview-letter-block" data-column="2"></div>
-                <div class="block-base preview-letter-block" data-column="3"></div>
-                <div class="block-base preview-letter-block" data-column="4"></div>
+            <div class="preview-row">
+                <div class="next-letters-preview" id="nextLettersPreview" style="display: flex; opacity: 0; visibility: hidden;">
+                    <!-- Preview blocks (5 for letter preview or START menu) -->
+                    <div class="block-base preview-letter-block" data-column="0"></div>
+                    <div class="block-base preview-letter-block" data-column="1"></div>
+                    <div class="block-base preview-letter-block" data-column="2"></div>
+                    <div class="block-base preview-letter-block" data-column="3"></div>
+                    <div class="block-base preview-letter-block" data-column="4"></div>
+                </div>
+                <!-- Letters remaining display (shown after game starts) -->
+                <div class="game-grid-letters-remaining" id="gameGridLettersRemaining">
+                    <div class="letters-remaining-label">Letters Remaining</div>
+                    <div class="letters-remaining-value">100</div>
+                </div>
             </div>
             <button class="skip-tutorial-btn" id="skipTutorialBtn" style="display: none;">Skip Tutorial</button>
             <div class="game-grid" id="gameGrid">
