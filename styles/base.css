@@ -310,10 +310,11 @@ body {
 /* Game Grid Letters Remaining Display */
 .game-grid-letters-remaining {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 4px 10px;
-    margin-left: 8px;
+    gap: 2px;
+    padding: 6px 10px;
     background: var(--color-bg-stats);
     border-radius: var(--size-border-radius-small);
     opacity: 0;
@@ -326,8 +327,13 @@ body {
     visibility: visible;
 }
 
-.letters-remaining-value {
-    font-size: clamp(14px, 2vw, 18px);
-    font-weight: bold;
-    color: var(--color-text-primary);
+.letters-remaining-label {
+    font-size: clamp(10px, 1.2vw, 12px);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
+
+.letters-remaining-value {
+    font-size: clamp(16px, 2.2vw, 20px);
