@@ -207,6 +207,12 @@ export class Game {
         if (this.dom.skipTutorialBtn) {
             this.dom.skipTutorialBtn.style.display = isActive ? 'block' : 'none';
         }
+        
+        // Show letters remaining when skip button is hidden
+        if (!isActive && this.dom.lettersRemainingContainer) {
+            this.dom.lettersRemainingContainer.classList.add('visible');
+        }
+        
         if (this.features.isEnabled('debug.enabled')) {
             console.log(`Tutorial UI state: ${this.tutorialUIState}`);
         }
@@ -642,11 +648,6 @@ export class Game {
         // Mark game as started
         this.state.started = true;
         this.dom.startBtn.textContent = '🔄';
-        
-        // Show letters remaining display on game grid
-        if (this.dom.lettersRemainingContainer) {
-            this.dom.lettersRemainingContainer.classList.add('visible');
-        }
         
         // Drop NOODEL overlay if it exists and await the animation
         const noodelOverlay = document.getElementById('noodel-word-overlay');
