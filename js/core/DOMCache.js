@@ -10,7 +10,8 @@ export class DOMCache {
         this.preview = document.getElementById('nextLettersPreview');
         this.wordsList = document.getElementById('wordsList');
         this.scoreValue = document.getElementById('scoreValue');
-        this.lettersRemaining = document.getElementById('lettersRemaining');
+        this.lettersRemainingContainer = document.getElementById('gameGridLettersRemaining');
+        this.lettersRemainingValue = this.lettersRemainingContainer?.querySelector('.letters-remaining-value');
         this.controls = document.querySelector('.controls');
         this.stats = document.querySelector('.stats');
         this.skipTutorialBtn = document.getElementById('skipTutorialBtn');

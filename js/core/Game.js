@@ -643,6 +643,11 @@ export class Game {
         this.state.started = true;
         this.dom.startBtn.textContent = '🔄';
         
+        // Show letters remaining display on game grid
+        if (this.dom.lettersRemainingContainer) {
+            this.dom.lettersRemainingContainer.classList.add('visible');
+        }
+        
         // Drop NOODEL overlay if it exists and await the animation
         const noodelOverlay = document.getElementById('noodel-word-overlay');
         if (noodelOverlay) {
