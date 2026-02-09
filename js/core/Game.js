@@ -208,9 +208,13 @@ export class Game {
             this.dom.skipTutorialBtn.style.display = isActive ? 'block' : 'none';
         }
         
-        // Show letters remaining when skip button is hidden
-        if (!isActive && this.dom.lettersRemainingContainer) {
-            this.dom.lettersRemainingContainer.classList.add('visible');
+        // Toggle letters remaining visibility based on tutorial state
+        if (this.dom.lettersRemainingContainer) {
+            if (isActive) {
+                this.dom.lettersRemainingContainer.classList.remove('visible');
+            } else {
+                this.dom.lettersRemainingContainer.classList.add('visible');
+            }
         }
         
         if (this.features.isEnabled('debug.enabled')) {
