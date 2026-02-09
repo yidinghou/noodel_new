@@ -160,6 +160,11 @@
     color: var(--color-text-primary);
 }
 
+/* Score display - larger now that it's the only stat */
+#scoreValue {
+    font-size: clamp(20px, 3vw, 28px);
+}
+
 /* Clear Mode label styling */
 .stat-label.clear-mode {
     color: #ff6b6b;
