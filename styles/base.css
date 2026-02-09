@@ -307,3 +307,27 @@ body {
     transform: scale(0.98);
 }
 
+/* Game Grid Letters Remaining Display */
+.game-grid-letters-remaining {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    margin-left: 8px;
+    background: var(--color-bg-stats);
+    border-radius: var(--size-border-radius-small);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-quick), visibility var(--transition-quick);
+}
+
+.game-grid-letters-remaining.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.letters-remaining-value {
+    font-size: clamp(14px, 2vw, 18px);
+    font-weight: bold;
+    color: var(--color-text-primary);
+}
