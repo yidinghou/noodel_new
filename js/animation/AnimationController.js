@@ -360,20 +360,24 @@ export class AnimationController {
      */
     async highlightStats() {
         const scoreValue = this.dom.scoreValue;
-        const lettersRemaining = this.dom.lettersRemaining;
+        const lettersRemainingValue = this.dom.lettersRemainingValue;
         
-        if (!scoreValue || !lettersRemaining) return;
+        if (!scoreValue) return;
         
         // Add flash animation
         scoreValue.style.animation = 'highlightFlash 0.6s ease-in-out';
-        lettersRemaining.style.animation = 'highlightFlash 0.6s ease-in-out';
+        if (lettersRemainingValue) {
+            lettersRemainingValue.style.animation = 'highlightFlash 0.6s ease-in-out';
+        }
         
         // Wait for animation to complete
         await new Promise(resolve => setTimeout(resolve, 600));
         
         // Clear animation
         scoreValue.style.animation = '';
-        lettersRemaining.style.animation = '';
+        if (lettersRemainingValue) {
+            lettersRemainingValue.style.animation = '';
+        }
     }
 
     /**
