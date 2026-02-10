@@ -70,13 +70,11 @@ export class ClearModeManager {
     updateProgress() {
         if (this.game.state.isClearMode) {
             const remainingCells = this.game.state.targetCellsToClear - this.game.state.cellsClearedCount;
-            const progressPercent = Math.round(this.game.state.getClearModeProgress());
-            
+
             // Update progress display (e.g., "45/100" for remaining/total)
             if (this.game.dom.lettersRemainingValue) {
                 this.game.dom.lettersRemainingValue.textContent = `${remainingCells}/${this.game.state.targetCellsToClear}`;
             }
-            
             // Update progress bar if available
             if (this.game.animator && this.game.animator.updateLetterProgress) {
                 this.game.animator.updateLetterProgress(remainingCells, this.game.state.targetCellsToClear);
