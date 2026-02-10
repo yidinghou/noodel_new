@@ -234,13 +234,13 @@ export class WordProcessor {
      * @param {Function} origCallback - Original callback from grace period manager
      */
     async handleWordExpired(wordData, wordKey, origCallback) {
+        if (typeof origCallback === 'function') {
+            origCallback(wordData, wordKey);
+        }
         // Chain this expiration to the queue to serialize grid mutations
         this.wordExpirationQueue = this.wordExpirationQueue.then(async () => {
             // Staleness guard: skip if word was already cleared (reset may have happened)
             if (!this.gracePeriodManager.pendingWords.has(wordKey)) {
-                console.log(`Word already cleared: ${wordKey}`);
-                return;
-            }
             
             console.log(`Word grace period expired: ${wordData.word}`);
             
