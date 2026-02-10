@@ -3,6 +3,7 @@ import { FeatureManager } from './FeatureManager.js';
 import { GameState } from './GameState.js';
 import { DOMCache } from './DOMCache.js';
 import { GameFlowController } from './GameFlowController.js';
+import { ClearModeManager } from './ClearModeManager.js';
 import { ClearModeInitializer } from './ClearModeInitializer.js';
 import { LetterGenerator } from '../letter/LetterGenerator.js';
 import { AnimationController } from '../animation/AnimationController.js';
@@ -89,6 +90,9 @@ export class Game {
             this.features,
             this.gracePeriodManager
         );
+        
+        // Initialize Clear Mode manager
+        this.clearModeManager = new ClearModeManager(this, this.sequencer);
         
         // Flag to prevent multiple simultaneous word checks
         this.isProcessingWords = false;
@@ -184,60 +188,24 @@ export class Game {
      * Initialize Clear Mode - populate grid with ~50% letters
      */
     async initializeClearMode() {
-        console.log('Initializing Clear Mode...');
-        
-        // Create a letter generator for initial population
-        const letterGenerator = new LetterGenerator(CONFIG.GAME.INITIAL_LETTERS);
-        
-        // Populate grid with ~50% letters
-        const populatedCells = ClearModeInitializer.populateGridWithLetters(
-            this.state,
-            letterGenerator
-        );
-        
-        // Apply to DOM
-        ClearModeInitializer.applyGridPopulation(this.dom.grid, populatedCells);
-        ClearModeInitializer.updateGameState(this.state, populatedCells);
-        
-        // Update UI for Clear Mode
-        this.updateUIForClearMode();
-        
-        console.log(`Clear Mode initialized: ${populatedCells.length} cells populated (target: ${this.state.targetCellsToClear})`);
+        // Delegate to Clear Mode manager
+        return await this.clearModeManager.initialize();
     }
 
     /**
      * Update UI elements for Clear Mode display
      */
     updateUIForClearMode() {
-        // Update letters remaining label to show grid progress
-        const label = this.dom.lettersRemainingContainer?.querySelector('.letters-remaining-label');
-        if (label) {
-            label.textContent = 'Grid Progress';
-            label.classList.add('clear-mode');
-        }
-        
-        // Update progress display
-        this.updateClearModeProgress();
+        // Delegate to Clear Mode manager
+        return this.clearModeManager.updateUI();
     }
 
     /**
      * Update Clear Mode progress display
      */
     updateClearModeProgress() {
-        if (this.state.isClearMode) {
-            const remainingCells = this.state.targetCellsToClear - this.state.cellsClearedCount;
-            const progressPercent = Math.round(this.state.getClearModeProgress());
-            
-            // Update progress display (e.g., "45/100" for remaining/total)
-            if (this.dom.lettersRemainingValue) {
-                this.dom.lettersRemainingValue.textContent = `${remainingCells}/${this.state.targetCellsToClear}`;
-            }
-            
-            // Update progress bar if available
-            if (this.animator && this.animator.updateLetterProgress) {
-                this.animator.updateLetterProgress(remainingCells, this.state.targetCellsToClear);
-            }
-        }
+        // Delegate to Clear Mode manager
+        return this.clearModeManager.updateProgress();
     }
 
     async reset() {
@@ -799,29 +767,8 @@ export class Game {
      * Handle Clear Mode completion
      */
     async handleClearModeComplete() {
-        console.log('🎉 Clear Mode Complete!');
-        
-        this.state.started = false;
-        this.dom.startBtn.textContent = '🎮';
-        
-        // Create context for victory sequence
-        const context = {
-            state: this.state,
-            dom: this.dom,
-            score: this.score,
-            animator: this.animator,
-            finalScore: this.state.score,
-            game: this
-        };
-        
-        // Play Clear Mode complete sequence (animations + restart option)
-        if (this.sequencer && this.sequencer.sequences && this.sequencer.sequences['clearModeComplete']) {
-            await this.sequencer.play('clearModeComplete', context);
-        } else {
-            // Fallback if sequence not defined yet - restart the game via START sequence
-            console.log('Clear Mode complete sequence not yet defined, restarting via reset');
-            this.reset();
-        }
+        // Delegate to Clear Mode manager
+        return await this.clearModeManager.handleComplete();
     }
 
     // Clear the inactivity timer and stop pulsating
