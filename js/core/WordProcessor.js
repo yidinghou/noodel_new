@@ -315,6 +315,7 @@ export class WordProcessor {
             
             // Recursively check for new words from cascading (gravity creates new words)
             await this.checkAndProcessWords(true);  // addScore=true for cascaded words
+            }
         });
         
         return this.wordExpirationQueue;
