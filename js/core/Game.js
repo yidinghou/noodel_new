@@ -2,6 +2,7 @@ import { CONFIG, GameModes } from '../config.js';
 import { FeatureManager } from './FeatureManager.js';
 import { GameState } from './GameState.js';
 import { DOMCache } from './DOMCache.js';
+import { GameFlowController } from './GameFlowController.js';
 import { ClearModeInitializer } from './ClearModeInitializer.js';
 import { LetterGenerator } from '../letter/LetterGenerator.js';
 import { AnimationController } from '../animation/AnimationController.js';
@@ -21,7 +22,7 @@ import { GameStateMachine, GamePhase } from './GameStateMachine.js';
 /**
  * Tutorial UI state constants
  */
-const TutorialUIState = {
+const TutorialUIState = { 
     INACTIVE: 'inactive',
     ACTIVE: 'active',
     COMPLETED: 'completed'
@@ -80,6 +81,15 @@ export class Game {
         // Initialize game state machine for tracking game phases
         this.stateMachine = new GameStateMachine();
         
+        // Initialize flow controller (handles init, start, reset flows)
+        this.flowController = new GameFlowController(
+            this,
+            this.stateMachine,
+            this.sequencer,
+            this.features,
+            this.gracePeriodManager
+        );
+        
         // Flag to prevent multiple simultaneous word checks
         this.isProcessingWords = false;
         this.wordCheckPending = false;
@@ -119,83 +129,19 @@ export class Game {
     }
 
     async init() {
-        // Note: GameStateMachine starts in LOADING phase by default
-        // Load dictionary and initialize WordResolver
-        console.log('Loading dictionary...');
+        // Delegate to flow controller
+        return await this.flowController.init();
+    }
+    
+    // Public method for initializing dictionary (used internally by flowController)
+    async initializeWordResolver() {
         this.wordResolver = await WordResolver.create(this.state, this.dom);
-        console.log('Dictionary loaded successfully!');
-        
-        // Set up word grace period manager's expiration callback
-        this.gracePeriodManager.setOnWordExpired(
-            (wordData, wordKey, origCallback) => this.handleWordExpired(wordData, wordKey, origCallback)
-        );
-        
-        // Initialize score display with config values
-        this.score.init();
-        
-        // Setup grid and letters
-        this.grid.generate();
-        // Note: displayPreviewStart() will be called by the intro animation sequence
-        
-        // Load debug grid if enabled (for testing word detection)
-        if (this.features.isEnabled('debug.enabled') && this.features.isEnabled('debug.gridPattern')) {
-            this.grid.loadDebugGrid();
-        }
-        
-        // Create shared context for sequence execution
-        const context = {
-            dictionary: this.wordResolver.dictionary,
-            state: this.state,
-            dom: this.dom,
-            score: this.score,
-            letters: this.letters,
-            game: this
-        };
-        
-        // Transition to intro animation phase
-        this.stateMachine.transition(GamePhase.INTRO_ANIMATION);
-        
-        // Play appropriate intro sequence based on debug mode
-        if (this.features.isEnabled('debug.enabled')) {
-            await this.sequencer.play('debugIntro', context);
-        } else {
-            await this.sequencer.play('intro', context);
-        }
-        
-        // Transition to START sequence phase
-        this.stateMachine.transition(GamePhase.START_SEQUENCE);
-        
-        // Store noodelItem for later use in start()
-        this.noodelItem = context.noodelItem;
-        
-        // Setup event listeners
-        this.setupEventListeners();
+        return this.wordResolver;
     }
 
     setupEventListeners() {
-        // Start/Reset button
-        this.dom.startBtn.addEventListener('click', () => {
-            if (!this.state.started) {
-                this.start();
-            } else {
-                this.reset();
-            }
-        });
-        
-        // Mute button
-        this.dom.muteBtn.addEventListener('click', () => {
-            this.dom.muteBtn.textContent = this.dom.muteBtn.textContent === '🔊' ? '🔇' : '🔊';
-        });
-        
-        // Skip Tutorial button
-        if (this.dom.skipTutorialBtn) {
-            this.dom.skipTutorialBtn.addEventListener('click', () => {
-                this.skipTutorial();
-            });
-        }
-        
-        // Setup grid click handlers once during initialization
-        this.grid.addClickHandlers((e) => this.handleSquareClick(e));
+        // Delegate to flow controller
+        return this.flowController.setupEventListeners();
     }
 
     /**
@@ -230,46 +176,8 @@ export class Game {
     }
 
     async start(gameMode = GameModes.CLASSIC) {
-        // Clear inactivity timer when menu button is clicked
-        this.clearInactivityTimer();
-        this.hasClickedGrid = true;
-        
-        // Set game mode
-        this.currentGameMode = gameMode;
-        this.state.gameMode = gameMode;
-        this.state.isClearMode = gameMode === GameModes.CLEAR;
-        
-        this.state.started = true;
-        this.dom.startBtn.textContent = '🔄';
-        
-        // Handle mode-specific setup before game start sequence
-        if (gameMode === GameModes.CLEAR) {
-            await this.initializeClearMode();
-        }
-        
-        // Create context for game start sequence
-        const context = {
-            noodelItem: this.noodelItem,
-            state: this.state,
-            dom: this.dom,
-            score: this.score,
-            dictionary: this.wordResolver?.dictionary
-        };
-        
-        // Play game start sequence
-        await this.sequencer.play('gameStart', context);
-        
-        // Clear noodelItem reference after it's been added
-        this.noodelItem = null;
-        
-        // Click handlers are already set up in setupEventListeners()
-        // No need to add them again here
-        
-        // Reset flag for gameplay inactivity tracking
-        this.hasClickedGrid = false;
-        
-        // Start new inactivity timer for gameplay (pulsate if no click within 5 seconds)
-        this.startInactivityTimer();
+        // Delegate to flow controller
+        return await this.flowController.startGame(gameMode);
     }
 
     /**
@@ -333,67 +241,8 @@ export class Game {
     }
 
     async reset() {
-        // Show letters-remaining counter at game start/reset (independent of tutorial state)
-        if (this.dom.lettersRemainingContainer) {
-            this.dom.lettersRemainingContainer.classList.add('visible');
-        }
-        
-        // Clear inactivity timer
-        this.clearInactivityTimer();
-        this.hasClickedGrid = true;
-        
-        // Reset input buffer
-        this.lastDropTime = 0;
-        
-        // Clear any pending words with grace period
-        this.gracePeriodManager.clearAll();
-        
-        // Reset game state with current game mode (score, letters, grid data)
-        this.state.reset();
-        // Preserve the game mode across resets
-        this.state.gameMode = this.currentGameMode;
-        this.state.isClearMode = this.currentGameMode === GameModes.CLEAR;
-        
-        // Reset all controller displays (this updates the DOM)
-        this.score.displayReset();
-        this.grid.displayReset();
-        // Note: letters will be initialized and displayed by gameStart sequence
-        
-        // Shake NOODEL title to indicate new state
-        // (preview letters will be animated as part of gameStart sequence)
-        await this.animator.shakeAllTitleLetters();
-        
-        // Update button to show reset icon
-        this.dom.startBtn.textContent = '🔄';
-        
-        // Mark game as started
-        this.state.started = true;
-        
-        // Handle mode-specific setup before game start sequence
-        if (this.currentGameMode === GameModes.CLEAR) {
-            await this.initializeClearMode();
-        }
-        
-        // Create context for game start sequence
-        const context = {
-            noodelItem: null, // Will be created in sequence
-            state: this.state,
-            dom: this.dom,
-            score: this.score,
-            dictionary: this.wordResolver?.dictionary
-        };
-        
-        // Play game start sequence (adds NOODEL word to the list)
-        await this.sequencer.play('gameStart', context);
-        
-        // Re-add click handlers after grid regeneration
-        this.grid.addClickHandlers((e) => this.handleSquareClick(e));
-        
-        // Reset flag for gameplay inactivity tracking
-        this.hasClickedGrid = false;
-        
-        // Start new inactivity timer for gameplay
-        this.startInactivityTimer();
+        // Delegate to flow controller
+        return await this.flowController.resetGame();
     }
 
     handleSquareClick(e) {
