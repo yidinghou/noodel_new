@@ -5,8 +5,6 @@ import { DOMCache } from './DOMCache.js';
 import { GameFlowController } from './GameFlowController.js';
 import { ClearModeManager } from './ClearModeManager.js';
 import { WordProcessor } from './WordProcessor.js';
-import { ClearModeInitializer } from './ClearModeInitializer.js';
-import { LetterGenerator } from '../letter/LetterGenerator.js';
 import { AnimationController } from '../animation/AnimationController.js';
 import { GridController } from '../grid/GridController.js';
 import { LetterController } from '../letter/LetterController.js';
