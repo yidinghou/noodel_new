@@ -87,7 +87,6 @@ export class GameFlowController {
         // Handle START sequence or jump straight to game ready if in debug mode
         if (this.game.debugController && this.game.debugController.shouldSkipStartSequence()) {
             console.log('[GameFlowController] Skipping tutorial/start sequence and entering GAME_READY (debug/no-frills mode)');
-            this.stateMachine.transition(GamePhase.GAME_READY);
             await this.game.lifecycle.initializeGameAfterStartSequence();
         } else {
             // Transition to START sequence phase
