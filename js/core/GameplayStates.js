@@ -9,8 +9,7 @@
  * 3. PROCESSING_WORDS - Checking for completed words
  * 4. Back to AWAITING_INPUT or GAME_OVER
  * 
- * NOTE: These states are independent of WebpageStates
- * Example: WebpageState = GAME_RUNNING, GameState = AWAITING_INPUT
+ * Example: Game phase = GAME_RUNNING, state = AWAITING_INPUT
  */
 export const GameplayStates = {
     BOARD_READY: 'board_ready',           // Grid initialized, ready for play
