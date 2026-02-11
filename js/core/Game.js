@@ -67,7 +67,7 @@ export class Game {
             letters: this.letters,
             score: this.score,
             game: this
-        }, this.features);
+        });
         
         // Initialize game state machine for tracking game phases
         this.stateMachine = new GameStateMachine();
