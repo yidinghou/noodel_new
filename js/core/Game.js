@@ -3,7 +3,6 @@ import { FeatureManager } from './FeatureManager.js';
 import { GameState } from './GameState.js';
 import { DOMCache } from './DOMCache.js';
 import { GameFlowController } from './GameFlowController.js';
-import { ClearModeManager } from './ClearModeManager.js';
 import { WordProcessor } from './WordProcessor.js';
 import { AnimationController } from '../animation/AnimationController.js';
 import { GridController } from '../grid/GridController.js';
@@ -87,9 +86,6 @@ export class Game {
             this.features,
             this.gracePeriodManager
         );
-        
-        // Initialize Clear Mode manager
-        this.clearModeManager = new ClearModeManager(this, this.sequencer);
         
         // Initialize START sequence controller
         this.startSequence = new StartSequenceController(this);
@@ -185,27 +181,6 @@ export class Game {
         return await this.lifecycle.start(gameMode);
     }
 
-    /**
-     * Initialize Clear Mode - populate grid with ~50% letters
-     */
-    async initializeClearMode() {
-        return await this.lifecycle.initializeClearMode();
-    }
-
-    /**
-     * Update UI elements for Clear Mode display
-     */
-    updateUIForClearMode() {
-        return this.lifecycle.updateUIForClearMode();
-    }
-
-    /**
-     * Update Clear Mode progress display
-     */
-    updateClearModeProgress() {
-        return this.lifecycle.updateClearModeProgress();
-    }
-
     async reset() {
         return await this.lifecycle.reset();
     }
@@ -281,12 +256,5 @@ export class Game {
      */
     async handleWordExpired(wordData, wordKey, origCallback) {
         return await this.wordProcessor.handleWordExpired(wordData, wordKey, origCallback);
-    }
-
-    /**
-     * Handle Clear Mode completion
-     */
-    async handleClearModeComplete() {
-        return await this.lifecycle.handleClearModeComplete();
     }
 }

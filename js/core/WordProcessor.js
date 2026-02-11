@@ -188,11 +188,6 @@ export class WordProcessor {
             if (willDisplay) {
                 this.game.score.addWord(wordItem, willAddToScore);
             }
-            
-            // Track cleared cells for Clear Mode
-            if (this.game.state.isClearMode) {
-                this.game.state.cellsClearedCount += wordData.positions.length;
-            }
         });
         
         // Clear all word cells after animation
@@ -266,11 +261,6 @@ export class WordProcessor {
             // Clear word cells from grid
             this.game.animator.clearWordCells(wordData.positions);
             
-            // Track cleared cells for Clear Mode
-            if (this.game.state.isClearMode) {
-                this.game.state.cellsClearedCount += wordData.positions.length;
-            }
-            
             // Remove from pending (this will also try to clear animation but it's already cleared)
             this.gracePeriodManager.removePendingWord(wordKey);
             
@@ -289,22 +279,6 @@ export class WordProcessor {
             } else {
                 // Even without gravity, update column fill counts based on actual grid state
                 this.game.grid.updateColumnFillCounts();
-            }
-            
-            // Check if Clear Mode is complete
-            if (this.game.state.isClearMode && this.game.state.cellsClearedCount >= this.game.state.targetCellsToClear) {
-                // Update progress display before showing victory
-                this.game.updateClearModeProgress();
-                
-                // Handle Clear Mode complete
-                await this.game.handleClearModeComplete();
-                this.wordDetectionEnabled = true;
-                return;
-            }
-            
-            // Update progress display for Clear Mode
-            if (this.game.state.isClearMode) {
-                this.game.updateClearModeProgress();
             }
             
             // Short delay before checking for new words (cascade effect after gravity)
