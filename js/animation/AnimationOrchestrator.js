@@ -128,7 +128,7 @@ export class AnimationOrchestrator {
         const game = gameContext.game;
 
         // Run menu flip and title shake in parallel
-        const [menuFlipPromise, titleShakePromise] = await Promise.all([
+        await Promise.all([
             (async () => {
                 if (this.menu && typeof this.menu.show === 'function') {
                     await this.menu.show(true, game); // true = flip animation
