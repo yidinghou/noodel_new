@@ -373,7 +373,8 @@ describe('WordGracePeriodManager', () => {
 
       manager.clearAll();
 
-      expect(mockAnimator.updateWordPendingAnimation).toHaveBeenCalledTimes(3);
+      // 2 'start' calls from addPendingWord + 2 'clear' calls from clearAll = 4 total
+      expect(mockAnimator.updateWordPendingAnimation).toHaveBeenCalledTimes(4);
     });
 
     test('should handle clearAll on empty manager', () => {
