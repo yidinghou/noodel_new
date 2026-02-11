@@ -120,10 +120,6 @@ export class GameFlowController {
      * @param {string} gameMode - Game mode (from GameModes enum)
      */
     async startGame(gameMode = GameModes.CLASSIC) {
-        // Clear inactivity timer when start button is clicked
-        this.game.clearInactivityTimer();
-        this.game.hasClickedGrid = true;
-        
         // Set game mode
         this.game.currentGameMode = gameMode;
         this.game.state.gameMode = gameMode;
@@ -151,26 +147,13 @@ export class GameFlowController {
         
         // Clear noodelItem reference after it's been added
         this.game.noodelItem = null;
-        
-        // Reset flag for gameplay inactivity tracking
-        this.game.hasClickedGrid = false;
-        
-        // Start new inactivity timer for gameplay (pulsate if no click within 5 seconds)
-        this.game.startInactivityTimer();
     }
 
-    /**
-     * Reset game: return to menu, clear state, prepare for new game
-     */
     async resetGame() {
         // Show letters-remaining counter at game start/reset
         if (this.game.dom.lettersRemainingContainer) {
             this.game.dom.lettersRemainingContainer.classList.add('visible');
         }
-        
-        // Clear inactivity timer
-        this.game.clearInactivityTimer();
-        this.game.hasClickedGrid = true;
         
         // Reset input buffer
         this.game.lastDropTime = 0;
@@ -216,11 +199,5 @@ export class GameFlowController {
         
         // Re-add click handlers after grid regeneration
         this.game.grid.addClickHandlers((e) => this.game.handleSquareClick(e));
-        
-        // Reset flag for gameplay inactivity tracking
-        this.game.hasClickedGrid = false;
-        
-        // Start new inactivity timer for gameplay
-        this.game.startInactivityTimer();
     }
 }
