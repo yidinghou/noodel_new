@@ -17,6 +17,7 @@ export const FEATURES = {
     GRAVITY_PHYSICS: true,
     LETTER_PREVIEW: true,
     SCORE_TRACKING: true,
+    WORD_GRACE_PERIOD_ENABLED: true,
     
     // UI
     MENU_SYSTEM: true,

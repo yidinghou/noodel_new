@@ -51,7 +51,7 @@ export class DebugModeController {
         // Ensure word detection is active and check for words on the loaded pattern
         if (game.wordProcessor) {
             game.resumeWordDetection();
-            game.checkAndProcessWords(true, false); // Add score, no grace period
+            game.checkAndProcessWords(true, FEATURES.WORD_GRACE_PERIOD_ENABLED); // Respects feature flag
             console.log('[DebugModeController] Word detection triggered for debug grid');
         }
     }
