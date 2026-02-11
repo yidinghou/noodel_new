@@ -283,20 +283,10 @@ export class Game {
         return await this.wordProcessor.handleWordExpired(wordData, wordKey, origCallback);
     }
 
-    // Start timer to pulsate grid if user doesn't click within 5 seconds
-    startInactivityTimer() {
-        return this.input.startInactivityTimer();
-    }
-
     /**
      * Handle Clear Mode completion
      */
     async handleClearModeComplete() {
         return await this.lifecycle.handleClearModeComplete();
-    }
-
-    // Clear the inactivity timer and stop pulsating
-    clearInactivityTimer() {
-        return this.input.clearInactivityTimer();
     }
 }

@@ -10,8 +10,6 @@ import { GamePhase } from './GameStateMachine.js';
 export class GameInputController {
     constructor(game) {
         this.game = game;
-        this.inactivityTimer = null;
-        this.hasClickedGrid = false;
         this.lastDropTime = 0;
     }
 
@@ -32,11 +30,7 @@ export class GameInputController {
             return;
         }
         
-        // Clear inactivity timer and stop pulsating on first grid click during gameplay
-        if (!this.hasClickedGrid) {
-            this.clearInactivityTimer();
-            this.hasClickedGrid = true;
-        }
+
         
         const column = parseInt(e.target.dataset.column);
         
@@ -205,26 +199,5 @@ export class GameInputController {
         });
     }
 
-    /**
-     * Start inactivity timer - pulsates grid if no click within 5 seconds
-     */
-    startInactivityTimer() {
-        this.inactivityTimer = setTimeout(() => {
-            if (!this.hasClickedGrid) {
-                this.game.grid.startPulsating();
-            }
-        }, 5000);
-    }
 
-    /**
-     * Clear the inactivity timer and stop pulsating
-     */
-    clearInactivityTimer() {
-        if (this.inactivityTimer) {
-            clearTimeout(this.inactivityTimer);
-            this.inactivityTimer = null;
-        }
-        // Stop pulsating when user interacts
-        this.game.grid.stopPulsating();
-    }
 }
