@@ -94,30 +94,6 @@ export class GameLifecycleManager {
     }
 
     /**
-     * Initialize Clear Mode - populate grid with ~50% letters
-     */
-    async initializeClearMode() {
-        // Delegate to Clear Mode manager
-        return await this.game.clearModeManager.initialize();
-    }
-
-    /**
-     * Update UI elements for Clear Mode display
-     */
-    updateUIForClearMode() {
-        // Delegate to Clear Mode manager
-        return this.game.clearModeManager.updateUI();
-    }
-
-    /**
-     * Update Clear Mode progress display
-     */
-    updateClearModeProgress() {
-        // Delegate to Clear Mode manager
-        return this.game.clearModeManager.updateProgress();
-    }
-
-    /**
      * Initialize game after START sequence completes
      * Handles NOODEL overlay drop and game component initialization
      */
@@ -165,13 +141,5 @@ export class GameLifecycleManager {
         console.log('Game fully initialized after START sequence!');
         // Enable scoring from this point forward (game has started)
         this.game.state.scoringEnabled = true;
-    }
-
-    /**
-     * Handle Clear Mode completion
-     */
-    async handleClearModeComplete() {
-        // Delegate to Clear Mode manager
-        return await this.game.clearModeManager.handleComplete();
     }
 }
