@@ -1,5 +1,6 @@
 import { CONFIG } from '../config.js';
 import { calculateIndex, calculateRowCol, isValidColumn } from './gridUtils.js';
+import { FEATURES } from '../core/features.js';
 
 
 /**
@@ -127,7 +128,7 @@ export class GridController {
 
     // Load debug grid pattern for testing (only in DEBUG mode)
     loadDebugGrid() {
-        if (!FeatureFlags.isEnabled('debug.gridPattern') || !CONFIG.DEBUG_GRID) {
+        if (!FEATURES.DEBUG_GRID_PATTERN || !CONFIG.DEBUG_GRID) {
             return;
         }
 

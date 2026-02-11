@@ -1,6 +1,7 @@
 import { CONFIG } from '../config.js';
 import { WordItem } from '../word/WordItem.js';
 import { calculateWordScore } from '../scoring/ScoringUtils.js';
+import { FEATURES } from '../core/features.js';
 
 /**
  * AnimationOrchestrator - Simplified async animation orchestration
@@ -8,13 +9,12 @@ import { calculateWordScore } from '../scoring/ScoringUtils.js';
  * Each animation function directly calls controller methods
  */
 export class AnimationOrchestrator {
-    constructor(controllers, featureManager = null) {
+    constructor(controllers) {
         this.animator = controllers.animator;
         this.letters = controllers.letters;
         this.score = controllers.score;
         this.menu = controllers.menu;
         this.grid = controllers.grid;
-        this.features = featureManager;
     }
 
     /**
@@ -28,12 +28,12 @@ export class AnimationOrchestrator {
         const game = gameContext.game;
 
         // Title drop
-        if (this.features?.isEnabled('animations.titleDrop') ?? true) {
+        if (FEATURES.ANIMATION_TITLE_DROP) {
             await this.animator.randomizeTitleLetterAnimations();
         }
 
         // Title shake
-        if (this.features?.isEnabled('animations.titleShake') ?? true) {
+        if (FEATURES.ANIMATION_TITLE_SHAKE) {
             await this.animator.shakeAllTitleLetters();
         }
 
@@ -69,7 +69,7 @@ export class AnimationOrchestrator {
         const dom = gameContext.dom;
 
         // Title shake only
-        if (this.features?.isEnabled('animations.titleShake') ?? true) {
+        if (FEATURES.ANIMATION_TITLE_SHAKE) {
             await this.animator.shakeAllTitleLetters();
         }
 
@@ -135,7 +135,7 @@ export class AnimationOrchestrator {
                 }
             })(),
             (async () => {
-                if (this.features?.isEnabled('animations.titleShake') ?? true) {
+                if (FEATURES.ANIMATION_TITLE_SHAKE) {
                     await this.animator.shakeAllTitleLetters();
                 }
             })()
