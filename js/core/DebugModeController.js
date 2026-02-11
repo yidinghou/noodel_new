@@ -42,6 +42,21 @@ export class DebugModeController {
     }
 
     /**
+     * Finalize debug initialization after game lifecycle methods
+     * @param {Object} game - Game instance
+     */
+    onGameReady(game) {
+        if (!FEATURES.DEBUG_ENABLED || !FEATURES.DEBUG_GRID_PATTERN) return;
+
+        // Ensure word detection is active and check for words on the loaded pattern
+        if (game.wordProcessor) {
+            game.resumeWordDetection();
+            game.checkAndProcessWords(true, false); // Add score, no grace period
+            console.log('[DebugModeController] Word detection triggered for debug grid');
+        }
+    }
+
+    /**
      * Returns true if the START sequence should be skipped
      * @returns {boolean}
      */

@@ -140,8 +140,8 @@ export class AnimationOrchestrator {
             })()
         ]);
 
-        // Start timer that will pulsate grid if user doesn't interact
-        if (game && !game.hasClickedGrid) {
+        // Start timer that will pulsate grid if user doesn't interact (disabled in debug mode)
+        if (game && !game.hasClickedGrid && !FEATURES.DEBUG_ENABLED) {
             setTimeout(() => {
                 if (!game.hasClickedGrid) {
                     this.animator.pulsateGrid().catch(err => {
