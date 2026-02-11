@@ -1,15 +1,15 @@
 import { CONFIG } from '../config.js';
 import { AnimationHelpers } from './AnimationHelpers.js';
 import { calculateIndex } from '../grid/gridUtils.js';
+import { FEATURES } from '../core/features.js';
 
 /**
  * AnimationController class - Handles all game animations
  * Uses CSS custom properties for timing and animationend events for synchronization
  */
 export class AnimationController {
-    constructor(domCache, featureManager = null) {
+    constructor(domCache) {
         this.dom = domCache;
-        this.features = featureManager;
         this.cssVars = AnimationHelpers.loadCSSTimings();
         
         // Load additional timing for START menu
@@ -262,7 +262,7 @@ export class AnimationController {
      */
     updateLetterProgress(lettersRemaining, totalLetters) {
         // Check if progress bar feature is enabled
-        if (!this.features || !this.features.isEnabled('titleProgressBar')) {
+        if (!FEATURES.TITLE_PROGRESS_BAR) {
             return;
         }
         

@@ -1,5 +1,6 @@
 import { CONFIG } from '../config.js';
 import { isWithinBounds } from '../grid/gridUtils.js';
+import { FEATURES } from './features.js';
 
 /**
  * StartSequenceController - Manages the guided START letter placement sequence
@@ -87,7 +88,7 @@ export class StartSequenceController {
 
         // Process the completion word using configured settings (unless skipped)
         // Use immediate processing (no grace period) for START sequence
-        if (!skipWordProcessing && this.game.features.isEnabled('wordDetection')) {
+        if (!skipWordProcessing && FEATURES.WORD_DETECTION) {
             await this.game.checkAndProcessWords(this.config.ADD_TO_SCORE, false);
         }
 

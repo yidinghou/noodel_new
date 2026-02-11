@@ -1,6 +1,7 @@
 import { CONFIG } from '../config.js';
 import { TutorialUIState } from './gameConstants.js';
 import { calculateIndex } from '../grid/gridUtils.js';
+import { FEATURES } from './features.js';
 
 /**
  * StartSequenceUI - Manages the START sequence tutorial UI and interactions
@@ -118,7 +119,7 @@ export class StartSequenceUI {
             this.game.dom.skipTutorialBtn.style.display = isActive ? 'block' : 'none';
         }
         
-        if (this.game.features.isEnabled('debug.enabled')) {
+        if (FEATURES.DEBUG_ENABLED) {
             console.log(`Tutorial UI state: ${this.game.tutorialUIState}`);
         }
     }
