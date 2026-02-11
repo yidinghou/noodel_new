@@ -123,15 +123,9 @@ export class GameFlowController {
         // Set game mode
         this.game.currentGameMode = gameMode;
         this.game.state.gameMode = gameMode;
-        this.game.state.isClearMode = gameMode === GameModes.CLEAR;
         
         this.game.state.started = true;
         this.game.dom.startBtn.textContent = '🔄';
-        
-        // Handle mode-specific setup before game start sequence
-        if (gameMode === GameModes.CLEAR) {
-            await this.game.initializeClearMode();
-        }
         
         // Create context for game start sequence
         const context = {
@@ -165,7 +159,6 @@ export class GameFlowController {
         this.game.state.reset();
         // Preserve the game mode across resets
         this.game.state.gameMode = this.game.currentGameMode;
-        this.game.state.isClearMode = this.game.currentGameMode === GameModes.CLEAR;
         
         // Reset all controller displays (this updates the DOM)
         this.game.score.displayReset();
@@ -179,11 +172,6 @@ export class GameFlowController {
         
         // Mark game as started
         this.game.state.started = true;
-        
-        // Handle mode-specific setup before game start sequence
-        if (this.game.currentGameMode === GameModes.CLEAR) {
-            await this.game.initializeClearMode();
-        }
         
         // Create context for game start sequence
         const context = {
