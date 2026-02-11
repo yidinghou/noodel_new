@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.features = game.features;
         window.sequencer = game.sequencer;
         window.appState = game.appState;
-        window.animationRegistry = game.animationRegistry;
         
         // Setup keyboard shortcuts
         setupKeyboardShortcuts(game.sequencer);
