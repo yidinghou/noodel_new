@@ -96,6 +96,11 @@ export class Game {
         // Initialize word processor (handles word detection and clearing)
         this.wordProcessor = new WordProcessor(this, this.gracePeriodManager);
         
+        // Ensure grace period expiration always calls the word processor's handler
+        this.gracePeriodManager.setOnWordExpired(
+            this.wordProcessor.handleWordExpired.bind(this.wordProcessor)
+        );
+
         // Flag to prevent multiple simultaneous word checks
         this.isProcessingWords = false;
         this.wordCheckPending = false;
