@@ -1,17 +1,14 @@
 import { CONFIG, GameModes } from '../config.js';
-import { FeatureManager } from './FeatureManager.js';
 import { GameState } from './GameState.js';
 import { DOMCache } from './DOMCache.js';
 import { GameFlowController } from './GameFlowController.js';
-import { ClearModeManager } from './ClearModeManager.js';
 import { WordProcessor } from './WordProcessor.js';
 import { AnimationController } from '../animation/AnimationController.js';
+import { AnimationOrchestrator } from '../animation/AnimationOrchestrator.js';
 import { GridController } from '../grid/GridController.js';
 import { LetterController } from '../letter/LetterController.js';
 import { ScoreController } from '../scoring/ScoreController.js';
 import { WordGracePeriodManager } from '../word/WordGracePeriodManager.js';
-import { AnimationSequencer } from '../animation/AnimationSequencer.js';
-import { SEQUENCES } from '../animation/AnimationSequences.js';
 import { StartSequenceController } from './StartSequenceController.js';
 import { GameStateMachine } from './GameStateMachine.js';
 import { TutorialUIState } from './gameConstants.js';
@@ -39,7 +36,6 @@ export class Game {
     initializeCoreServices() {
         this.state = new GameState();
         this.dom = new DOMCache();
-        this.features = new FeatureManager();
         this.tutorialUIState = TutorialUIState.INACTIVE;
         this.currentGameMode = GameModes.CLASSIC;
     }
@@ -50,13 +46,13 @@ export class Game {
     initializeControllers() {
         this.grid = new GridController(this.state, this.dom);
         this.letters = new LetterController(this.state, this.dom);
-        this.animator = new AnimationController(this.dom, this.features);
+        this.animator = new AnimationController(this.dom);
         this.score = new ScoreController(this.state, this.dom);
         this.wordResolver = null; // Will be initialized asynchronously
     }
 
     /**
-     * Initialize animation system (sequencer, state machine, flow controller)
+     * Initialize animation system (orchestrator, state machine, flow controller)
      */
     initializeAnimationSystem() {
         // Initialize word grace period manager (handles word clearing with delay)
@@ -64,17 +60,14 @@ export class Game {
             gracePeriodMs: CONFIG.GAME.WORD_GRACE_PERIOD_MS || 1000
         });
         
-        // Initialize animation sequencer with all controllers
-        this.sequencer = new AnimationSequencer({
+        // Initialize animation orchestrator with all controllers
+        this.sequencer = new AnimationOrchestrator({
             animator: this.animator,
             grid: this.grid,
             letters: this.letters,
             score: this.score,
             game: this
-        }, this.features);
-        
-        // Load predefined sequences
-        this.sequencer.loadSequences(SEQUENCES);
+        });
         
         // Initialize game state machine for tracking game phases
         this.stateMachine = new GameStateMachine();
@@ -84,12 +77,8 @@ export class Game {
             this,
             this.stateMachine,
             this.sequencer,
-            this.features,
             this.gracePeriodManager
         );
-        
-        // Initialize Clear Mode manager
-        this.clearModeManager = new ClearModeManager(this, this.sequencer);
         
         // Initialize START sequence controller
         this.startSequence = new StartSequenceController(this);
@@ -160,6 +149,13 @@ export class Game {
     }
 
     /**
+     * Initialize tutorial state during game initialization
+     */
+    initTutorialState() {
+        return this.startUI.initTutorialState();
+    }
+
+    /**
      * Update tutorial UI visibility based on tutorial state
      * Single source of truth for tutorial UI state
      */
@@ -183,27 +179,6 @@ export class Game {
 
     async start(gameMode = GameModes.CLASSIC) {
         return await this.lifecycle.start(gameMode);
-    }
-
-    /**
-     * Initialize Clear Mode - populate grid with ~50% letters
-     */
-    async initializeClearMode() {
-        return await this.lifecycle.initializeClearMode();
-    }
-
-    /**
-     * Update UI elements for Clear Mode display
-     */
-    updateUIForClearMode() {
-        return this.lifecycle.updateUIForClearMode();
-    }
-
-    /**
-     * Update Clear Mode progress display
-     */
-    updateClearModeProgress() {
-        return this.lifecycle.updateClearModeProgress();
     }
 
     async reset() {
@@ -281,12 +256,5 @@ export class Game {
      */
     async handleWordExpired(wordData, wordKey, origCallback) {
         return await this.wordProcessor.handleWordExpired(wordData, wordKey, origCallback);
-    }
-
-    /**
-     * Handle Clear Mode completion
-     */
-    async handleClearModeComplete() {
-        return await this.lifecycle.handleClearModeComplete();
     }
 }

@@ -1,5 +1,6 @@
 import { WordItem } from '../word/WordItem.js';
 import { calculateWordScore } from '../scoring/ScoringUtils.js';
+import { FEATURES } from './features.js';
 
 /**
  * Tutorial UI state constants
@@ -168,7 +169,7 @@ export class WordProcessor {
      */
     async processWordsImmediately(foundWords, addScore) {
         // Check if word highlighting animation is enabled
-        const shouldAnimate = this.game.features.isEnabled('animations.wordHighlight');
+        const shouldAnimate = FEATURES.ANIMATION_WORD_HIGHLIGHT;
         
         if (shouldAnimate) {
             const animationPromises = foundWords.map(wordData => 
@@ -188,11 +189,6 @@ export class WordProcessor {
             if (willDisplay) {
                 this.game.score.addWord(wordItem, willAddToScore);
             }
-            
-            // Track cleared cells for Clear Mode
-            if (this.game.state.isClearMode) {
-                this.game.state.cellsClearedCount += wordData.positions.length;
-            }
         });
         
         // Clear all word cells after animation
@@ -208,7 +204,7 @@ export class WordProcessor {
         }
         
         // Apply gravity to drop letters down - if enabled
-        if (this.game.features.isEnabled('gravityPhysics')) {
+        if (FEATURES.GRAVITY_PHYSICS) {
             this.game.grid.applyGravity();
         } else {
             // Even without gravity, update column fill counts based on actual grid state
@@ -255,21 +251,16 @@ export class WordProcessor {
             this.game.score.addWord(wordItem, willAddToScore);
             
             // First, clear the pending animation (remove word-pending class)
-            this.game.animator.clearWordPendingAnimation(wordData.positions);
+            this.game.animator.updateWordPendingAnimation(wordData.positions, 'clear');
             
             // Animate word shake
-            const shouldAnimate = this.game.features.isEnabled('animations.wordHighlight');
+            const shouldAnimate = FEATURES.ANIMATION_WORD_HIGHLIGHT;
             if (shouldAnimate) {
                 await this.game.animator.highlightAndShakeWord(wordData.positions);
             }
             
             // Clear word cells from grid
             this.game.animator.clearWordCells(wordData.positions);
-            
-            // Track cleared cells for Clear Mode
-            if (this.game.state.isClearMode) {
-                this.game.state.cellsClearedCount += wordData.positions.length;
-            }
             
             // Remove from pending (this will also try to clear animation but it's already cleared)
             this.gracePeriodManager.removePendingWord(wordKey);
@@ -284,27 +275,11 @@ export class WordProcessor {
             }
             
             // Apply gravity to drop letters down (creates new game state) - if enabled
-            if (this.game.features.isEnabled('gravityPhysics')) {
+            if (FEATURES.GRAVITY_PHYSICS) {
                 this.game.grid.applyGravity();
             } else {
                 // Even without gravity, update column fill counts based on actual grid state
                 this.game.grid.updateColumnFillCounts();
-            }
-            
-            // Check if Clear Mode is complete
-            if (this.game.state.isClearMode && this.game.state.cellsClearedCount >= this.game.state.targetCellsToClear) {
-                // Update progress display before showing victory
-                this.game.updateClearModeProgress();
-                
-                // Handle Clear Mode complete
-                await this.game.handleClearModeComplete();
-                this.wordDetectionEnabled = true;
-                return;
-            }
-            
-            // Update progress display for Clear Mode
-            if (this.game.state.isClearMode) {
-                this.game.updateClearModeProgress();
             }
             
             // Short delay before checking for new words (cascade effect after gravity)

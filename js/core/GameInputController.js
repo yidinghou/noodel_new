@@ -2,6 +2,7 @@ import { CONFIG } from '../config.js';
 import { INPUT_BUFFER_MS } from './gameConstants.js';
 import { isValidColumn, calculateIndex } from '../grid/gridUtils.js';
 import { GamePhase } from './GameStateMachine.js';
+import { FEATURES } from './features.js';
 
 /**
  * GameInputController - Handles all user input and interactions
@@ -160,7 +161,7 @@ export class GameInputController {
             );
             
             // Check for words after the letter has been placed (if enabled)
-            if (this.game.features.isEnabled('wordDetection')) {
+            if (FEATURES.WORD_DETECTION) {
                 await this.game.checkAndProcessWords();
             }
         });

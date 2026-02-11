@@ -1,15 +1,15 @@
 import { CONFIG } from '../config.js';
 import { AnimationHelpers } from './AnimationHelpers.js';
 import { calculateIndex } from '../grid/gridUtils.js';
+import { FEATURES } from '../core/features.js';
 
 /**
  * AnimationController class - Handles all game animations
  * Uses CSS custom properties for timing and animationend events for synchronization
  */
 export class AnimationController {
-    constructor(domCache, featureManager = null) {
+    constructor(domCache) {
         this.dom = domCache;
-        this.features = featureManager;
         this.cssVars = AnimationHelpers.loadCSSTimings();
         
         // Load additional timing for START menu
@@ -262,7 +262,7 @@ export class AnimationController {
      */
     updateLetterProgress(lettersRemaining, totalLetters) {
         // Check if progress bar feature is enabled
-        if (!this.features || !this.features.isEnabled('titleProgressBar')) {
+        if (!FEATURES.TITLE_PROGRESS_BAR) {
             return;
         }
         
@@ -461,50 +461,30 @@ export class AnimationController {
     }
 
     /**
-     * Start word pending animation (grace period visual)
-     * Adds word-pending class to cells, which triggers fillGreen animation
+     * Update word pending animation (grace period visual)
      * @param {Array} positions - Array of {row, col, index} objects
+     * @param {string} action - 'start' (add class), 'reset' (restart), or 'clear' (remove class)
      */
-    startWordPendingAnimation(positions) {
+    updateWordPendingAnimation(positions, action = 'start') {
         positions.forEach(pos => {
             const square = this.dom.getGridSquare(pos.index);
-            if (square) {
-                square.classList.add('word-pending');
-            }
-        });
-    }
-
-    /**
-     * Reset word pending animation (restart the grace period visual)
-     * Removes and re-adds the word-pending class to trigger animation restart
-     * @param {Array} positions - Array of {row, col, index} objects
-     */
-    resetWordPendingAnimation(positions) {
-        positions.forEach(pos => {
-            const square = this.dom.getGridSquare(pos.index);
-            if (square) {
-                // Remove the class
-                square.classList.remove('word-pending');
-                
-                // Force reflow to trigger animation restart
-                square.offsetHeight;
-                
-                // Re-add the class to restart animation
-                square.classList.add('word-pending');
-            }
-        });
-    }
-
-    /**
-     * Clear word pending animation
-     * Removes the word-pending class from cells (called when word expires)
-     * @param {Array} positions - Array of {row, col, index} objects
-     */
-    clearWordPendingAnimation(positions) {
-        positions.forEach(pos => {
-            const square = this.dom.getGridSquare(pos.index);
-            if (square) {
-                square.classList.remove('word-pending');
+            if (!square) return;
+            
+            switch (action) {
+                case 'start':
+                    square.classList.add('word-pending');
+                    break;
+                case 'reset':
+                    // Remove the class
+                    square.classList.remove('word-pending');
+                    // Force reflow to trigger animation restart
+                    square.offsetHeight;
+                    // Re-add the class to restart animation
+                    square.classList.add('word-pending');
+                    break;
+                case 'clear':
+                    square.classList.remove('word-pending');
+                    break;
             }
         });
     }
