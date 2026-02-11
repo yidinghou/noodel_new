@@ -22,9 +22,7 @@ export class AnimationOrchestrator {
      * Title drop + shake → NOODEL overlay → preview
      */
     async playIntro(gameContext = {}) {
-        const isFirstLoad = gameContext.isFirstLoad ?? true;
         const dictionary = gameContext.dictionary;
-        const dom = gameContext.dom;
         const game = gameContext.game;
 
         // Title drop
@@ -46,8 +44,8 @@ export class AnimationOrchestrator {
         this.animator.showNoodelWordOverlay(noodelItem);
 
         // Show preview and grid
-        if (dom?.preview) dom.preview.classList.add('visible');
-        if (dom?.grid) dom.grid.classList.add('visible');
+        if (gameContext.dom?.preview) gameContext.dom.preview.classList.add('visible');
+        if (gameContext.dom?.grid) gameContext.dom.grid.classList.add('visible');
 
         // Display preview
         await this.letters.displayPreviewStart();
@@ -66,7 +64,6 @@ export class AnimationOrchestrator {
      */
     async playDebugIntro(gameContext = {}) {
         const dictionary = gameContext.dictionary;
-        const dom = gameContext.dom;
 
         // Title shake only
         if (FEATURES.ANIMATION_TITLE_SHAKE) {
@@ -92,9 +89,9 @@ export class AnimationOrchestrator {
      */
     async playGameStart(gameContext = {}) {
         let noodelItem = gameContext.noodelItem;
-        const isFirstLoad = gameContext.isFirstLoad ?? true;
         const state = gameContext.state;
         const dictionary = gameContext.dictionary || gameContext.game?.wordResolver?.dictionary;
+        const isFirstLoad = gameContext.isFirstLoad ?? true;
 
         // Recreate NOODEL item if missing (ensure it's always available for initial drop or reset)
         if (!noodelItem) {
