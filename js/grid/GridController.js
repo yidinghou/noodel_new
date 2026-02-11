@@ -126,36 +126,6 @@ export class GridController {
         }
     }
 
-    // Load debug grid pattern for testing (only in DEBUG mode)
-    loadDebugGrid() {
-        if (!FEATURES.DEBUG_GRID_PATTERN || !CONFIG.DEBUG_GRID) {
-            return;
-        }
-
-
-        // Iterate through the debug grid pattern
-        for (let row = 0; row < CONFIG.GRID.ROWS; row++) {
-            for (let col = 0; col < CONFIG.GRID.COLUMNS; col++) {
-                const letter = CONFIG.DEBUG_GRID[row][col];
-                
-                if (letter && letter !== '') {
-                    const index = calculateIndex(row, col, CONFIG.GRID.COLUMNS);
-                    const square = this.dom.getGridSquare(index);
-                    
-                    if (square) {
-                        square.textContent = letter;
-                        square.classList.add('filled');
-                    }
-                }
-            }
-        }
-
-        // Update column fill counts to match the debug grid
-        this.updateColumnFillCounts();
-        
-        console.log('✅ Debug grid loaded successfully');
-    }
-
     // Start pulsating animation on all grid squares
     startPulsating() {
         const squares = this.dom.getAllGridSquares();
