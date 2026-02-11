@@ -43,10 +43,6 @@ export class AnimationOrchestrator {
         // Show NOODEL overlay
         this.animator.showNoodelWordOverlay(noodelItem);
 
-        // Show preview and grid
-        if (gameContext.dom?.preview) gameContext.dom.preview.classList.add('visible');
-        if (gameContext.dom?.grid) gameContext.dom.grid.classList.add('visible');
-
         // Display preview
         await this.letters.displayPreviewStart();
 
