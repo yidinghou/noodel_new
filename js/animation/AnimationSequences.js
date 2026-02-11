@@ -362,54 +362,6 @@ export const WORD_FOUND_SEQUENCE = [
 ];
 
 /**
- * CLEAR MODE COMPLETE SEQUENCE
- * Plays when Clear Mode is completed (all cells cleared)
- * - Celebrate grid with cascade animation
- * - Show victory message overlay
- * - Return to menu
- */
-export const CLEAR_MODE_COMPLETE_SEQUENCE = [
-    {
-        name: 'celebrateGridClear',
-        method: 'celebrateGridClear',
-        target: 'animator',
-        duration: 800,
-        parallel: false
-    },
-    {
-        name: 'showVictoryMessage',
-        method: 'showVictoryOverlay',
-        target: 'animator',
-        duration: 1000,
-        args: (ctx) => [`🎉 Clear Mode Complete! 🎉\nScore: ${Math.round(ctx.finalScore)}`],
-        parallel: false,
-        onAfter: (ctx) => {
-            // Wait for user to acknowledge or auto-dismiss after 5 seconds
-            return new Promise(resolve => {
-                const timeoutId = setTimeout(() => {
-                    resolve();
-                }, 4000); // Auto-dismiss after 4 seconds (1s margin before next sequence)
-                
-                // Allow click to dismiss early
-                const onClick = () => {
-                    clearTimeout(timeoutId);
-                    document.removeEventListener('click', onClick);
-                    resolve();
-                };
-                document.addEventListener('click', onClick);
-            });
-        }
-    },
-    {
-        name: 'showMenu',
-        method: 'show',
-        target: 'menu',
-        duration: 400,
-        parallel: false
-    }
-];
-
-/**
  * SequenceNames - Enum for type-safe sequence name references
  * @enum {string}
  */
@@ -419,8 +371,7 @@ export const SequenceNames = {
     GAME_START: 'gameStart',
     RESET: 'reset',
     LETTER_DROP: 'letterDrop',
-    WORD_FOUND: 'wordFound',
-    CLEAR_MODE_COMPLETE: 'clearModeComplete'
+    WORD_FOUND: 'wordFound'
 };
 
 /**
@@ -432,6 +383,5 @@ export const SEQUENCES = {
     [SequenceNames.GAME_START]: GAME_START_SEQUENCE,
     [SequenceNames.RESET]: RESET_SEQUENCE,
     [SequenceNames.LETTER_DROP]: LETTER_DROP_SEQUENCE,
-    [SequenceNames.WORD_FOUND]: WORD_FOUND_SEQUENCE,
-    [SequenceNames.CLEAR_MODE_COMPLETE]: CLEAR_MODE_COMPLETE_SEQUENCE
+    [SequenceNames.WORD_FOUND]: WORD_FOUND_SEQUENCE
 };
