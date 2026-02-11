@@ -50,13 +50,17 @@ export class GameFlowController {
         // Setup grid and letters
         this.game.grid.generate();
         
-        // Load debug grid if enabled (for testing word detection)
-        if (FEATURES.DEBUG_ENABLED && FEATURES.DEBUG_GRID_PATTERN) {
-            this.game.grid.loadDebugGrid();
+        // Let DebugModeController perform any initialization (like loading a debug grid)
+        if (this.game.debugController) {
+            this.game.debugController.onGameInit(this.game);
         }
         
         // Initialize tutorial state and show skip button
         this.game.initTutorialState();
+        
+        // Ensure core UI components are visible before animations
+        if (this.game.dom.grid) this.game.dom.grid.classList.add('visible');
+        if (this.game.dom.preview) this.game.dom.preview.classList.add('visible');
         
         // Create shared context for animation execution
         const context = {
@@ -80,8 +84,14 @@ export class GameFlowController {
         // Store noodelItem for later use in startGame()
         this.game.noodelItem = noodelItem;
         
-        // Transition to START sequence phase
-        this.stateMachine.transition(GamePhase.START_SEQUENCE);
+        // Handle START sequence or jump straight to game ready if in debug mode
+        if (this.game.debugController && this.game.debugController.shouldSkipStartSequence()) {
+            console.log('[GameFlowController] Skipping START sequence (debug grid pattern active)');
+            await this.game.lifecycle.initializeGameAfterStartSequence();
+        } else {
+            // Transition to START sequence phase
+            this.stateMachine.transition(GamePhase.START_SEQUENCE);
+        }
         
         // Setup event listeners
         this.setupEventListeners();
