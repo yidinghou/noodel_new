@@ -14,19 +14,51 @@ export class GameLifecycleManager {
     }
 
     /**
-     * Validate that PREVIEW_START config is consistent with PREVIEW_COUNT
+     * Validate that PREVIEW_START config is consistent and complete
+     * Checks LETTERS, POSITIONS, ROWS alignment and bounds
      */
     validatePreviewStartConfig() {
-        const lettersLength = CONFIG.PREVIEW_START.LETTERS.length;
-        const positionsLength = CONFIG.PREVIEW_START.POSITIONS.length;
+        const letters = CONFIG.PREVIEW_START.LETTERS;
+        const positions = CONFIG.PREVIEW_START.POSITIONS;
+        const rows = CONFIG.PREVIEW_START.ROWS;
         const previewCount = CONFIG.GAME.PREVIEW_COUNT;
+        const gridRows = CONFIG.GRID.ROWS;
+        const gridCols = CONFIG.GRID.COLUMNS;
         
+        // Check all three arrays exist
+        if (!letters || !positions || !rows) {
+            throw new Error('PREVIEW_START config incomplete: missing LETTERS, POSITIONS, or ROWS');
+        }
+        
+        // Check all three arrays have matching length
+        const lettersLength = letters.length;
+        if (positions.length !== lettersLength) {
+            throw new Error(`Config mismatch: PREVIEW_START.POSITIONS.length (${positions.length}) !== LETTERS.length (${lettersLength})`);
+        }
+        if (rows.length !== lettersLength) {
+            throw new Error(`Config mismatch: PREVIEW_START.ROWS.length (${rows.length}) !== LETTERS.length (${lettersLength})`);
+        }
+        
+        // Check alignment with PREVIEW_COUNT
         if (lettersLength !== previewCount) {
-            console.warn(`Config mismatch: PREVIEW_START.LETTERS.length (${lettersLength}) !== PREVIEW_COUNT (${previewCount})`);
+            throw new Error(`Config mismatch: PREVIEW_START.LETTERS.length (${lettersLength}) !== PREVIEW_COUNT (${previewCount})`);
         }
-        if (positionsLength !== lettersLength) {
-            console.warn(`Config mismatch: PREVIEW_START.POSITIONS.length (${positionsLength}) !== LETTERS.length (${lettersLength})`);
-        }
+        
+        // Validate POSITIONS are within grid bounds
+        positions.forEach((col, idx) => {
+            if (col < 0 || col >= gridCols) {
+                throw new Error(`PREVIEW_START.POSITIONS[${idx}] = ${col} is outside grid column bounds [0, ${gridCols - 1}]`);
+            }
+        });
+        
+        // Validate ROWS are within grid bounds
+        rows.forEach((row, idx) => {
+            if (row < 0 || row >= gridRows) {
+                throw new Error(`PREVIEW_START.ROWS[${idx}] = ${row} is outside grid row bounds [0, ${gridRows - 1}]`);
+            }
+        });
+        
+        console.log(`✓ PREVIEW_START config validated: ${lettersLength} letters in correct positions/rows`);
     }
 
     /**
