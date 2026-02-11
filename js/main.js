@@ -1,4 +1,5 @@
 import { Game } from './core/Game.js';
+import { FEATURES } from './core/features.js';
 
 /**
  * Main entry point - Initialize the game when DOM is ready
@@ -7,27 +8,22 @@ import { Game } from './core/Game.js';
 document.addEventListener('DOMContentLoaded', () => {
     const game = new Game();
     
-    // Load feature flags from URL parameters (e.g., ?debug=true&skipAnimations=true)
-    loadFeaturesFromURL(game.features);
-    
     // Log active flags in debug mode
-    if (game.features.isEnabled('debug.enabled')) {
-        console.log('🚩 Features loaded:', game.features.getAll());
+    if (FEATURES.DEBUG_ENABLED) {
+        console.log('🚩 Features loaded:', FEATURES);
     }
     
     game.init().then(() => {
-        // Expose game, features, sequencer, and appState globally for console access
+        // Expose game and sequencer globally for console access
         window.game = game;
-        window.features = game.features;
         window.sequencer = game.sequencer;
         window.appState = game.appState;
         
         // Setup keyboard shortcuts
         setupKeyboardShortcuts(game.sequencer);
         
-        if (game.features.isEnabled('debug.enabled')) {
+        if (FEATURES.DEBUG_ENABLED) {
             console.log('🎮 Game initialized. Available console commands:');
-            console.log('  - features.disable("animations.titleDrop")');
             console.log('  - sequencer.setSpeed(0.5) // Half speed');
             console.log('  - sequencer.getSequenceNames()');
             console.log('  - appState.getAllStates() // Get current states');
@@ -36,58 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-
-/**
- * Load feature flags from URL parameters
- * @param {FeatureManager} features - The feature manager instance
- */
-function loadFeaturesFromURL(features) {
-    const params = new URLSearchParams(window.location.search);
-    
-    // Debug mode
-    if (params.get('debug') === 'true') {
-        features.enable('debug.enabled');
-    }
-    
-    // Skip all animations
-    if (params.get('skipAnimations') === 'true' || params.get('noAnimations') === 'true') {
-        features.enable('debug.skipAnimations');
-        features.disable('animations.titleDrop');
-        features.disable('animations.titleShake');
-        features.disable('animations.wordHighlight');
-        features.disable('animations.letterDrop');
-        features.disable('animations.menuFlip');
-    }
-    
-    // Debug grid pattern
-    if (params.get('debugGrid') === 'true') {
-        features.enable('debug.gridPattern');
-    }
-    
-    // Log timing
-    if (params.get('logTiming') === 'true') {
-        features.enable('debug.logTiming');
-    }
-    
-    // Individual animation controls
-    if (params.get('noTitleDrop') === 'true') {
-        features.disable('animations.titleDrop');
-    }
-    if (params.get('noTitleShake') === 'true') {
-        features.disable('animations.titleShake');
-    }
-    
-    // Feature controls
-    if (params.get('noProgressBar') === 'true') {
-        features.disable('titleProgressBar');
-    }
-    if (params.get('noWordDetection') === 'true') {
-        features.disable('wordDetection');
-    }
-    if (params.get('noGravity') === 'true') {
-        features.disable('gravityPhysics');
-    }
-}
 
 /**
  * Setup keyboard shortcuts for animation control

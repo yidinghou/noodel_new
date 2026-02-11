@@ -1,5 +1,4 @@
 import { CONFIG, GameModes } from '../config.js';
-import { FeatureManager } from './FeatureManager.js';
 import { GameState } from './GameState.js';
 import { DOMCache } from './DOMCache.js';
 import { GameFlowController } from './GameFlowController.js';
@@ -37,7 +36,6 @@ export class Game {
     initializeCoreServices() {
         this.state = new GameState();
         this.dom = new DOMCache();
-        this.features = new FeatureManager();
         this.tutorialUIState = TutorialUIState.INACTIVE;
         this.currentGameMode = GameModes.CLASSIC;
     }
@@ -48,7 +46,7 @@ export class Game {
     initializeControllers() {
         this.grid = new GridController(this.state, this.dom);
         this.letters = new LetterController(this.state, this.dom);
-        this.animator = new AnimationController(this.dom, this.features);
+        this.animator = new AnimationController(this.dom);
         this.score = new ScoreController(this.state, this.dom);
         this.wordResolver = null; // Will be initialized asynchronously
     }
@@ -79,7 +77,6 @@ export class Game {
             this,
             this.stateMachine,
             this.sequencer,
-            this.features,
             this.gracePeriodManager
         );
         

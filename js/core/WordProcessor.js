@@ -1,5 +1,6 @@
 import { WordItem } from '../word/WordItem.js';
 import { calculateWordScore } from '../scoring/ScoringUtils.js';
+import { FEATURES } from './features.js';
 
 /**
  * Tutorial UI state constants
@@ -168,7 +169,7 @@ export class WordProcessor {
      */
     async processWordsImmediately(foundWords, addScore) {
         // Check if word highlighting animation is enabled
-        const shouldAnimate = this.game.features.isEnabled('animations.wordHighlight');
+        const shouldAnimate = FEATURES.ANIMATION_WORD_HIGHLIGHT;
         
         if (shouldAnimate) {
             const animationPromises = foundWords.map(wordData => 
@@ -203,7 +204,7 @@ export class WordProcessor {
         }
         
         // Apply gravity to drop letters down - if enabled
-        if (this.game.features.isEnabled('gravityPhysics')) {
+        if (FEATURES.GRAVITY_PHYSICS) {
             this.game.grid.applyGravity();
         } else {
             // Even without gravity, update column fill counts based on actual grid state
@@ -253,7 +254,7 @@ export class WordProcessor {
             this.game.animator.updateWordPendingAnimation(wordData.positions, 'clear');
             
             // Animate word shake
-            const shouldAnimate = this.game.features.isEnabled('animations.wordHighlight');
+            const shouldAnimate = FEATURES.ANIMATION_WORD_HIGHLIGHT;
             if (shouldAnimate) {
                 await this.game.animator.highlightAndShakeWord(wordData.positions);
             }
@@ -274,7 +275,7 @@ export class WordProcessor {
             }
             
             // Apply gravity to drop letters down (creates new game state) - if enabled
-            if (this.game.features.isEnabled('gravityPhysics')) {
+            if (FEATURES.GRAVITY_PHYSICS) {
                 this.game.grid.applyGravity();
             } else {
                 // Even without gravity, update column fill counts based on actual grid state

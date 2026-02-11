@@ -1,5 +1,6 @@
 import { GamePhase } from './GameStateMachine.js';
 import { GameModes } from '../config.js';
+import { FEATURES } from './features.js';
 
 /**
  * GameFlowController - Manages game initialization, startup, and reset flows
@@ -19,14 +20,12 @@ export class GameFlowController {
      * @param {Object} game - Game instance (for state/controllers access)
      * @param {GameStateMachine} stateMachine - Game phase manager
      * @param {AnimationOrchestrator} orchestrator - Animation orchestrator
-     * @param {FeatureManager} features - Feature flags
      * @param {WordGracePeriodManager} gracePeriodManager - Grace period manager
      */
-    constructor(game, stateMachine, orchestrator, features, gracePeriodManager) {
+    constructor(game, stateMachine, orchestrator, gracePeriodManager) {
         this.game = game;
         this.stateMachine = stateMachine;
         this.orchestrator = orchestrator;
-        this.features = features;
         this.gracePeriodManager = gracePeriodManager;
     }
 
@@ -52,7 +51,7 @@ export class GameFlowController {
         this.game.grid.generate();
         
         // Load debug grid if enabled (for testing word detection)
-        if (this.features.isEnabled('debug.enabled') && this.features.isEnabled('debug.gridPattern')) {
+        if (FEATURES.DEBUG_ENABLED && FEATURES.DEBUG_GRID_PATTERN) {
             this.game.grid.loadDebugGrid();
         }
         
@@ -72,7 +71,7 @@ export class GameFlowController {
         
         // Play appropriate intro sequence based on debug mode
         let noodelItem;
-        if (this.features.isEnabled('debug.enabled')) {
+        if (FEATURES.DEBUG_ENABLED) {
             noodelItem = await this.orchestrator.playDebugIntro(context);
         } else {
             noodelItem = await this.orchestrator.playIntro(context);
