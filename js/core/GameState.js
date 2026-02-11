@@ -13,7 +13,6 @@ export class GameState {
         
         // Game mode
         this.gameMode = gameMode;
-        this.isClearMode = gameMode === GameModes.CLEAR;
         
         // Score tracking
         // Do not apply a hardcoded NOODEL offset here; scoring is controlled
@@ -30,14 +29,6 @@ export class GameState {
         // Grid state
         this.columnFillCounts = Array(CONFIG.GRID.COLUMNS).fill(0);
         this.pendingColumnCounts = Array(CONFIG.GRID.COLUMNS).fill(0);  // Tracks in-flight tiles
-        
-        // Clear Mode specific state
-        if (this.isClearMode) {
-            this.initialGridState = [];           // Store initial populated grid
-            this.cellsClearedCount = 0;           // Track cleared cells
-            this.targetCellsToClear = null;       // Set during init
-            this.lettersRemaining = Infinity;     // Unlimited letters in Clear Mode
-        }
     }
 
     /**
@@ -103,7 +94,6 @@ export class GameState {
         this.isFirstLoad = false; // After first reset, we're no longer in first load
         
         // Game mode stays the same, just reset with current mode
-        // this.gameMode and this.isClearMode are preserved
         
         // Score tracking
         this.score = 0;
@@ -112,19 +102,12 @@ export class GameState {
         // Letter management - generate fresh sequence
         this.letterSequence = this.generateLetterSequence();
         this.currentLetterIndex = 0;
-        this.lettersRemaining = this.isClearMode ? Infinity : CONFIG.GAME.INITIAL_LETTERS;
+        this.lettersRemaining = CONFIG.GAME.INITIAL_LETTERS;
         this.nextLetters = [];
         
         // Grid state
         this.columnFillCounts = Array(CONFIG.GRID.COLUMNS).fill(0);
         this.pendingColumnCounts = Array(CONFIG.GRID.COLUMNS).fill(0);
-        
-        // Clear Mode specific state
-        if (this.isClearMode) {
-            this.initialGridState = [];
-            this.cellsClearedCount = 0;
-            this.targetCellsToClear = null;
-        }
     }
 
     isColumnFull(column) {
@@ -165,35 +148,5 @@ export class GameState {
 
     isGameOver() {
         return this.lettersRemaining <= 0;
-    }
-
-    /**
-     * Get number of empty cells (for Clear Mode progress)
-     */
-    getEmptyCellCount() {
-        let emptyCount = 0;
-        for (let col = 0; col < CONFIG.GRID.COLUMNS; col++) {
-            const emptyRows = CONFIG.GRID.ROWS - this.columnFillCounts[col];
-            emptyCount += emptyRows;
-        }
-        return emptyCount;
-    }
-
-    /**
-     * Get total populated cells (for Clear Mode)
-     */
-    getPopulatedCellCount() {
-        const totalCells = CONFIG.GRID.ROWS * CONFIG.GRID.COLUMNS;
-        return totalCells - this.getEmptyCellCount();
-    }
-
-    /**
-     * Get Clear Mode progress (0-100%)
-     */
-    getClearModeProgress() {
-        if (!this.isClearMode || !this.targetCellsToClear || this.targetCellsToClear === 0) {
-            return 0;
-        }
-        return Math.min(100, (this.cellsClearedCount / this.targetCellsToClear) * 100);
     }
 }
