@@ -133,7 +133,8 @@ export class GameFlowController {
             noodelItem: this.game.noodelItem,
             state: this.game.state,
             isFirstLoad: this.game.state.isFirstLoad,
-            dom: this.game.dom
+            dom: this.game.dom,
+            game: this.game
         };
         
         // Play game start sequence

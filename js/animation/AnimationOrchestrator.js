@@ -91,19 +91,25 @@ export class AnimationOrchestrator {
      * Drop NOODEL word → show stats → initialize letters
      */
     async playGameStart(gameContext = {}) {
-        const noodelItem = gameContext.noodelItem;
+        let noodelItem = gameContext.noodelItem;
         const isFirstLoad = gameContext.isFirstLoad ?? true;
         const state = gameContext.state;
+        const dictionary = gameContext.dictionary || gameContext.game?.wordResolver?.dictionary;
+
+        // Recreate NOODEL item if missing (ensure it's always available for initial drop or reset)
+        if (!noodelItem) {
+            const noodelDef = dictionary?.get('NOODEL') || CONFIG.GAME_INFO?.NOODEL_DEFINITION;
+            const noodelScore = calculateWordScore('NOODEL');
+            noodelItem = new WordItem('NOODEL', noodelDef, noodelScore);
+        }
 
         // Drop NOODEL word overlay (only on first load)
         if (isFirstLoad && document.getElementById('noodel-word-overlay')) {
             await this.animator.dropNoodelWordOverlay(() => {
-                if (noodelItem) {
-                    this.score.addWord(noodelItem, false);
-                }
+                this.score.addWord(noodelItem, false);
             });
-        } else if (!isFirstLoad && noodelItem) {
-            // Add NOODEL directly on reset
+        } else if (!isFirstLoad) {
+            // Add NOODEL directly on reset (when word list was cleared)
             this.score.addWord(noodelItem, false);
         }
 
