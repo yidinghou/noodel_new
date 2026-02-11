@@ -98,71 +98,71 @@ export class WordProcessor {
         
             // Process each found word through grace period system
             for (const wordData of foundWords) {
-                const wordKey = this.gracePeriodManager.generateWordKey(wordData);
-                
-                // If this exact word is already pending, skip it entirely
-                // (don't reset timer just because the same word was re-detected)
-                if (this.gracePeriodManager.pendingWords.has(wordKey)) {
-                    continue;
-                }
-                
-                // Check for intersections with existing pending words
-                const intersectingWords = this.gracePeriodManager.getIntersectingWordsWithDirection(wordData.positions);
-                
-                if (intersectingWords.length > 0) {
-                    // Separate intersections by direction
-                    const sameDirectionKeys = intersectingWords
-                        .filter(w => w.direction === wordData.direction)
-                        .map(w => w.wordKey);
-                    const differentDirectionKeys = intersectingWords
-                        .filter(w => w.direction !== wordData.direction)
-                        .map(w => w.wordKey);
-                    
-                    // Check if this word is an extension of any same-direction pending word
-                    let isExtending = false;
-                    for (const existingKey of sameDirectionKeys) {
-                        if (this.gracePeriodManager.isExtension(wordData.positions, existingKey)) {
-                            isExtending = true;
-                            // This is a longer word that extends an existing pending word
-                            // Remove the shorter word and add the longer one with fresh timer
-                            this.gracePeriodManager.handleWordExtension(wordData, sameDirectionKeys);
-                            break;
-                        }
-                    }
-                    
-                    // Same direction but not extending - ignore this word
-                    if (sameDirectionKeys.length > 0 && !isExtending) {
-                        continue;
-                    }
-                    
-                    // Different direction (crossing) - add as new word and reset intersecting words
-                    if (differentDirectionKeys.length > 0) {
-                        this.gracePeriodManager.addPendingWord(wordData);
-                        differentDirectionKeys.forEach(key => this.gracePeriodManager.resetGracePeriod(key));
-                        // Continue to add word to display below
-                    } else if (!isExtending) {
-                        // No intersections handled yet, shouldn't reach here but safety fallback
-                        continue;
-                    }
-                } else {
-                    // No intersections - add as new pending word
-                    this.gracePeriodManager.addPendingWord(wordData);
-                }
-                
-                // If word is "START" and tutorial is active, mark tutorial as completed
-                if (wordData.word === 'START' && this.game.tutorialUIState === TutorialUIState.ACTIVE) {
-                    console.log('START word found - completing tutorial');
-                    this.game.tutorialUIState = TutorialUIState.COMPLETED;
-                    this.game.updateTutorialUI();
-                }
+                this._handleSingleWordGracePeriod(wordData);
+                this._checkTutorialProgression(wordData);
             }
         } finally {
             this.isProcessingWords = false;
             // If another call came in while we were processing, re-check with fresh grid state
             if (this.wordCheckPending) {
                 this.wordCheckPending = false;
-                await this.checkAndProcessWords(addScore, useGracePeriod);
+                // Use a slight delay or queueMicrotask to prevent stack overflow
+                queueMicrotask(() => this.checkAndProcessWords(addScore, useGracePeriod));
             }
+        }
+    }
+
+    /**
+     * Handles the logic for a single word entering the grace period system
+     * @param {Object} wordData - Word to process
+     * @private
+     */
+    _handleSingleWordGracePeriod(wordData) {
+        const manager = this.gracePeriodManager;
+        const wordKey = manager.generateWordKey(wordData);
+
+        // If this exact word is already pending, skip it entirely
+        if (manager.pendingWords.has(wordKey)) {
+            return;
+        }
+
+        // Check for intersections with existing pending words
+        const intersections = manager.getIntersectingWordsWithDirection(wordData.positions);
+        
+        if (intersections.length === 0) {
+            // No intersections - add as new pending word
+            manager.addPendingWord(wordData);
+            return;
+        }
+
+        // Separate intersections by direction
+        const sameDir = intersections.filter(w => w.direction === wordData.direction);
+        const diffDir = intersections.filter(w => w.direction !== wordData.direction);
+
+        // Handle extensions (e.g., "PLAY" becomes "PLAYER")
+        const extensionMatch = sameDir.find(w => manager.isExtension(wordData.positions, w.wordKey));
+        
+        if (extensionMatch) {
+            // This is a longer word that extends an existing pending word
+            // Remove the shorter word and add the longer one with fresh timer
+            manager.handleWordExtension(wordData, sameDir.map(w => w.wordKey));
+        } else if (sameDir.length === 0 && diffDir.length > 0) {
+            // Handle crossing words (e.g., "CAT" crossing "ACT")
+            manager.addPendingWord(wordData);
+            diffDir.forEach(w => manager.resetGracePeriod(w.wordKey));
+        }
+    }
+
+    /**
+     * Check if tutorial state needs to be updated based on found word
+     * @param {Object} wordData - Word to check
+     * @private
+     */
+    _checkTutorialProgression(wordData) {
+        if (wordData.word === 'START' && this.game.tutorialUIState === TutorialUIState.ACTIVE) {
+            console.log('START word found - completing tutorial');
+            this.game.tutorialUIState = TutorialUIState.COMPLETED;
+            this.game.updateTutorialUI();
         }
     }
 
