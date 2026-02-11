@@ -1,6 +1,7 @@
 import { CONFIG } from '../config.js';
 import { INPUT_BUFFER_MS } from './gameConstants.js';
-import { isValidColumn } from '../grid/gridUtils.js';
+import { isValidColumn, calculateIndex } from '../grid/gridUtils.js';
+import { GamePhase } from './GameStateMachine.js';
 
 /**
  * GameInputController - Handles all user input and interactions
@@ -154,7 +155,6 @@ export class GameInputController {
             this.game.state.incrementColumnFill(column);
             
             // Transition to PLAYING phase on first letter drop (if not already playing)
-            const GamePhase = (await import('./GameStateMachine.js')).GamePhase;
             if (this.game.stateMachine.is(GamePhase.GAME_READY)) {
                 this.game.stateMachine.transition(GamePhase.PLAYING);
             }
@@ -180,7 +180,6 @@ export class GameInputController {
             return; // START sequence not active or complete
         }
         
-        const { calculateIndex } = await import('../grid/gridUtils.js');
         const expected = this.game.startSequence.getCurrentExpectedPosition();
         const column = expected.column;
 
