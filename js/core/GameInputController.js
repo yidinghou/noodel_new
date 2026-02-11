@@ -165,39 +165,4 @@ export class GameInputController {
             }
         });
     }
-
-    /**
-     * Highlight the next grid square in the START sequence
-     */
-    highlightNextStartGuide() {
-        if (!this.game.startSequence.isActive || this.game.startSequence.currentIndex >= CONFIG.PREVIEW_START.LETTERS.length) {
-            return; // START sequence not active or complete
-        }
-        
-        const expected = this.game.startSequence.getCurrentExpectedPosition();
-        const column = expected.column;
-
-        // Highlight only the configured focus square for this letter
-        const focusIndex = calculateIndex(expected.row, column, CONFIG.GRID.COLUMNS);
-        const focusSquare = this.game.dom.getGridSquare(focusIndex);
-        if (focusSquare) {
-            focusSquare.classList.add('start-guide');
-        }
-
-        console.log(`Highlighting single square at row ${expected.row}, column ${column}`);
-    }
-
-    /**
-     * Clear the current START guide highlight
-     */
-    clearStartGuide() {
-        // Remove start-guide and focus classes from all highlighted squares
-        const highlighted = this.game.dom.grid.querySelectorAll('.start-guide, .start-guide-focus');
-        highlighted.forEach(sq => {
-            sq.classList.remove('start-guide');
-            sq.classList.remove('start-guide-focus');
-        });
-    }
-
-
 }
