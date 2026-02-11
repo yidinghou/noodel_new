@@ -1,7 +1,5 @@
-import { WebpageStates } from './WebpageStates.js';
-
 /**
- * FeatureManager - State-aware feature flag management
+ * FeatureManager - Feature flag management
  * 
  * Extends feature flag functionality to be aware of WebpageStates
  * Allows features to be enabled/disabled based on current UI state
