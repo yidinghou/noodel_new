@@ -56,6 +56,9 @@ export class GameFlowController {
             this.game.grid.loadDebugGrid();
         }
         
+        // Initialize tutorial state and show skip button
+        this.game.initTutorialState();
+        
         // Create shared context for animation execution
         const context = {
             dictionary: wordResolver.dictionary,

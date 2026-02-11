@@ -152,6 +152,13 @@ export class Game {
     }
 
     /**
+     * Initialize tutorial state during game initialization
+     */
+    initTutorialState() {
+        return this.startUI.initTutorialState();
+    }
+
+    /**
      * Update tutorial UI visibility based on tutorial state
      * Single source of truth for tutorial UI state
      */

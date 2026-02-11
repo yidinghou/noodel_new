@@ -14,7 +14,7 @@ export class StartSequenceUI {
     /**
      * Initialize the START sequence and highlight the first square
      */
-    initStartSequenceGuide() {
+    initTutorialState() {
         this.game.startSequence.start();
         this.highlightNextStartGuide();
         
