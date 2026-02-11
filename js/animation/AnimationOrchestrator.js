@@ -189,4 +189,26 @@ export class AnimationOrchestrator {
     disableDebug() {
         this.debugMode = false;
     }
+
+    /**
+     * Stub methods for backwards compatibility with debug keyboard shortcuts
+     * setSpeed, pause, resume, and getSequenceNames are no longer functional
+     * since AnimationSequencer has been removed, but we keep stubs so debug
+     * code in main.js doesn't break
+     */
+    setSpeed(multiplier) {
+        console.log(`ℹ️ Animation speed control is no longer available (multiplier requested: ${multiplier})`);
+    }
+
+    pause() {
+        console.log('ℹ️ Animation pause is no longer available');
+    }
+
+    resume() {
+        console.log('ℹ️ Animation resume is no longer available');
+    }
+
+    getSequenceNames() {
+        return ['intro', 'debugIntro', 'gameStart', 'reset'];
+    }
 }
