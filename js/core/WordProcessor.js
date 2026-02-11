@@ -287,6 +287,55 @@ export class WordProcessor {
     }
 
     /**
+     * Process all words that expired in the current batch (Batch Processor)
+     * Orchestrates: finalization, parallel animation, physics, and cascade checking
+     */
+    async processExpiredBatch() {
+        // Collect all words from the batch
+        const batch = new Map(this.pendingBatch);
+        this.pendingBatch.clear();
+        this.batchTimer = null;
+
+        // Filter out words that might have been reset/cleared already
+        const validEntries = Array.from(batch.entries())
+            .filter(([key]) => this.gracePeriodManager.pendingWords.has(key));
+
+        if (validEntries.length === 0) {
+            return;
+        }
+
+        // State Lock: prevent new word detection during clearing
+        this.wordDetectionEnabled = false;
+
+        // Phase 1: Finalize all words (score & UI) synchronously
+        validEntries.forEach(([key, data]) => {
+            console.log(`Word grace period expired: ${data.word}`);
+            this.finalizeWordData(data, key);
+        });
+
+        // Phase 2: Remove from pending now that finalization is done
+        validEntries.forEach(([key]) => {
+            this.gracePeriodManager.removePendingWord(key);
+        });
+
+        // Phase 3: Animate all word removals in parallel
+        const allPositions = validEntries.map(entry => entry[1].positions);
+        await this.animateBatchRemoval(allPositions);
+
+        // Phase 4: Apply physics once per batch
+        this.runGridPhysics();
+
+        // Phase 5: Wait for settling before re-enabling detection
+        await new Promise(resolve => setTimeout(resolve, 300));
+
+        // Re-enable word detection now that cells are settled
+        this.wordDetectionEnabled = true;
+
+        // Phase 6: Check for cascading words (gravity creates new words)
+        await this.checkAndProcessWords(true);  // addScore=true for cascaded words
+    }
+
+    /**
      * Handle word expiration after grace period (Collector Pattern)
      * Collects expiring words into a batch for synchronized processing
      * @param {Object} wordData - Word to expire
