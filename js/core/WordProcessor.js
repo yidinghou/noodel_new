@@ -250,7 +250,7 @@ export class WordProcessor {
             this.game.score.addWord(wordItem, willAddToScore);
             
             // First, clear the pending animation (remove word-pending class)
-            this.game.animator.clearWordPendingAnimation(wordData.positions);
+            this.game.animator.updateWordPendingAnimation(wordData.positions, 'clear');
             
             // Animate word shake
             const shouldAnimate = this.game.features.isEnabled('animations.wordHighlight');

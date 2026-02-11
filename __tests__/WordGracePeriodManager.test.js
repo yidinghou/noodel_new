@@ -6,9 +6,7 @@ import { WordGracePeriodManager } from '../js/word/WordGracePeriodManager.js';
  */
 function createMockAnimator() {
   return {
-    startWordPendingAnimation: jest.fn(),
-    resetWordPendingAnimation: jest.fn(),
-    clearWordPendingAnimation: jest.fn(),
+    updateWordPendingAnimation: jest.fn(),
   };
 }
 
@@ -91,8 +89,9 @@ describe('WordGracePeriodManager', () => {
 
       manager.addPendingWord(wordData, onExpired);
 
-      expect(mockAnimator.startWordPendingAnimation).toHaveBeenCalledWith(
-        wordData.positions
+      expect(mockAnimator.updateWordPendingAnimation).toHaveBeenCalledWith(
+        wordData.positions,
+        'start'
       );
       const pending = manager.getAllPendingWords();
       expect(pending).toHaveLength(1);
@@ -170,13 +169,16 @@ describe('WordGracePeriodManager', () => {
       expect(newOnExpired).toHaveBeenCalled();
     });
 
-    test('should call resetWordPendingAnimation', () => {
+    test('should call updateWordPendingAnimation with reset', () => {
       const wordData = createWordData();
       manager.addPendingWord(wordData, jest.fn());
 
       manager.resetGracePeriod(manager.generateWordKey(wordData), jest.fn());
 
-      expect(mockAnimator.resetWordPendingAnimation).toHaveBeenCalled();
+      expect(mockAnimator.updateWordPendingAnimation).toHaveBeenCalledWith(
+        wordData.positions,
+        'reset'
+      );
     });
 
     test('should handle missing word gracefully', () => {
@@ -333,13 +335,16 @@ describe('WordGracePeriodManager', () => {
       expect(pending).toHaveLength(0);
     });
 
-    test('should call clearWordPendingAnimation on removal', () => {
+    test('should call updateWordPendingAnimation with clear on removal', () => {
       const wordData = createWordData();
       manager.addPendingWord(wordData, jest.fn());
 
       manager.removePendingWord(manager.generateWordKey(wordData));
 
-      expect(mockAnimator.clearWordPendingAnimation).toHaveBeenCalled();
+      expect(mockAnimator.updateWordPendingAnimation).toHaveBeenCalledWith(
+        wordData.positions,
+        'clear'
+      );
     });
 
     test('should handle removal of nonexistent word', () => {
@@ -361,14 +366,14 @@ describe('WordGracePeriodManager', () => {
       expect(pending).toHaveLength(0);
     });
 
-    test('should call clearWordPendingAnimation for each word', () => {
-      mockAnimator.clearWordPendingAnimation.mockClear();
+    test('should call updateWordPendingAnimation with clear for each word', () => {
+      mockAnimator.updateWordPendingAnimation.mockClear();
       manager.addPendingWord(createWordData({ word: 'word1' }), jest.fn());
       manager.addPendingWord(createWordData({ word: 'word2' }), jest.fn());
 
       manager.clearAll();
 
-      expect(mockAnimator.clearWordPendingAnimation).toHaveBeenCalledTimes(2);
+      expect(mockAnimator.updateWordPendingAnimation).toHaveBeenCalledTimes(3);
     });
 
     test('should handle clearAll on empty manager', () => {
@@ -593,7 +598,7 @@ test('should remove word from pending list when grace period expires', () => {
 
       manager.handleWordExtension(extendedWord, [manager.generateWordKey(originalWord)]);
 
-      expect(mockAnimator.startWordPendingAnimation).toHaveBeenCalled();
+      expect(mockAnimator.updateWordPendingAnimation).toHaveBeenCalled();
     });
   });
 });

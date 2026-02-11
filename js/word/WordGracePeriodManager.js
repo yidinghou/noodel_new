@@ -71,7 +71,7 @@ export class WordGracePeriodManager {
         });
         
         // Start visual animation
-        this.animator.startWordPendingAnimation(wordData.positions);
+        this.animator.updateWordPendingAnimation(wordData.positions, 'start');
     }
 
     /**
@@ -103,7 +103,7 @@ export class WordGracePeriodManager {
         }
         
         // Reset visual animation (restart the green fill)
-        this.animator.resetWordPendingAnimation(pending.wordData.positions);
+        this.animator.updateWordPendingAnimation(pending.wordData.positions, 'reset');
     }
 
     /**
@@ -174,7 +174,7 @@ export class WordGracePeriodManager {
         clearTimeout(pending.timerId);
         
         // Remove visual animation
-        this.animator.clearWordPendingAnimation(pending.wordData.positions);
+        this.animator.updateWordPendingAnimation(pending.wordData.positions, 'clear');
         
         // Remove from pending
         this.pendingWords.delete(wordKey);
@@ -229,13 +229,13 @@ export class WordGracePeriodManager {
         replacedKeys.forEach(key => this.removePendingWord(key));
 
         // Add new extended word with fresh timer
-        // Note: addPendingWord calls startWordPendingAnimation internally,
+        // Note: addPendingWord calls updateWordPendingAnimation internally,
         // but for old positions the browser may batch the remove+add without 
         // restarting the CSS animation. We immediately follow with 
-        // resetWordPendingAnimation which forces a reflow to guarantee all 
+        // updateWordPendingAnimation which forces a reflow to guarantee all 
         // positions (old + new) get a fresh animation restart.
         this.addPendingWord(newWordData, oldCallback);
-        this.animator.resetWordPendingAnimation(newWordData.positions);
+        this.animator.updateWordPendingAnimation(newWordData.positions, 'reset');
     }
 
     /**
@@ -244,7 +244,7 @@ export class WordGracePeriodManager {
     clearAll() {
         for (const [, pending] of this.pendingWords) {
             clearTimeout(pending.timerId);
-            this.animator.clearWordPendingAnimation(pending.wordData.positions);
+            this.animator.updateWordPendingAnimation(pending.wordData.positions, 'clear');
         }
         
         this.pendingWords.clear();
