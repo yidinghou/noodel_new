@@ -1,12 +1,15 @@
 import { Game } from './core/Game.js';
 import { FEATURES } from './core/features.js';
+import { DebugModeController } from './core/DebugModeController.js';
 
 /**
  * Main entry point - Initialize the game when DOM is ready
  * Note: Animation timing is now controlled via CSS custom properties in base.css
  */
 document.addEventListener('DOMContentLoaded', () => {
-    const game = new Game();
+    // Initialize debug controller early
+    const debugController = new DebugModeController();
+    const game = new Game(debugController);
     
     // Log active flags in debug mode
     if (FEATURES.DEBUG_ENABLED) {

@@ -20,7 +20,8 @@ import { GameLifecycleManager } from './GameLifecycleManager.js';
  * Game class - Main orchestrator that coordinates all controllers
  */
 export class Game {
-    constructor() {
+    constructor(debugController = null) {
+        this.debugController = debugController;
         this.initializeCoreServices();
         this.initializeControllers();
         this.initializeAnimationSystem();
