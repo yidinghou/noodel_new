@@ -80,7 +80,7 @@ export class GameInputController {
         this.game.isStartDropInProgress = true;
         
         // Remove glow from current square
-        this.clearStartGuide();
+        this.game.startUI.clearStartGuide();
         
         // Drop the letter with animation callback
         this.game.animator.dropLetterInColumn(column, currentLetter, targetRow, async () => {
@@ -92,7 +92,7 @@ export class GameInputController {
                 this.game.startSequence.advance();
                 
                 // Update preview: remove first letter and shift remaining
-                this.updateStartPreviewAfterDrop();
+                this.game.startUI.updateStartPreviewAfterDrop();
                 
                 console.log(`Dropped ${currentLetter} in column ${column}`);
                 
@@ -102,7 +102,7 @@ export class GameInputController {
                     await this.game.startSequence.complete();
                 } else {
                     // Highlight the next square to click
-                    this.highlightNextStartGuide();
+                    this.game.startUI.highlightNextStartGuide();
                 }
             } finally {
                 // UNLOCK: Allow next click after callback completes
