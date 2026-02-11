@@ -19,7 +19,8 @@ export const GamePhase = {
  */
 export const ValidTransitions = {
     [GamePhase.LOADING]: [GamePhase.INTRO_ANIMATION],
-    [GamePhase.INTRO_ANIMATION]: [GamePhase.START_SEQUENCE],
+    // Allow direct transition to GAME_READY for debug/no-frills mode
+    [GamePhase.INTRO_ANIMATION]: [GamePhase.START_SEQUENCE, GamePhase.GAME_READY],
     [GamePhase.START_SEQUENCE]: [GamePhase.GAME_READY],
     [GamePhase.GAME_READY]: [GamePhase.PLAYING],
     [GamePhase.PLAYING]: [GamePhase.WORD_PROCESSING, GamePhase.GAME_OVER],
