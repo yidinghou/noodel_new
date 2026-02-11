@@ -80,7 +80,7 @@ export class GameInputController {
         this.game.isStartDropInProgress = true;
         
         // Remove glow from current square
-        this.clearStartGuide();
+        this.game.startUI.clearStartGuide();
         
         // Drop the letter with animation callback
         this.game.animator.dropLetterInColumn(column, currentLetter, targetRow, async () => {
@@ -92,7 +92,7 @@ export class GameInputController {
                 this.game.startSequence.advance();
                 
                 // Update preview: remove first letter and shift remaining
-                this.updateStartPreviewAfterDrop();
+                this.game.startUI.updateStartPreviewAfterDrop();
                 
                 console.log(`Dropped ${currentLetter} in column ${column}`);
                 
@@ -102,7 +102,7 @@ export class GameInputController {
                     await this.game.startSequence.complete();
                 } else {
                     // Highlight the next square to click
-                    this.highlightNextStartGuide();
+                    this.game.startUI.highlightNextStartGuide();
                 }
             } finally {
                 // UNLOCK: Allow next click after callback completes
@@ -165,39 +165,4 @@ export class GameInputController {
             }
         });
     }
-
-    /**
-     * Highlight the next grid square in the START sequence
-     */
-    highlightNextStartGuide() {
-        if (!this.game.startSequence.isActive || this.game.startSequence.currentIndex >= CONFIG.PREVIEW_START.LETTERS.length) {
-            return; // START sequence not active or complete
-        }
-        
-        const expected = this.game.startSequence.getCurrentExpectedPosition();
-        const column = expected.column;
-
-        // Highlight only the configured focus square for this letter
-        const focusIndex = calculateIndex(expected.row, column, CONFIG.GRID.COLUMNS);
-        const focusSquare = this.game.dom.getGridSquare(focusIndex);
-        if (focusSquare) {
-            focusSquare.classList.add('start-guide');
-        }
-
-        console.log(`Highlighting single square at row ${expected.row}, column ${column}`);
-    }
-
-    /**
-     * Clear the current START guide highlight
-     */
-    clearStartGuide() {
-        // Remove start-guide and focus classes from all highlighted squares
-        const highlighted = this.game.dom.grid.querySelectorAll('.start-guide, .start-guide-focus');
-        highlighted.forEach(sq => {
-            sq.classList.remove('start-guide');
-            sq.classList.remove('start-guide-focus');
-        });
-    }
-
-
 }
