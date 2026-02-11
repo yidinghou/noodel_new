@@ -1,4 +1,5 @@
 import { CONFIG, GameModes } from '../config.js';
+import { FEATURES } from './features.js';
 import { GameState } from './GameState.js';
 import { DOMCache } from './DOMCache.js';
 import { GameFlowController } from './GameFlowController.js';
@@ -20,7 +21,8 @@ import { GameLifecycleManager } from './GameLifecycleManager.js';
  * Game class - Main orchestrator that coordinates all controllers
  */
 export class Game {
-    constructor() {
+    constructor(debugController = null) {
+        this.debugController = debugController;
         this.initializeCoreServices();
         this.initializeControllers();
         this.initializeAnimationSystem();
@@ -56,8 +58,13 @@ export class Game {
      */
     initializeAnimationSystem() {
         // Initialize word grace period manager (handles word clearing with delay)
+        // Grace period can be toggled via FEATURES.WORD_GRACE_PERIOD_ENABLED
+        const gracePeriodMs = FEATURES.WORD_GRACE_PERIOD_ENABLED 
+            ? (CONFIG.GAME.WORD_GRACE_PERIOD_MS || 1000)
+            : 0;
+        
         this.gracePeriodManager = new WordGracePeriodManager(this.animator, {
-            gracePeriodMs: CONFIG.GAME.WORD_GRACE_PERIOD_MS || 1000
+            gracePeriodMs: gracePeriodMs
         });
         
         // Initialize animation orchestrator with all controllers

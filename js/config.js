@@ -49,9 +49,9 @@ export const CONFIG = {
         // Row 3
         ['', '', 'T', '', '', '', ''],
         // Row 4
-        ['', 'A', 'C', 'A', '', '', ''],
+        ['', 'A', 'C', 'A', 'T', '', ''],
         // Row 5 (Bottom)
-        ['', 'A', 'T', '', 'T', '', '']
+        ['', 'A', 'T', 'T', 'T', '', '']
     ]
     
     // Alternative test patterns (uncomment to use):
