@@ -18,14 +18,14 @@ export class GameFlowController {
      * Initialize GameFlowController
      * @param {Object} game - Game instance (for state/controllers access)
      * @param {GameStateMachine} stateMachine - Game phase manager
-     * @param {AnimationSequencer} sequencer - Animation sequence player
+     * @param {AnimationOrchestrator} orchestrator - Animation orchestrator
      * @param {FeatureManager} features - Feature flags
      * @param {WordGracePeriodManager} gracePeriodManager - Grace period manager
      */
-    constructor(game, stateMachine, sequencer, features, gracePeriodManager) {
+    constructor(game, stateMachine, orchestrator, features, gracePeriodManager) {
         this.game = game;
         this.stateMachine = stateMachine;
-        this.sequencer = sequencer;
+        this.orchestrator = orchestrator;
         this.features = features;
         this.gracePeriodManager = gracePeriodManager;
     }
@@ -56,13 +56,14 @@ export class GameFlowController {
             this.game.grid.loadDebugGrid();
         }
         
-        // Create shared context for sequence execution
+        // Initialize tutorial state and show skip button
+        this.game.initTutorialState();
+        
+        // Create shared context for animation execution
         const context = {
             dictionary: wordResolver.dictionary,
             state: this.game.state,
             dom: this.game.dom,
-            score: this.game.score,
-            letters: this.game.letters,
             game: this.game
         };
         
@@ -70,17 +71,18 @@ export class GameFlowController {
         this.stateMachine.transition(GamePhase.INTRO_ANIMATION);
         
         // Play appropriate intro sequence based on debug mode
+        let noodelItem;
         if (this.features.isEnabled('debug.enabled')) {
-            await this.sequencer.play('debugIntro', context);
+            noodelItem = await this.orchestrator.playDebugIntro(context);
         } else {
-            await this.sequencer.play('intro', context);
+            noodelItem = await this.orchestrator.playIntro(context);
         }
+        
+        // Store noodelItem for later use in startGame()
+        this.game.noodelItem = noodelItem;
         
         // Transition to START sequence phase
         this.stateMachine.transition(GamePhase.START_SEQUENCE);
-        
-        // Store noodelItem for later use in start()
-        this.game.noodelItem = context.noodelItem;
         
         // Setup event listeners
         this.setupEventListeners();
@@ -131,13 +133,12 @@ export class GameFlowController {
         const context = {
             noodelItem: this.game.noodelItem,
             state: this.game.state,
-            dom: this.game.dom,
-            score: this.game.score,
-            dictionary: this.game.wordResolver?.dictionary
+            isFirstLoad: this.game.state.isFirstLoad,
+            dom: this.game.dom
         };
         
         // Play game start sequence
-        await this.sequencer.play('gameStart', context);
+        await this.orchestrator.playGameStart(context);
         
         // Clear noodelItem reference after it's been added
         this.game.noodelItem = null;
@@ -164,9 +165,6 @@ export class GameFlowController {
         this.game.score.displayReset();
         this.game.grid.displayReset();
         
-        // Shake NOODEL title to indicate new state
-        await this.game.animator.shakeAllTitleLetters();
-        
         // Update button to show reset icon
         this.game.dom.startBtn.textContent = '🔄';
         
@@ -177,13 +175,13 @@ export class GameFlowController {
         const context = {
             noodelItem: null,
             state: this.game.state,
+            isFirstLoad: false,
             dom: this.game.dom,
-            score: this.game.score,
-            dictionary: this.game.wordResolver?.dictionary
+            game: this.game
         };
         
         // Play game start sequence (adds NOODEL word to the list)
-        await this.sequencer.play('gameStart', context);
+        await this.orchestrator.playGameStart(context);
         
         // Re-add click handlers after grid regeneration
         this.game.grid.addClickHandlers((e) => this.game.handleSquareClick(e));

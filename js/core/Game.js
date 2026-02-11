@@ -5,12 +5,11 @@ import { DOMCache } from './DOMCache.js';
 import { GameFlowController } from './GameFlowController.js';
 import { WordProcessor } from './WordProcessor.js';
 import { AnimationController } from '../animation/AnimationController.js';
+import { AnimationOrchestrator } from '../animation/AnimationOrchestrator.js';
 import { GridController } from '../grid/GridController.js';
 import { LetterController } from '../letter/LetterController.js';
 import { ScoreController } from '../scoring/ScoreController.js';
 import { WordGracePeriodManager } from '../word/WordGracePeriodManager.js';
-import { AnimationSequencer } from '../animation/AnimationSequencer.js';
-import { SEQUENCES } from '../animation/AnimationSequences.js';
 import { StartSequenceController } from './StartSequenceController.js';
 import { GameStateMachine } from './GameStateMachine.js';
 import { TutorialUIState } from './gameConstants.js';
@@ -55,7 +54,7 @@ export class Game {
     }
 
     /**
-     * Initialize animation system (sequencer, state machine, flow controller)
+     * Initialize animation system (orchestrator, state machine, flow controller)
      */
     initializeAnimationSystem() {
         // Initialize word grace period manager (handles word clearing with delay)
@@ -63,17 +62,14 @@ export class Game {
             gracePeriodMs: CONFIG.GAME.WORD_GRACE_PERIOD_MS || 1000
         });
         
-        // Initialize animation sequencer with all controllers
-        this.sequencer = new AnimationSequencer({
+        // Initialize animation orchestrator with all controllers
+        this.sequencer = new AnimationOrchestrator({
             animator: this.animator,
             grid: this.grid,
             letters: this.letters,
             score: this.score,
             game: this
         }, this.features);
-        
-        // Load predefined sequences
-        this.sequencer.loadSequences(SEQUENCES);
         
         // Initialize game state machine for tracking game phases
         this.stateMachine = new GameStateMachine();
@@ -153,6 +149,13 @@ export class Game {
 
     setupEventListeners() {
         return this.flowController.setupEventListeners();
+    }
+
+    /**
+     * Initialize tutorial state during game initialization
+     */
+    initTutorialState() {
+        return this.startUI.initTutorialState();
     }
 
     /**
