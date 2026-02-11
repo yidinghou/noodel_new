@@ -146,10 +146,13 @@ export class WordProcessor {
             // This is a longer word that extends an existing pending word
             // Remove the shorter word and add the longer one with fresh timer
             manager.handleWordExtension(wordData, sameDir.map(w => w.wordKey));
-        } else if (sameDir.length === 0 && diffDir.length > 0) {
-            // Handle crossing words (e.g., "CAT" crossing "ACT")
+        } else {
+            // For any non-extension intersections (same or different direction),
+            // we should still add the new word to pending and reset the grace
+            // period for any intersecting pending words so timers don't unexpectedly
+            // allow the old word to expire first and cause accidental double-processing.
             manager.addPendingWord(wordData);
-            diffDir.forEach(w => manager.resetGracePeriod(w.wordKey));
+            intersections.forEach(w => manager.resetGracePeriod(w.wordKey));
         }
     }
 
