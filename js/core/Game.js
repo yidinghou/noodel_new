@@ -24,26 +24,41 @@ import { GameLifecycleManager } from './GameLifecycleManager.js';
  */
 export class Game {
     constructor() {
-        // Initialize core state and DOM cache
+        this.initializeCoreServices();
+        this.initializeControllers();
+        this.initializeAnimationSystem();
+        this.initializeWordProcessing();
+        this.initializeStateFlags();
+        this.initializeManagerModules();
+        this.validateConfig();
+    }
+
+    /**
+     * Initialize core state management and UI cache
+     */
+    initializeCoreServices() {
         this.state = new GameState();
         this.dom = new DOMCache();
-        
-        // Initialize feature manager
         this.features = new FeatureManager();
-        
-        // Tutorial UI state management
         this.tutorialUIState = TutorialUIState.INACTIVE;
-        
-        // Current game mode (defaults to CLASSIC)
         this.currentGameMode = GameModes.CLASSIC;
-        
-        // Initialize controllers
+    }
+
+    /**
+     * Initialize all game controllers (grid, letters, animator, score)
+     */
+    initializeControllers() {
         this.grid = new GridController(this.state, this.dom);
         this.letters = new LetterController(this.state, this.dom);
         this.animator = new AnimationController(this.dom, this.features);
         this.score = new ScoreController(this.state, this.dom);
         this.wordResolver = null; // Will be initialized asynchronously
-        
+    }
+
+    /**
+     * Initialize animation system (sequencer, state machine, flow controller)
+     */
+    initializeAnimationSystem() {
         // Initialize word grace period manager (handles word clearing with delay)
         this.gracePeriodManager = new WordGracePeriodManager(this.animator, {
             gracePeriodMs: CONFIG.GAME.WORD_GRACE_PERIOD_MS || 1000
@@ -55,7 +70,7 @@ export class Game {
             grid: this.grid,
             letters: this.letters,
             score: this.score,
-            game: this  // Add game controller for timer methods
+            game: this
         }, this.features);
         
         // Load predefined sequences
@@ -76,6 +91,14 @@ export class Game {
         // Initialize Clear Mode manager
         this.clearModeManager = new ClearModeManager(this, this.sequencer);
         
+        // Initialize START sequence controller
+        this.startSequence = new StartSequenceController(this);
+    }
+
+    /**
+     * Initialize word detection and processing system
+     */
+    initializeWordProcessing() {
         // Initialize word processor (handles word detection and clearing)
         this.wordProcessor = new WordProcessor(this, this.gracePeriodManager);
         
@@ -83,7 +106,12 @@ export class Game {
         this.gracePeriodManager.setOnWordExpired(
             this.wordProcessor.handleWordExpired.bind(this.wordProcessor)
         );
+    }
 
+    /**
+     * Initialize state flags and internal tracking variables
+     */
+    initializeStateFlags() {
         // Flag to prevent multiple simultaneous word checks
         this.isProcessingWords = false;
         this.wordCheckPending = false;
@@ -91,20 +119,24 @@ export class Game {
         
         // Queue for serializing word expiration handling (prevents interleaved grid mutations)
         this.wordExpirationQueue = Promise.resolve();
-        this.wordDetectionEnabled = true;
         
-        // Flag to prevent re-entrance in START sequence (prevents multiple animations queueing)
+        // Flag to prevent re-entrance in START sequence
         this.isStartDropInProgress = false;
-        
-        // START sequence controller
-        this.startSequence = new StartSequenceController(this);
-        
-        // Initialize manager modules for cleaner separation of concerns
+    }
+
+    /**
+     * Initialize specialized manager modules for cleaner separation of concerns
+     */
+    initializeManagerModules() {
         this.input = new GameInputController(this);
         this.startUI = new StartSequenceUI(this);
         this.lifecycle = new GameLifecycleManager(this);
-        
-        // Validate PREVIEW_START config at construction time
+    }
+
+    /**
+     * Validate configuration at construction time
+     */
+    validateConfig() {
         this.lifecycle.validatePreviewStartConfig();
     }
     
