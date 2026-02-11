@@ -41,6 +41,11 @@ export class WordProcessor {
         
         // Queue for serializing word expiration handling (prevents concurrent grid mutations)
         this.wordExpirationQueue = Promise.resolve();
+        
+        // Batch processing for grace period expiration
+        // Collects multiple expiring words within a short window for synchronized animation/physics
+        this.pendingBatch = new Map();  // Map<wordKey, wordData>
+        this.batchTimer = null;         // Timeout handle for batch processing
     }
 
     /**
