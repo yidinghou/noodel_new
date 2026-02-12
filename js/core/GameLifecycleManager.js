@@ -90,8 +90,13 @@ export class GameLifecycleManager {
      * Reset the game to initial state
      */
     async reset() {
-        // Delegate to flow controller
-        return await this.game.flowController.resetGame();
+        // Reset game state and UI
+        await this.game.flowController.resetGame();
+        // Transition to START_MENU and show mode selection overlay
+        this.game.stateMachine.transition(GamePhase.START_MENU);
+        this.game.startUI.showModeSelectionMenu();
+        this.game.tutorialUIState = TutorialUIState.COMPLETED;
+        this.game.updateTutorialUI();
     }
 
     /**
