@@ -180,6 +180,15 @@ export class WordResolver {
     }
 
     /**
+     * Get list of tile indices for a word
+     * @param {object} wordData - Word data from extractWord/checkForWords
+     * @returns {Array<number>} Array of tile indices
+     */
+    getTileIndicesFromWord(wordData) {
+        return wordData.positions.map(pos => pos.index);
+    }
+
+    /**
      * Filter overlapping words - keep only the longest word from overlapping sets
      */
     filterOverlappingWords(words) {
