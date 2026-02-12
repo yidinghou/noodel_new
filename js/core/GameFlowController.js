@@ -39,11 +39,6 @@ export class GameFlowController {
         const wordResolver = await this.game.initializeWordResolver();
         console.log('Dictionary loaded successfully!');
         
-        // Set up word grace period manager's expiration callback
-        this.gracePeriodManager.setOnWordExpired(
-            (wordData, wordKey, origCallback) => this.game.handleWordExpired(wordData, wordKey, origCallback)
-        );
-        
         // Initialize score display with config values
         this.game.score.init();
         
