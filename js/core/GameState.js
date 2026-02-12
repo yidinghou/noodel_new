@@ -116,6 +116,7 @@ export class GameState {
         // Clear Mode specific state - reset for new game
         this.initialBlockCount = 0;
         this.clearedInitialBlocks = 0;
+    }
 
     isColumnFull(column) {
         const totalFill = this.columnFillCounts[column] + this.pendingColumnCounts[column];
