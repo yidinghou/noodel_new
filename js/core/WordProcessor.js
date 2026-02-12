@@ -2,6 +2,8 @@ import { WordItem } from '../word/WordItem.js';
 import { calculateWordScore } from '../scoring/ScoringUtils.js';
 import { FEATURES } from './features.js';
 import { TutorialUIState } from './gameConstants.js';
+import { GameModes } from '../config.js';
+import { InitialBlockManager } from './InitialBlockManager.js';
 
 /**
  * WordProcessor - Manages word detection, validation, and clearing
@@ -59,6 +61,23 @@ export class WordProcessor {
     }
 
     /**
+     * Check if a word is valid for the current game mode
+     * In Clear Mode, words must contain at least one user-generated tile (non-initial)
+     * @param {Object} wordData - Word data from checkForWords
+     * @returns {boolean} True if word is valid
+     */
+    isWordValidForGameMode(wordData) {
+        // In CLEAR mode, validate that at least one tile is user-generated
+        if (this.game.state.gameMode === GameModes.CLEAR) {
+            const tileIndices = this.game.wordResolver.getTileIndicesFromWord(wordData);
+            const hasUserGeneratedTile = InitialBlockManager.hasUserGeneratedTile(tileIndices, this.game.dom.grid);
+            return hasUserGeneratedTile;
+        }
+        // In CLASSIC mode or unknown mode, allow all words
+        return true;
+    }
+
+    /**
      * Cleanup method to clear batch processing state
      * Should be called during game reset to prevent stale batches from processing
      */
@@ -95,10 +114,17 @@ export class WordProcessor {
         this.isProcessingWords = true;
         try {
             // Find all words on current grid state
-            const foundWords = this.game.wordResolver.checkForWords();
+            let foundWords = this.game.wordResolver.checkForWords();
             
             if (foundWords.length === 0) {
                 return;  // No words found
+            }
+            
+            // Filter words based on game mode validation
+            foundWords = foundWords.filter(wordData => this.isWordValidForGameMode(wordData));
+            
+            if (foundWords.length === 0) {
+                return;  // No valid words after filtering
             }
             
             // If not using grace period, process words immediately (old behavior)
@@ -186,6 +212,13 @@ export class WordProcessor {
      * @param {boolean} addScore - Whether to add score
      */
     async processWordsImmediately(foundWords, addScore) {
+        // Filter words based on game mode validation
+        foundWords = foundWords.filter(wordData => this.isWordValidForGameMode(wordData));
+        
+        if (foundWords.length === 0) {
+            return;  // No valid words
+        }
+        
         // Check if word highlighting animation is enabled
         const shouldAnimate = FEATURES.ANIMATION_WORD_HIGHLIGHT;
         
