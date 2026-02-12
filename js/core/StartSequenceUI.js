@@ -167,3 +167,4 @@ export class StartSequenceUI {
 
         console.log('Mode selection menu displayed');
     }
+}
