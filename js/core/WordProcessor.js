@@ -95,6 +95,14 @@ export class WordProcessor {
     }
 
     /**
+     * Check if any words are currently in their grace period
+     * @returns {boolean} True if there are pending words
+     */
+    hasPendingWords() {
+        return this.gracePeriodManager.pendingWords.size > 0;
+    }
+
+    /**
      * Check grid for words and process them with optional grace period
      * @param {boolean} addScore - Whether to add score for detected words
      * @param {boolean} useGracePeriod - Whether to use grace period delay
@@ -265,7 +273,7 @@ export class WordProcessor {
         // Check for clear mode victory (all initial blocks cleared)
         if (this.game.state.gameMode === GameModes.CLEAR && this.game.state.isClearModeComplete()) {
             console.log('🎉 CLEAR MODE VICTORY! All initial blocks cleared!');
-            this.game.state.started = false;
+            this.game.lifecycle.endGame('VICTORY');
             return;  // End word processing and game
         }
                 
@@ -276,6 +284,9 @@ export class WordProcessor {
         const cascadeWords = this.game.wordResolver.checkForWords();
         if (cascadeWords.length > 0) {
             await this.processWordsImmediately(cascadeWords, addScore);
+        } else if (this.game.state.isGameOver() && !this.hasPendingWords()) {
+            // No more cascades, no more pending words, and letters remaining is 0
+            this.game.lifecycle.endGame('GAME_OVER');
         }
     }
 
