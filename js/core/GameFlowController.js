@@ -167,6 +167,11 @@ export class GameFlowController {
         // Clear any pending words with grace period
         this.gracePeriodManager.clearAll();
         
+        // Cleanup word processor batch state to prevent stale batches
+        if (this.game.wordProcessor) {
+            this.game.wordProcessor.cleanup();
+        }
+        
         // Reset game state with current game mode (score, letters, grid data)
         this.game.state.reset();
         // Preserve the game mode across resets

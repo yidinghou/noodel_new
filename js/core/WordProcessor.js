@@ -1,15 +1,7 @@
 import { WordItem } from '../word/WordItem.js';
 import { calculateWordScore } from '../scoring/ScoringUtils.js';
 import { FEATURES } from './features.js';
-
-/**
- * Tutorial UI state constants
- */
-export const TutorialUIState = { 
-    INACTIVE: 'inactive',
-    ACTIVE: 'active',
-    COMPLETED: 'completed'
-};
+import { TutorialUIState } from './gameConstants.js';
 
 /**
  * WordProcessor - Manages word detection, validation, and clearing
@@ -67,6 +59,23 @@ export class WordProcessor {
     }
 
     /**
+     * Cleanup method to clear batch processing state
+     * Should be called during game reset to prevent stale batches from processing
+     */
+    cleanup() {
+        // Clear pending batch
+        this.pendingBatch.clear();
+        
+        // Cancel any pending batch timer
+        if (this.batchTimer) {
+            clearTimeout(this.batchTimer);
+            this.batchTimer = null;
+        }
+        
+        console.log('WordProcessor cleanup completed');
+    }
+
+    /**
      * Check grid for words and process them with optional grace period
      * @param {boolean} addScore - Whether to add score for detected words
      * @param {boolean} useGracePeriod - Whether to use grace period delay
@@ -108,8 +117,8 @@ export class WordProcessor {
             // If another call came in while we were processing, re-check with fresh grid state
             if (this.wordCheckPending) {
                 this.wordCheckPending = false;
-                // Use a slight delay or queueMicrotask to prevent stack overflow
-                queueMicrotask(() => this.checkAndProcessWords(addScore, useGracePeriod));
+                // Await the re-check so callers observe a fully settled word-processing cycle
+                await this.checkAndProcessWords(addScore, useGracePeriod);
             }
         }
     }
@@ -139,7 +148,6 @@ export class WordProcessor {
 
         // Separate intersections by direction
         const sameDir = intersections.filter(w => w.direction === wordData.direction);
-        const diffDir = intersections.filter(w => w.direction !== wordData.direction);
 
         // Handle extensions (e.g., "PLAY" becomes "PLAYER")
         const extensionMatch = sameDir.find(w => manager.isExtension(wordData.positions, w.wordKey));
@@ -234,9 +242,8 @@ export class WordProcessor {
     /**
      * Finalize word data: add to score and remove pending CSS class
      * @param {Object} wordData - Word to finalize
-     * @param {string} wordKey - Word key for grace period manager
      */
-    finalizeWordData(wordData, wordKey) {
+    finalizeWordData(wordData) {
         // Add word to display now that it's confirmed final
         const points = calculateWordScore(wordData.word);
         const wordItem = new WordItem(wordData.word, wordData.definition, points);
@@ -313,7 +320,7 @@ export class WordProcessor {
             // Phase 2: Finalize & Score synchronously
             validEntries.forEach(([key, data]) => {
                 console.log(`Word grace period expired: ${data.word}`);
-                this.finalizeWordData(data, key);
+                this.finalizeWordData(data);
                 // Remove from manager so it doesn't get re-detected
                 this.gracePeriodManager.removePendingWord(key);
             });
@@ -331,7 +338,11 @@ export class WordProcessor {
         } finally {
             this.isProcessingWords = false;
             // Phase 6: Check if user actions or cascades created new words
-            this.checkAndProcessWords(true);
+            try {
+                await this.checkAndProcessWords(true);
+            } catch (err) {
+                console.error('Error while checking and processing cascade words:', err);
+            }
         }
     }
 

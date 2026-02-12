@@ -3,7 +3,7 @@ import { WordResolver } from '../word/WordResolver.js';
 import { WordItem } from '../word/WordItem.js';
 import { calculateWordScore } from '../scoring/ScoringUtils.js';
 import { GamePhase } from './GameStateMachine.js';
-import { TutorialUIState } from './WordProcessor.js';
+import { TutorialUIState } from './gameConstants.js';
 
 /**
  * GameLifecycleManager - Manages game initialization, startup, and reset phases

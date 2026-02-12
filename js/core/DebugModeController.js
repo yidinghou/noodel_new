@@ -15,7 +15,7 @@ export class DebugModeController {
     }
 
     /**
-     * Parse URL and localStorage for debug flags
+     * Parse URL for debug flags
      */
     parseDebugFlags() {
         const urlParams = new URLSearchParams(window.location.search);
