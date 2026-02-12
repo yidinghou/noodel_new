@@ -120,8 +120,8 @@ export class StartSequenceUI {
         }
 
         if (this.game.tutorialUIState === TutorialUIState.COMPLETED) {
-        this.showGameplayUI();
-    }
+            this.showGameplayUI();
+        }
         
         if (FEATURES.DEBUG_ENABLED) {
             console.log(`Tutorial UI state: ${this.game.tutorialUIState}`);
@@ -129,8 +129,8 @@ export class StartSequenceUI {
     }
 
     showGameplayUI() {
-    if (this.game.dom.lettersRemainingContainer) {
-        this.game.dom.lettersRemainingContainer.classList.add('visible');
+        if (this.game.dom.lettersRemainingContainer) {
+            this.game.dom.lettersRemainingContainer.classList.add('visible');
         }
     }
 }
