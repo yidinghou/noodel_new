@@ -1,4 +1,4 @@
-import { CONFIG } from '../config.js';
+import { CONFIG, GameModes } from '../config.js';
 import { TutorialUIState } from './gameConstants.js';
 import { calculateIndex } from '../grid/gridUtils.js';
 import { FEATURES } from './features.js';
@@ -133,4 +133,37 @@ export class StartSequenceUI {
             this.game.dom.lettersRemainingContainer.classList.add('visible');
         }
     }
-}
+
+    /**
+     * Show mode selection menu overlay
+     */
+    showModeSelectionMenu() {
+        const menu = document.getElementById('modeSelectionMenu');
+        if (!menu) {
+            console.error('Mode selection menu not found in DOM');
+            return;
+        }
+
+        // Show the menu overlay
+        menu.classList.add('visible');
+
+        // Setup listener for CLASSIC mode button
+        const classicBtn = document.getElementById('classicBtn');
+        if (classicBtn) {
+            classicBtn.onclick = () => {
+                menu.classList.remove('visible');
+                this.game.lifecycle.finalizeGameStart(GameModes.CLASSIC);
+            };
+        }
+
+        // Setup listener for CLEAR mode button
+        const clearBtn = document.getElementById('clearBtn');
+        if (clearBtn) {
+            clearBtn.onclick = () => {
+                menu.classList.remove('visible');
+                this.game.lifecycle.finalizeGameStart(GameModes.CLEAR);
+            };
+        }
+
+        console.log('Mode selection menu displayed');
+    }
