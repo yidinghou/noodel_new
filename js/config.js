@@ -20,7 +20,7 @@ export const CONFIG = {
         // based on English letter frequency distribution
         
         // Clear Mode configuration
-        CLEAR_MODE_INITIAL_FILL_PERCENTAGE: 0.5  // Pre-populate 50% of grid with initial blocks
+        CLEAR_MODE_INITIAL_FILL_PERCENTAGE: 0.25  // Pre-populate 25% of grid with initial blocks
     },
     PREVIEW_START: {
         // IMPORTANT: LETTERS.length must equal GAME.PREVIEW_COUNT (both are 5)

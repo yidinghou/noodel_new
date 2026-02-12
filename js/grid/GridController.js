@@ -168,6 +168,9 @@ export class GridController {
         // Apply initial blocks to DOM
         InitialBlockManager.applyInitialBlocksToDom(this.dom.grid, initialBlocks);
         
+        // Apply gravity to make initial blocks fall to bottom
+        this.applyGravity();
+        
         console.log(`Clear Mode initialized: ${initialBlocks.length} initial blocks placed`);
         
         return initialBlocks;
