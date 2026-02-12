@@ -136,6 +136,11 @@ export class GameLifecycleManager {
         this.game.state.started = true;
         this.game.dom.startBtn.textContent = '🔄';
 
+        // Initialize clear mode with initial blocks if selected
+        if (gameMode === GameModes.CLEAR) {
+            this.game.grid.initializeClearMode(this.game.state);
+        }
+
         // Show letters remaining counter
         if (this.game.dom.lettersRemainingContainer) {
             this.game.dom.lettersRemainingContainer.classList.add('visible');
