@@ -5,7 +5,7 @@ import { FEATURES } from './features.js';
 /**
  * Tutorial UI state constants
  */
-const TutorialUIState = { 
+export const TutorialUIState = { 
     INACTIVE: 'inactive',
     ACTIVE: 'active',
     COMPLETED: 'completed'
