@@ -49,7 +49,7 @@ export class Game {
         this.grid = new GridController(this.state, this.dom);
         this.letters = new LetterController(this.state, this.dom);
         this.animator = new AnimationController(this.dom);
-        this.score = new ScoreController(this.state, this.dom);
+        this.score = new ScoreController(this, this.state, this.dom);
         this.wordResolver = null; // Will be initialized asynchronously
     }
 
