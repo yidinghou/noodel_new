@@ -92,8 +92,13 @@ export class GameLifecycleManager {
     async reset() {
         // Reset game state and UI
         await this.game.flowController.resetGame();
-        // Transition to START_MENU and show mode selection overlay
-        this.game.stateMachine.transition(GamePhase.START_MENU);
+        // Transition to RESETTING first, then START_MENU
+        if (this.game.stateMachine.canTransitionTo(GamePhase.RESETTING)) {
+            this.game.stateMachine.transition(GamePhase.RESETTING);
+        }
+        if (this.game.stateMachine.canTransitionTo(GamePhase.START_MENU)) {
+            this.game.stateMachine.transition(GamePhase.START_MENU);
+        }
         this.game.startUI.showModeSelectionMenu();
         this.game.tutorialUIState = TutorialUIState.COMPLETED;
         this.game.updateTutorialUI();
