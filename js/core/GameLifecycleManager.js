@@ -96,25 +96,39 @@ export class GameLifecycleManager {
 
     /**
      * Initialize game after START sequence completes
-     * Handles NOODEL overlay drop and game component initialization
+     * Transitions to START_MENU phase to show mode selection
      */
     async initializeGameAfterStartSequence() {
+        // Transition to menu phase (stops here, no auto-start)
+        this.game.stateMachine.transition(GamePhase.START_MENU);
+        
+        // Show mode selection menu
+        this.game.startUI.showModeSelectionMenu();
+        
+        // Update tutorial UI state
+        this.game.tutorialUIState = TutorialUIState.COMPLETED;
+        this.game.updateTutorialUI();
+    }
+
+    /**
+     * Finalize game start after mode is selected from menu
+     * Initializes game components and transitions to GAME_READY
+     * @param {string} gameMode - The selected game mode (CLASSIC or CLEAR)
+     */
+    async finalizeGameStart(gameMode) {
         // Transition to game ready phase
         this.game.stateMachine.transition(GamePhase.GAME_READY);
         
-        // Mark game as started
+        // Set game mode and mark as started
+        this.game.state.gameMode = gameMode;
         this.game.state.started = true;
         this.game.dom.startBtn.textContent = '🔄';
         
-        // Couple the logic here: Show letters remaining when game starts
+        // Show letters remaining counter
         if (this.game.dom.lettersRemainingContainer) {
             this.game.dom.lettersRemainingContainer.classList.add('visible');
         }
 
-        // Ensure the Tutorial UI state is updated to hide the skip button
-        this.game.tutorialUIState = TutorialUIState.COMPLETED;
-        this.game.updateTutorialUI();
-        
         // Drop NOODEL overlay if it exists and await the animation
         const noodelOverlay = document.getElementById('noodel-word-overlay');
         if (noodelOverlay) {
@@ -148,7 +162,7 @@ export class GameLifecycleManager {
         this.game.letters.initialize();
         this.game.letters.display();
         
-        console.log('Game fully initialized after START sequence!');
+        console.log('Game fully initialized after mode selection!');
         // Enable scoring from this point forward (game has started)
         this.game.state.scoringEnabled = true;
     }
