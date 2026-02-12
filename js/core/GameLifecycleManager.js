@@ -139,6 +139,8 @@ export class GameLifecycleManager {
         // Initialize clear mode with initial blocks if selected
         if (gameMode === GameModes.CLEAR) {
             this.game.grid.initializeClearMode(this.game.state);
+            // Re-add click handlers after grid regeneration in clear mode
+            this.game.grid.addClickHandlers((e) => this.game.handleSquareClick(e));
         }
 
         // Show letters remaining counter
