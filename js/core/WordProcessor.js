@@ -209,7 +209,7 @@ export class WordProcessor {
         // Wait a bit before applying gravity (if animation was shown)
         if (shouldAnimate) {
             const root = getComputedStyle(document.documentElement);
-            const wordClearDelay = parseFloat(root.getPropertyValue('--animation-delay-word-clear').trim());
+            const wordClearDelay = parseFloat(root.getPropertyValue('--animation-delay-word-clear')) || 400;
             await new Promise(resolve => setTimeout(resolve, wordClearDelay));
         }
         
@@ -268,7 +268,7 @@ export class WordProcessor {
             
             // Wait for animation to complete
             const root = getComputedStyle(document.documentElement);
-            const wordClearDelay = parseFloat(root.getPropertyValue('--animation-delay-word-clear').trim());
+            const wordClearDelay = parseFloat(root.getPropertyValue('--animation-delay-word-clear')) || 400;
             await new Promise(resolve => setTimeout(resolve, wordClearDelay));
         } else {
             // No animation - just clear cells immediately
@@ -351,7 +351,9 @@ export class WordProcessor {
 
         // Start a timer to process all gathered words at once
         if (!this.batchTimer) {
-            this.batchTimer = setTimeout(() => this.processExpiredBatch(), 50);
+            // Using a slightly longer window (100ms) helps catch words 
+            // that were formed in the same "move"
+            this.batchTimer = setTimeout(() => this.processExpiredBatch(), 100);
         }
     }
 }
