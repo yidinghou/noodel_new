@@ -164,6 +164,11 @@ export class GameInputController {
             if (FEATURES.WORD_DETECTION) {
                 await this.game.checkAndProcessWords();
             }
+
+            // Check for game over (no more letters remaining AND no pending words to clear)
+            if (this.game.state.isGameOver() && !this.game.wordProcessor.hasPendingWords()) {
+                this.game.lifecycle.endGame('GAME_OVER');
+            }
         });
     }
 }
