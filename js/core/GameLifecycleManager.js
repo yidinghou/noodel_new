@@ -190,4 +190,26 @@ export class GameLifecycleManager {
         // Enable scoring from this point forward (game has started)
         this.game.state.scoringEnabled = true;
     }
+
+    /**
+     * End the game
+     * @param {string} reason - The reason the game ended ('VICTORY' or 'GAME_OVER')
+     */
+    endGame(reason = 'GAME_OVER') {
+        // Prevent multiple game end calls
+        if (!this.game.state.started) return;
+        
+        this.game.state.started = false;
+        
+        if (reason === 'VICTORY') {
+            alert('Congratulations! You cleared all the initial blocks and WON!');
+        } else {
+            alert('Game Over! No more letters remaining.');
+        }
+        
+        // Disable scoring since game has ended
+        this.game.state.scoringEnabled = false;
+        
+        console.log(`Game ended: ${reason}`);
+    }
 }
