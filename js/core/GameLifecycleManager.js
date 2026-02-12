@@ -126,14 +126,16 @@ export class GameLifecycleManager {
      * @param {string} gameMode - The selected game mode (CLASSIC or CLEAR)
      */
     async finalizeGameStart(gameMode) {
-        // Transition to game ready phase
-        this.game.stateMachine.transition(GamePhase.GAME_READY);
-        
+        // Only transition if not already in GAME_READY
+        if (!this.game.stateMachine.is(GamePhase.GAME_READY)) {
+            this.game.stateMachine.transition(GamePhase.GAME_READY);
+        }
+
         // Set game mode and mark as started
         this.game.state.gameMode = gameMode;
         this.game.state.started = true;
         this.game.dom.startBtn.textContent = '🔄';
-        
+
         // Show letters remaining counter
         if (this.game.dom.lettersRemainingContainer) {
             this.game.dom.lettersRemainingContainer.classList.add('visible');
@@ -152,26 +154,26 @@ export class GameLifecycleManager {
             await this.game.animator.dropNoodelWordOverlay(() => {
                 this.game.score.addWord(noodelItem, false);
             });
-            
+
             // Show made-words container after NOODEL overlay drops
             if (this.game.dom.madeWordsContainer) {
                 this.game.dom.madeWordsContainer.classList.add('visible');
             }
         }
-        
+
         // Initialize progress bar
         this.game.animator.updateLetterProgress(
             this.game.state.lettersRemaining,
             CONFIG.GAME.INITIAL_LETTERS
         );
-        
+
         // Show and populate letter preview
         this.game.dom.preview.classList.add('visible');
-        
+
         // Initialize and display letters (ensure nextLetters are populated)
         this.game.letters.initialize();
         this.game.letters.display();
-        
+
         console.log('Game fully initialized after mode selection!');
         // Enable scoring from this point forward (game has started)
         this.game.state.scoringEnabled = true;
