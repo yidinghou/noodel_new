@@ -14,13 +14,13 @@ export const CONFIG = {
     },
     GAME: {
         INITIAL_LETTERS: 100,
-        PREVIEW_COUNT: 5,,       // Grace period for word clearing (milliseconds)
+        PREVIEW_COUNT: 5,
+        WORD_GRACE_PERIOD_MS: 1000,       // Grace period for word clearing (milliseconds)
         // Note: Alphabet is now generated dynamically using LetterGenerator
         // based on English letter frequency distribution
         
         // Clear Mode configuration
-        CLEAR_MODE_INITIAL_FILL_PERCENTAGE: 0.5  // Pre-populate 50% of grid with initial blocksing LetterGenerator
-        // based on English letter frequency distribution
+        CLEAR_MODE_INITIAL_FILL_PERCENTAGE: 0.5  // Pre-populate 50% of grid with initial blocks
     },
     PREVIEW_START: {
         // IMPORTANT: LETTERS.length must equal GAME.PREVIEW_COUNT (both are 5)

@@ -144,7 +144,15 @@ export class GridController {
     }
 
     // Stop pulsating animation on all grid squares
-    stoInitialize clear mode with pre-populated initial blocks
+    stopPulsating() {
+        const squares = this.dom.getAllGridSquares();
+        squares.forEach(square => {
+            square.classList.remove('pulsating');
+        });
+    }
+
+    /**
+     * Initialize clear mode with pre-populated initial blocks
      * @param {GameState} gameState - The game state object
      */
     initializeClearMode(gameState) {
