@@ -3,6 +3,7 @@ import { WordResolver } from '../word/WordResolver.js';
 import { WordItem } from '../word/WordItem.js';
 import { calculateWordScore } from '../scoring/ScoringUtils.js';
 import { GamePhase } from './GameStateMachine.js';
+import { TutorialUIState } from './gameConstants.js';
 
 /**
  * GameLifecycleManager - Manages game initialization, startup, and reset phases
@@ -104,6 +105,15 @@ export class GameLifecycleManager {
         // Mark game as started
         this.game.state.started = true;
         this.game.dom.startBtn.textContent = '🔄';
+        
+        // Couple the logic here: Show letters remaining when game starts
+        if (this.game.dom.lettersRemainingContainer) {
+            this.game.dom.lettersRemainingContainer.classList.add('visible');
+        }
+
+        // Ensure the Tutorial UI state is updated to hide the skip button
+        this.game.tutorialUIState = TutorialUIState.COMPLETED;
+        this.game.updateTutorialUI();
         
         // Drop NOODEL overlay if it exists and await the animation
         const noodelOverlay = document.getElementById('noodel-word-overlay');

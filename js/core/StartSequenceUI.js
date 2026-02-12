@@ -118,9 +118,19 @@ export class StartSequenceUI {
         if (this.game.dom.skipTutorialBtn) {
             this.game.dom.skipTutorialBtn.style.display = isActive ? 'block' : 'none';
         }
+
+        if (this.game.tutorialUIState === TutorialUIState.COMPLETED) {
+            this.showGameplayUI();
+        }
         
         if (FEATURES.DEBUG_ENABLED) {
             console.log(`Tutorial UI state: ${this.game.tutorialUIState}`);
+        }
+    }
+
+    showGameplayUI() {
+        if (this.game.dom.lettersRemainingContainer) {
+            this.game.dom.lettersRemainingContainer.classList.add('visible');
         }
     }
 }

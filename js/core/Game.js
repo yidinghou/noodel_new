@@ -1,4 +1,5 @@
 import { CONFIG, GameModes } from '../config.js';
+import { FEATURES } from './features.js';
 import { GameState } from './GameState.js';
 import { DOMCache } from './DOMCache.js';
 import { GameFlowController } from './GameFlowController.js';
@@ -20,7 +21,8 @@ import { GameLifecycleManager } from './GameLifecycleManager.js';
  * Game class - Main orchestrator that coordinates all controllers
  */
 export class Game {
-    constructor() {
+    constructor(debugController = null) {
+        this.debugController = debugController;
         this.initializeCoreServices();
         this.initializeControllers();
         this.initializeAnimationSystem();
@@ -56,8 +58,13 @@ export class Game {
      */
     initializeAnimationSystem() {
         // Initialize word grace period manager (handles word clearing with delay)
+        // Grace period can be toggled via FEATURES.WORD_GRACE_PERIOD_ENABLED
+        const gracePeriodMs = FEATURES.WORD_GRACE_PERIOD_ENABLED 
+            ? (CONFIG.GAME.WORD_GRACE_PERIOD_MS || 1000)
+            : 0;
+        
         this.gracePeriodManager = new WordGracePeriodManager(this.animator, {
-            gracePeriodMs: CONFIG.GAME.WORD_GRACE_PERIOD_MS || 1000
+            gracePeriodMs: gracePeriodMs
         });
         
         // Initialize animation orchestrator with all controllers
@@ -90,11 +97,6 @@ export class Game {
     initializeWordProcessing() {
         // Initialize word processor (handles word detection and clearing)
         this.wordProcessor = new WordProcessor(this, this.gracePeriodManager);
-        
-        // Ensure grace period expiration always calls the word processor's handler
-        this.gracePeriodManager.setOnWordExpired(
-            this.wordProcessor.handleWordExpired.bind(this.wordProcessor)
-        );
     }
 
     /**
@@ -242,19 +244,5 @@ export class Game {
      */
     async checkAndProcessWords(addScore = true, useGracePeriod = true) {
         return await this.wordProcessor.checkAndProcessWords(addScore, useGracePeriod);
-    }
-
-    /**
-     * Process words immediately without grace period (used for START sequence)
-     */
-    async processWordsImmediately(foundWords, addScore) {
-        return await this.wordProcessor.processWordsImmediately(foundWords, addScore);
-    }
-
-    /**
-     * Handle word expiration after grace period
-     */
-    async handleWordExpired(wordData, wordKey, origCallback) {
-        return await this.wordProcessor.handleWordExpired(wordData, wordKey, origCallback);
     }
 }

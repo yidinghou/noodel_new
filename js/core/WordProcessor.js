@@ -1,15 +1,7 @@
 import { WordItem } from '../word/WordItem.js';
 import { calculateWordScore } from '../scoring/ScoringUtils.js';
 import { FEATURES } from './features.js';
-
-/**
- * Tutorial UI state constants
- */
-const TutorialUIState = { 
-    INACTIVE: 'inactive',
-    ACTIVE: 'active',
-    COMPLETED: 'completed'
-};
+import { TutorialUIState } from './gameConstants.js';
 
 /**
  * WordProcessor - Manages word detection, validation, and clearing
@@ -39,8 +31,15 @@ export class WordProcessor {
         this.wordCheckPending = false;
         this.wordDetectionEnabled = true;
         
-        // Queue for serializing word expiration handling (prevents concurrent grid mutations)
-        this.wordExpirationQueue = Promise.resolve();
+        // Batch processing for grace period expiration
+        // Collects multiple expiring words within a short window for synchronized animation/physics
+        this.pendingBatch = new Map();  // Map<wordKey, wordData>
+        this.batchTimer = null;         // Timeout handle for batch processing
+
+        // Link the manager to this processor
+        this.gracePeriodManager.setOnWordExpired(
+            (data, key, cb) => this.handleWordExpired(data, key, cb)
+        );
     }
 
     /**
@@ -57,6 +56,23 @@ export class WordProcessor {
     resume() {
         this.wordDetectionEnabled = true;
         console.log('Word detection resumed');
+    }
+
+    /**
+     * Cleanup method to clear batch processing state
+     * Should be called during game reset to prevent stale batches from processing
+     */
+    cleanup() {
+        // Clear pending batch
+        this.pendingBatch.clear();
+        
+        // Cancel any pending batch timer
+        if (this.batchTimer) {
+            clearTimeout(this.batchTimer);
+            this.batchTimer = null;
+        }
+        
+        console.log('WordProcessor cleanup completed');
     }
 
     /**
@@ -93,71 +109,73 @@ export class WordProcessor {
         
             // Process each found word through grace period system
             for (const wordData of foundWords) {
-                const wordKey = this.gracePeriodManager.generateWordKey(wordData);
-                
-                // If this exact word is already pending, skip it entirely
-                // (don't reset timer just because the same word was re-detected)
-                if (this.gracePeriodManager.pendingWords.has(wordKey)) {
-                    continue;
-                }
-                
-                // Check for intersections with existing pending words
-                const intersectingWords = this.gracePeriodManager.getIntersectingWordsWithDirection(wordData.positions);
-                
-                if (intersectingWords.length > 0) {
-                    // Separate intersections by direction
-                    const sameDirectionKeys = intersectingWords
-                        .filter(w => w.direction === wordData.direction)
-                        .map(w => w.wordKey);
-                    const differentDirectionKeys = intersectingWords
-                        .filter(w => w.direction !== wordData.direction)
-                        .map(w => w.wordKey);
-                    
-                    // Check if this word is an extension of any same-direction pending word
-                    let isExtending = false;
-                    for (const existingKey of sameDirectionKeys) {
-                        if (this.gracePeriodManager.isExtension(wordData.positions, existingKey)) {
-                            isExtending = true;
-                            // This is a longer word that extends an existing pending word
-                            // Remove the shorter word and add the longer one with fresh timer
-                            this.gracePeriodManager.handleWordExtension(wordData, sameDirectionKeys);
-                            break;
-                        }
-                    }
-                    
-                    // Same direction but not extending - ignore this word
-                    if (sameDirectionKeys.length > 0 && !isExtending) {
-                        continue;
-                    }
-                    
-                    // Different direction (crossing) - add as new word and reset intersecting words
-                    if (differentDirectionKeys.length > 0) {
-                        this.gracePeriodManager.addPendingWord(wordData);
-                        differentDirectionKeys.forEach(key => this.gracePeriodManager.resetGracePeriod(key));
-                        // Continue to add word to display below
-                    } else if (!isExtending) {
-                        // No intersections handled yet, shouldn't reach here but safety fallback
-                        continue;
-                    }
-                } else {
-                    // No intersections - add as new pending word
-                    this.gracePeriodManager.addPendingWord(wordData);
-                }
-                
-                // If word is "START" and tutorial is active, mark tutorial as completed
-                if (wordData.word === 'START' && this.game.tutorialUIState === TutorialUIState.ACTIVE) {
-                    console.log('START word found - completing tutorial');
-                    this.game.tutorialUIState = TutorialUIState.COMPLETED;
-                    this.game.updateTutorialUI();
-                }
+                this._handleSingleWordGracePeriod(wordData);
+                this._checkTutorialProgression(wordData);
             }
         } finally {
             this.isProcessingWords = false;
             // If another call came in while we were processing, re-check with fresh grid state
             if (this.wordCheckPending) {
                 this.wordCheckPending = false;
+                // Await the re-check so callers observe a fully settled word-processing cycle
                 await this.checkAndProcessWords(addScore, useGracePeriod);
             }
+        }
+    }
+
+    /**
+     * Handles the logic for a single word entering the grace period system
+     * @param {Object} wordData - Word to process
+     * @private
+     */
+    _handleSingleWordGracePeriod(wordData) {
+        const manager = this.gracePeriodManager;
+        const wordKey = manager.generateWordKey(wordData);
+
+        // If this exact word is already pending, skip it entirely
+        if (manager.pendingWords.has(wordKey)) {
+            return;
+        }
+
+        // Check for intersections with existing pending words
+        const intersections = manager.getIntersectingWordsWithDirection(wordData.positions);
+        
+        if (intersections.length === 0) {
+            // No intersections - add as new pending word
+            manager.addPendingWord(wordData);
+            return;
+        }
+
+        // Separate intersections by direction
+        const sameDir = intersections.filter(w => w.direction === wordData.direction);
+
+        // Handle extensions (e.g., "PLAY" becomes "PLAYER")
+        const extensionMatch = sameDir.find(w => manager.isExtension(wordData.positions, w.wordKey));
+        
+        if (extensionMatch) {
+            // This is a longer word that extends an existing pending word
+            // Remove the shorter word and add the longer one with fresh timer
+            manager.handleWordExtension(wordData, sameDir.map(w => w.wordKey));
+        } else {
+            // For any non-extension intersections (same or different direction),
+            // we should still add the new word to pending and reset the grace
+            // period for any intersecting pending words so timers don't unexpectedly
+            // allow the old word to expire first and cause accidental double-processing.
+            manager.addPendingWord(wordData);
+            intersections.forEach(w => manager.resetGracePeriod(w.wordKey));
+        }
+    }
+
+    /**
+     * Check if tutorial state needs to be updated based on found word
+     * @param {Object} wordData - Word to check
+     * @private
+     */
+    _checkTutorialProgression(wordData) {
+        if (wordData.word === 'START' && this.game.tutorialUIState === TutorialUIState.ACTIVE) {
+            console.log('START word found - completing tutorial');
+            this.game.tutorialUIState = TutorialUIState.COMPLETED;
+            this.game.updateTutorialUI();
         }
     }
 
@@ -199,7 +217,7 @@ export class WordProcessor {
         // Wait a bit before applying gravity (if animation was shown)
         if (shouldAnimate) {
             const root = getComputedStyle(document.documentElement);
-            const wordClearDelay = parseFloat(root.getPropertyValue('--animation-delay-word-clear').trim());
+            const wordClearDelay = parseFloat(root.getPropertyValue('--animation-delay-word-clear')) || 400;
             await new Promise(resolve => setTimeout(resolve, wordClearDelay));
         }
         
@@ -222,9 +240,115 @@ export class WordProcessor {
     }
 
     /**
-     * Handle word expiration after grace period
-     * Called when a pending word's timer expires
-     * Serialized through wordExpirationQueue to prevent concurrent grid mutations
+     * Finalize word data: add to score and remove pending CSS class
+     * @param {Object} wordData - Word to finalize
+     */
+    finalizeWordData(wordData) {
+        // Add word to display now that it's confirmed final
+        const points = calculateWordScore(wordData.word);
+        const wordItem = new WordItem(wordData.word, wordData.definition, points);
+        const willAddToScore = this.game.state.scoringEnabled;
+        this.game.score.addWord(wordItem, willAddToScore);
+        
+        // Clear the pending animation (remove word-pending class)
+        this.game.animator.updateWordPendingAnimation(wordData.positions, 'clear');
+    }
+
+    /**
+     * Animate removal of multiple words in parallel
+     * @param {Array} allPositions - Array of position arrays [positions1, positions2, ...]
+     */
+    async animateBatchRemoval(allPositions) {
+        const shouldAnimate = FEATURES.ANIMATION_WORD_HIGHLIGHT;
+        
+        if (shouldAnimate && allPositions.length > 0) {
+            // Animate all words in parallel using Promise.all
+            const animationPromises = allPositions.map(positions =>
+                this.game.animator.highlightAndShakeWord(positions)
+            );
+            await Promise.all(animationPromises);
+            
+            // Clear word cells from grid
+            allPositions.forEach(positions => {
+                this.game.animator.clearWordCells(positions);
+            });
+            
+            // Wait for animation to complete
+            const root = getComputedStyle(document.documentElement);
+            const wordClearDelay = parseFloat(root.getPropertyValue('--animation-delay-word-clear')) || 400;
+            await new Promise(resolve => setTimeout(resolve, wordClearDelay));
+        } else {
+            // No animation - just clear cells immediately
+            allPositions.forEach(positions => {
+                this.game.animator.clearWordCells(positions);
+            });
+        }
+    }
+
+    /**
+     * Run grid physics once for the batch
+     * Applies gravity and updates column fill counts
+     */
+    runGridPhysics() {
+        if (FEATURES.GRAVITY_PHYSICS) {
+            this.game.grid.applyGravity();
+        } else {
+            // Even without gravity, update column fill counts based on actual grid state
+            this.game.grid.updateColumnFillCounts();
+        }
+    }
+
+    /**
+     * Process all words that expired in the current batch (Batch Processor)
+     * Orchestrates: finalization, parallel animation, physics, and cascade checking
+     */
+    async processExpiredBatch() {
+        if (this.pendingBatch.size === 0) return;
+
+        // Collect all words from the batch
+        const batchToProcess = new Map(this.pendingBatch);
+        this.pendingBatch.clear();
+        this.batchTimer = null;
+
+        // Phase 1: Lock detection but queue up any attempts to check words
+        // This ensures words formed during clearing are eventually processed
+        this.isProcessingWords = true;
+
+        try {
+            const validEntries = Array.from(batchToProcess.entries());
+
+            // Phase 2: Finalize & Score synchronously
+            validEntries.forEach(([key, data]) => {
+                console.log(`Word grace period expired: ${data.word}`);
+                this.finalizeWordData(data);
+                // Remove from manager so it doesn't get re-detected
+                this.gracePeriodManager.removePendingWord(key);
+            });
+
+            // Phase 3: Animate all word removals in parallel
+            const allPositions = validEntries.map(entry => entry[1].positions);
+            await this.animateBatchRemoval(allPositions);
+
+            // Phase 4: Apply physics once per batch
+            this.runGridPhysics();
+
+            // Phase 5: Wait for settling before re-enabling detection
+            await new Promise(resolve => setTimeout(resolve, 300));
+
+        } finally {
+            this.isProcessingWords = false;
+            // Phase 6: Check if user actions or cascades created new words
+            try {
+                await this.checkAndProcessWords(true);
+            } catch (err) {
+                console.error('Error while checking and processing cascade words:', err);
+            }
+        }
+    }
+
+    /**
+     * Handle word expiration after grace period (Collector Pattern)
+     * Collects expiring words into a batch for synchronized processing
      * @param {Object} wordData - Word to expire
      * @param {string} wordKey - Word key for grace period manager
      * @param {Function} origCallback - Original callback from grace period manager
@@ -233,66 +357,14 @@ export class WordProcessor {
         if (typeof origCallback === 'function') {
             origCallback(wordData, wordKey);
         }
-        // Chain this expiration to the queue to serialize grid mutations
-        this.wordExpirationQueue = this.wordExpirationQueue.then(async () => {
-            // Staleness guard: skip if word was already cleared (reset may have happened)
-            if (this.gracePeriodManager.pendingWords.has(wordKey)) {
-            
-            console.log(`Word grace period expired: ${wordData.word}`);
-            
-            // Pause word detection during clearing to prevent new words from being
-            // detected using cells that are mid-animation/about to be removed
-            this.wordDetectionEnabled = false;
-            
-            // Add word to display now that it's confirmed final
-            const points = calculateWordScore(wordData.word);
-            const wordItem = new WordItem(wordData.word, wordData.definition, points);
-            const willAddToScore = this.game.state.scoringEnabled;
-            this.game.score.addWord(wordItem, willAddToScore);
-            
-            // First, clear the pending animation (remove word-pending class)
-            this.game.animator.updateWordPendingAnimation(wordData.positions, 'clear');
-            
-            // Animate word shake
-            const shouldAnimate = FEATURES.ANIMATION_WORD_HIGHLIGHT;
-            if (shouldAnimate) {
-                await this.game.animator.highlightAndShakeWord(wordData.positions);
-            }
-            
-            // Clear word cells from grid
-            this.game.animator.clearWordCells(wordData.positions);
-            
-            // Remove from pending (this will also try to clear animation but it's already cleared)
-            this.gracePeriodManager.removePendingWord(wordKey);
-            
-            // Wait a bit before applying gravity (if animation was shown)
-            if (shouldAnimate) {
-                const root = getComputedStyle(document.documentElement);
-                const wordClearDelay = parseFloat(root.getPropertyValue('--animation-delay-word-clear').trim());
-                await new Promise(resolve => 
-                    setTimeout(resolve, wordClearDelay)
-                );
-            }
-            
-            // Apply gravity to drop letters down (creates new game state) - if enabled
-            if (FEATURES.GRAVITY_PHYSICS) {
-                this.game.grid.applyGravity();
-            } else {
-                // Even without gravity, update column fill counts based on actual grid state
-                this.game.grid.updateColumnFillCounts();
-            }
-            
-            // Short delay before checking for new words (cascade effect after gravity)
-            await new Promise(resolve => setTimeout(resolve, 300));
-            
-            // Re-enable word detection now that cells are settled
-            this.wordDetectionEnabled = true;
-            
-            // Recursively check for new words from cascading (gravity creates new words)
-            await this.checkAndProcessWords(true);  // addScore=true for cascaded words
-            }
-        });
-        
-        return this.wordExpirationQueue;
+        // Add word to the current batch
+        this.pendingBatch.set(wordKey, wordData);
+
+        // Start a timer to process all gathered words at once
+        if (!this.batchTimer) {
+            // Using a slightly longer window (100ms) helps catch words 
+            // that were formed in the same "move"
+            this.batchTimer = setTimeout(() => this.processExpiredBatch(), 100);
+        }
     }
 }

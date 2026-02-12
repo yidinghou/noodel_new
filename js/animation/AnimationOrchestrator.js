@@ -43,10 +43,6 @@ export class AnimationOrchestrator {
         // Show NOODEL overlay
         this.animator.showNoodelWordOverlay(noodelItem);
 
-        // Show preview and grid
-        if (gameContext.dom?.preview) gameContext.dom.preview.classList.add('visible');
-        if (gameContext.dom?.grid) gameContext.dom.grid.classList.add('visible');
-
         // Display preview
         await this.letters.displayPreviewStart();
 
@@ -144,8 +140,8 @@ export class AnimationOrchestrator {
             })()
         ]);
 
-        // Start timer that will pulsate grid if user doesn't interact
-        if (game && !game.hasClickedGrid) {
+        // Start timer that will pulsate grid if user doesn't interact (disabled in debug mode)
+        if (game && !game.hasClickedGrid && !FEATURES.DEBUG_ENABLED) {
             setTimeout(() => {
                 if (!game.hasClickedGrid) {
                     this.animator.pulsateGrid().catch(err => {
