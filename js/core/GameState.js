@@ -29,6 +29,10 @@ export class GameState {
         // Grid state
         this.columnFillCounts = Array(CONFIG.GRID.COLUMNS).fill(0);
         this.pendingColumnCounts = Array(CONFIG.GRID.COLUMNS).fill(0);  // Tracks in-flight tiles
+        
+        // Clear Mode specific state
+        this.initialBlockCount = 0;  // Number of initial blocks placed at start of clear mode
+        this.clearedInitialBlocks = 0;  // Number of initial blocks that have been cleared
     }
 
     /**
@@ -108,7 +112,10 @@ export class GameState {
         // Grid state
         this.columnFillCounts = Array(CONFIG.GRID.COLUMNS).fill(0);
         this.pendingColumnCounts = Array(CONFIG.GRID.COLUMNS).fill(0);
-    }
+        
+        // Clear Mode specific state - reset for new game
+        this.initialBlockCount = 0;
+        this.clearedInitialBlocks = 0;
 
     isColumnFull(column) {
         const totalFill = this.columnFillCounts[column] + this.pendingColumnCounts[column];
@@ -148,5 +155,23 @@ export class GameState {
 
     isGameOver() {
         return this.lettersRemaining <= 0;
+    }
+    
+    /**
+     * Check if clear mode is complete (all initial blocks cleared)
+     * @returns {boolean} True if all initial blocks have been cleared
+     */
+    isClearModeComplete() {
+        return this.gameMode === GameModes.CLEAR && 
+               this.initialBlockCount > 0 && 
+               this.clearedInitialBlocks >= this.initialBlockCount;
+    }
+    
+    /**
+     * Increment cleared initial blocks counter
+     * @param {number} count - Number of initial blocks cleared (default: 1)
+     */
+    incrementClearedInitialBlocks(count = 1) {
+        this.clearedInitialBlocks += count;
     }
 }

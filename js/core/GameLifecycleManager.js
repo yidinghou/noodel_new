@@ -126,9 +126,11 @@ export class GameLifecycleManager {
      * @param {string} gameMode - The selected game mode (CLASSIC or CLEAR)
      */
     async finalizeGameStart(gameMode) {
-        // Only transition if not already in GAME_READY
+        // Only transition to GAME_READY if it's a valid transition
         if (!this.game.stateMachine.is(GamePhase.GAME_READY)) {
-            this.game.stateMachine.transition(GamePhase.GAME_READY);
+            if (this.game.stateMachine.canTransitionTo(GamePhase.GAME_READY)) {
+                this.game.stateMachine.transition(GamePhase.GAME_READY);
+            }
         }
 
         // Set game mode and mark as started
@@ -138,7 +140,10 @@ export class GameLifecycleManager {
 
         // Initialize clear mode with initial blocks if selected
         if (gameMode === GameModes.CLEAR) {
-            this.game.grid.initializeClearMode(this.game.state);
+            const initialBlocks = this.game.grid.initializeClearMode(this.game.state);
+            // Track the number of initial blocks for victory condition
+            this.game.state.initialBlockCount = initialBlocks.length;
+            this.game.state.clearedInitialBlocks = 0;
             // Re-add click handlers after grid regeneration in clear mode
             this.game.grid.addClickHandlers((e) => this.game.handleSquareClick(e));
         }

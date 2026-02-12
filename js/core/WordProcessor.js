@@ -261,6 +261,13 @@ export class WordProcessor {
             // Even without gravity, update column fill counts based on actual grid state
             this.game.grid.updateColumnFillCounts();
         }
+        
+        // Check for clear mode victory (all initial blocks cleared)
+        if (this.game.state.gameMode === GameModes.CLEAR && this.game.state.isClearModeComplete()) {
+            console.log('🎉 CLEAR MODE VICTORY! All initial blocks cleared!');
+            this.game.state.started = false;
+            return;  // End word processing and game
+        }
                 
         // Short delay before checking for new words
         await new Promise(resolve => setTimeout(resolve, 300));
@@ -274,6 +281,7 @@ export class WordProcessor {
 
     /**
      * Finalize word data: add to score and remove pending CSS class
+     * Tracks cleared initial blocks in clear mode
      * @param {Object} wordData - Word to finalize
      */
     finalizeWordData(wordData) {
@@ -283,8 +291,32 @@ export class WordProcessor {
         const willAddToScore = this.game.state.scoringEnabled;
         this.game.score.addWord(wordItem, willAddToScore);
         
+        // Track cleared initial blocks in clear mode
+        if (this.game.state.gameMode === GameModes.CLEAR) {
+            const initialBlocksInWord = this.countInitialBlocksInWord(wordData);
+            this.game.state.incrementClearedInitialBlocks(initialBlocksInWord);
+        }
+        
         // Clear the pending animation (remove word-pending class)
         this.game.animator.updateWordPendingAnimation(wordData.positions, 'clear');
+    }
+    
+    /**
+     * Count how many initial blocks are in a word
+     * @param {Object} wordData - Word data with positions
+     * @returns {number} Number of initial blocks in the word
+     */
+    countInitialBlocksInWord(wordData) {
+        if (!wordData.positions) return 0;
+        
+        let count = 0;
+        wordData.positions.forEach(pos => {
+            const square = this.game.dom.getGridSquare(pos.index);
+            if (square && square.classList.contains('initial')) {
+                count++;
+            }
+        });
+        return count;
     }
 
     /**
@@ -293,6 +325,20 @@ export class WordProcessor {
      */
     async animateBatchRemoval(allPositions) {
         const shouldAnimate = FEATURES.ANIMATION_WORD_HIGHLIGHT;
+        
+        // Track initial blocks cleared in clear mode
+        if (this.game.state.gameMode === GameModes.CLEAR) {
+            allPositions.forEach(positions => {
+                let initialBlocksCount = 0;
+                positions.forEach(pos => {
+                    const square = this.game.dom.getGridSquare(pos.index);
+                    if (square && square.classList.contains('initial')) {
+                        initialBlocksCount++;
+                    }
+                });
+                this.game.state.incrementClearedInitialBlocks(initialBlocksCount);
+            });
+        }
         
         if (shouldAnimate && allPositions.length > 0) {
             // Animate all words in parallel using Promise.all
