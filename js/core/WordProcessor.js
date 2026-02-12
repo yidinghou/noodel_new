@@ -296,48 +296,43 @@ export class WordProcessor {
      * Orchestrates: finalization, parallel animation, physics, and cascade checking
      */
     async processExpiredBatch() {
+        if (this.pendingBatch.size === 0) return;
+
         // Collect all words from the batch
-        const batch = new Map(this.pendingBatch);
+        const batchToProcess = new Map(this.pendingBatch);
         this.pendingBatch.clear();
         this.batchTimer = null;
 
-        // Filter out words that might have been reset/cleared already
-        const validEntries = Array.from(batch.entries())
-            .filter(([key]) => this.gracePeriodManager.pendingWords.has(key));
+        // Phase 1: Lock detection but queue up any attempts to check words
+        // This ensures words formed during clearing are eventually processed
+        this.isProcessingWords = true;
 
-        if (validEntries.length === 0) {
-            return;
+        try {
+            const validEntries = Array.from(batchToProcess.entries());
+
+            // Phase 2: Finalize & Score synchronously
+            validEntries.forEach(([key, data]) => {
+                console.log(`Word grace period expired: ${data.word}`);
+                this.finalizeWordData(data, key);
+                // Remove from manager so it doesn't get re-detected
+                this.gracePeriodManager.removePendingWord(key);
+            });
+
+            // Phase 3: Animate all word removals in parallel
+            const allPositions = validEntries.map(entry => entry[1].positions);
+            await this.animateBatchRemoval(allPositions);
+
+            // Phase 4: Apply physics once per batch
+            this.runGridPhysics();
+
+            // Phase 5: Wait for settling before re-enabling detection
+            await new Promise(resolve => setTimeout(resolve, 300));
+
+        } finally {
+            this.isProcessingWords = false;
+            // Phase 6: Check if user actions or cascades created new words
+            this.checkAndProcessWords(true);
         }
-
-        // State Lock: prevent new word detection during clearing
-        this.wordDetectionEnabled = false;
-
-        // Phase 1: Finalize all words (score & UI) synchronously
-        validEntries.forEach(([key, data]) => {
-            console.log(`Word grace period expired: ${data.word}`);
-            this.finalizeWordData(data, key);
-        });
-
-        // Phase 2: Remove from pending now that finalization is done
-        validEntries.forEach(([key]) => {
-            this.gracePeriodManager.removePendingWord(key);
-        });
-
-        // Phase 3: Animate all word removals in parallel
-        const allPositions = validEntries.map(entry => entry[1].positions);
-        await this.animateBatchRemoval(allPositions);
-
-        // Phase 4: Apply physics once per batch
-        this.runGridPhysics();
-
-        // Phase 5: Wait for settling before re-enabling detection
-        await new Promise(resolve => setTimeout(resolve, 300));
-
-        // Re-enable word detection now that cells are settled
-        this.wordDetectionEnabled = true;
-
-        // Phase 6: Check for cascading words (gravity creates new words)
-        await this.checkAndProcessWords(true);  // addScore=true for cascaded words
     }
 
     /**
