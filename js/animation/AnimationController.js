@@ -250,7 +250,7 @@ export class AnimationController {
             const square = this.dom.getGridSquare(pos.index);
             if (square) {
                 square.textContent = '';
-                square.classList.remove('filled', 'word-found', 'word-pending');
+                square.classList.remove('filled', 'word-found', 'word-pending', 'initial');
             }
         });
     }
