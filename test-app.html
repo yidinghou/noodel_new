@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head><title>Test</title></head>
+<body>
+<div id="root"></div>
+<script type="module">
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+
+console.log('React loaded:', React);
+console.log('ReactDOM loaded:', ReactDOM);
+
+fetch('/words/3_letter_words.csv')
+  .then(r => {
+    console.log('Fetch response:', r.status);
+    return r.text();
+  })
+  .then(t => console.log('First 100 chars:', t.substring(0, 100)))
+  .catch(e => console.error('Fetch error:', e));
+
+ReactDOM.createRoot(document.getElementById('root')).render(
+  React.createElement('div', null, 'React is working!')
+);
+</script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 import React, { createContext, useReducer, useContext } from 'react';
 import { gameReducer, initialState } from './GameReducer.js';
 
-const GameContext = createContext();
+const GameContext = createContext(null);
 
 export function GameProvider({ children }) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
