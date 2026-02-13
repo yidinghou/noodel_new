@@ -99,8 +99,10 @@ Add these URL parameters for debugging:
 - `?skipAnimations=true` - Skip all animations
 - `?debugGrid=true` - Show grid pattern overlay
 - `?logTiming=true` - Log animation timing
+- `?ClearGame=true` - Full game clear (clears all game state and resets)
 
 Example: `http://localhost:3000?debug=true&skipAnimations=true`
+Example: `http://localhost:3000?ClearGame=true`
 
 ## 🚀 Deployment on Railway
 
