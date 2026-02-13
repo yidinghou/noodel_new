@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 
 const WORD_FILES = [
-  '/src/assets/words/3_letter_words.csv',
-  '/src/assets/words/4_letter_words.csv',
-  '/src/assets/words/5_letter_words.csv',
-  '/src/assets/words/6_letter_words.csv',
-  '/src/assets/words/7_letter_words.csv'
+  '/words/3_letter_words.csv',
+  '/words/4_letter_words.csv',
+  '/words/5_letter_words.csv',
+  '/words/6_letter_words.csv',
+  '/words/7_letter_words.csv'
 ];
 
 async function loadWordFile(filepath) {
