@@ -97,8 +97,8 @@
 /* Game Grid */
 .game-grid {
     display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    grid-template-rows: repeat(10, 1fr);
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
     gap: 1px;
     border-radius: var(--size-border-radius-grid);
     position: relative;
