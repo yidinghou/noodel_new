@@ -21,7 +21,7 @@ export const FEATURES = {
 
     // Clear Mode
     CLEAR_MODE_ENABLED: true,              // Master flag: Enable/disable entire Clear Mode feature
-    CLEAR_MODE_EMPTY_BOARD_WIN: false,     // Beta: Win condition when board is completely empty (stricter challenge)
+    CLEAR_MODE_EMPTY_BOARD_WIN: true,     // Beta: Win condition when board is completely empty (stricter challenge)
 
     // UI
     MENU_SYSTEM: true,
@@ -38,3 +38,22 @@ export const FEATURES = {
     ANIMATION_MENU_DROP: false,
     ANIMATION_WORD_OVERLAY: true
 };
+
+/**
+ * Initialize feature flags from URL parameters
+ * Allows beta testing features via URL query params
+ * Example: http://localhost:3000?betaClearModeEmptyBoard=true
+ *
+ * Supported params:
+ * - betaClearModeEmptyBoard=true|false - Override CLEAR_MODE_EMPTY_BOARD_WIN
+ */
+export function initializeFeatureFlagsFromURL() {
+    const params = new URLSearchParams(window.location.search);
+
+    // Beta: Clear Mode empty board win condition
+    if (params.has('betaClearModeEmptyBoard')) {
+        const value = params.get('betaClearModeEmptyBoard').toLowerCase();
+        FEATURES.CLEAR_MODE_EMPTY_BOARD_WIN = value === 'true';
+        console.log(`✓ Beta feature override: CLEAR_MODE_EMPTY_BOARD_WIN = ${FEATURES.CLEAR_MODE_EMPTY_BOARD_WIN}`);
+    }
+}
