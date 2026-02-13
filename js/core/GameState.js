@@ -155,19 +155,51 @@ export class GameState {
     }
 
     isGameOver() {
+        // Classic mode: game over when no letters remain
+        if (this.gameMode === GameModes.CLASSIC) {
+            return this.lettersRemaining <= 0;
+        }
+
+        // Clear mode: game over when no letters remain
+        // (Victory conditions are checked separately)
         return this.lettersRemaining <= 0;
     }
-    
+
     /**
      * Check if clear mode is complete (all initial blocks cleared)
      * @returns {boolean} True if all initial blocks have been cleared
      */
     isClearModeComplete() {
-        return this.gameMode === GameModes.CLEAR && 
-               this.initialBlockCount > 0 && 
+        return this.gameMode === GameModes.CLEAR &&
+               this.initialBlockCount > 0 &&
                this.clearedInitialBlocks >= this.initialBlockCount;
     }
-    
+
+    /**
+     * Check if there are any initial blocks remaining on the board
+     * This is a DOM-based check to verify actual state
+     * @param {HTMLElement} gridElement - The grid DOM element
+     * @returns {boolean} True if any initial blocks remain
+     */
+    hasInitialBlocksRemaining(gridElement) {
+        if (this.gameMode !== GameModes.CLEAR) {
+            return false;
+        }
+
+        const initialBlocks = gridElement.querySelectorAll('.initial');
+        return initialBlocks.length > 0;
+    }
+
+    /**
+     * Check if the board is completely empty
+     * @param {HTMLElement} gridElement - The grid DOM element
+     * @returns {boolean} True if no filled squares exist
+     */
+    isBoardEmpty(gridElement) {
+        const filledSquares = gridElement.querySelectorAll('.filled');
+        return filledSquares.length === 0;
+    }
+
     /**
      * Increment cleared initial blocks counter
      * @param {number} count - Number of initial blocks cleared (default: 1)
