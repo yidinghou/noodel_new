@@ -53,11 +53,15 @@ export function gameReducer(state, action) {
         type: 'filled'
       };
 
+      // Check for game over (no more letters)
+      const newStatus = remainingQueue.length === 0 ? 'GAME_OVER' : state.status;
+
       return {
         ...state,
         grid: newGrid,
         nextQueue: remainingQueue,
-        lettersRemaining: remainingQueue.length
+        lettersRemaining: remainingQueue.length,
+        status: newStatus
       };
     }
 
