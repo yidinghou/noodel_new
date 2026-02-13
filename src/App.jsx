@@ -25,6 +25,21 @@ function App() {
   // Get next 5 letters from queue
   const nextLetters = state.nextQueue.slice(0, 5).map(item => item.char);
 
+  // Show loading state while dictionary loads
+  if (!dictionary) {
+    return (
+      <div className="main-container" style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        fontSize: '1.5rem'
+      }}>
+        Loading dictionary...
+      </div>
+    );
+  }
+
   return (
     <GameLayout
       score={state.score}
