@@ -88,6 +88,35 @@ export function gameReducer(state, action) {
       };
     }
 
+    case 'REMOVE_WORDS': {
+      const { dictionary } = action.payload;
+      if (!dictionary) return state;
+
+      const foundWords = findWords(state.grid, dictionary);
+      if (foundWords.length === 0) return state;
+
+      // Remove matched cells and calculate score
+      const newGrid = [...state.grid];
+      let totalScore = 0;
+      const newMadeWords = [...state.madeWords];
+
+      foundWords.forEach(wordData => {
+        totalScore += calculateWordScore(wordData.word);
+        newMadeWords.unshift(wordData.word);
+        wordData.indices.forEach(index => {
+          newGrid[index] = null;
+        });
+      });
+
+      return {
+        ...state,
+        grid: newGrid,
+        score: state.score + totalScore,
+        madeWords: newMadeWords.slice(0, 20), // Keep last 20 words
+        status: 'PLAYING'
+      };
+    }
+
     case 'RESET':
       return initialState;
 
