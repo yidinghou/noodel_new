@@ -1,12 +1,13 @@
 import { generateLetterSequence } from '../utils/letterUtils.js';
 import { findWords } from '../utils/wordUtils.js';
 import { calculateWordScore } from '../utils/scoringUtils.js';
+import { GRID_SIZE, TOTAL_LETTERS } from '../utils/gameConstants.js';
 
 // Game state shape
 export const initialState = {
-  grid: Array(100).fill(null), // null or { char: 'A', id: 'tile-1', type: 'filled', isMatched: false }
+  grid: Array(GRID_SIZE).fill(null), // null or { char: 'A', id: 'tile-1', type: 'filled', isMatched: false }
   score: 0,
-  lettersRemaining: 100,
+  lettersRemaining: TOTAL_LETTERS,
   nextQueue: [], // Array of upcoming letter objects
   status: 'IDLE', // IDLE, PLAYING, GAME_OVER, PROCESSING
   madeWords: []
@@ -16,13 +17,13 @@ export const initialState = {
 export function gameReducer(state, action) {
   switch (action.type) {
     case 'START_GAME': {
-      const letterSequence = generateLetterSequence(100);
+      const letterSequence = generateLetterSequence(TOTAL_LETTERS);
       return {
         ...state,
         nextQueue: letterSequence,
-        lettersRemaining: 100,
+        lettersRemaining: TOTAL_LETTERS,
         status: 'PLAYING',
-        grid: Array(100).fill(null),
+        grid: Array(GRID_SIZE).fill(null),
         score: 0,
         madeWords: []
       };
