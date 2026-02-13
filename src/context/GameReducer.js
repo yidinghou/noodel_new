@@ -1,3 +1,5 @@
+import { generateLetterSequence } from '../utils/letterUtils.js';
+
 // Game state shape
 export const initialState = {
   grid: Array(100).fill(null), // null or { char: 'A', id: 'tile-1', type: 'filled', isMatched: false }
@@ -11,9 +13,18 @@ export const initialState = {
 // Game reducer
 export function gameReducer(state, action) {
   switch (action.type) {
-    case 'START_GAME':
-      // TODO: Generate letter sequence
-      return state;
+    case 'START_GAME': {
+      const letterSequence = generateLetterSequence(100);
+      return {
+        ...state,
+        nextQueue: letterSequence,
+        lettersRemaining: 100,
+        status: 'PLAYING',
+        grid: Array(100).fill(null),
+        score: 0,
+        madeWords: []
+      };
+    }
 
     case 'DROP_LETTER':
       // TODO: Place letter in column
