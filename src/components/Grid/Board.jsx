@@ -10,7 +10,7 @@ function Board({ grid = Array(100).fill(null), onColumnClick }) {
   };
 
   return (
-    <div className="game-grid">
+    <div className="game-grid visible">
       {grid.map((cell, index) => (
         <div
           key={cell?.id || `empty-${index}`}
