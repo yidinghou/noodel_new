@@ -21,7 +21,7 @@ export const FEATURES = {
 
     // Clear Mode
     CLEAR_MODE_ENABLED: true,              // Master flag: Enable/disable entire Clear Mode feature
-    CLEAR_MODE_EMPTY_BOARD_WIN: true,     // Beta: Win condition when board is completely empty (stricter challenge)
+    CLEAR_MODE_EMPTY_BOARD_WIN: false,     // Beta: Win condition when board is completely empty (stricter challenge)
 
     // UI
     MENU_SYSTEM: true,
