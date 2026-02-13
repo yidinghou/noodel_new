@@ -7,12 +7,17 @@ const Cell = React.memo(({ letter, index, isMatched = false }) => {
   return (
     <motion.div
       layout
+      initial={{
+        backgroundColor: letter ? '#808080' : '#f5f5f5',
+        color: letter ? '#ffffff' : 'rgba(255, 255, 255, 0)',
+        border: letter ? '2px solid #4caf50' : '1px solid #e0e0e0'
+      }}
       animate={{
         scale: isMatched ? [1, 1.1, 1] : 1,
         backgroundColor: letter
           ? (isMatched ? '#ffd700' : '#808080')
           : '#f5f5f5',
-        color: letter ? '#ffffff' : 'transparent',
+        color: letter ? '#ffffff' : 'rgba(255, 255, 255, 0)',
         border: letter ? '2px solid #4caf50' : '1px solid #e0e0e0'
       }}
       transition={{
