@@ -23,7 +23,7 @@ function GameLayout({
       {/* Card Section (Top) */}
       <div className="card">
         <Header />
-        <div className="stats">
+        <div className="stats visible">
           <ScoreBoard score={score} />
           <Actions onStart={onStart} onMute={onMute} isMuted={isMuted} />
         </div>
