@@ -1,0 +1,433 @@
+/* BASE STYLES & DESIGN TOKENS
+   ============================
+   Foundation: resets, CSS variables (design tokens), and global utilities.
+   Load this file FIRST before all other stylesheets.
+*/
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Design Tokens - Single Source of Truth */
+:root {
+    /* Colors - Primitives (raw values) */
+    --color-white: #ffffff;
+    --color-gray-dark: #333;
+    --color-gray-medium: #888;
+    --color-gray-light: #f8f9fa;
+    --color-gray-border: #ddd;
+    --color-gray-bg: #e8e8e8;
+    --color-blue-light: #79b9ed;
+    --color-blue-primary: #1976D2;
+    --color-blue-pale: #e3f2fd;
+    --color-blue-pale-2: #bbdefb;
+    --color-orange-primary: #FF9800;
+    --color-orange-dark: #F57C00;
+    --color-orange-light: #FFB74D;
+    --color-green: #4CAF50;
+
+    /* Colors - Semantic (purpose-based) */
+    --color-bg-body: var(--color-white);
+    --color-bg-card: rgba(255, 255, 255, 0.95);
+    --color-bg-stats: var(--color-gray-light);
+    --color-bg-grid: var(--color-gray-bg);
+    --color-text-primary: var(--color-gray-dark);
+    --color-text-secondary: #666;
+    --color-text-muted: var(--color-gray-medium);
+    --color-text-white: var(--color-white);
+    --color-border-primary: var(--color-gray-dark);
+    --color-border-light: var(--color-gray-border);
+    --color-accent-primary: var(--color-blue-primary);
+    --color-accent-secondary: var(--color-orange-primary);
+    --color-next-up: var(--color-orange-light);
+    --color-letter-active: var(--color-green);
+
+    /* Sizing */
+    --size-letter-block: clamp(30px, 4vw, 38px);
+    --size-font-letter: clamp(16px, 2vw, 20px);
+    --size-title-block: clamp(60px, 8vw, 76px);
+    --size-font-title: clamp(32px, 4vw, 40px);
+    --size-font-button: clamp(10px, 1.2vw, 12px);
+    --size-font-stat-value: clamp(14px, 2vw, 18px);
+    --size-font-stat-label: clamp(11px, 1.3vw, 12px);
+    --size-font-grid: clamp(16px, 2vw, 24px);
+    --size-border-radius-card: 20px;
+    --size-border-radius-button: 50px;
+    --size-border-radius-block: 10px;
+    --size-border-radius-grid: 12px;
+    --size-border-radius-stat: 15px;
+    --size-border-radius-small: 6px;
+    --size-gap-standard: 8px;
+    --size-gap-large: 20px;
+    --size-padding-card: 15px;
+    --size-padding-made-words: 30px;
+
+    /* Shadows */
+    --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.1);
+    --shadow-block: 0 4px 8px rgba(0, 0, 0, 0.2);
+    --shadow-button: 0 4px 15px rgba(0, 0, 0, 0.2);
+    --shadow-next-up: 0 8px 22px rgba(255, 152, 0, 0.22);
+
+    /* Transitions & Animations */
+    --transition-standard: 0.6s ease-out;
+    --transition-quick: 0.3s;
+    --transition-fast: 0.2s;
+    
+    /* Animation Durations - Single Source of Truth */
+    --animation-duration-title-drop: 0.6s;
+    --animation-duration-title-shake: 0.4s;
+    --animation-duration-controls-fade: 0.3s;
+    --animation-duration-stats-fade: 0.3s;
+    --animation-duration-word-overlay-fade: 0.3s;
+    --animation-duration-word-overlay-drop: 0.8s;
+    --animation-duration-letter-stage1: 0.3s;
+    --animation-duration-letter-drop: 0.4s;
+    --animation-duration-word-found: 0.6s;
+    /* Word grace duration is controlled from JS (CONFIG.GAME.WORD_GRACE_PERIOD_MS).
+       JS should set --js-word-grace-period at runtime; 1s here is a non-authoritative fallback. */
+    --animation-duration-word-grace: var(--js-word-grace-period, 1s);
+    --animation-duration-pulse: 1.2s;
+    
+    /* Animation Delays */
+    --animation-delay-title-drop-interval: 0.25s;
+    --animation-delay-controls: 0.2s;
+    --animation-delay-stats: 0.4s;
+    --animation-delay-letter-stage2: 0.2s;
+    --animation-delay-word-clear: 0.1s;
+    
+    /* START Menu Animation Timings */
+    --animation-duration-start-click-highlight: 150ms;
+    --animation-delay-start-letter-drop: 80ms;
+    --animation-delay-start-word-pause: 300ms;
+    --animation-delay-start-clear-pause: 150ms;
+}
+
+body {
+    background: var(--color-bg-body);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 20px;
+    min-height: 100dvh;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--size-gap-large);
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Base Block - Common foundation for square/block elements */
+.block-base {
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    border-radius: var(--size-border-radius-block);
+    transition: transform var(--transition-quick);
+    box-sizing: border-box;
+}
+
+/* Shared animation keyframes */
+@keyframes dropIn {
+    from {
+        transform: translateY(-300px) rotate(var(--rotation));
+    }
+    to {
+        transform: translateY(0) rotate(var(--rotation));
+    }
+}
+
+/* Generic shake animation - supports scale and rotation via CSS variables
+   --shake-scale (default: 1) - scale factor during shake
+   --rotation (default: 0deg) - rotation to maintain during shake */
+@keyframes shake {
+    0% {
+        transform: translateY(0) translateX(0) scale(var(--shake-scale, 1)) rotate(var(--rotation, 0deg));
+    }
+    25% {
+        transform: translateY(0) translateX(-5px) scale(var(--shake-scale, 1)) rotate(var(--rotation, 0deg));
+    }
+    50% {
+        transform: translateY(0) translateX(5px) scale(var(--shake-scale, 1)) rotate(var(--rotation, 0deg));
+    }
+    75% {
+        transform: translateY(0) translateX(-5px) scale(var(--shake-scale, 1)) rotate(var(--rotation, 0deg));
+    }
+    100% {
+        transform: translateY(0) translateX(0) scale(var(--shake-scale, 1)) rotate(var(--rotation, 0deg));
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes gridSquareDrop {
+    from {
+        transform: translateY(-500px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Generic pulse animation - supports scale and opacity via CSS variables
+   --pulse-scale-start (default: 1) - starting/ending scale
+   --pulse-scale-mid (default: 1.1) - peak scale at midpoint
+   --pulse-opacity-start (default: 1) - starting/ending opacity
+   --pulse-opacity-mid (default: 1) - peak opacity at midpoint */
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(var(--pulse-scale-start, 1));
+        opacity: var(--pulse-opacity-start, 1);
+    }
+    50% {
+        transform: scale(var(--pulse-scale-mid, 1.1));
+        opacity: var(--pulse-opacity-mid, 1);
+    }
+}
+
+/* Backward compatibility aliases */
+@keyframes previewPulse {
+    0%, 100% { transform: scale(1.15); }
+    50% { transform: scale(1.22); }
+}
+
+@keyframes previewShake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+@keyframes highlightFlash {
+    0%, 100% {
+        background-color: transparent;
+        transform: scale(1);
+    }
+    50% {
+        background-color: var(--color-orange-light);
+        transform: scale(1.1);
+    }
+}
+
+/* ============================
+   CLEAR MODE VICTORY OVERLAY
+   ============================ */
+
+.victory-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.victory-overlay.show {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.victory-message {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    animation: victoryPulse 0.5s ease-out;
+    white-space: pre-line;
+}
+
+/* Victory pulse grows from 0 to full size (one-time animation)
+   Note: This is not a looping pulse, it's a grow-in effect */
+@keyframes victoryPulse {
+    0% {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Skip Tutorial Button */
+.skip-tutorial-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 8px 14px;
+    background-color: var(--color-accent-secondary);
+    color: var(--color-text-white);
+    border: none;
+    border-radius: var(--size-border-radius-button);
+    font-size: clamp(14px, 1.5vw, 16px);
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--shadow-button);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
+    z-index: 100;
+}
+
+.skip-tutorial-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 5px 18px rgba(255, 152, 0, 0.4);
+}
+
+.skip-tutorial-btn:active {
+    transform: scale(0.98);
+}
+
+/* Game Grid Letters Remaining Display */
+.game-grid-letters-remaining {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 6px 10px;
+    background: var(--color-bg-stats);
+    border-radius: var(--size-border-radius-small);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-quick), visibility var(--transition-quick);
+}
+
+.game-grid-letters-remaining.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.letters-remaining-label {
+    font-size: clamp(10px, 1.2vw, 12px);
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.letters-remaining-value {
+    font-size: clamp(16px, 2.2vw, 20px);
+}
+
+/* Mode Selection Menu Overlay */
+.mode-selection-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-quick), visibility var(--transition-quick);
+    z-index: 1000;
+}
+
+.mode-selection-menu.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mode-selection-content {
+    background: var(--color-bg-card);
+    border-radius: var(--size-border-radius-medium);
+    padding: clamp(24px, 5vw, 40px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    min-width: 300px;
+    max-width: 90vw;
+}
+
+.mode-selection-title {
+    font-size: clamp(20px, 4vw, 28px);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: clamp(16px, 3vw, 24px);
+    letter-spacing: 0.5px;
+}
+
+.mode-selection-buttons {
+    display: flex;
+    gap: clamp(12px, 3vw, 20px);
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.mode-selection-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: clamp(12px, 2vw, 16px) clamp(16px, 3vw, 24px);
+    font-size: clamp(14px, 2.2vw, 18px);
+    font-weight: 600;
+    border: none;
+    border-radius: var(--size-border-radius-small);
+    cursor: pointer;
+    transition: all var(--transition-quick);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.classic-btn {
+    background: var(--color-blue-primary);
+    color: var(--color-text-white);
+}
+
+.classic-btn:hover {
+    background: #1565C0;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(25, 118, 210, 0.3);
+}
+
+.classic-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(25, 118, 210, 0.3);
+}
+
+.clear-btn {
+    background: var(--color-accent-secondary);
+    color: var(--color-text-white);
+}
+
+.clear-btn:hover {
+    background: #F57C00;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 152, 0, 0.3);
+}
+
+.clear-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.3);
+}
