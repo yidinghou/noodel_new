@@ -99,10 +99,10 @@ Add these URL parameters for debugging:
 - `?skipAnimations=true` - Skip all animations
 - `?debugGrid=true` - Show grid pattern overlay
 - `?logTiming=true` - Log animation timing
-- `?ClearGame=true` - Full game clear (clears all game state and resets)
+- `?betaClearModeEmptyBoard=true` - Beta: Win condition when board is completely empty (stricter challenge)
 
 Example: `http://localhost:3000?debug=true&skipAnimations=true`
-Example: `http://localhost:3000?ClearGame=true`
+Example: `http://localhost:3000?betaClearModeEmptyBoard=true`
 
 ## 🚀 Deployment on Railway
 
