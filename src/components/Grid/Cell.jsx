@@ -2,24 +2,30 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const Cell = React.memo(({ letter, index, isMatched = false }) => {
-  const cellClass = `block-base ${letter ? 'filled' : ''} ${isMatched ? 'matched' : ''}`;
+  const cellClass = `block-base ${letter ? 'filled' : ''}`;
 
   return (
     <motion.div
       layout
-      initial={{ scale: 0.8, opacity: 0 }}
       animate={{
-        scale: letter ? 1 : 0.8,
-        opacity: letter ? 1 : 0.3,
-        backgroundColor: isMatched ? '#ffd700' : undefined
+        scale: isMatched ? [1, 1.1, 1] : 1,
+        backgroundColor: letter
+          ? (isMatched ? '#ffd700' : '#808080')
+          : '#f5f5f5',
+        color: letter ? '#ffffff' : 'transparent',
+        border: letter ? '2px solid #4caf50' : '1px solid #e0e0e0'
       }}
-      exit={{ scale: 0.5, opacity: 0 }}
       transition={{
         layout: { duration: 0.3 },
+        scale: { duration: 0.6, repeat: isMatched ? 2 : 0 },
         default: { duration: 0.2 }
       }}
       className={cellClass}
       data-index={index}
+      style={{
+        fontSize: '1.5rem',
+        fontWeight: 'bold'
+      }}
     >
       {letter || ''}
     </motion.div>
