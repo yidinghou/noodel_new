@@ -269,17 +269,27 @@ export class WordProcessor {
             // Even without gravity, update column fill counts based on actual grid state
             this.game.grid.updateColumnFillCounts();
         }
-        
-        // Check for clear mode victory (all initial blocks cleared)
-        if (this.game.state.gameMode === GameModes.CLEAR && this.game.state.isClearModeComplete()) {
-            console.log('🎉 CLEAR MODE VICTORY! All initial blocks cleared!');
-            this.game.lifecycle.endGame('VICTORY');
-            return;  // End word processing and game
+
+        // Check for clear mode victory conditions
+        if (this.game.state.gameMode === GameModes.CLEAR) {
+            // Check if all initial blocks are cleared (main clear mode win condition)
+            if (!this.game.state.hasInitialBlocksRemaining(this.game.dom.grid)) {
+                console.log('🎉 CLEAR MODE VICTORY! All initial blocks cleared!');
+                this.game.lifecycle.endGame('VICTORY');
+                return;  // End word processing and game
+            }
+
+            // Check beta feature: empty board win condition
+            if (FEATURES.CLEAR_MODE_EMPTY_BOARD_WIN && this.game.state.isBoardEmpty(this.game.dom.grid)) {
+                console.log('🎉 CLEAR MODE VICTORY! Board completely cleared!');
+                this.game.lifecycle.endGame('VICTORY');
+                return;  // End word processing and game
+            }
         }
-                
+
         // Short delay before checking for new words
         await new Promise(resolve => setTimeout(resolve, 300));
-        
+
         // Check for cascading words (also immediately)
         const cascadeWords = this.game.wordResolver.checkForWords();
         if (cascadeWords.length > 0) {
@@ -427,6 +437,24 @@ export class WordProcessor {
 
         } finally {
             this.isProcessingWords = false;
+
+            // Check for clear mode victory conditions after batch processing
+            if (this.game.state.gameMode === GameModes.CLEAR) {
+                // Check if all initial blocks are cleared (main clear mode win condition)
+                if (!this.game.state.hasInitialBlocksRemaining(this.game.dom.grid)) {
+                    console.log('🎉 CLEAR MODE VICTORY! All initial blocks cleared!');
+                    this.game.lifecycle.endGame('VICTORY');
+                    return;
+                }
+
+                // Check beta feature: empty board win condition
+                if (FEATURES.CLEAR_MODE_EMPTY_BOARD_WIN && this.game.state.isBoardEmpty(this.game.dom.grid)) {
+                    console.log('🎉 CLEAR MODE VICTORY! Board completely cleared!');
+                    this.game.lifecycle.endGame('VICTORY');
+                    return;
+                }
+            }
+
             // Phase 6: Check if user actions or cascades created new words
             try {
                 await this.checkAndProcessWords(true);
