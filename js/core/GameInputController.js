@@ -166,15 +166,21 @@ export class GameInputController {
             }
 
             // Check for clear mode victory conditions
+            // Clear Mode Victory Rules:
+            // 1. PRIMARY WIN: All initial blocks (pre-populated tiles) are cleared
+            // 2. SECONDARY WIN: Board is completely empty (controlled by CLEAR_MODE_EMPTY_BOARD_WIN flag)
+            // Both conditions require no pending words to be processing
             if (this.game.state.gameMode === GameModes.CLEAR && !this.game.wordProcessor.hasPendingWords()) {
-                // Check if all initial blocks are cleared (main clear mode win condition)
+                // PRIMARY WIN CONDITION: All initial blocks cleared
+                // This is the standard clear mode victory condition
                 if (!this.game.state.hasInitialBlocksRemaining(this.game.dom.grid)) {
                     console.log('🎉 CLEAR MODE VICTORY! All initial blocks cleared!');
                     this.game.lifecycle.endGame('VICTORY');
                     return;
                 }
 
-                // Check beta feature: empty board win condition
+                // SECONDARY WIN CONDITION: Completely empty board (beta feature flag)
+                // Stricter condition: all tiles must be cleared, including user-generated ones
                 if (FEATURES.CLEAR_MODE_EMPTY_BOARD_WIN && this.game.state.isBoardEmpty(this.game.dom.grid)) {
                     console.log('🎉 CLEAR MODE VICTORY! Board completely cleared!');
                     this.game.lifecycle.endGame('VICTORY');

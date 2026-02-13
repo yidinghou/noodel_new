@@ -271,15 +271,23 @@ export class WordProcessor {
         }
 
         // Check for clear mode victory conditions
+        // Clear Mode Victory Rules:
+        // 1. PRIMARY WIN: All initial blocks (pre-populated tiles) are cleared
+        // 2. SECONDARY WIN: Board is completely empty (controlled by CLEAR_MODE_EMPTY_BOARD_WIN flag)
+        // Victory is checked after word processing and gravity applied
         if (this.game.state.gameMode === GameModes.CLEAR) {
-            // Check if all initial blocks are cleared (main clear mode win condition)
+            // PRIMARY WIN CONDITION: All initial blocks cleared
+            // This is the standard clear mode victory condition
+            // Players win when all pre-populated tiles are removed from the board
             if (!this.game.state.hasInitialBlocksRemaining(this.game.dom.grid)) {
                 console.log('🎉 CLEAR MODE VICTORY! All initial blocks cleared!');
                 this.game.lifecycle.endGame('VICTORY');
                 return;  // End word processing and game
             }
 
-            // Check beta feature: empty board win condition
+            // SECONDARY WIN CONDITION: Completely empty board (beta feature flag)
+            // Stricter condition: all tiles (initial + user-generated) must be cleared
+            // Disabled by default - enable via CLEAR_MODE_EMPTY_BOARD_WIN flag for harder challenge
             if (FEATURES.CLEAR_MODE_EMPTY_BOARD_WIN && this.game.state.isBoardEmpty(this.game.dom.grid)) {
                 console.log('🎉 CLEAR MODE VICTORY! Board completely cleared!');
                 this.game.lifecycle.endGame('VICTORY');
