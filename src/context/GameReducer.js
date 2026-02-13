@@ -1,7 +1,7 @@
 import { generateLetterSequence } from '../utils/letterUtils.js';
 import { findWords } from '../utils/wordUtils.js';
 import { calculateWordScore } from '../utils/scoringUtils.js';
-import { GRID_SIZE, TOTAL_LETTERS } from '../utils/gameConstants.js';
+import { GRID_SIZE, TOTAL_LETTERS, GRID_COLS, GRID_ROWS } from '../utils/gameConstants.js';
 
 // Game state shape
 export const initialState = {
@@ -35,8 +35,8 @@ export function gameReducer(state, action) {
 
       // Find lowest available position in column (bottom-up)
       let targetIndex = -1;
-      for (let row = 9; row >= 0; row--) {
-        const index = row * 10 + column;
+      for (let row = GRID_ROWS - 1; row >= 0; row--) {
+        const index = row * GRID_COLS + column;
         if (!state.grid[index]) {
           targetIndex = index;
           break;
