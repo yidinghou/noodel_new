@@ -1,9 +1,10 @@
 import React from 'react';
 import Cell from './Cell.jsx';
+import { GRID_SIZE, GRID_COLS } from '../../utils/gameConstants.js';
 
-function Board({ grid = Array(100).fill(null), onColumnClick }) {
+function Board({ grid = Array(GRID_SIZE).fill(null), onColumnClick }) {
   const handleCellClick = (index) => {
-    const column = index % 10;
+    const column = index % GRID_COLS;
     if (onColumnClick) {
       onColumnClick(column);
     }
