@@ -1,4 +1,4 @@
-import { CONFIG } from '../config.js';
+import { CONFIG, GameModes } from '../config.js';
 import { INPUT_BUFFER_MS } from './gameConstants.js';
 import { isValidColumn, calculateIndex } from '../grid/gridUtils.js';
 import { GamePhase } from './GameStateMachine.js';
@@ -163,6 +163,23 @@ export class GameInputController {
             // Check for words after the letter has been placed (if enabled)
             if (FEATURES.WORD_DETECTION) {
                 await this.game.checkAndProcessWords();
+            }
+
+            // Check for clear mode victory conditions
+            if (this.game.state.gameMode === GameModes.CLEAR && !this.game.wordProcessor.hasPendingWords()) {
+                // Check if all initial blocks are cleared (main clear mode win condition)
+                if (!this.game.state.hasInitialBlocksRemaining(this.game.dom.grid)) {
+                    console.log('🎉 CLEAR MODE VICTORY! All initial blocks cleared!');
+                    this.game.lifecycle.endGame('VICTORY');
+                    return;
+                }
+
+                // Check beta feature: empty board win condition
+                if (FEATURES.CLEAR_MODE_EMPTY_BOARD_WIN && this.game.state.isBoardEmpty(this.game.dom.grid)) {
+                    console.log('🎉 CLEAR MODE VICTORY! Board completely cleared!');
+                    this.game.lifecycle.endGame('VICTORY');
+                    return;
+                }
             }
 
             // Check for game over (no more letters remaining AND no pending words to clear)
