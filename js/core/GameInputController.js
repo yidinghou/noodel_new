@@ -166,25 +166,26 @@ export class GameInputController {
             }
 
             // Check for clear mode victory conditions
-            // Clear Mode Victory Rules:
-            // 1. PRIMARY WIN: All initial blocks (pre-populated tiles) are cleared
-            // 2. SECONDARY WIN: Board is completely empty (controlled by CLEAR_MODE_EMPTY_BOARD_WIN flag)
-            // Both conditions require no pending words to be processing
+            // Clear Mode Victory Rules controlled by CLEAR_MODE_EMPTY_BOARD_WIN flag:
+            // - Flag OFF (default): Win when all initial blocks are cleared
+            // - Flag ON (stricter): Win ONLY when board is completely empty
             if (this.game.state.gameMode === GameModes.CLEAR && !this.game.wordProcessor.hasPendingWords()) {
-                // PRIMARY WIN CONDITION: All initial blocks cleared
-                // This is the standard clear mode victory condition
-                if (!this.game.state.hasInitialBlocksRemaining(this.game.dom.grid)) {
-                    console.log('🎉 CLEAR MODE VICTORY! All initial blocks cleared!');
-                    this.game.lifecycle.endGame('VICTORY');
-                    return;
-                }
-
-                // SECONDARY WIN CONDITION: Completely empty board (beta feature flag)
-                // Stricter condition: all tiles must be cleared, including user-generated ones
-                if (FEATURES.CLEAR_MODE_EMPTY_BOARD_WIN && this.game.state.isBoardEmpty(this.game.dom.grid)) {
-                    console.log('🎉 CLEAR MODE VICTORY! Board completely cleared!');
-                    this.game.lifecycle.endGame('VICTORY');
-                    return;
+                if (FEATURES.CLEAR_MODE_EMPTY_BOARD_WIN) {
+                    // STRICTER WIN CONDITION: Board must be completely empty
+                    // All tiles (initial + user-generated) must be cleared
+                    if (this.game.state.isBoardEmpty(this.game.dom.grid)) {
+                        console.log('🎉 CLEAR MODE VICTORY! Board completely cleared!');
+                        this.game.lifecycle.endGame('VICTORY');
+                        return;
+                    }
+                } else {
+                    // DEFAULT WIN CONDITION: All initial blocks cleared
+                    // Victory when all pre-populated tiles are removed from the board
+                    if (!this.game.state.hasInitialBlocksRemaining(this.game.dom.grid)) {
+                        console.log('🎉 CLEAR MODE VICTORY! All initial blocks cleared!');
+                        this.game.lifecycle.endGame('VICTORY');
+                        return;
+                    }
                 }
             }
 
