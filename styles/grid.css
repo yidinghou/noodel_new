@@ -138,6 +138,15 @@
     cursor: default;
 }
 
+/* Initial Block (Clear Mode) - Black letters on white background */
+.grid-square.initial {
+    background: #ffffff;
+    color: #000000;
+    border: 2px solid #333333;
+    cursor: default;
+    font-weight: bold;
+}
+
 /* Dropping Letter Overlay (animated letter during drop) */
 .dropping-letter-overlay {
     position: fixed;

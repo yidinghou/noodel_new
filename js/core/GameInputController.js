@@ -1,4 +1,4 @@
-import { CONFIG } from '../config.js';
+import { CONFIG, GameModes } from '../config.js';
 import { INPUT_BUFFER_MS } from './gameConstants.js';
 import { isValidColumn, calculateIndex } from '../grid/gridUtils.js';
 import { GamePhase } from './GameStateMachine.js';
@@ -163,6 +163,35 @@ export class GameInputController {
             // Check for words after the letter has been placed (if enabled)
             if (FEATURES.WORD_DETECTION) {
                 await this.game.checkAndProcessWords();
+            }
+
+            // Check for clear mode victory conditions
+            // Clear Mode Victory Rules controlled by CLEAR_MODE_EMPTY_BOARD_WIN flag:
+            // - Flag OFF (default): Win when all initial blocks are cleared
+            // - Flag ON (stricter): Win ONLY when board is completely empty
+            if (this.game.state.gameMode === GameModes.CLEAR && !this.game.wordProcessor.hasPendingWords()) {
+                if (FEATURES.CLEAR_MODE_EMPTY_BOARD_WIN) {
+                    // STRICTER WIN CONDITION: Board must be completely empty
+                    // All tiles (initial + user-generated) must be cleared
+                    if (this.game.state.isBoardEmpty(this.game.dom.grid)) {
+                        console.log('🎉 CLEAR MODE VICTORY! Board completely cleared!');
+                        this.game.lifecycle.endGame('VICTORY');
+                        return;
+                    }
+                } else {
+                    // DEFAULT WIN CONDITION: All initial blocks cleared
+                    // Victory when all pre-populated tiles are removed from the board
+                    if (!this.game.state.hasInitialBlocksRemaining(this.game.dom.grid)) {
+                        console.log('🎉 CLEAR MODE VICTORY! All initial blocks cleared!');
+                        this.game.lifecycle.endGame('VICTORY');
+                        return;
+                    }
+                }
+            }
+
+            // Check for game over (no more letters remaining AND no pending words to clear)
+            if (this.game.state.isGameOver() && !this.game.wordProcessor.hasPendingWords()) {
+                this.game.lifecycle.endGame('GAME_OVER');
             }
         });
     }

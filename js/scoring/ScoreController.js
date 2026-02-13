@@ -5,7 +5,8 @@ import { CONFIG } from '../config.js';
  * ScoreController class - Manages scoring, words, and game progress
  */
 export class ScoreController {
-    constructor(gameState, domCache) {
+    constructor(game, gameState, domCache) {
+        this.game = game;
         this.gameState = gameState;
         this.dom = domCache;
         this.madeWords = []; // Store WordItem instances for stats
@@ -63,11 +64,6 @@ export class ScoreController {
         this.gameState.decrementLettersRemaining();
         if (this.dom.lettersRemainingValue) {
             this.dom.lettersRemainingValue.textContent = this.gameState.lettersRemaining;
-        }
-        
-        if (this.gameState.isGameOver()) {
-            // Game over logic
-            alert('Game Over! No more letters remaining.');
         }
     }
 

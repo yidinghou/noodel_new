@@ -1,5 +1,5 @@
 import { Game } from './core/Game.js';
-import { FEATURES } from './core/features.js';
+import { FEATURES, initializeFeatureFlagsFromURL } from './core/features.js';
 import { DebugModeController } from './core/DebugModeController.js';
 
 /**
@@ -7,6 +7,9 @@ import { DebugModeController } from './core/DebugModeController.js';
  * Note: Animation timing is now controlled via CSS custom properties in base.css
  */
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize feature flags from URL parameters (for beta testing)
+    initializeFeatureFlagsFromURL();
+
     // Initialize debug controller early
     const debugController = new DebugModeController();
     const game = new Game(debugController);

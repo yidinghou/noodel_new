@@ -2,6 +2,8 @@ import { WordItem } from '../word/WordItem.js';
 import { calculateWordScore } from '../scoring/ScoringUtils.js';
 import { FEATURES } from './features.js';
 import { TutorialUIState } from './gameConstants.js';
+import { GameModes } from '../config.js';
+import { InitialBlockManager } from './InitialBlockManager.js';
 
 /**
  * WordProcessor - Manages word detection, validation, and clearing
@@ -59,6 +61,23 @@ export class WordProcessor {
     }
 
     /**
+     * Check if a word is valid for the current game mode
+     * In Clear Mode, words must contain at least one user-generated tile (non-initial)
+     * @param {Object} wordData - Word data from checkForWords
+     * @returns {boolean} True if word is valid
+     */
+    isWordValidForGameMode(wordData) {
+        // In CLEAR mode, validate that at least one tile is user-generated
+        if (this.game.state.gameMode === GameModes.CLEAR) {
+            const tileIndices = this.game.wordResolver.getTileIndicesFromWord(wordData);
+            const hasUserGeneratedTile = InitialBlockManager.hasUserGeneratedTile(tileIndices, this.game.dom.grid);
+            return hasUserGeneratedTile;
+        }
+        // In CLASSIC mode or unknown mode, allow all words
+        return true;
+    }
+
+    /**
      * Cleanup method to clear batch processing state
      * Should be called during game reset to prevent stale batches from processing
      */
@@ -73,6 +92,14 @@ export class WordProcessor {
         }
         
         console.log('WordProcessor cleanup completed');
+    }
+
+    /**
+     * Check if any words are currently in their grace period
+     * @returns {boolean} True if there are pending words
+     */
+    hasPendingWords() {
+        return this.gracePeriodManager.pendingWords.size > 0;
     }
 
     /**
@@ -95,10 +122,17 @@ export class WordProcessor {
         this.isProcessingWords = true;
         try {
             // Find all words on current grid state
-            const foundWords = this.game.wordResolver.checkForWords();
+            let foundWords = this.game.wordResolver.checkForWords();
             
             if (foundWords.length === 0) {
                 return;  // No words found
+            }
+            
+            // Filter words based on game mode validation
+            foundWords = foundWords.filter(wordData => this.isWordValidForGameMode(wordData));
+            
+            if (foundWords.length === 0) {
+                return;  // No valid words after filtering
             }
             
             // If not using grace period, process words immediately (old behavior)
@@ -186,6 +220,13 @@ export class WordProcessor {
      * @param {boolean} addScore - Whether to add score
      */
     async processWordsImmediately(foundWords, addScore) {
+        // Filter words based on game mode validation
+        foundWords = foundWords.filter(wordData => this.isWordValidForGameMode(wordData));
+        
+        if (foundWords.length === 0) {
+            return;  // No valid words
+        }
+        
         // Check if word highlighting animation is enabled
         const shouldAnimate = FEATURES.ANIMATION_WORD_HIGHLIGHT;
         
@@ -228,19 +269,48 @@ export class WordProcessor {
             // Even without gravity, update column fill counts based on actual grid state
             this.game.grid.updateColumnFillCounts();
         }
-                
+
+        // Check for clear mode victory conditions
+        // Clear Mode Victory Rules controlled by CLEAR_MODE_EMPTY_BOARD_WIN flag:
+        // - Flag OFF (default): Win when all initial blocks are cleared
+        // - Flag ON (stricter): Win ONLY when board is completely empty
+        // Victory is checked after word processing and gravity applied
+        if (this.game.state.gameMode === GameModes.CLEAR) {
+            if (FEATURES.CLEAR_MODE_EMPTY_BOARD_WIN) {
+                // STRICTER WIN CONDITION: Board must be completely empty
+                // All tiles (initial + user-generated) must be cleared
+                if (this.game.state.isBoardEmpty(this.game.dom.grid)) {
+                    console.log('🎉 CLEAR MODE VICTORY! Board completely cleared!');
+                    this.game.lifecycle.endGame('VICTORY');
+                    return;  // End word processing and game
+                }
+            } else {
+                // DEFAULT WIN CONDITION: All initial blocks cleared
+                // Victory when all pre-populated tiles are removed from the board
+                if (!this.game.state.hasInitialBlocksRemaining(this.game.dom.grid)) {
+                    console.log('🎉 CLEAR MODE VICTORY! All initial blocks cleared!');
+                    this.game.lifecycle.endGame('VICTORY');
+                    return;  // End word processing and game
+                }
+            }
+        }
+
         // Short delay before checking for new words
         await new Promise(resolve => setTimeout(resolve, 300));
-        
+
         // Check for cascading words (also immediately)
         const cascadeWords = this.game.wordResolver.checkForWords();
         if (cascadeWords.length > 0) {
             await this.processWordsImmediately(cascadeWords, addScore);
+        } else if (this.game.state.isGameOver() && !this.hasPendingWords()) {
+            // No more cascades, no more pending words, and letters remaining is 0
+            this.game.lifecycle.endGame('GAME_OVER');
         }
     }
 
     /**
      * Finalize word data: add to score and remove pending CSS class
+     * Tracks cleared initial blocks in clear mode
      * @param {Object} wordData - Word to finalize
      */
     finalizeWordData(wordData) {
@@ -250,8 +320,32 @@ export class WordProcessor {
         const willAddToScore = this.game.state.scoringEnabled;
         this.game.score.addWord(wordItem, willAddToScore);
         
+        // Track cleared initial blocks in clear mode
+        if (this.game.state.gameMode === GameModes.CLEAR) {
+            const initialBlocksInWord = this.countInitialBlocksInWord(wordData);
+            this.game.state.incrementClearedInitialBlocks(initialBlocksInWord);
+        }
+        
         // Clear the pending animation (remove word-pending class)
         this.game.animator.updateWordPendingAnimation(wordData.positions, 'clear');
+    }
+    
+    /**
+     * Count how many initial blocks are in a word
+     * @param {Object} wordData - Word data with positions
+     * @returns {number} Number of initial blocks in the word
+     */
+    countInitialBlocksInWord(wordData) {
+        if (!wordData.positions) return 0;
+        
+        let count = 0;
+        wordData.positions.forEach(pos => {
+            const square = this.game.dom.getGridSquare(pos.index);
+            if (square && square.classList.contains('initial')) {
+                count++;
+            }
+        });
+        return count;
     }
 
     /**
@@ -260,6 +354,20 @@ export class WordProcessor {
      */
     async animateBatchRemoval(allPositions) {
         const shouldAnimate = FEATURES.ANIMATION_WORD_HIGHLIGHT;
+        
+        // Track initial blocks cleared in clear mode
+        if (this.game.state.gameMode === GameModes.CLEAR) {
+            allPositions.forEach(positions => {
+                let initialBlocksCount = 0;
+                positions.forEach(pos => {
+                    const square = this.game.dom.getGridSquare(pos.index);
+                    if (square && square.classList.contains('initial')) {
+                        initialBlocksCount++;
+                    }
+                });
+                this.game.state.incrementClearedInitialBlocks(initialBlocksCount);
+            });
+        }
         
         if (shouldAnimate && allPositions.length > 0) {
             // Animate all words in parallel using Promise.all
@@ -337,6 +445,26 @@ export class WordProcessor {
 
         } finally {
             this.isProcessingWords = false;
+
+            // Check for clear mode victory conditions after batch processing
+            if (this.game.state.gameMode === GameModes.CLEAR) {
+                if (FEATURES.CLEAR_MODE_EMPTY_BOARD_WIN) {
+                    // STRICTER WIN CONDITION: Board must be completely empty
+                    if (this.game.state.isBoardEmpty(this.game.dom.grid)) {
+                        console.log('🎉 CLEAR MODE VICTORY! Board completely cleared!');
+                        this.game.lifecycle.endGame('VICTORY');
+                        return;
+                    }
+                } else {
+                    // DEFAULT WIN CONDITION: All initial blocks cleared
+                    if (!this.game.state.hasInitialBlocksRemaining(this.game.dom.grid)) {
+                        console.log('🎉 CLEAR MODE VICTORY! All initial blocks cleared!');
+                        this.game.lifecycle.endGame('VICTORY');
+                        return;
+                    }
+                }
+            }
+
             // Phase 6: Check if user actions or cascades created new words
             try {
                 await this.checkAndProcessWords(true);

@@ -1,6 +1,7 @@
 import { CONFIG } from '../config.js';
 import { calculateIndex, calculateRowCol, isValidColumn } from './gridUtils.js';
 import { FEATURES } from '../core/features.js';
+import { InitialBlockManager } from '../core/InitialBlockManager.js';
 
 
 /**
@@ -92,8 +93,16 @@ export class GridController {
                             // Move the letter down
                             currentSquare.textContent = searchSquare.textContent;
                             currentSquare.classList.add('filled');
+                            
+                            // Preserve 'initial' class if it exists
+                            if (searchSquare.classList.contains('initial')) {
+                                currentSquare.classList.add('initial');
+                            } else {
+                                currentSquare.classList.remove('initial');
+                            }
+                            
                             searchSquare.textContent = '';
-                            searchSquare.classList.remove('filled');
+                            this.dom.removeGridSquareStateClasses(searchSquare);
                             moved = true;
                             break; // Found a letter to move, continue with next empty cell
                         }
@@ -136,6 +145,39 @@ export class GridController {
 
     // Stop pulsating animation on all grid squares
     stopPulsating() {
+        const squares = this.dom.getAllGridSquares();
+        squares.forEach(square => {
+            square.classList.remove('pulsating');
+        });
+    }
+
+    /**
+     * Initialize clear mode with pre-populated initial blocks
+     * @param {GameState} gameState - The game state object
+     */
+    initializeClearMode(gameState) {
+        // Clear any existing grid content first
+        this.displayReset();
+        
+        // Reset column fill counts
+        gameState.columnFillCounts = new Array(CONFIG.GRID.COLUMNS).fill(0);
+        
+        // Populate grid with initial blocks
+        const initialBlocks = InitialBlockManager.populateGridWithInitialBlocks(gameState, this.dom);
+        
+        // Apply initial blocks to DOM
+        InitialBlockManager.applyInitialBlocksToDom(this.dom.grid, initialBlocks);
+        
+        // Apply gravity to make initial blocks fall to bottom
+        this.applyGravity();
+        
+        console.log(`Clear Mode initialized: ${initialBlocks.length} initial blocks placed`);
+        
+        return initialBlocks;
+    }
+
+    /**
+     * pPulsating() {
         const squares = this.dom.getAllGridSquares();
         squares.forEach(square => {
             square.classList.remove('pulsating');

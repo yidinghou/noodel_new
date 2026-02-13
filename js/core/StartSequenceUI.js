@@ -1,4 +1,4 @@
-import { CONFIG } from '../config.js';
+import { CONFIG, GameModes } from '../config.js';
 import { TutorialUIState } from './gameConstants.js';
 import { calculateIndex } from '../grid/gridUtils.js';
 import { FEATURES } from './features.js';
@@ -132,5 +132,49 @@ export class StartSequenceUI {
         if (this.game.dom.lettersRemainingContainer) {
             this.game.dom.lettersRemainingContainer.classList.add('visible');
         }
+    }
+
+    /**
+     * Show mode selection menu overlay
+     */
+    showModeSelectionMenu() {
+        const menu = document.getElementById('modeSelectionMenu');
+        if (!menu) {
+            console.error('Mode selection menu not found in DOM');
+            return;
+        }
+
+        // Show the menu overlay
+        menu.classList.add('visible');
+
+        // Setup listener for CLASSIC mode button
+        const classicBtn = document.getElementById('classicBtn');
+        if (classicBtn) {
+            classicBtn.onclick = () => {
+                menu.classList.remove('visible');
+                this.game.lifecycle.finalizeGameStart(GameModes.CLASSIC);
+            };
+        }
+
+        // Setup listener for CLEAR mode button (if feature is enabled)
+        const clearBtn = document.getElementById('clearBtn');
+        if (clearBtn) {
+            if (!FEATURES.CLEAR_MODE_ENABLED) {
+                // Feature disabled: hide CLEAR button to prevent selection
+                clearBtn.style.display = 'none';
+                if (FEATURES.DEBUG_ENABLED) {
+                    console.log('CLEAR mode disabled via feature flag - button hidden');
+                }
+            } else {
+                // Feature enabled: wire up the button
+                clearBtn.style.display = '';
+                clearBtn.onclick = () => {
+                    menu.classList.remove('visible');
+                    this.game.lifecycle.finalizeGameStart(GameModes.CLEAR);
+                };
+            }
+        }
+
+        console.log('Mode selection menu displayed');
     }
 }

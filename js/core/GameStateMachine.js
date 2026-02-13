@@ -6,6 +6,7 @@ export const GamePhase = {
     LOADING: 'loading',
     INTRO_ANIMATION: 'intro_animation',
     START_SEQUENCE: 'start_sequence',
+    START_MENU: 'start_menu',
     GAME_READY: 'game_ready',
     PLAYING: 'playing',
     WORD_PROCESSING: 'word_processing',
@@ -21,7 +22,8 @@ export const ValidTransitions = {
     [GamePhase.LOADING]: [GamePhase.INTRO_ANIMATION],
     // Allow direct transition to GAME_READY for debug/no-frills mode
     [GamePhase.INTRO_ANIMATION]: [GamePhase.START_SEQUENCE, GamePhase.GAME_READY],
-    [GamePhase.START_SEQUENCE]: [GamePhase.GAME_READY],
+    [GamePhase.START_SEQUENCE]: [GamePhase.START_MENU],
+    [GamePhase.START_MENU]: [GamePhase.GAME_READY],
     [GamePhase.GAME_READY]: [GamePhase.PLAYING],
     [GamePhase.PLAYING]: [GamePhase.WORD_PROCESSING, GamePhase.GAME_OVER],
     [GamePhase.WORD_PROCESSING]: [GamePhase.PLAYING, GamePhase.GAME_OVER],
@@ -58,6 +60,8 @@ export const ValidTransitions = {
  * INTRO_ANIMATION
  *    ↓
  * START_SEQUENCE
+ * START_MENU
+ *    ↓
  *    ↓
  * GAME_READY
  *    ↓

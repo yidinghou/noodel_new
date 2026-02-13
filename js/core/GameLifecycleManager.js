@@ -4,6 +4,7 @@ import { WordItem } from '../word/WordItem.js';
 import { calculateWordScore } from '../scoring/ScoringUtils.js';
 import { GamePhase } from './GameStateMachine.js';
 import { TutorialUIState } from './gameConstants.js';
+import { FEATURES } from './features.js';
 
 /**
  * GameLifecycleManager - Manages game initialization, startup, and reset phases
@@ -90,31 +91,75 @@ export class GameLifecycleManager {
      * Reset the game to initial state
      */
     async reset() {
-        // Delegate to flow controller
-        return await this.game.flowController.resetGame();
+        // Reset game state and UI
+        await this.game.flowController.resetGame();
+        // Transition to RESETTING first, then START_MENU
+        if (this.game.stateMachine.canTransitionTo(GamePhase.RESETTING)) {
+            this.game.stateMachine.transition(GamePhase.RESETTING);
+        }
+        if (this.game.stateMachine.canTransitionTo(GamePhase.START_MENU)) {
+            this.game.stateMachine.transition(GamePhase.START_MENU);
+        }
+        this.game.startUI.showModeSelectionMenu();
+        this.game.tutorialUIState = TutorialUIState.COMPLETED;
+        this.game.updateTutorialUI();
     }
 
     /**
      * Initialize game after START sequence completes
-     * Handles NOODEL overlay drop and game component initialization
+     * Transitions to START_MENU phase to show mode selection
      */
     async initializeGameAfterStartSequence() {
-        // Transition to game ready phase
-        this.game.stateMachine.transition(GamePhase.GAME_READY);
+        // Transition to menu phase (stops here, no auto-start)
+        this.game.stateMachine.transition(GamePhase.START_MENU);
         
-        // Mark game as started
+        // Show mode selection menu
+        this.game.startUI.showModeSelectionMenu();
+        
+        // Update tutorial UI state
+        this.game.tutorialUIState = TutorialUIState.COMPLETED;
+        this.game.updateTutorialUI();
+    }
+
+    /**
+     * Finalize game start after mode is selected from menu
+     * Initializes game components and transitions to GAME_READY
+     * @param {string} gameMode - The selected game mode (CLASSIC or CLEAR)
+     */
+    async finalizeGameStart(gameMode) {
+        // Validate: CLEAR mode can only start if feature flag is enabled
+        if (gameMode === GameModes.CLEAR && !FEATURES.CLEAR_MODE_ENABLED) {
+            console.warn('CLEAR mode is disabled via feature flag - defaulting to CLASSIC');
+            gameMode = GameModes.CLASSIC;
+        }
+
+        // Only transition to GAME_READY if it's a valid transition
+        if (!this.game.stateMachine.is(GamePhase.GAME_READY)) {
+            if (this.game.stateMachine.canTransitionTo(GamePhase.GAME_READY)) {
+                this.game.stateMachine.transition(GamePhase.GAME_READY);
+            }
+        }
+
+        // Set game mode and mark as started
+        this.game.state.gameMode = gameMode;
         this.game.state.started = true;
         this.game.dom.startBtn.textContent = '🔄';
-        
-        // Couple the logic here: Show letters remaining when game starts
+
+        // Initialize clear mode with initial blocks if selected
+        if (gameMode === GameModes.CLEAR) {
+            const initialBlocks = this.game.grid.initializeClearMode(this.game.state);
+            // Track the number of initial blocks for victory condition
+            this.game.state.initialBlockCount = initialBlocks.length;
+            this.game.state.clearedInitialBlocks = 0;
+            // Re-add click handlers after grid regeneration in clear mode
+            this.game.grid.addClickHandlers((e) => this.game.handleSquareClick(e));
+        }
+
+        // Show letters remaining counter
         if (this.game.dom.lettersRemainingContainer) {
             this.game.dom.lettersRemainingContainer.classList.add('visible');
         }
 
-        // Ensure the Tutorial UI state is updated to hide the skip button
-        this.game.tutorialUIState = TutorialUIState.COMPLETED;
-        this.game.updateTutorialUI();
-        
         // Drop NOODEL overlay if it exists and await the animation
         const noodelOverlay = document.getElementById('noodel-word-overlay');
         if (noodelOverlay) {
@@ -128,28 +173,50 @@ export class GameLifecycleManager {
             await this.game.animator.dropNoodelWordOverlay(() => {
                 this.game.score.addWord(noodelItem, false);
             });
-            
+
             // Show made-words container after NOODEL overlay drops
             if (this.game.dom.madeWordsContainer) {
                 this.game.dom.madeWordsContainer.classList.add('visible');
             }
         }
-        
+
         // Initialize progress bar
         this.game.animator.updateLetterProgress(
             this.game.state.lettersRemaining,
             CONFIG.GAME.INITIAL_LETTERS
         );
-        
+
         // Show and populate letter preview
         this.game.dom.preview.classList.add('visible');
-        
+
         // Initialize and display letters (ensure nextLetters are populated)
         this.game.letters.initialize();
         this.game.letters.display();
-        
-        console.log('Game fully initialized after START sequence!');
+
+        console.log('Game fully initialized after mode selection!');
         // Enable scoring from this point forward (game has started)
         this.game.state.scoringEnabled = true;
+    }
+
+    /**
+     * End the game
+     * @param {string} reason - The reason the game ended ('VICTORY' or 'GAME_OVER')
+     */
+    endGame(reason = 'GAME_OVER') {
+        // Prevent multiple game end calls
+        if (!this.game.state.started) return;
+        
+        this.game.state.started = false;
+        
+        if (reason === 'VICTORY') {
+            alert('Congratulations! You cleared all the initial blocks and WON!');
+        } else {
+            alert('Game Over! No more letters remaining.');
+        }
+        
+        // Disable scoring since game has ended
+        this.game.state.scoringEnabled = false;
+        
+        console.log(`Game ended: ${reason}`);
     }
 }

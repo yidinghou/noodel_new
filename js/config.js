@@ -1,6 +1,7 @@
 // Game modes
 export const GameModes = {
-    CLASSIC: 'classic'      // Original mode: fill grid, run out of letters
+    CLASSIC: 'classic',     // Original mode: fill grid, run out of letters
+    CLEAR: 'clear'          // Clear mode: clear pre-populated grid with initial blocks
 };
 
 // Configuration constants
@@ -14,9 +15,12 @@ export const CONFIG = {
     GAME: {
         INITIAL_LETTERS: 100,
         PREVIEW_COUNT: 5,
-        WORD_GRACE_PERIOD_MS: 1000        // Grace period for word clearing (milliseconds)
+        WORD_GRACE_PERIOD_MS: 1000,       // Grace period for word clearing (milliseconds)
         // Note: Alphabet is now generated dynamically using LetterGenerator
         // based on English letter frequency distribution
+        
+        // Clear Mode configuration
+        CLEAR_MODE_INITIAL_FILL_PERCENTAGE: 0.20  // Pre-populate 25% of grid with initial blocks
     },
     PREVIEW_START: {
         // IMPORTANT: LETTERS.length must equal GAME.PREVIEW_COUNT (both are 5)

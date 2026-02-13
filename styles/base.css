@@ -337,3 +337,97 @@ body {
 
 .letters-remaining-value {
     font-size: clamp(16px, 2.2vw, 20px);
+}
+
+/* Mode Selection Menu Overlay */
+.mode-selection-menu {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-quick), visibility var(--transition-quick);
+    z-index: 1000;
+}
+
+.mode-selection-menu.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mode-selection-content {
+    background: var(--color-bg-card);
+    border-radius: var(--size-border-radius-medium);
+    padding: clamp(24px, 5vw, 40px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    min-width: 300px;
+    max-width: 90vw;
+}
+
+.mode-selection-title {
+    font-size: clamp(20px, 4vw, 28px);
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin-bottom: clamp(16px, 3vw, 24px);
+    letter-spacing: 0.5px;
+}
+
+.mode-selection-buttons {
+    display: flex;
+    gap: clamp(12px, 3vw, 20px);
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.mode-selection-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: clamp(12px, 2vw, 16px) clamp(16px, 3vw, 24px);
+    font-size: clamp(14px, 2.2vw, 18px);
+    font-weight: 600;
+    border: none;
+    border-radius: var(--size-border-radius-small);
+    cursor: pointer;
+    transition: all var(--transition-quick);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.classic-btn {
+    background: var(--color-blue-primary);
+    color: var(--color-text-white);
+}
+
+.classic-btn:hover {
+    background: #1565C0;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(25, 118, 210, 0.3);
+}
+
+.classic-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(25, 118, 210, 0.3);
+}
+
+.clear-btn {
+    background: var(--color-accent-secondary);
+    color: var(--color-text-white);
+}
+
+.clear-btn:hover {
+    background: #F57C00;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 152, 0, 0.3);
+}
+
+.clear-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(255, 152, 0, 0.3);
+}
