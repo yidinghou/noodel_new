@@ -102,7 +102,7 @@ export class GridController {
                             }
                             
                             searchSquare.textContent = '';
-                            searchSquare.classList.remove('filled', 'initial');
+                            this.dom.removeGridSquareStateClasses(searchSquare);
                             moved = true;
                             break; // Found a letter to move, continue with next empty cell
                         }

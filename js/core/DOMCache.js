@@ -33,4 +33,30 @@ export class DOMCache {
     getNextUpBlock() {
         return document.querySelector('.preview-letter-block.next-up');
     }
+
+    /**
+     * Remove grid square state classes
+     * Centralizes class removal to ensure consistency when clearing word/animation states
+     * Removes filled state and all animation/word-related classes
+     * @param {HTMLElement|number} squareOrIndex - Grid square element or data-index
+     */
+    removeGridSquareStateClasses(squareOrIndex) {
+        const square = typeof squareOrIndex === 'number'
+            ? this.getGridSquare(squareOrIndex)
+            : squareOrIndex;
+
+        if (!square) return;
+
+        // Remove all state classes: filled state, word states, animation states, and initial blocks
+        // Note: Does NOT remove 'grid-square' base class
+        square.classList.remove(
+            'filled',           // Base filled state
+            'word-found',       // Word animation state
+            'word-pending',     // Grace period state
+            'celebrate',        // Victory animation
+            'reveal',           // Reveal animation
+            'initial',          // Clear mode pre-populated block
+            'pulsating'         // Highlight/focus state
+        );
+    }
 }
