@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOODEL - Word Game</title>
+    <!-- Load stylesheets in order: base (tokens) first, then component-specific -->
+    <link rel="stylesheet" href="styles/base.css">
+    <link rel="stylesheet" href="styles/card.css">
+    <link rel="stylesheet" href="styles/grid.css">
+    <link rel="stylesheet" href="styles/made-words.css">
+</head>
+<body>
+    <div class="main-container">
+        <!-- Card Section (Top) -->
+        <div class="card">
+            <div class="title">
+                <div class="block-base letter-block">N</div>
+                <div class="block-base letter-block">O</div>
+                <div class="block-base letter-block">O</div>
+                <div class="block-base letter-block">D</div>
+                <div class="block-base letter-block">E</div>
+                <div class="block-base letter-block">L</div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-group">
+                    <div class="stat-label">Score</div>
+                    <div class="stat-value" id="scoreValue">0</div>
+                </div>
+                <div class="controls">
+                    <button class="start-btn" id="startBtn">🎮</button>
+                    <button class="mute-btn" id="muteBtn">🔊</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Game Grid Section (Middle) -->
+        <div class="game-grid-wrapper">
+            <div class="preview-row">
+                <div class="next-letters-preview" id="nextLettersPreview" style="display: flex; opacity: 0; visibility: hidden;">
+                    <!-- Preview blocks (5 for letter preview or START menu) -->
+                    <div class="block-base preview-letter-block" data-column="0"></div>
+                    <div class="block-base preview-letter-block" data-column="1"></div>
+                    <div class="block-base preview-letter-block" data-column="2"></div>
+                    <div class="block-base preview-letter-block" data-column="3"></div>
+                    <div class="block-base preview-letter-block" data-column="4"></div>
+                </div>
+                <!-- Letters remaining display (shown after game starts) -->
+                <div class="game-grid-letters-remaining" id="gameGridLettersRemaining">
+                    <div class="letters-remaining-label">Letters Remaining</div>
+                    <div class="letters-remaining-value">100</div>
+                </div>
+            </div>
+            <button class="skip-tutorial-btn" id="skipTutorialBtn" style="display: none;">Skip Tutorial</button>
+            <div class="game-grid" id="gameGrid">
+                <!-- Grid squares will be dynamically generated -->
+            </div>
+        </div>
+        
+        <!-- Made Words Section (Bottom) -->
+        <div class="made-words-container">
+            <div class="made-words-title">Words Made</div>
+            <div class="words-list" id="wordsList">
+                <!-- Words will be added dynamically -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mode Selection Menu Overlay -->
+    <div id="modeSelectionMenu" class="mode-selection-menu">
+        <div class="mode-selection-content">
+            <div class="mode-selection-title">Select a Game Mode</div>
+            <div class="mode-selection-buttons">
+                <button id="classicBtn" class="mode-selection-btn classic-btn">🎮 CLASSIC</button>
+                <button id="clearBtn" class="mode-selection-btn clear-btn">🧹 CLEAR</button>
+            </div>
+        </div>
+    </div>
+    
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
