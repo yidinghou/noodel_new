@@ -12,13 +12,17 @@ function Board({ grid = Array(100).fill(null), onColumnClick }) {
   return (
     <div className="game-grid">
       {grid.map((cell, index) => (
-        <Cell
+        <div
           key={cell?.id || `empty-${index}`}
-          letter={cell?.char}
-          index={index}
-          isMatched={cell?.isMatched}
           onClick={() => handleCellClick(index)}
-        />
+          style={{ cursor: 'pointer' }}
+        >
+          <Cell
+            letter={cell?.char}
+            index={index}
+            isMatched={cell?.isMatched}
+          />
+        </div>
       ))}
     </div>
   );
