@@ -26,9 +26,38 @@ export function gameReducer(state, action) {
       };
     }
 
-    case 'DROP_LETTER':
-      // TODO: Place letter in column
-      return state;
+    case 'DROP_LETTER': {
+      const { column } = action.payload;
+      if (!state.nextQueue.length) return state;
+
+      // Find lowest available position in column (bottom-up)
+      let targetIndex = -1;
+      for (let row = 9; row >= 0; row--) {
+        const index = row * 10 + column;
+        if (!state.grid[index]) {
+          targetIndex = index;
+          break;
+        }
+      }
+
+      // Column is full
+      if (targetIndex === -1) return state;
+
+      // Place letter in grid
+      const [nextLetter, ...remainingQueue] = state.nextQueue;
+      const newGrid = [...state.grid];
+      newGrid[targetIndex] = {
+        ...nextLetter,
+        type: 'filled'
+      };
+
+      return {
+        ...state,
+        grid: newGrid,
+        nextQueue: remainingQueue,
+        lettersRemaining: remainingQueue.length
+      };
+    }
 
     case 'RESET':
       return initialState;
