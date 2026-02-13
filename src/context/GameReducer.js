@@ -117,6 +117,32 @@ export function gameReducer(state, action) {
       };
     }
 
+    case 'APPLY_GRAVITY': {
+      const newGrid = Array(100).fill(null);
+
+      // Apply gravity column by column
+      for (let col = 0; col < 10; col++) {
+        const columnCells = [];
+
+        // Collect non-null cells from this column
+        for (let row = 0; row < 10; row++) {
+          const index = row * 10 + col;
+          if (state.grid[index]) {
+            columnCells.push(state.grid[index]);
+          }
+        }
+
+        // Place them at the bottom
+        for (let i = 0; i < columnCells.length; i++) {
+          const row = 10 - columnCells.length + i;
+          const index = row * 10 + col;
+          newGrid[index] = columnCells[i];
+        }
+      }
+
+      return { ...state, grid: newGrid };
+    }
+
     case 'RESET':
       return initialState;
 
