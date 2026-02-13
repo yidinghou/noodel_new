@@ -11,20 +11,23 @@ export const FEATURES = {
     DEBUG_SKIP_ANIMATIONS: false,
     DEBUG_GRID_PATTERN: false,
     DEBUG_LOG_TIMING: false,
-    
+
     // Core gameplay
     WORD_DETECTION: true,
     GRAVITY_PHYSICS: true,
     LETTER_PREVIEW: true,
     SCORE_TRACKING: true,
     WORD_GRACE_PERIOD_ENABLED: true,
-    
+
+    // Clear Mode
+    CLEAR_MODE_EMPTY_BOARD_WIN: false,  // Beta: Win condition when board is completely empty
+
     // UI
     MENU_SYSTEM: true,
     GRID_START_MENU: false,
     PREVIEW_START_MENU: true,
     TITLE_PROGRESS_BAR: true,
-    
+
     // Animations
     ANIMATION_TITLE_DROP: true,
     ANIMATION_TITLE_SHAKE: true,
