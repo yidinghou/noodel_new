@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import GameLayout from './components/Layout/GameLayout.jsx';
 import { useGame } from './context/GameContext.jsx';
+import { useGameLogic } from './hooks/useGameLogic.js';
 
 function App() {
   const { state, dispatch } = useGame();
+  const { dictionary } = useGameLogic();
   const [isMuted, setIsMuted] = useState(false);
 
   const handleStart = () => {
