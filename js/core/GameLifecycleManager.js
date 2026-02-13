@@ -4,6 +4,7 @@ import { WordItem } from '../word/WordItem.js';
 import { calculateWordScore } from '../scoring/ScoringUtils.js';
 import { GamePhase } from './GameStateMachine.js';
 import { TutorialUIState } from './gameConstants.js';
+import { FEATURES } from './features.js';
 
 /**
  * GameLifecycleManager - Manages game initialization, startup, and reset phases
@@ -126,6 +127,12 @@ export class GameLifecycleManager {
      * @param {string} gameMode - The selected game mode (CLASSIC or CLEAR)
      */
     async finalizeGameStart(gameMode) {
+        // Validate: CLEAR mode can only start if feature flag is enabled
+        if (gameMode === GameModes.CLEAR && !FEATURES.CLEAR_MODE_ENABLED) {
+            console.warn('CLEAR mode is disabled via feature flag - defaulting to CLASSIC');
+            gameMode = GameModes.CLASSIC;
+        }
+
         // Only transition to GAME_READY if it's a valid transition
         if (!this.game.stateMachine.is(GamePhase.GAME_READY)) {
             if (this.game.stateMachine.canTransitionTo(GamePhase.GAME_READY)) {

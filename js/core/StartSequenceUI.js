@@ -156,13 +156,23 @@ export class StartSequenceUI {
             };
         }
 
-        // Setup listener for CLEAR mode button
+        // Setup listener for CLEAR mode button (if feature is enabled)
         const clearBtn = document.getElementById('clearBtn');
         if (clearBtn) {
-            clearBtn.onclick = () => {
-                menu.classList.remove('visible');
-                this.game.lifecycle.finalizeGameStart(GameModes.CLEAR);
-            };
+            if (!FEATURES.CLEAR_MODE_ENABLED) {
+                // Feature disabled: hide CLEAR button to prevent selection
+                clearBtn.style.display = 'none';
+                if (FEATURES.DEBUG_ENABLED) {
+                    console.log('CLEAR mode disabled via feature flag - button hidden');
+                }
+            } else {
+                // Feature enabled: wire up the button
+                clearBtn.style.display = '';
+                clearBtn.onclick = () => {
+                    menu.classList.remove('visible');
+                    this.game.lifecycle.finalizeGameStart(GameModes.CLEAR);
+                };
+            }
         }
 
         console.log('Mode selection menu displayed');

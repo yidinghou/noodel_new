@@ -20,7 +20,8 @@ export const FEATURES = {
     WORD_GRACE_PERIOD_ENABLED: true,
 
     // Clear Mode
-    CLEAR_MODE_EMPTY_BOARD_WIN: false,  // Beta: Win condition when board is completely empty
+    CLEAR_MODE_ENABLED: true,              // Master flag: Enable/disable entire Clear Mode feature
+    CLEAR_MODE_EMPTY_BOARD_WIN: false,     // Beta: Win condition when board is completely empty (stricter challenge)
 
     // UI
     MENU_SYSTEM: true,
