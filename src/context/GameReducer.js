@@ -1,4 +1,6 @@
 import { generateLetterSequence } from '../utils/letterUtils.js';
+import { findWords } from '../utils/wordUtils.js';
+import { calculateWordScore } from '../utils/scoringUtils.js';
 
 // Game state shape
 export const initialState = {
@@ -56,6 +58,33 @@ export function gameReducer(state, action) {
         grid: newGrid,
         nextQueue: remainingQueue,
         lettersRemaining: remainingQueue.length
+      };
+    }
+
+    case 'CHECK_WORDS': {
+      const { dictionary } = action.payload;
+      if (!dictionary) return state;
+
+      const foundWords = findWords(state.grid, dictionary);
+      if (foundWords.length === 0) return state;
+
+      // Mark matched cells
+      const newGrid = [...state.grid];
+      const matchedIndices = new Set();
+
+      foundWords.forEach(wordData => {
+        wordData.indices.forEach(index => {
+          matchedIndices.add(index);
+          if (newGrid[index]) {
+            newGrid[index] = { ...newGrid[index], isMatched: true };
+          }
+        });
+      });
+
+      return {
+        ...state,
+        grid: newGrid,
+        status: 'PROCESSING'
       };
     }
 
