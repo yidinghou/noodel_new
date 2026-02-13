@@ -1,67 +1,25 @@
 import { CONFIG } from '../config.js';
 import { calculateIndex, calculateRowCol } from '../grid/gridUtils.js';
+import { LetterGenerator } from '../letter/LetterGenerator.js';
 
 /**
  * InitialBlockManager - Handles pre-population of grid with "initial" blocks for Clear Mode
- * 
+ *
  * In Clear Mode, the grid starts ~50% populated with "initial" blocks.
  * These blocks have a special CSS class "initial" to distinguish them from user-generated tiles.
  * Words must contain at least one user-generated tile (non-initial) to be valid.
  */
 export class InitialBlockManager {
-    // Letter frequency based on English language usage (same as LetterGenerator)
-    static letterFrequencies = [
-        { letter: 'E', weight: 12.70 },
-        { letter: 'T', weight: 9.06 },
-        { letter: 'A', weight: 8.17 },
-        { letter: 'O', weight: 7.51 },
-        { letter: 'I', weight: 6.97 },
-        { letter: 'N', weight: 6.75 },
-        { letter: 'S', weight: 6.33 },
-        { letter: 'H', weight: 6.09 },
-        { letter: 'R', weight: 5.99 },
-        { letter: 'D', weight: 4.25 },
-        { letter: 'L', weight: 4.03 },
-        { letter: 'C', weight: 2.78 },
-        { letter: 'U', weight: 2.76 },
-        { letter: 'M', weight: 2.41 },
-        { letter: 'W', weight: 2.36 },
-        { letter: 'F', weight: 2.23 },
-        { letter: 'G', weight: 2.02 },
-        { letter: 'Y', weight: 1.97 },
-        { letter: 'P', weight: 1.93 },
-        { letter: 'B', weight: 1.29 },
-        { letter: 'V', weight: 0.98 },
-        { letter: 'K', weight: 0.77 },
-        { letter: 'J', weight: 0.15 },
-        { letter: 'X', weight: 0.15 },
-        { letter: 'Q', weight: 0.10 },
-        { letter: 'Z', weight: 0.07 }
-    ];
+    // Shared letter generator instance for efficient letter generation
+    static #letterGenerator = new LetterGenerator(1000); // Large enough for any grid size
 
     /**
      * Get a random letter based on English frequency distribution
+     * Uses LetterGenerator for consistent frequency distribution
      * @returns {string} A random uppercase letter
      */
     static getRandomLetter() {
-        // Build cumulative weights
-        let sum = 0;
-        const cumulativeWeights = this.letterFrequencies.map(item => {
-            sum += item.weight;
-            return { letter: item.letter, cumWeight: sum };
-        });
-        const totalWeight = sum;
-        
-        // Select letter based on weighted random
-        const random = Math.random() * totalWeight;
-        for (const item of cumulativeWeights) {
-            if (random <= item.cumWeight) {
-                return item.letter;
-            }
-        }
-        
-        // Fallback
-        return this.letterFrequencies[0].letter;
+        return this.#letterGenerator.getWeightedRandomLetter();
     }
 
     /**
