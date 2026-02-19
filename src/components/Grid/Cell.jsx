@@ -1,18 +1,26 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
+const DROP_ANIMATION = {
+  initial: { y: -60, opacity: 0 },
+  animate: { y: 0, opacity: 1 },
+  transition: { y: { type: 'spring', stiffness: 300, damping: 20 } }
+};
+
 const Cell = React.memo(({ letter, index, isMatched = false }) => {
   const cellClass = `block-base ${letter ? 'filled' : ''}`;
 
   return (
     <motion.div
       layout
-      initial={{
-        backgroundColor: letter ? '#808080' : '#f5f5f5',
-        color: letter ? '#ffffff' : 'rgba(255, 255, 255, 0)',
-        border: letter ? '2px solid #4caf50' : '1px solid #e0e0e0'
+      key={letter}
+      initial={letter ? DROP_ANIMATION.initial : {
+        backgroundColor: '#f5f5f5',
+        color: 'rgba(255, 255, 255, 0)',
+        border: '1px solid #e0e0e0'
       }}
       animate={{
+        ...DROP_ANIMATION.animate,
         scale: isMatched ? [1, 1.1, 1] : 1,
         backgroundColor: letter
           ? (isMatched ? '#ffd700' : '#808080')
@@ -21,6 +29,7 @@ const Cell = React.memo(({ letter, index, isMatched = false }) => {
         border: letter ? '2px solid #4caf50' : '1px solid #e0e0e0'
       }}
       transition={{
+        ...DROP_ANIMATION.transition,
         layout: { duration: 0.3 },
         scale: { duration: 0.6, repeat: isMatched ? 2 : 0 },
         default: { duration: 0.2 }
