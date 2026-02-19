@@ -1,20 +1,21 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { GRID_COLS } from '../../utils/gameConstants.js';
 
 const DROP_ANIMATION = {
-  initial: { y: -60, opacity: 0 },
   animate: { y: 0, opacity: 1 },
   transition: { y: { type: 'spring', stiffness: 300, damping: 20 } }
 };
 
-const Cell = React.memo(({ letter, index, isMatched = false }) => {
+const Cell = React.memo(({ letter, index, isMatched = false, cellHeight = 0 }) => {
   const cellClass = `block-base ${letter ? 'filled' : ''}`;
+  const row = Math.floor(index / GRID_COLS);
 
   return (
     <motion.div
       layout
       key={letter}
-      initial={letter ? DROP_ANIMATION.initial : {
+      initial={letter ? { y: -(row * cellHeight), opacity: 0 } : {
         backgroundColor: '#f5f5f5',
         color: 'rgba(255, 255, 255, 0)',
         border: '1px solid #e0e0e0'
