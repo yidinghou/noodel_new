@@ -9,7 +9,7 @@ const LOCKED_TO_GRID_ANIMATION = {
 };
 
 const Cell = React.memo(({ letter, index, isMatched = false }) => {
-  const cellClass = `block-base ${letter ? 'filled' : ''}`;
+  const cellClass = `block-base grid-square${letter ? ' filled' : ''}${isMatched ? ' matched' : ''}`;
 
   return (
     <motion.div
