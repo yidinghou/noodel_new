@@ -1,4 +1,4 @@
-function NextPreview({ nextLetters = [], visible = false }) {
+function NextPreview({ nextLetters = [], visible = false, nextUpRef }) {
   const displayLetters = nextLetters.slice(0, 5);
 
   return (
@@ -11,7 +11,12 @@ function NextPreview({ nextLetters = [], visible = false }) {
         if (isNextUp) className += ' next-up';
         if (isEmpty) className += ' empty';
         return (
-          <div key={index} className={className} data-column={index}>
+          <div
+            key={index}
+            ref={isNextUp ? nextUpRef : null}
+            className={className}
+            data-column={index}
+          >
             {letter || ''}
           </div>
         );
