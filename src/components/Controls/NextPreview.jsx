@@ -1,26 +1,21 @@
-import React from 'react';
-
 function NextPreview({ nextLetters = [], visible = false }) {
   const displayLetters = nextLetters.slice(0, 5);
 
   return (
-    <div
-      className="next-letters-preview"
-      style={{
-        display: 'flex',
-        opacity: visible ? 1 : 0,
-        visibility: visible ? 'visible' : 'hidden'
-      }}
-    >
-      {Array(5).fill(null).map((_, index) => (
-        <div
-          key={index}
-          className="block-base preview-letter-block"
-          data-column={index}
-        >
-          {displayLetters[index] || ''}
-        </div>
-      ))}
+    <div className={`next-letters-preview${visible ? ' visible' : ''}`}>
+      {Array(5).fill(null).map((_, index) => {
+        const letter = displayLetters[index];
+        const isEmpty = !letter;
+        const isNextUp = visible && index === 0 && !isEmpty;
+        let className = 'block-base preview-letter-block';
+        if (isNextUp) className += ' next-up';
+        if (isEmpty) className += ' empty';
+        return (
+          <div key={index} className={className} data-column={index}>
+            {letter || ''}
+          </div>
+        );
+      })}
     </div>
   );
 }
