@@ -138,6 +138,13 @@
     cursor: default;
 }
 
+/* Matched Grid Square (word found pulse) */
+.grid-square.matched {
+    background: #ffd700;
+    border-color: #ffd700;
+    color: var(--color-text-primary);
+}
+
 /* Initial Block (Clear Mode) - Black letters on white background */
 .grid-square.initial {
     background: #ffffff;
