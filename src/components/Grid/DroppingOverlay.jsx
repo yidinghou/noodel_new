@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import { useAnimate } from 'framer-motion';
 
 // Pixels per second for the constant-speed drop phase
-const DROP_SPEED = 800;
+const DROP_SPEED = 600;
+const LETTER_FROM_PREVIEW_TO_GRID_SPEED = 0.25
 
 function DroppingOverlay({ letter, from, toTop, toFinal, cellSize, onComplete }) {
   const [scope, animate] = useAnimate();
@@ -13,7 +14,7 @@ function DroppingOverlay({ letter, from, toTop, toFinal, cellSize, onComplete })
       await animate(
         scope.current,
         { x: toTop.x - from.x, y: toTop.y - from.y },
-        { duration: 0.18, ease: 'easeOut' }
+        { duration: LETTER_FROM_PREVIEW_TO_GRID_SPEED, ease: 'easeOut' }
       );
 
       // Phase 2: drop at constant speed to the destination row
