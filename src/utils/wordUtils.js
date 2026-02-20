@@ -17,13 +17,13 @@ function extractWord(grid, startRow, startCol, rowDelta, colDelta, length) {
     indices.push(index);
   }
 
-  return {
-    word: letters.join(''),
-    indices,
-    startRow,
-    startCol,
-    direction: rowDelta === 0 ? 'horizontal' : 'vertical'
-  };
+  let direction;
+  if (rowDelta === 0)        direction = 'horizontal';
+  else if (colDelta === 0)   direction = 'vertical';
+  else if (rowDelta === 1)   direction = 'diagonal-down-right';
+  else                       direction = 'diagonal-up-right';
+
+  return { word: letters.join(''), indices, startRow, startCol, direction };
 }
 
 // Filter overlapping words in the same direction, keeping the longest
@@ -80,6 +80,32 @@ export function findWords(grid, dictionary) {
     for (let row = 0; row < GRID_ROWS; row++) {
       for (let length = 3; length <= GRID_ROWS - row; length++) {
         const wordData = extractWord(grid, row, col, 1, 0, length);
+        if (wordData && dictionary.has(wordData.word)) {
+          foundWords.push(wordData);
+        }
+      }
+    }
+  }
+
+  // Check diagonal-down-right (rowDelta=1, colDelta=1)
+  for (let row = 0; row < GRID_ROWS; row++) {
+    for (let col = 0; col < GRID_COLS; col++) {
+      const maxLen = Math.min(GRID_ROWS - row, GRID_COLS - col);
+      for (let length = 3; length <= maxLen; length++) {
+        const wordData = extractWord(grid, row, col, 1, 1, length);
+        if (wordData && dictionary.has(wordData.word)) {
+          foundWords.push(wordData);
+        }
+      }
+    }
+  }
+
+  // Check diagonal-up-right (rowDelta=-1, colDelta=1)
+  for (let row = 0; row < GRID_ROWS; row++) {
+    for (let col = 0; col < GRID_COLS; col++) {
+      const maxLen = Math.min(row + 1, GRID_COLS - col);
+      for (let length = 3; length <= maxLen; length++) {
+        const wordData = extractWord(grid, row, col, -1, 1, length);
         if (wordData && dictionary.has(wordData.word)) {
           foundWords.push(wordData);
         }
