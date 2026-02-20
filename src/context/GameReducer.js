@@ -146,8 +146,8 @@ export function gameReducer(state, action) {
         ...state,
         grid: newGrid,
         score: state.score + totalScore,
-        madeWords: newMadeWords.slice(0, 20),
-        status: 'PLAYING'
+        madeWords: newMadeWords.slice(0, 20)
+        // Keep status as PROCESSING until gravity is applied
       };
     }
 
@@ -180,7 +180,7 @@ export function gameReducer(state, action) {
         }
       }
 
-      return { ...state, grid: newGrid };
+      return { ...state, grid: newGrid, status: 'PLAYING' };
     }
 
     case 'RESET':
