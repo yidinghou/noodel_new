@@ -26,32 +26,34 @@ function extractWord(grid, startRow, startCol, rowDelta, colDelta, length) {
   return { word: letters.join(''), indices, startRow, startCol, direction };
 }
 
-// Filter overlapping words in the same direction, keeping the longest
+// Filter overlapping words in the same direction, keeping the longest.
+// When same-direction words share any cell, the longer word wins.
+// Equal-length partial overlaps keep the first-encountered word.
 export function filterOverlappingWords(words) {
   const filtered = [];
 
   for (const word of words) {
     const wordSet = new Set(word.indices);
+    let skip = false;
 
-    // Skip if this word is fully contained by an already-kept word in same direction
-    const dominated = filtered.some(
-      other =>
-        other.direction === word.direction &&
-        word.indices.every(idx => other.indices.includes(idx))
-    );
-    if (dominated) continue;
-
-    // Remove shorter words in same direction that this word fully contains
     for (let i = filtered.length - 1; i >= 0; i--) {
-      if (
-        filtered[i].direction === word.direction &&
-        filtered[i].indices.every(idx => wordSet.has(idx))
-      ) {
+      const other = filtered[i];
+      if (other.direction !== word.direction) continue;
+
+      const shares = other.indices.some(idx => wordSet.has(idx));
+      if (!shares) continue;
+
+      if (word.indices.length > other.indices.length) {
+        // New word is longer — replace the shorter overlapping word
         filtered.splice(i, 1);
+      } else {
+        // New word is same length or shorter — first/longest wins
+        skip = true;
+        break;
       }
     }
 
-    filtered.push(word);
+    if (!skip) filtered.push(word);
   }
 
   return filtered;
