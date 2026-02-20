@@ -26,6 +26,37 @@ function extractWord(grid, startRow, startCol, rowDelta, colDelta, length) {
   };
 }
 
+// Filter overlapping words in the same direction, keeping the longest
+export function filterOverlappingWords(words) {
+  const filtered = [];
+
+  for (const word of words) {
+    const wordSet = new Set(word.indices);
+
+    // Skip if this word is fully contained by an already-kept word in same direction
+    const dominated = filtered.some(
+      other =>
+        other.direction === word.direction &&
+        word.indices.every(idx => other.indices.includes(idx))
+    );
+    if (dominated) continue;
+
+    // Remove shorter words in same direction that this word fully contains
+    for (let i = filtered.length - 1; i >= 0; i--) {
+      if (
+        filtered[i].direction === word.direction &&
+        filtered[i].indices.every(idx => wordSet.has(idx))
+      ) {
+        filtered.splice(i, 1);
+      }
+    }
+
+    filtered.push(word);
+  }
+
+  return filtered;
+}
+
 // Find all words on the grid
 export function findWords(grid, dictionary) {
   if (!dictionary) return [];

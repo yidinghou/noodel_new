@@ -2,7 +2,7 @@ import React from 'react';
 import Cell from './Cell.jsx';
 import { GRID_SIZE, GRID_COLS } from '../../utils/gameConstants.js';
 
-function Board({ grid = Array(GRID_SIZE).fill(null), onColumnClick }) {
+function Board({ grid = Array(GRID_SIZE).fill(null), onColumnClick, gridRef }) {
   const handleCellClick = (index) => {
     const column = index % GRID_COLS;
     if (onColumnClick) {
@@ -11,7 +11,7 @@ function Board({ grid = Array(GRID_SIZE).fill(null), onColumnClick }) {
   };
 
   return (
-    <div className="game-grid visible">
+    <div ref={gridRef} className="game-grid visible">
       {grid.map((cell, index) => (
         <div
           key={cell?.id || `empty-${index}`}
@@ -22,6 +22,7 @@ function Board({ grid = Array(GRID_SIZE).fill(null), onColumnClick }) {
             letter={cell?.char}
             index={index}
             isMatched={cell?.isMatched}
+            isPending={cell?.isPending}
           />
         </div>
       ))}
