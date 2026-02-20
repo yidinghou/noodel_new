@@ -5,7 +5,7 @@ import { findWords, filterOverlappingWords } from '../utils/wordUtils.js';
 
 const GRACE_PERIOD_MS = 1000;
 const SHAKE_DURATION_MS = 400;
-const GRAVITY_DELAY_MS = 300;
+const GRAVITY_DELAY_MS = 150;
 
 function generateWordKey(wordData) {
   return `${wordData.word}_${wordData.direction}_${wordData.startRow}_${wordData.startCol}`;

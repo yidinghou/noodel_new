@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useAnimate } from 'framer-motion';
 
 // Cells per second for the constant-speed drop phase
-const DROP_SPEED_CELLS_PER_SEC = 10;
+const DROP_SPEED_CELLS_PER_SEC = 20;
 const LETTER_FROM_PREVIEW_TO_GRID_SPEED = 0.25
 
 function DroppingOverlay({ id, column, letter, from, toTop, toFinal, cellSize, onComplete }) {
