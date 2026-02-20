@@ -401,6 +401,17 @@ describe('filterOverlappingWords', () => {
     expect(result).toHaveLength(1);
   });
 
+  test('partial vertical overlap — keeps only one word', () => {
+    // H-A-S-S vertically in col 0: H(0,0)=0, A(1,0)=7, S(2,0)=14, S(3,0)=21
+    // HAS=[0,7,14], ASS=[7,14,21] — share indices 7 and 14
+    const has = wordData('HAS', [0, 7, 14],  'vertical');
+    const ass = wordData('ASS', [7, 14, 21], 'vertical');
+
+    const result = filterOverlappingWords([has, ass]);
+
+    expect(result).toHaveLength(1);
+  });
+
   test('partial diagonal-down-right overlap — keeps only one word', () => {
     // H-A-S-S diagonal-down-right: H(0,0)=0, A(1,1)=8, S(2,2)=16, S(3,3)=24
     // HAS=[0,8,16], ASS=[8,16,24] — share indices 8 and 16
@@ -431,6 +442,20 @@ describe('findWords – partial overlap integration', () => {
     setCell(grid, 0, 1, 'A');
     setCell(grid, 0, 2, 'S');
     setCell(grid, 0, 3, 'S');
+
+    const words = findWords(grid, new Set(['HAS', 'ASS']));
+    const filtered = filterOverlappingWords(words);
+
+    expect(filtered).toHaveLength(1);
+  });
+
+  test('vertical HASS: HAS+ASS in dictionary should only detect one word', () => {
+    // H(0,0), A(1,0), S(2,0), S(3,0) — all in col 0
+    const grid = emptyGrid();
+    setCell(grid, 0, 0, 'H');
+    setCell(grid, 1, 0, 'A');
+    setCell(grid, 2, 0, 'S');
+    setCell(grid, 3, 0, 'S');
 
     const words = findWords(grid, new Set(['HAS', 'ASS']));
     const filtered = filterOverlappingWords(words);
