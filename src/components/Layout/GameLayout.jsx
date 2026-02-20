@@ -26,14 +26,20 @@ function GameLayout({
 
   // Parallel drop tracking
   const [activeDrops, setActiveDrops] = useState([]);
-  // Set of columns that currently have an in-flight drop — blocks duplicate column clicks
-  const inFlightColumnsRef = useRef(new Set());
-  // Number of currently in-flight drops — used to index into nextLetters for letter assignment
+  // Map<column, count> of in-flight drops per column — used to reserve destination rows
+  const inFlightColumnsRef = useRef(new Map());
+  // Total in-flight drops — used to index into nextLetters for letter assignment
   const inFlightCountRef = useRef(0);
 
-  const getDestRow = useCallback((column) => {
+  // Find the destination row for a drop, skipping the `skipFromBottom` lowest empty rows
+  // that are already reserved by in-flight drops to the same column.
+  const getDestRow = useCallback((column, skipFromBottom = 0) => {
+    let emptyCount = 0;
     for (let row = GRID_ROWS - 1; row >= 0; row--) {
-      if (!grid[row * GRID_COLS + column]) return row;
+      if (!grid[row * GRID_COLS + column]) {
+        if (emptyCount === skipFromBottom) return row;
+        emptyCount++;
+      }
     }
     return -1;
   }, [grid]);
@@ -41,24 +47,24 @@ function GameLayout({
   const handleColumnClick = useCallback((column) => {
     if (!canDrop) return;
 
-    // Block a second drop to the same column while one is already in flight
-    if (inFlightColumnsRef.current.has(column)) return;
-
     const fromEl = nextUpRef.current;
     const gridEl = gridRef.current;
 
-    // Which letter does this drop carry? The Nth queued letter where N = in-flight count
+    // Which letter does this drop carry? The Nth queued letter where N = total in-flight count
     const letterIndex = inFlightCountRef.current;
     if (!nextLetters[letterIndex]) return;
+
+    // How many drops are already in flight to this specific column?
+    // Use that as the row skip so this drop targets the next available row above them.
+    const columnInFlight = inFlightColumnsRef.current.get(column) ?? 0;
+    const destRow = getDestRow(column, columnInFlight);
+    if (destRow === -1) return; // column full (no more empty rows to reserve)
 
     // Fallback: refs not ready — dispatch immediately with no animation
     if (!fromEl || !gridEl) {
       onColumnClick?.(column);
       return;
     }
-
-    const destRow = getDestRow(column);
-    if (destRow === -1) return; // column full
 
     const fromRect = fromEl.getBoundingClientRect();
     const gridRect = gridEl.getBoundingClientRect();
@@ -69,7 +75,7 @@ function GameLayout({
 
     const id = `${Date.now()}-${Math.random()}`;
 
-    inFlightColumnsRef.current.add(column);
+    inFlightColumnsRef.current.set(column, columnInFlight + 1);
     inFlightCountRef.current++;
 
     setActiveDrops(prev => [...prev, {
@@ -85,7 +91,12 @@ function GameLayout({
 
   const handleDropComplete = useCallback((id, column) => {
     onColumnClick?.(column);
-    inFlightColumnsRef.current.delete(column);
+    const remaining = (inFlightColumnsRef.current.get(column) ?? 1) - 1;
+    if (remaining === 0) {
+      inFlightColumnsRef.current.delete(column);
+    } else {
+      inFlightColumnsRef.current.set(column, remaining);
+    }
     inFlightCountRef.current--;
     setActiveDrops(prev => prev.filter(d => d.id !== id));
   }, [onColumnClick]);
