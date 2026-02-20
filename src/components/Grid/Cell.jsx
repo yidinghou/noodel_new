@@ -21,14 +21,10 @@ const Cell = React.memo(({ letter, index, isMatched = false, isPending = false }
 
   return (
     <motion.div
-      layout
       key={letter}
       initial={letter ? LOCKED_TO_GRID_ANIMATION.initial : false}
       animate={LOCKED_TO_GRID_ANIMATION.animate}
-      transition={{
-        ...LOCKED_TO_GRID_ANIMATION.transition,
-        layout: { type: 'tween', duration: 0.3, ease: 'easeOut' },
-      }}
+      transition={LOCKED_TO_GRID_ANIMATION.transition}
       className={cellClass}
       data-index={index}
     >
