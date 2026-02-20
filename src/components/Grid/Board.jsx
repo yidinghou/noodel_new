@@ -23,6 +23,7 @@ function Board({ grid = Array(GRID_SIZE).fill(null), onColumnClick, gridRef }) {
             index={index}
             isMatched={cell?.isMatched}
             isPending={cell?.isPending}
+            pendingDirections={cell?.pendingDirections || []}
           />
         </div>
       ))}
