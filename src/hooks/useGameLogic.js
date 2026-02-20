@@ -64,9 +64,13 @@ export function useGameLogic() {
           payload: { wordsToRemove: wordsToExpire.map(e => e.wordData) },
         });
 
-        setTimeout(() => {
-          dispatch({ type: 'APPLY_GRAVITY' });
-        }, GRAVITY_DELAY_MS);
+        // Only apply gravity if no other words are still pending
+        // This prevents gravity from interfering with words still in their grace period
+        if (pending.size === 0) {
+          setTimeout(() => {
+            dispatch({ type: 'APPLY_GRAVITY' });
+          }, GRAVITY_DELAY_MS);
+        }
       }, SHAKE_DURATION_MS);
     },
     [dispatch, hasIntersection]
