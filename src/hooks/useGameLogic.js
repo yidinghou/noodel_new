@@ -146,9 +146,9 @@ export function useGameLogic() {
   useEffect(() => {
     if (state.gameMode !== 'clear' || state.status !== 'PLAYING') return;
 
-    const hasInitialBlocks = state.grid.some(cell => cell?.isInitial);
+    const gridEmpty = state.grid.every(cell => !cell);
 
-    if (!hasInitialBlocks && state.initialBlocks.length > 0) {
+    if (gridEmpty && state.initialBlocks.length > 0) {
       dispatch({ type: 'GAME_OVER' });
     }
   }, [state.grid, state.gameMode, state.status, state.initialBlocks, dispatch]);
