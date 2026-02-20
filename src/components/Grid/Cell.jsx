@@ -42,7 +42,14 @@ const computePendingStyles = (directions) => {
 };
 
 const Cell = React.memo(
-  ({ letter, index, isMatched = false, isPending = false, pendingDirections = [] }) => {
+  ({
+    letter,
+    index,
+    isMatched = false,
+    isPending = false,
+    pendingDirections = [],
+    pendingResetCount = 0
+  }) => {
     const cellClass = [
       'block-base',
       'grid-square',
@@ -55,9 +62,12 @@ const Cell = React.memo(
 
     const pendingStyles = isPending ? computePendingStyles(pendingDirections) : {};
 
+    // Include pendingResetCount in key to restart animation when timer resets
+    const animationKey = `${letter}-${isPending ? pendingResetCount : 0}`;
+
     return (
       <motion.div
-        key={letter}
+        key={animationKey}
         initial={letter ? LOCKED_TO_GRID_ANIMATION.initial : false}
         animate={LOCKED_TO_GRID_ANIMATION.animate}
         transition={LOCKED_TO_GRID_ANIMATION.transition}
