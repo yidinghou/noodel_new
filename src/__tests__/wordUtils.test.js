@@ -388,4 +388,34 @@ describe('filterOverlappingWords', () => {
     expect(result).toHaveLength(1);
     expect(result[0].word).toBe('CAT');
   });
+
+  test('BUG: partial same-direction overlap (HAS and ASS in HASS) — should keep only one', () => {
+    // H-A-S-S in row 0: HAS=[0,1,2], ASS=[1,2,3]
+    // They share indices 1 and 2 but neither fully contains the other.
+    // Only one should survive — both clearing would score two words from one set of cells.
+    const has = wordData('HAS', [0, 1, 2], 'horizontal');
+    const ass = wordData('ASS', [1, 2, 3], 'horizontal');
+
+    const result = filterOverlappingWords([has, ass]);
+
+    // EXPECTED (fix not yet applied): 1 word
+    // ACTUAL (current bug):           2 words — both HAS and ASS are returned
+    expect(result).toHaveLength(1);
+  });
+});
+
+describe('findWords – partial overlap integration', () => {
+  test('BUG: HASS grid with HAS+ASS in dictionary should only detect one word', () => {
+    const grid = emptyGrid();
+    setCell(grid, 0, 0, 'H');
+    setCell(grid, 0, 1, 'A');
+    setCell(grid, 0, 2, 'S');
+    setCell(grid, 0, 3, 'S');
+
+    const words = findWords(grid, new Set(['HAS', 'ASS']));
+    const filtered = filterOverlappingWords(words);
+
+    // HAS (cols 0-2) and ASS (cols 1-3) share cells — only one word should clear
+    expect(filtered).toHaveLength(1);
+  });
 });
