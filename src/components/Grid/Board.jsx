@@ -22,6 +22,7 @@ function Board({ grid = Array(GRID_SIZE).fill(null), onColumnClick, gridRef }) {
             letter={cell?.char}
             index={index}
             isMatched={cell?.isMatched}
+            isPending={cell?.isPending}
           />
         </div>
       ))}
