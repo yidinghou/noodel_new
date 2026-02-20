@@ -2,6 +2,13 @@ import React from 'react';
 
 /**
  * Game over overlay - shows win/loss message and restart button
+ *
+ * TODO: Enhance this overlay with:
+ * - Distinct win vs loss messaging for Clear mode
+ * - Animations on appearance (confetti for wins, etc.)
+ * - Stats display (tiles cleared, words found, etc.)
+ * - Leaderboard or high score tracking
+ * - Share score functionality
  */
 function GameOverOverlay({ visible, gameMode, score, onRestart }) {
   if (!visible) return null;
