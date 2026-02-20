@@ -117,3 +117,17 @@ export function findWords(grid, dictionary) {
 
   return foundWords;
 }
+
+/**
+ * Check if word contains at least one non-initial (user-dropped) tile
+ * Required for Clear mode: words must have at least one user-generated tile
+ * @param {Array<number>} indices - Word tile indices
+ * @param {Array} grid - Current grid state
+ * @returns {boolean} True if at least one tile is user-generated
+ */
+export function hasUserGeneratedTile(indices, grid) {
+  return indices.some(index => {
+    const cell = grid[index];
+    return cell && !cell.isInitial;
+  });
+}
