@@ -86,7 +86,10 @@ export function useGameLogic() {
         // Cancel and clear the shorter word being replaced
         const old = pending.get(result.replaceKey);
         clearTimeout(old.timerId);
-        dispatch({ type: 'CLEAR_PENDING', payload: { indices: old.wordData.indices } });
+        dispatch({
+          type: 'CLEAR_PENDING',
+          payload: { indices: old.wordData.indices, direction: old.wordData.direction }
+        });
         pending.delete(result.replaceKey);
       }
 
@@ -101,7 +104,10 @@ export function useGameLogic() {
       }
 
       // Start grace period for this word
-      dispatch({ type: 'SET_PENDING', payload: { indices: wordData.indices } });
+      dispatch({
+        type: 'SET_PENDING',
+        payload: { indices: wordData.indices, direction: wordData.direction }
+      });
       const timerId = setTimeout(() => expireWord(wordKey), GRACE_PERIOD_MS);
       pending.set(wordKey, { wordData, timerId, idxSet: newIdxSet });
     }
