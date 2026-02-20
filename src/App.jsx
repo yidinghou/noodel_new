@@ -51,7 +51,7 @@ function App() {
       onMute={handleMute}
       onColumnClick={handleColumnClick}
       isMuted={isMuted}
-      showPreview={state.status === 'PLAYING'}
+      showPreview={state.status === 'PLAYING' || state.status === 'PROCESSING'}
     />
   );
 }
