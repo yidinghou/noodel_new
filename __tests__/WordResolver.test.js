@@ -245,9 +245,9 @@ describe('WordResolver', () => {
         { word: 'CAT', positions: [{ row: 0, col: 0 }, { row: 0, col: 1 }, { row: 0, col: 2 }] },
         { word: 'CATS', positions: [{ row: 0, col: 0 }, { row: 0, col: 1 }, { row: 0, col: 2 }, { row: 0, col: 3 }] }
       ];
-      
+
       const filtered = resolver.filterOverlappingWords(words);
-      
+
       expect(filtered.length).toBe(1);
       expect(filtered[0].word).toBe('CATS');
     });
@@ -257,16 +257,46 @@ describe('WordResolver', () => {
         { word: 'CAT', positions: [{ row: 0, col: 0 }, { row: 0, col: 1 }, { row: 0, col: 2 }] },
         { word: 'DOG', positions: [{ row: 1, col: 0 }, { row: 1, col: 1 }, { row: 1, col: 2 }] }
       ];
-      
+
       const filtered = resolver.filterOverlappingWords(words);
-      
+
       expect(filtered.length).toBe(2);
     });
 
     test('returns empty array for empty input', () => {
       const filtered = resolver.filterOverlappingWords([]);
-      
+
       expect(filtered).toEqual([]);
+    });
+
+    test('keeps only one word when two same-length words share cells (e.g. HAS and ASS in HASS)', () => {
+      // H-A-S-S: HAS at cols 0-2 and ASS at cols 1-3 share cells (0,1) and (0,2)
+      // Only one should survive filtering
+      const words = [
+        { word: 'HAS', positions: [{ row: 0, col: 0 }, { row: 0, col: 1 }, { row: 0, col: 2 }] },
+        { word: 'ASS', positions: [{ row: 0, col: 1 }, { row: 0, col: 2 }, { row: 0, col: 3 }] }
+      ];
+
+      const filtered = resolver.filterOverlappingWords(words);
+
+      expect(filtered.length).toBe(1);
+    });
+  });
+
+  describe('checkHorizontal() - partial overlap bug', () => {
+    test('HASS grid detects only one word, not both HAS and ASS', () => {
+      resolver = new WordResolver(
+        mockState,
+        mockDOM,
+        createMockDictionary(['HAS', 'ASS'])
+      );
+      // Place H-A-S-S in row 0
+      placeHorizontalWord(mockDOM, 0, 0, 'HASS');
+
+      const words = resolver.checkHorizontal();
+
+      // HAS (cols 0-2) and ASS (cols 1-3) share cells — only one should be returned
+      expect(words.length).toBe(1);
     });
   });
 
