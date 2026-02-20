@@ -1,4 +1,4 @@
-import { findWords } from '../utils/wordUtils.js';
+import { findWords, filterOverlappingWords } from '../utils/wordUtils.js';
 import { GRID_COLS, GRID_SIZE } from '../utils/gameConstants.js';
 
 // Helpers
@@ -208,5 +208,65 @@ describe('findWords', () => {
       const words = findWords(emptyGrid(), new Set(['CAT']));
       expect(words).toEqual([]);
     });
+  });
+});
+
+// Helper: build a wordData object with the given indices and direction
+function wordData(word, indices, direction) {
+  return { word, indices, direction, startRow: 0, startCol: 0 };
+}
+
+describe('filterOverlappingWords', () => {
+  test('passes through non-overlapping words unchanged', () => {
+    const cat = wordData('CAT', [0, 1, 2], 'horizontal');
+    const dog = wordData('DOG', [7, 14, 21], 'vertical');
+
+    const result = filterOverlappingWords([cat, dog]);
+
+    expect(result).toHaveLength(2);
+  });
+
+  test('keeps only the longer word when a shorter word is fully contained (horizontal)', () => {
+    // "CAT" at [0,1,2] is contained within "CATS" at [0,1,2,3]
+    const cat  = wordData('CAT',  [0, 1, 2],    'horizontal');
+    const cats = wordData('CATS', [0, 1, 2, 3], 'horizontal');
+
+    const result = filterOverlappingWords([cat, cats]);
+    const words = result.map(w => w.word);
+
+    expect(words).not.toContain('CAT');
+    expect(words).toContain('CATS');
+  });
+
+  test('keeps only the longer word when a shorter word is fully contained (vertical)', () => {
+    const dog  = wordData('DOG',  [0, 7, 14],     'vertical');
+    const dogs = wordData('DOGS', [0, 7, 14, 21], 'vertical');
+
+    const result = filterOverlappingWords([dog, dogs]);
+    const words = result.map(w => w.word);
+
+    expect(words).not.toContain('DOG');
+    expect(words).toContain('DOGS');
+  });
+
+  test('keeps both words when same indices but different directions', () => {
+    // A cell at index 5 participates in both a horizontal and a vertical word
+    const horiz = wordData('CAT', [3, 4, 5], 'horizontal');
+    const vert  = wordData('ACE', [5, 12, 19], 'vertical');
+
+    const result = filterOverlappingWords([horiz, vert]);
+
+    expect(result).toHaveLength(2);
+  });
+
+  test('returns empty array for empty input', () => {
+    expect(filterOverlappingWords([])).toEqual([]);
+  });
+
+  test('handles a single word with no filtering', () => {
+    const cat = wordData('CAT', [0, 1, 2], 'horizontal');
+    const result = filterOverlappingWords([cat]);
+    expect(result).toHaveLength(1);
+    expect(result[0].word).toBe('CAT');
   });
 });
