@@ -192,3 +192,138 @@ describe('gameReducer – pending and matched cell state', () => {
     expect(next.grid[idx(5, 3)].char).toBe('S');
   });
 });
+
+// ─── GRACE PERIOD SEQUENCE ───────────────────────────────────────────────────
+
+describe('gameReducer – grace period action sequence', () => {
+  // Simulates: "CAT" detected → tile "S" dropped during grace → word extended to "CATS"
+  // useGameLogic does: CLEAR_PENDING(CAT) → SET_PENDING(CATS) → SET_MATCHED_INDICES(CATS)
+  //                     → REMOVE_WORDS([CATS]) → APPLY_GRAVITY
+  test('extended word (CATS) is fully cleared when S is dropped during grace period', () => {
+    let state = playingState({
+      [idx(5, 0)]: 'C', [idx(5, 1)]: 'A', [idx(5, 2)]: 'T',
+    });
+
+    // 1. Word "CAT" detected — mark pending
+    state = gameReducer(state, {
+      type: 'SET_PENDING',
+      payload: { indices: [idx(5,0), idx(5,1), idx(5,2)] },
+    });
+    expect(state.grid[idx(5, 0)].isPending).toBe(true);
+
+    // 2. Player drops "S" at col 3 during grace period (hook detects extension)
+    state = {
+      ...state,
+      nextQueue: [{ char: 'S', id: 'tile-s', type: 'letter' }],
+    };
+    state = gameReducer(state, { type: 'DROP_LETTER', payload: { column: 3 } });
+    expect(state.grid[idx(5, 3)].char).toBe('S');
+
+    // 3. Hook detects extension: clear CAT pending, set CATS pending
+    state = gameReducer(state, {
+      type: 'CLEAR_PENDING',
+      payload: { indices: [idx(5,0), idx(5,1), idx(5,2)] },
+    });
+    state = gameReducer(state, {
+      type: 'SET_PENDING',
+      payload: { indices: [idx(5,0), idx(5,1), idx(5,2), idx(5,3)] },
+    });
+
+    // 4. CATS grace period expires: shake → remove → gravity
+    state = gameReducer(state, {
+      type: 'SET_MATCHED_INDICES',
+      payload: { indices: [idx(5,0), idx(5,1), idx(5,2), idx(5,3)] },
+    });
+    expect(state.status).toBe('PROCESSING');
+
+    state = gameReducer(state, {
+      type: 'REMOVE_WORDS',
+      payload: { wordsToRemove: [wordData('CATS', [idx(5,0), idx(5,1), idx(5,2), idx(5,3)])] },
+    });
+
+    // All four tiles cleared
+    [idx(5,0), idx(5,1), idx(5,2), idx(5,3)].forEach(i => {
+      expect(state.grid[i]).toBeNull();
+    });
+    expect(state.madeWords).toContain('CATS');
+    expect(state.status).toBe('PLAYING');
+  });
+
+  test('unrelated tile dropped during grace period does not interfere with word clear', () => {
+    let state = playingState({
+      [idx(5, 0)]: 'C', [idx(5, 1)]: 'A', [idx(5, 2)]: 'T',
+    });
+
+    state = gameReducer(state, {
+      type: 'SET_PENDING',
+      payload: { indices: [idx(5,0), idx(5,1), idx(5,2)] },
+    });
+
+    // Unrelated tile "X" dropped in col 5 (not extending CAT)
+    state = {
+      ...state,
+      nextQueue: [{ char: 'X', id: 'tile-x', type: 'letter' }],
+    };
+    state = gameReducer(state, { type: 'DROP_LETTER', payload: { column: 5 } });
+
+    // CAT grace expires unchanged
+    state = gameReducer(state, {
+      type: 'SET_MATCHED_INDICES',
+      payload: { indices: [idx(5,0), idx(5,1), idx(5,2)] },
+    });
+    state = gameReducer(state, {
+      type: 'REMOVE_WORDS',
+      payload: { wordsToRemove: [wordData('CAT', [idx(5,0), idx(5,1), idx(5,2)])] },
+    });
+
+    // CAT cleared, X tile preserved
+    expect(state.grid[idx(5, 0)]).toBeNull();
+    expect(state.grid[idx(5, 5)]).not.toBeNull();
+    expect(state.grid[idx(5, 5)].char).toBe('X');
+  });
+});
+
+// ─── APPLY_GRAVITY ───────────────────────────────────────────────────────────
+
+describe('gameReducer – APPLY_GRAVITY', () => {
+  test('compacts tiles to the bottom of each column', () => {
+    const grid = emptyGrid();
+    grid[idx(2, 0)] = cell('A');
+    grid[idx(5, 0)] = cell('B'); // gap at rows 3-4
+    const state = { ...initialState, grid };
+
+    const next = gameReducer(state, { type: 'APPLY_GRAVITY' });
+
+    expect(next.grid[idx(5, 0)].char).toBe('B');
+    expect(next.grid[idx(4, 0)].char).toBe('A');
+    expect(next.grid[idx(2, 0)]).toBeNull();
+  });
+
+  test('strips isPending and isMatched flags from shifted tiles', () => {
+    const grid = emptyGrid();
+    grid[idx(2, 0)] = cell('A', { isPending: true, isMatched: true });
+    const state = { ...initialState, grid };
+
+    const next = gameReducer(state, { type: 'APPLY_GRAVITY' });
+
+    expect(next.grid[idx(5, 0)].isPending).toBe(false);
+    expect(next.grid[idx(5, 0)].isMatched).toBe(false);
+  });
+
+  test('correctly settles tiles after vertical word is cleared', () => {
+    let state = playingState({
+      [idx(2, 0)]: 'X', // above the word
+      [idx(3, 0)]: 'D', [idx(4, 0)]: 'O', [idx(5, 0)]: 'G',
+    });
+
+    state = gameReducer(state, {
+      type: 'REMOVE_WORDS',
+      payload: { wordsToRemove: [wordData('DOG', [idx(3,0), idx(4,0), idx(5,0)], 'vertical')] },
+    });
+    state = gameReducer(state, { type: 'APPLY_GRAVITY' });
+
+    // X should fall to the bottom of col 0
+    expect(state.grid[idx(5, 0)].char).toBe('X');
+    expect(state.grid[idx(2, 0)]).toBeNull();
+  });
+});
