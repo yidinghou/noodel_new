@@ -4,7 +4,7 @@ import { GRID_SIZE, TOTAL_LETTERS, GRID_COLS, GRID_ROWS } from '../utils/gameCon
 
 // Game state shape
 export const initialState = {
-  grid: Array(GRID_SIZE).fill(null), // null or { char: 'A', id: 'tile-1', type: 'filled', isMatched: false }
+  grid: Array(GRID_SIZE).fill(null), // null or { char: 'A', id: 'tile-1', type: 'filled', isMatched: false, isPending: false, pendingDirections: [] }
   score: 0,
   lettersRemaining: TOTAL_LETTERS,
   nextQueue: [], // Array of upcoming letter objects
@@ -50,7 +50,8 @@ export function gameReducer(state, action) {
       const newGrid = [...state.grid];
       newGrid[targetIndex] = {
         ...nextLetter,
-        type: 'filled'
+        type: 'filled',
+        pendingDirections: []
       };
 
       // Check for game over (no more letters)
@@ -67,11 +68,21 @@ export function gameReducer(state, action) {
 
     // Mark specific cells as pending (grace period countdown)
     case 'SET_PENDING': {
-      const { indices } = action.payload;
+      const { indices, direction } = action.payload;
       const newGrid = [...state.grid];
       indices.forEach(index => {
         if (newGrid[index]) {
-          newGrid[index] = { ...newGrid[index], isPending: true, isMatched: false };
+          const pendingDirections = newGrid[index].pendingDirections || [];
+          // Add direction if not already present
+          if (!pendingDirections.includes(direction)) {
+            pendingDirections.push(direction);
+          }
+          newGrid[index] = {
+            ...newGrid[index],
+            isPending: true,
+            isMatched: false,
+            pendingDirections
+          };
         }
       });
       return { ...state, grid: newGrid };
@@ -79,11 +90,16 @@ export function gameReducer(state, action) {
 
     // Clear pending state from specific cells
     case 'CLEAR_PENDING': {
-      const { indices } = action.payload;
+      const { indices, direction } = action.payload;
       const newGrid = [...state.grid];
       indices.forEach(index => {
         if (newGrid[index]) {
-          newGrid[index] = { ...newGrid[index], isPending: false };
+          const pendingDirections = (newGrid[index].pendingDirections || []).filter(d => d !== direction);
+          newGrid[index] = {
+            ...newGrid[index],
+            pendingDirections,
+            isPending: pendingDirections.length > 0 // Only pending if directions remain
+          };
         }
       });
       return { ...state, grid: newGrid };
@@ -95,7 +111,7 @@ export function gameReducer(state, action) {
       const newGrid = [...state.grid];
       indices.forEach(index => {
         if (newGrid[index]) {
-          newGrid[index] = { ...newGrid[index], isMatched: true, isPending: false };
+          newGrid[index] = { ...newGrid[index], isMatched: true, isPending: false, pendingDirections: [] };
         }
       });
       return { ...state, grid: newGrid, status: 'PROCESSING' };
@@ -144,7 +160,7 @@ export function gameReducer(state, action) {
         for (let i = 0; i < columnCells.length; i++) {
           const row = GRID_ROWS - columnCells.length + i;
           const index = row * GRID_COLS + col;
-          newGrid[index] = { ...columnCells[i], isPending: false, isMatched: false };
+          newGrid[index] = { ...columnCells[i], isPending: false, isMatched: false, pendingDirections: [] };
         }
       }
 

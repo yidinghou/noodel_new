@@ -44,6 +44,12 @@
     --color-next-up: var(--color-orange-light);
     --color-letter-active: var(--color-green);
 
+    /* Word Direction Colors */
+    --color-pending-horizontal: var(--color-blue-primary);
+    --color-pending-vertical: var(--color-orange-primary);
+    --color-pending-diagonal-down-right: var(--color-green);
+    --color-pending-diagonal-up-right: #9C27B0;
+
     /* Sizing */
     --size-letter-block: clamp(30px, 4vw, 38px);
     --size-font-letter: clamp(16px, 2vw, 20px);
