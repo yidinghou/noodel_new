@@ -24,6 +24,7 @@ function Board({ grid = Array(GRID_SIZE).fill(null), onColumnClick, gridRef }) {
             isMatched={cell?.isMatched}
             isPending={cell?.isPending}
             pendingDirections={cell?.pendingDirections || []}
+            pendingResetCount={cell?.pendingResetCount || 0}
           />
         </div>
       ))}
