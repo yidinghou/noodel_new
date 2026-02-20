@@ -13,45 +13,31 @@ const computePendingStyles = (directions) => {
   if (!directions || directions.length === 0) return {};
 
   const shadows = [];
-  let primaryColor = 'var(--color-green)';
 
   // Check for horizontal word (left & right borders)
   if (directions.includes('horizontal')) {
     shadows.push('inset 3px 0 0 0 var(--color-pending-horizontal)');
     shadows.push('inset -3px 0 0 0 var(--color-pending-horizontal)');
-    if (primaryColor === 'var(--color-green)') {
-      primaryColor = 'var(--color-pending-horizontal)';
-    }
   }
 
   // Check for vertical word (top & bottom borders)
   if (directions.includes('vertical')) {
     shadows.push('inset 0 3px 0 0 var(--color-pending-vertical)');
     shadows.push('inset 0 -3px 0 0 var(--color-pending-vertical)');
-    if (primaryColor === 'var(--color-green)') {
-      primaryColor = 'var(--color-pending-vertical)';
-    }
   }
 
   // Check for diagonal-down-right (all 4 borders)
   if (directions.includes('diagonal-down-right')) {
     shadows.push('inset 0 0 0 3px var(--color-pending-diagonal-down-right)');
-    if (primaryColor === 'var(--color-green)') {
-      primaryColor = 'var(--color-pending-diagonal-down-right)';
-    }
   }
 
   // Check for diagonal-up-right (all 4 borders)
   if (directions.includes('diagonal-up-right')) {
     shadows.push('inset 0 0 0 3px var(--color-pending-diagonal-up-right)');
-    if (primaryColor === 'var(--color-green)') {
-      primaryColor = 'var(--color-pending-diagonal-up-right)';
-    }
   }
 
   return {
-    boxShadow: shadows.length > 0 ? shadows.join(', ') : undefined,
-    '--pending-color': primaryColor
+    boxShadow: shadows.length > 0 ? shadows.join(', ') : undefined
   };
 };
 
