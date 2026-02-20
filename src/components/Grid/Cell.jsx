@@ -27,7 +27,7 @@ const Cell = React.memo(({ letter, index, isMatched = false, isPending = false }
       animate={LOCKED_TO_GRID_ANIMATION.animate}
       transition={{
         ...LOCKED_TO_GRID_ANIMATION.transition,
-        layout: { duration: 0.3 },
+        layout: { type: 'tween', duration: 0.3, ease: 'easeOut' },
       }}
       className={cellClass}
       data-index={index}
