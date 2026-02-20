@@ -211,6 +211,125 @@ describe('findWords', () => {
   });
 });
 
+describe('diagonal word detection', () => {
+  // Diagonal-down-right: each step row+1, col+1
+  // idx(r,c) = r*7+c  →  (0,0)=0, (1,1)=8, (2,2)=16
+  describe('diagonal-down-right', () => {
+    test('finds a 3-letter diagonal-down-right word from top-left', () => {
+      const grid = emptyGrid();
+      setCell(grid, 0, 0, 'C');
+      setCell(grid, 1, 1, 'A');
+      setCell(grid, 2, 2, 'T');
+
+      const words = findWords(grid, new Set(['CAT']));
+
+      expect(words).toHaveLength(1);
+      expect(words[0].word).toBe('CAT');
+      expect(words[0].direction).toBe('diagonal-down-right');
+    });
+
+    test('finds a diagonal-down-right word at an arbitrary start position', () => {
+      const grid = emptyGrid();
+      setCell(grid, 2, 1, 'D');
+      setCell(grid, 3, 2, 'O');
+      setCell(grid, 4, 3, 'G');
+
+      const words = findWords(grid, new Set(['DOG']));
+
+      expect(words).toHaveLength(1);
+      expect(words[0].word).toBe('DOG');
+      expect(words[0].direction).toBe('diagonal-down-right');
+    });
+
+    test('returns correct indices for a diagonal-down-right word', () => {
+      const grid = emptyGrid();
+      // (0,0)=0, (1,1)=8, (2,2)=16
+      setCell(grid, 0, 0, 'R');
+      setCell(grid, 1, 1, 'U');
+      setCell(grid, 2, 2, 'N');
+
+      const words = findWords(grid, new Set(['RUN']));
+
+      expect(words[0].indices).toEqual([0, 8, 16]);
+    });
+  });
+
+  // Diagonal-up-right: each step row-1, col+1
+  // "CAT" starting at (2,0): (2,0)=14, (1,1)=8, (0,2)=2
+  describe('diagonal-up-right', () => {
+    test('finds a 3-letter diagonal-up-right word', () => {
+      const grid = emptyGrid();
+      setCell(grid, 2, 0, 'C');
+      setCell(grid, 1, 1, 'A');
+      setCell(grid, 0, 2, 'T');
+
+      const words = findWords(grid, new Set(['CAT']));
+
+      expect(words).toHaveLength(1);
+      expect(words[0].word).toBe('CAT');
+      expect(words[0].direction).toBe('diagonal-up-right');
+    });
+
+    test('finds a diagonal-up-right word at an arbitrary start position', () => {
+      const grid = emptyGrid();
+      setCell(grid, 5, 1, 'D');
+      setCell(grid, 4, 2, 'O');
+      setCell(grid, 3, 3, 'G');
+
+      const words = findWords(grid, new Set(['DOG']));
+
+      expect(words).toHaveLength(1);
+      expect(words[0].word).toBe('DOG');
+      expect(words[0].direction).toBe('diagonal-up-right');
+    });
+
+    test('returns correct indices for a diagonal-up-right word', () => {
+      const grid = emptyGrid();
+      // (2,0)=14, (1,1)=8, (0,2)=2
+      setCell(grid, 2, 0, 'R');
+      setCell(grid, 1, 1, 'U');
+      setCell(grid, 0, 2, 'N');
+
+      const words = findWords(grid, new Set(['RUN']));
+
+      expect(words[0].indices).toEqual([14, 8, 2]);
+    });
+  });
+
+  describe('diagonal edge cases', () => {
+    test('does not find a diagonal word when letters are on the same row', () => {
+      const grid = emptyGrid();
+      // Letters are horizontal — should NOT be found as diagonal
+      setCell(grid, 0, 0, 'C');
+      setCell(grid, 0, 1, 'A');
+      setCell(grid, 0, 2, 'T');
+
+      const words = findWords(grid, new Set(['CAT']));
+      const directions = words.map(w => w.direction);
+
+      expect(directions).not.toContain('diagonal-down-right');
+      expect(directions).not.toContain('diagonal-up-right');
+    });
+
+    test('finds both diagonal directions simultaneously (X-cross pattern)', () => {
+      const grid = emptyGrid();
+      // Down-right "CAT": (0,0),(1,1),(2,2)
+      setCell(grid, 0, 0, 'C'); setCell(grid, 1, 1, 'A'); setCell(grid, 2, 2, 'T');
+      // Up-right "DOG": (4,0),(3,1),(2,2)
+      setCell(grid, 4, 0, 'D'); setCell(grid, 3, 1, 'O'); // (2,2) already set to 'T', use different word
+
+      // Use words that share no cells: place DOG at (5,3),(4,4),(3,5)
+      setCell(grid, 5, 3, 'D'); setCell(grid, 4, 4, 'O'); setCell(grid, 3, 5, 'G');
+
+      const words = findWords(grid, new Set(['CAT', 'DOG']));
+      const dirs = words.map(w => w.direction);
+
+      expect(dirs).toContain('diagonal-down-right');
+      expect(dirs).toContain('diagonal-up-right');
+    });
+  });
+});
+
 // Helper: build a wordData object with the given indices and direction
 function wordData(word, indices, direction) {
   return { word, indices, direction, startRow: 0, startCol: 0 };
