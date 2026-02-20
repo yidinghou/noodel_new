@@ -8,8 +8,16 @@ const LOCKED_TO_GRID_ANIMATION = {
   transition: { duration: 0.15, ease: 'easeOut' }
 };
 
-const Cell = React.memo(({ letter, index, isMatched = false }) => {
-  const cellClass = `block-base grid-square${letter ? ' filled' : ''}${isMatched ? ' matched' : ''}`;
+const Cell = React.memo(({ letter, index, isMatched = false, isPending = false }) => {
+  const cellClass = [
+    'block-base',
+    'grid-square',
+    letter ? 'filled' : '',
+    isPending ? 'word-pending' : '',
+    isMatched ? 'matched' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <motion.div
@@ -23,7 +31,7 @@ const Cell = React.memo(({ letter, index, isMatched = false }) => {
       transition={{
         ...LOCKED_TO_GRID_ANIMATION.transition,
         layout: { duration: 0.3 },
-        scale: { duration: 0.6, repeat: isMatched ? 2 : 0 },
+        scale: { duration: 0.4, repeat: isMatched ? 1 : 0 },
       }}
       className={cellClass}
       data-index={index}
