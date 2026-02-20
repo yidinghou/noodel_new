@@ -202,6 +202,13 @@ export function gameReducer(state, action) {
       return { ...state, grid: newGrid, status: 'PLAYING' };
     }
 
+    case 'GAME_OVER': {
+      return {
+        ...state,
+        status: 'GAME_OVER'
+      };
+    }
+
     case 'RESET':
       return initialState;
 

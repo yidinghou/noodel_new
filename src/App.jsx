@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import GameLayout from './components/Layout/GameLayout.jsx';
 import ModeSelector from './components/Controls/ModeSelector.jsx';
+import GameOverOverlay from './components/Overlays/GameOverOverlay.jsx';
 import { useGame } from './context/GameContext.jsx';
 import { useGameLogic } from './hooks/useGameLogic.js';
 
@@ -34,6 +35,11 @@ function App() {
     dispatch({ type: 'START_GAME', payload: { mode } });
   };
 
+  const handleRestart = () => {
+    dispatch({ type: 'RESET' });
+    setShowModeSelector(true);
+  };
+
   const handleMute = () => {
     setIsMuted(!isMuted);
   };
@@ -63,6 +69,12 @@ function App() {
         canDrop={state.status === 'PLAYING' || state.status === 'PROCESSING'}
       />
       <ModeSelector visible={showModeSelector} onSelectMode={handleModeSelect} />
+      <GameOverOverlay
+        visible={state.status === 'GAME_OVER'}
+        gameMode={state.gameMode}
+        score={state.score}
+        onRestart={handleRestart}
+      />
     </>
   );
 }
