@@ -14,7 +14,7 @@ const Cell = React.memo(({ letter, index, isMatched = false, isPending = false }
     'grid-square',
     letter ? 'filled' : '',
     isPending ? 'word-pending' : '',
-    isMatched ? 'matched' : '',
+    isMatched ? 'word-found' : '',
   ]
     .filter(Boolean)
     .join(' ');
@@ -24,14 +24,10 @@ const Cell = React.memo(({ letter, index, isMatched = false, isPending = false }
       layout
       key={letter}
       initial={letter ? LOCKED_TO_GRID_ANIMATION.initial : false}
-      animate={{
-        ...LOCKED_TO_GRID_ANIMATION.animate,
-        scale: isMatched ? [1, 1.1, 1] : 1,
-      }}
+      animate={LOCKED_TO_GRID_ANIMATION.animate}
       transition={{
         ...LOCKED_TO_GRID_ANIMATION.transition,
         layout: { duration: 0.3 },
-        scale: { duration: 0.4, repeat: isMatched ? 1 : 0 },
       }}
       className={cellClass}
       data-index={index}
