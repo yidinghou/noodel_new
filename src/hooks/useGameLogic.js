@@ -20,31 +20,48 @@ export function useGameLogic() {
   const pendingRef = useRef(new Map());
 
   // Called when a word's grace period expires
-  // Cancels all other pending timers (gravity shifts positions, so re-detect fresh)
-  // then shakes → removes → gravity
+  // Only expires the specific word and any intersecting words
+  // Independent words keep their timers and expire separately
   const expireWord = useCallback(
     (wordKey) => {
       const pending = pendingRef.current;
       if (!pending.has(wordKey)) return;
 
-      // Collect all pending entries before clearing
-      const allPending = [...pending.values()];
+      const expiredWord = pending.get(wordKey);
+      const expiredIndices = new Set(expiredWord.wordData.indices);
 
-      // Cancel every pending timer
-      for (const entry of allPending) clearTimeout(entry.timerId);
-      pending.clear();
+      // Find all words that intersect with the expired word
+      const wordsToExpire = [expiredWord];
+      const keysToDelete = [wordKey];
 
-      // Gather all unique cell indices across all pending words
-      const allIndices = [...new Set(allPending.flatMap(e => e.wordData.indices))];
+      for (const [key, entry] of pending) {
+        if (key !== wordKey && hasIntersection(expiredIndices, entry.idxSet)) {
+          wordsToExpire.push(entry);
+          keysToDelete.push(key);
+        }
+      }
+
+      // Cancel timers only for words being expired
+      for (const entry of wordsToExpire) {
+        clearTimeout(entry.timerId);
+      }
+
+      // Remove expired words from pending map
+      for (const key of keysToDelete) {
+        pending.delete(key);
+      }
+
+      // Gather indices for expired words
+      const allIndices = [...new Set(wordsToExpire.flatMap(e => e.wordData.indices))];
 
       // Shake phase: mark as matched (pauses word detection)
       dispatch({ type: 'SET_MATCHED_INDICES', payload: { indices: allIndices } });
 
       setTimeout(() => {
-        // Remove all pending words and score them
+        // Remove expired words and score them
         dispatch({
           type: 'REMOVE_WORDS',
-          payload: { wordsToRemove: allPending.map(e => e.wordData) },
+          payload: { wordsToRemove: wordsToExpire.map(e => e.wordData) },
         });
 
         setTimeout(() => {
@@ -52,7 +69,7 @@ export function useGameLogic() {
         }, GRAVITY_DELAY_MS);
       }, SHAKE_DURATION_MS);
     },
-    [dispatch]
+    [dispatch, hasIntersection]
   );
 
   // Clear all pending state when the game resets
