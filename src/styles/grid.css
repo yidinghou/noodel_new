@@ -197,11 +197,11 @@
 /* Word Pending - Grace Period Animation */
 .grid-square.word-pending {
     color: var(--color-text-white);
-    border-color: var(--color-green);
+    border: none; /* Use box-shadow from JS for directional borders */
     background: linear-gradient(
         to right,
-        var(--color-green) 0%,
-        var(--color-green) 50%,
+        var(--pending-color, var(--color-green)) 0%,
+        var(--pending-color, var(--color-green)) 50%,
         var(--color-text-muted) 50%,
         var(--color-text-muted) 100%
     );
