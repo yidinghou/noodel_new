@@ -38,7 +38,7 @@ const cumulativeWeights = LETTER_FREQUENCIES.map(item => {
 /**
  * Generate a weighted random letter
  */
-function getWeightedRandomLetter() {
+export function getWeightedRandomLetter() {
   const random = Math.random() * totalWeight;
   for (const item of cumulativeWeights) {
     if (random <= item.cumWeight) {

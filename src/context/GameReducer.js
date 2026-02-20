@@ -1,30 +1,47 @@
 import { generateLetterSequence } from '../utils/letterUtils.js';
 import { calculateWordScore } from '../utils/scoringUtils.js';
+import { generateClearModeGrid } from '../utils/clearModeUtils.js';
 import { GRID_SIZE, TOTAL_LETTERS, GRID_COLS, GRID_ROWS } from '../utils/gameConstants.js';
 
 // Game state shape
 export const initialState = {
-  grid: Array(GRID_SIZE).fill(null), // null or { char: 'A', id: 'tile-1', type: 'filled', isMatched: false, isPending: false, pendingDirections: [] }
+  grid: Array(GRID_SIZE).fill(null), // null or { char: 'A', id: 'tile-1', type: 'filled', isMatched: false, isPending: false, pendingDirections: [], isInitial: false }
   score: 0,
   lettersRemaining: TOTAL_LETTERS,
   nextQueue: [], // Array of upcoming letter objects
   status: 'IDLE', // IDLE, PLAYING, GAME_OVER, PROCESSING
-  madeWords: []
+  madeWords: [],
+  gameMode: null, // null, 'classic', or 'clear'
+  initialBlocks: [] // Array of indices for Clear mode initial blocks
 };
 
 // Game reducer
 export function gameReducer(state, action) {
   switch (action.type) {
     case 'START_GAME': {
+      const { mode } = action.payload;
       const letterSequence = generateLetterSequence(TOTAL_LETTERS);
+
+      // Generate starting grid based on mode
+      let initialGrid = Array(GRID_SIZE).fill(null);
+      let initialBlockIndices = [];
+
+      if (mode === 'clear') {
+        const clearGridResult = generateClearModeGrid();
+        initialGrid = clearGridResult.grid;
+        initialBlockIndices = clearGridResult.initialBlocks;
+      }
+
       return {
         ...state,
         nextQueue: letterSequence,
         lettersRemaining: TOTAL_LETTERS,
         status: 'PLAYING',
-        grid: Array(GRID_SIZE).fill(null),
+        grid: initialGrid,
         score: 0,
-        madeWords: []
+        madeWords: [],
+        gameMode: mode,
+        initialBlocks: initialBlockIndices
       };
     }
 
@@ -51,7 +68,8 @@ export function gameReducer(state, action) {
       newGrid[targetIndex] = {
         ...nextLetter,
         type: 'filled',
-        pendingDirections: []
+        pendingDirections: [],
+        isInitial: false
       };
 
       // Check for game over (no more letters)
@@ -175,12 +193,20 @@ export function gameReducer(state, action) {
             isPending: false,
             isMatched: false,
             pendingDirections: [],
-            pendingResetCount: 0
+            pendingResetCount: 0,
+            isInitial: columnCells[i].isInitial || false
           };
         }
       }
 
       return { ...state, grid: newGrid, status: 'PLAYING' };
+    }
+
+    case 'GAME_OVER': {
+      return {
+        ...state,
+        status: 'GAME_OVER'
+      };
     }
 
     case 'RESET':

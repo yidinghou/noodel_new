@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { useGame } from '../context/GameContext.jsx';
 import { useDictionary } from './useDictionary.js';
-import { findWords, filterOverlappingWords } from '../utils/wordUtils.js';
+import { findWords, filterOverlappingWords, hasUserGeneratedTile } from '../utils/wordUtils.js';
 import {
   generateWordKey,
   hasIntersection,
@@ -89,7 +89,15 @@ export function useGameLogic() {
   useEffect(() => {
     if (!dictionary || state.status !== 'PLAYING') return;
 
-    const foundWords = filterOverlappingWords(findWords(state.grid, dictionary));
+    let foundWords = filterOverlappingWords(findWords(state.grid, dictionary));
+
+    // Filter words for Clear mode - must have at least one user-dropped tile
+    if (state.gameMode === 'clear') {
+      foundWords = foundWords.filter(wordData =>
+        hasUserGeneratedTile(wordData.indices, state.grid)
+      );
+    }
+
     const pending = pendingRef.current;
 
     for (const wordData of foundWords) {
@@ -132,7 +140,18 @@ export function useGameLogic() {
       const timerId = setTimeout(() => expireWord(wordKey), GRACE_PERIOD_MS);
       pending.set(wordKey, { wordData, timerId, idxSet: newIdxSet });
     }
-  }, [state.grid, state.status, dictionary, dispatch, expireWord]);
+  }, [state.grid, state.status, state.gameMode, dictionary, dispatch, expireWord]);
+
+  // Check for Clear mode victory condition
+  useEffect(() => {
+    if (state.gameMode !== 'clear' || state.status !== 'PLAYING') return;
+
+    const hasInitialBlocks = state.grid.some(cell => cell?.isInitial);
+
+    if (!hasInitialBlocks && state.initialBlocks.length > 0) {
+      dispatch({ type: 'GAME_OVER' });
+    }
+  }, [state.grid, state.gameMode, state.status, state.initialBlocks, dispatch]);
 
   return { dictionary };
 }

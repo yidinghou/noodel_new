@@ -48,7 +48,8 @@ const Cell = React.memo(
     isMatched = false,
     isPending = false,
     pendingDirections = [],
-    pendingResetCount = 0
+    pendingResetCount = 0,
+    isInitial = false
   }) => {
     const cellClass = [
       'block-base',
@@ -56,6 +57,7 @@ const Cell = React.memo(
       letter ? 'filled' : '',
       isPending ? 'word-pending' : '',
       isMatched ? 'word-found' : '',
+      isInitial ? 'initial' : '',
     ]
       .filter(Boolean)
       .join(' ');
