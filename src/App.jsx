@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import GameLayout from './components/Layout/GameLayout.jsx';
+import ModeSelector from './components/Controls/ModeSelector.jsx';
 import { useGame } from './context/GameContext.jsx';
 import { useGameLogic } from './hooks/useGameLogic.js';
 
@@ -7,6 +8,7 @@ function App() {
   const { state, dispatch } = useGame();
   const { dictionary } = useGameLogic();
   const [isMuted, setIsMuted] = useState(false);
+  const [showModeSelector, setShowModeSelector] = useState(false);
 
   // Show loading state while dictionary loads
   if (!dictionary) {
@@ -24,7 +26,12 @@ function App() {
   }
 
   const handleStart = () => {
-    dispatch({ type: 'START_GAME' });
+    setShowModeSelector(true);
+  };
+
+  const handleModeSelect = (mode) => {
+    setShowModeSelector(false);
+    dispatch({ type: 'START_GAME', payload: { mode } });
   };
 
   const handleMute = () => {
@@ -41,19 +48,22 @@ function App() {
   const nextLetters = state.nextQueue.slice(0, 5).map(item => item.char);
 
   return (
-    <GameLayout
-      score={state.score}
-      lettersRemaining={state.lettersRemaining}
-      nextLetters={nextLetters}
-      grid={state.grid}
-      madeWords={state.madeWords}
-      onStart={handleStart}
-      onMute={handleMute}
-      onColumnClick={handleColumnClick}
-      isMuted={isMuted}
-      showPreview={state.status === 'PLAYING' || state.status === 'PROCESSING'}
-      canDrop={state.status === 'PLAYING' || state.status === 'PROCESSING'}
-    />
+    <>
+      <GameLayout
+        score={state.score}
+        lettersRemaining={state.lettersRemaining}
+        nextLetters={nextLetters}
+        grid={state.grid}
+        madeWords={state.madeWords}
+        onStart={handleStart}
+        onMute={handleMute}
+        onColumnClick={handleColumnClick}
+        isMuted={isMuted}
+        showPreview={state.status === 'PLAYING' || state.status === 'PROCESSING'}
+        canDrop={state.status === 'PLAYING' || state.status === 'PROCESSING'}
+      />
+      <ModeSelector visible={showModeSelector} onSelectMode={handleModeSelect} />
+    </>
   );
 }
 
