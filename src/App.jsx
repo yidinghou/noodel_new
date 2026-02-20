@@ -32,7 +32,7 @@ function App() {
   };
 
   const handleColumnClick = (column) => {
-    if (state.status === 'PLAYING') {
+    if (state.status === 'PLAYING' || state.status === 'PROCESSING') {
       dispatch({ type: 'DROP_LETTER', payload: { column } });
     }
   };
@@ -52,6 +52,7 @@ function App() {
       onColumnClick={handleColumnClick}
       isMuted={isMuted}
       showPreview={state.status === 'PLAYING' || state.status === 'PROCESSING'}
+      canDrop={state.status === 'PLAYING' || state.status === 'PROCESSING'}
     />
   );
 }
