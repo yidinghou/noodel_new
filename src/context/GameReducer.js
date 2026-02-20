@@ -1,5 +1,4 @@
 import { generateLetterSequence } from '../utils/letterUtils.js';
-import { findWords } from '../utils/wordUtils.js';
 import { calculateWordScore } from '../utils/scoringUtils.js';
 import { GRID_SIZE, TOTAL_LETTERS, GRID_COLS, GRID_ROWS } from '../utils/gameConstants.js';
 
@@ -66,49 +65,53 @@ export function gameReducer(state, action) {
       };
     }
 
-    case 'CHECK_WORDS': {
-      const { dictionary } = action.payload;
-      if (!dictionary) return state;
-
-      const foundWords = findWords(state.grid, dictionary);
-      if (foundWords.length === 0) return state;
-
-      // Mark matched cells
+    // Mark specific cells as pending (grace period countdown)
+    case 'SET_PENDING': {
+      const { indices } = action.payload;
       const newGrid = [...state.grid];
-      const matchedIndices = new Set();
-
-      foundWords.forEach(wordData => {
-        wordData.indices.forEach(index => {
-          matchedIndices.add(index);
-          if (newGrid[index]) {
-            newGrid[index] = { ...newGrid[index], isMatched: true };
-          }
-        });
+      indices.forEach(index => {
+        if (newGrid[index]) {
+          newGrid[index] = { ...newGrid[index], isPending: true, isMatched: false };
+        }
       });
-
-      return {
-        ...state,
-        grid: newGrid,
-        status: 'PROCESSING'
-      };
+      return { ...state, grid: newGrid };
     }
 
+    // Clear pending state from specific cells
+    case 'CLEAR_PENDING': {
+      const { indices } = action.payload;
+      const newGrid = [...state.grid];
+      indices.forEach(index => {
+        if (newGrid[index]) {
+          newGrid[index] = { ...newGrid[index], isPending: false };
+        }
+      });
+      return { ...state, grid: newGrid };
+    }
+
+    // Mark specific cells as matched (triggers shake animation), pauses word detection
+    case 'SET_MATCHED_INDICES': {
+      const { indices } = action.payload;
+      const newGrid = [...state.grid];
+      indices.forEach(index => {
+        if (newGrid[index]) {
+          newGrid[index] = { ...newGrid[index], isMatched: true, isPending: false };
+        }
+      });
+      return { ...state, grid: newGrid, status: 'PROCESSING' };
+    }
+
+    // Remove specific words from grid and score them
     case 'REMOVE_WORDS': {
-      const { dictionary } = action.payload;
-      if (!dictionary) return state;
-
-      const foundWords = findWords(state.grid, dictionary);
-      if (foundWords.length === 0) return state;
-
-      // Remove matched cells and calculate score
+      const { wordsToRemove } = action.payload; // Array of { word, indices }
       const newGrid = [...state.grid];
       let totalScore = 0;
       const newMadeWords = [...state.madeWords];
 
-      foundWords.forEach(wordData => {
-        totalScore += calculateWordScore(wordData.word);
-        newMadeWords.unshift(wordData.word);
-        wordData.indices.forEach(index => {
+      wordsToRemove.forEach(({ word, indices }) => {
+        totalScore += calculateWordScore(word);
+        newMadeWords.unshift(word);
+        indices.forEach(index => {
           newGrid[index] = null;
         });
       });
@@ -117,7 +120,7 @@ export function gameReducer(state, action) {
         ...state,
         grid: newGrid,
         score: state.score + totalScore,
-        madeWords: newMadeWords.slice(0, 20), // Keep last 20 words
+        madeWords: newMadeWords.slice(0, 20),
         status: 'PLAYING'
       };
     }
@@ -137,11 +140,11 @@ export function gameReducer(state, action) {
           }
         }
 
-        // Place them at the bottom
+        // Place them at the bottom (strip pending/matched state after gravity shift)
         for (let i = 0; i < columnCells.length; i++) {
           const row = GRID_ROWS - columnCells.length + i;
           const index = row * GRID_COLS + col;
-          newGrid[index] = columnCells[i];
+          newGrid[index] = { ...columnCells[i], isPending: false, isMatched: false };
         }
       }
 
