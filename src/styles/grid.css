@@ -200,8 +200,8 @@
     border: none; /* Use box-shadow from JS for directional borders */
     background: linear-gradient(
         to right,
-        var(--pending-color, var(--color-green)) 0%,
-        var(--pending-color, var(--color-green)) 50%,
+        var(--color-green) 0%,
+        var(--color-green) 50%,
         var(--color-text-muted) 50%,
         var(--color-text-muted) 100%
     );
