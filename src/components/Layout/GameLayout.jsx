@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import Header from './Header.jsx';
 import ScoreBoard from '../Stats/ScoreBoard.jsx';
 import Actions from '../Controls/Actions.jsx';
@@ -30,6 +30,12 @@ function GameLayout({
   const inFlightColumnsRef = useRef(new Map());
   // Total in-flight drops — used to index into nextLetters for letter assignment
   const inFlightCountRef = useRef(0);
+
+  // Lock body scroll while any drop is in flight so position:fixed coords stay valid
+  useEffect(() => {
+    document.body.style.overflow = activeDrops.length > 0 ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [activeDrops.length]);
 
   // Find the destination row for a drop, skipping the `skipFromBottom` lowest empty rows
   // that are already reserved by in-flight drops to the same column.
