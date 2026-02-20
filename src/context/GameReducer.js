@@ -73,6 +73,7 @@ export function gameReducer(state, action) {
       indices.forEach(index => {
         if (newGrid[index]) {
           const pendingDirections = newGrid[index].pendingDirections || [];
+          const isAlreadyPending = pendingDirections.length > 0;
           // Add direction if not already present
           if (!pendingDirections.includes(direction)) {
             pendingDirections.push(direction);
@@ -81,7 +82,9 @@ export function gameReducer(state, action) {
             ...newGrid[index],
             isPending: true,
             isMatched: false,
-            pendingDirections
+            pendingDirections,
+            // Increment reset count to restart animation when timer resets
+            pendingResetCount: (newGrid[index].pendingResetCount || 0) + (isAlreadyPending ? 1 : 0)
           };
         }
       });
@@ -98,7 +101,8 @@ export function gameReducer(state, action) {
           newGrid[index] = {
             ...newGrid[index],
             pendingDirections,
-            isPending: pendingDirections.length > 0 // Only pending if directions remain
+            isPending: pendingDirections.length > 0, // Only pending if directions remain
+            pendingResetCount: pendingDirections.length > 0 ? newGrid[index].pendingResetCount : 0
           };
         }
       });
@@ -111,7 +115,13 @@ export function gameReducer(state, action) {
       const newGrid = [...state.grid];
       indices.forEach(index => {
         if (newGrid[index]) {
-          newGrid[index] = { ...newGrid[index], isMatched: true, isPending: false, pendingDirections: [] };
+          newGrid[index] = {
+            ...newGrid[index],
+            isMatched: true,
+            isPending: false,
+            pendingDirections: [],
+            pendingResetCount: 0
+          };
         }
       });
       return { ...state, grid: newGrid, status: 'PROCESSING' };
@@ -160,7 +170,13 @@ export function gameReducer(state, action) {
         for (let i = 0; i < columnCells.length; i++) {
           const row = GRID_ROWS - columnCells.length + i;
           const index = row * GRID_COLS + col;
-          newGrid[index] = { ...columnCells[i], isPending: false, isMatched: false, pendingDirections: [] };
+          newGrid[index] = {
+            ...columnCells[i],
+            isPending: false,
+            isMatched: false,
+            pendingDirections: [],
+            pendingResetCount: 0
+          };
         }
       }
 
