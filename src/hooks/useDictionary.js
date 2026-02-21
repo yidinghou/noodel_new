@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 
 const WORD_FILES = [
-  '/words/3_letter_words.csv',
-  '/words/4_letter_words.csv',
-  '/words/5_letter_words.csv',
-  '/words/6_letter_words.csv',
-  '/words/7_letter_words.csv'
+  'words/3_letter_words.csv',
+  'words/4_letter_words.csv',
+  'words/5_letter_words.csv',
+  'words/6_letter_words.csv',
+  'words/7_letter_words.csv'
 ];
 
 async function loadWordFile(filepath) {
-  const response = await fetch(filepath);
+  const response = await fetch(`${import.meta.env.BASE_URL}${filepath}`);
   if (!response.ok) throw new Error(`Failed to load ${filepath}`);
 
   const text = await response.text();
