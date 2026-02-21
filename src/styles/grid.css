@@ -24,6 +24,10 @@
     gap: 10px;
 }
 
+.preview-row .game-grid-letters-remaining {
+    margin-left: auto;
+}
+
 /* Next Letters Preview (Queue of upcoming letters) */
 .next-letters-preview {
     display: none;
