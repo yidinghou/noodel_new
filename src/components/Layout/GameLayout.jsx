@@ -14,6 +14,7 @@ function GameLayout({
   nextLetters = [],
   grid = [],
   madeWords = [],
+  dictionary = null,
   onStart,
   onMute,
   onColumnClick,
@@ -122,7 +123,7 @@ function GameLayout({
       <div className="game-grid-wrapper">
         <div className="preview-row">
           <NextPreview nextLetters={nextLetters} visible={showPreview} nextUpRef={nextUpRef} />
-          <div className="game-grid-letters-remaining">
+          <div className={`game-grid-letters-remaining${showPreview ? ' visible' : ''}`}>
             <div className="letters-remaining-label">Letters Remaining</div>
             <div className="letters-remaining-value">{lettersRemaining}</div>
           </div>
@@ -131,7 +132,7 @@ function GameLayout({
       </div>
 
       {/* Made Words Section (Bottom) */}
-      <MadeWords words={madeWords} />
+      <MadeWords words={madeWords} dictionary={dictionary} />
 
       {/* One overlay per in-flight drop — each animates independently */}
       {activeDrops.map(drop => (

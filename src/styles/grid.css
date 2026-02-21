@@ -24,6 +24,10 @@
     gap: 10px;
 }
 
+.preview-row .game-grid-letters-remaining {
+    margin-left: auto;
+}
+
 /* Next Letters Preview (Queue of upcoming letters) */
 .next-letters-preview {
     display: none;
@@ -112,6 +116,7 @@
     transform: scale(0.95);
     transition: opacity var(--transition-standard), transform var(--transition-standard);
     pointer-events: none;
+    touch-action: manipulation;
 }
 
 .game-grid.visible {

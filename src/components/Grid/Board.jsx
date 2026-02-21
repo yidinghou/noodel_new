@@ -16,7 +16,6 @@ function Board({ grid = Array(GRID_SIZE).fill(null), onColumnClick, gridRef }) {
         <div
           key={cell?.id || `empty-${index}`}
           onClick={() => handleCellClick(index)}
-          style={{ cursor: 'pointer' }}
         >
           <Cell
             letter={cell?.char}
