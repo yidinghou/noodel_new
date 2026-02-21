@@ -48,13 +48,83 @@ export function getWeightedRandomLetter() {
   return 'E'; // Fallback
 }
 
+const VOWELS = new Set(['A', 'E', 'I', 'O', 'U']);
+
+function isVowel(letter) {
+  return VOWELS.has(letter);
+}
+
+function getConsonantCount(letters) {
+  // Count consecutive consonants from the end
+  let count = 0;
+  for (let i = letters.length - 1; i >= 0; i--) {
+    if (isVowel(letters[i].char)) {
+      break;
+    }
+    count++;
+  }
+  return count;
+}
+
+/**
+ * Get next letter with constraints:
+ * 1. No letter repeating consecutively
+ * 2. No more than 3 consonants in a row
+ */
+function getNextValidLetter(previousLetter, consonantCount) {
+  // If we have 3 consonants, must pick a vowel
+  const mustBeVowel = consonantCount >= 3;
+
+  let letter;
+  let attempts = 0;
+  const maxAttempts = 100;
+
+  do {
+    letter = getWeightedRandomLetter();
+    attempts++;
+
+    // Check constraints
+    const isRepeating = letter === previousLetter;
+    const isInvalidConsonant = mustBeVowel && !isVowel(letter);
+
+    if (!isRepeating && !isInvalidConsonant) {
+      return letter;
+    }
+  } while (attempts < maxAttempts);
+
+  // Fallback: if we exhausted attempts, pick a valid letter directly
+  if (mustBeVowel) {
+    return Array.from(VOWELS)[Math.floor(Math.random() * VOWELS.size)];
+  }
+
+  // Just pick something that's not the previous letter
+  const consonants = ['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', 'Z'];
+  const valid = consonants.filter(c => c !== previousLetter);
+  return valid[Math.floor(Math.random() * valid.length)];
+}
+
 /**
  * Generate N letters with unique IDs
+ * - No consecutive repeated letters
+ * - No more than 3 consecutive consonants
  */
 export function generateLetterSequence(count) {
-  return Array.from({ length: count }, (_, i) => ({
-    char: getWeightedRandomLetter(),
-    id: `tile-${i}`,
-    type: 'letter'
-  }));
+  const sequence = [];
+
+  for (let i = 0; i < count; i++) {
+    const previousLetter = sequence.length > 0 ? sequence[sequence.length - 1].char : null;
+    const consonantCount = getConsonantCount(sequence);
+
+    const letter = previousLetter
+      ? getNextValidLetter(previousLetter, consonantCount)
+      : getWeightedRandomLetter();
+
+    sequence.push({
+      char: letter,
+      id: `tile-${i}`,
+      type: 'letter'
+    });
+  }
+
+  return sequence;
 }
