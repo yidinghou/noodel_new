@@ -24,6 +24,34 @@
     gap: 10px;
 }
 
+/* Letters Remaining Display */
+.game-grid-letters-remaining {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-left: auto;
+    padding: 8px 12px;
+    background-color: var(--color-text-muted);
+    border-radius: var(--size-border-radius-small);
+    border: 2px solid var(--color-border-primary);
+}
+
+.letters-remaining-label {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--color-text-white);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.8;
+}
+
+.letters-remaining-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--color-text-white);
+}
+
 /* Next Letters Preview (Queue of upcoming letters) */
 .next-letters-preview {
     display: none;
