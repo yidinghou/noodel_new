@@ -61,6 +61,7 @@ function App() {
         nextLetters={nextLetters}
         grid={state.grid}
         madeWords={state.madeWords}
+        dictionary={dictionary}
         onStart={handleStart}
         onMute={handleMute}
         onColumnClick={handleColumnClick}

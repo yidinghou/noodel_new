@@ -14,6 +14,7 @@ function GameLayout({
   nextLetters = [],
   grid = [],
   madeWords = [],
+  dictionary = null,
   onStart,
   onMute,
   onColumnClick,
@@ -131,7 +132,7 @@ function GameLayout({
       </div>
 
       {/* Made Words Section (Bottom) */}
-      <MadeWords words={madeWords} />
+      <MadeWords words={madeWords} dictionary={dictionary} />
 
       {/* One overlay per in-flight drop — each animates independently */}
       {activeDrops.map(drop => (
