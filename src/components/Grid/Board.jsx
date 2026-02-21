@@ -13,10 +13,21 @@ function Board({ grid = Array(GRID_SIZE).fill(null), onColumnClick, gridRef }) {
   return (
     <div ref={gridRef} className="game-grid visible">
       {grid.map((cell, index) => (
-        <div
-          key={cell?.id || `empty-${index}`}
-          onClick={() => handleCellClick(index)}
-        >
+        <div key={`cell-${index}`} style={{ position: 'relative' }}>
+          {/* Invisible touch shield — never animates or remounts */}
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 10,
+              cursor: 'pointer',
+            }}
+            onClick={() => handleCellClick(index)}
+          />
+          {/* Animated cell underneath */}
           <Cell
             letter={cell?.char}
             index={index}
