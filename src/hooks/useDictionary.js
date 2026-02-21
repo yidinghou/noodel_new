@@ -14,24 +14,27 @@ async function loadWordFile(filepath) {
 
   const text = await response.text();
   const lines = text.split(/\r?\n/);
-  const words = new Set();
+  const words = new Map();
 
   for (const line of lines) {
     if (!line.trim()) continue;
-    const [word] = line.split(',');
-    if (word) words.add(word.toUpperCase().trim());
+    const commaIndex = line.indexOf(',');
+    if (commaIndex === -1) continue;
+    const word = line.slice(0, commaIndex).toUpperCase().trim();
+    const definition = line.slice(commaIndex + 1).trim();
+    if (word && word !== 'WORD') words.set(word, definition);
   }
 
   return words;
 }
 
 async function loadDictionary() {
-  const allWords = new Set();
+  const allWords = new Map();
 
   for (const file of WORD_FILES) {
     try {
       const words = await loadWordFile(file);
-      words.forEach(word => allWords.add(word));
+      words.forEach((definition, word) => allWords.set(word, definition));
     } catch (error) {
       console.warn(`Failed to load ${file}:`, error);
     }
