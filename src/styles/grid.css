@@ -112,6 +112,7 @@
     transform: scale(0.95);
     transition: opacity var(--transition-standard), transform var(--transition-standard);
     pointer-events: none;
+    touch-action: manipulation;
 }
 
 .game-grid.visible {
