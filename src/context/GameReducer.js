@@ -164,8 +164,8 @@ export function gameReducer(state, action) {
         ...state,
         grid: newGrid,
         score: state.score + totalScore,
-        madeWords: newMadeWords.slice(0, 20)
-        // Keep status as PROCESSING until gravity is applied
+        madeWords: newMadeWords.slice(0, 20),
+        status: 'PLAYING'
       };
     }
 
