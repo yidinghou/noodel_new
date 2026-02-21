@@ -1,0 +1,56 @@
+/* MADE WORDS SECTION STYLES
+   ==========================
+   Styles for the bottom section: word list display.
+   Requires: base.css (for design tokens)
+*/
+
+/* Made Words Container */
+.made-words-container {
+    flex: 1;
+    background: var(--color-bg-card);
+    border-radius: var(--size-border-radius-card);
+    padding: var(--size-padding-made-words);
+    box-shadow: var(--shadow-card);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+    visibility: hidden;
+}
+
+.made-words-container.visible {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+}
+
+/* Made Words Title */
+.made-words-title {
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--color-text-primary);
+    text-align: center;
+    margin-bottom: var(--size-gap-large);
+}
+
+/* Words List Container */
+.words-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Individual Word Item */
+.word-item {
+    background: var(--color-bg-stats);
+    padding: 12px;
+    border-radius: var(--size-border-radius-small);
+    border-left: 4px solid var(--color-green);
+    font-weight: 500;
+    white-space: pre-line; /* Preserve line breaks in word definitions */
+}
+
+/* Word Item Dropping Animation (for NOODEL intro) */
+.word-item-dropping {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform-origin: center;
+}

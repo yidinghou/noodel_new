@@ -1,10 +1,10 @@
 # NOODEL Word Game 🎮
 
-A fun and engaging word-building game built with vanilla JavaScript, HTML5, and CSS3.
+A fun and engaging word-building game built with React, Vite, and Framer Motion.
 
 ## 🎯 About
 
-NOODEL is an interactive word puzzle game where players create words by strategically placing letters on a grid. The game features smooth animations, scoring system, and an intuitive interface.
+NOODEL is an interactive word puzzle game where players create words by strategically placing letters on a grid. The game features smooth animations powered by Framer Motion, dynamic scoring, game mode selection, and an intuitive component-based interface.
 
 ## 🚀 Live Demo
 
@@ -13,11 +13,12 @@ NOODEL is an interactive word puzzle game where players create words by strategi
 ## 🛠️ Features
 
 - **Interactive Gameplay**: Drop letters strategically to form words
-- **Smooth Animations**: CSS-based animations with customizable timing
-- **Scoring System**: Points based on word length and complexity  
-- **Responsive Design**: Works on desktop and mobile devices
-- **Feature Flags**: URL parameters for debugging and customization
-- **Word Detection**: Automatic detection of valid English words
+- **Multiple Game Modes**: Classic mode and Clear mode (empty the board)
+- **Smooth Animations**: Framer Motion-powered animations for letter drops and interactions
+- **Dynamic Scoring**: Real-time score tracking with word history
+- **Responsive Design**: Modern React component architecture with clean separation of concerns
+- **Word Detection**: Automatic detection of valid English words (horizontal & vertical)
+- **Game Over Overlay**: Win/loss display with mode-specific feedback
 
 ## 🎮 How to Play
 
@@ -38,16 +39,36 @@ cd noodel-word-game
 
 # Install dependencies
 npm install
-
-# Start local server
-npm start
 ```
 
-Visit `http://localhost:3000` to play locally.
+### Running the Application
+
+**Development Mode (with hot reload):**
+```bash
+npm run dev
+```
+Visit `http://localhost:5173` to play locally. Changes to React components and styles will automatically refresh in the browser.
+
+**Production Build:**
+```bash
+npm run build
+```
+Generates optimized bundle in the `dist/` folder.
+
+**Preview Production Build:**
+```bash
+npm run preview
+```
+
+**Production Server:**
+```bash
+npm start
+```
+Runs the Express server on port 3000 (used for Railway deployment).
 
 ### Testing
 
-The project uses Jest with jsdom for unit testing.
+The project uses Jest with jsdom for unit testing core game logic and utilities.
 
 ```bash
 # Run all tests
@@ -60,35 +81,43 @@ npm run test:watch
 npm run test:coverage
 
 # Run specific test file
-npm test -- --testPathPattern=GridController
+npm test -- --testPathPattern=gameReducer
 ```
 
 #### Test Structure
 
 ```
-__tests__/
-├── setup.test.js           # Jest configuration sanity tests
-├── GridController.test.js  # Grid generation, clicks, gravity tests
-└── ...                     # Additional test files
+src/__tests__/
+├── gameReducer.test.js       # Game state management logic
+├── gracePeriodUtils.test.js  # Grace period calculation tests
+├── wordUtils.test.js         # Word detection and validation
+└── ...                        # Additional utility tests
 ```
+
+#### Test Coverage
+
+The test suite focuses on:
+- **Game State**: Redux-style reducer patterns for game mode, score, and word history
+- **Word Detection**: Horizontal and vertical word scanning algorithms
+- **Grace Periods**: Word validity timing and scoring logic
+- **Utilities**: Game constants, grid calculations, and helper functions
 
 #### Writing Tests
 
-Tests use mock objects to isolate modules from dependencies:
+Tests use Jest and target ES modules:
 
 ```javascript
-// Example: Testing GridController
-import { jest } from '@jest/globals';
-import { GridController } from '../js/grid/GridController.js';
+// Example: Testing game reducer
+import { gameReducer, initialGameState } from '../context/GameReducer';
 
-// Create mocks for dependencies
-const mockDOM = { grid: document.createElement('div'), /* ... */ };
-const mockState = { started: false, columnFillCounts: [] };
+test('should handle letter placement', () => {
+  const newState = gameReducer(initialGameState, {
+    type: 'PLACE_LETTER',
+    payload: { row: 0, col: 0, letter: 'A' }
+  });
 
-// Instantiate and test
-const controller = new GridController(mockState, mockDOM);
-controller.generate();
-expect(mockDOM.grid.children.length).toBe(42);
+  expect(newState.grid[0][0]).toBe('A');
+});
 ```
 
 ### Debug Features
@@ -99,8 +128,10 @@ Add these URL parameters for debugging:
 - `?skipAnimations=true` - Skip all animations
 - `?debugGrid=true` - Show grid pattern overlay
 - `?logTiming=true` - Log animation timing
+- `?betaClearModeEmptyBoard=true` - Beta: Win condition when board is completely empty (stricter challenge)
 
 Example: `http://localhost:3000?debug=true&skipAnimations=true`
+Example: `http://localhost:3000?betaClearModeEmptyBoard=true`
 
 ## 🚀 Deployment on Railway
 
@@ -116,49 +147,83 @@ Example: `http://localhost:3000?debug=true&skipAnimations=true`
 ## 📁 Project Structure
 
 ```
-noodel_new/
-├── js/                     # JavaScript modules
-│   ├── core/              # Core game logic
-│   ├── animation/         # Animation system
-│   ├── grid/             # Grid management
-│   ├── letter/           # Letter handling
-│   ├── menu/             # Menu system
-│   ├── scoring/          # Scoring logic
-│   └── word/             # Word detection & dictionary
-├── styles/               # CSS stylesheets
-├── word_list/           # Word dictionaries (CSV)
-├── index.html           # Main HTML file
-├── server.js            # Express server for deployment
-├── package.json         # Node.js dependencies
-└── railway.toml         # Railway configuration
+src/
+├── components/
+│   ├── Controls/           # UI Controls
+│   │   ├── Actions.jsx     # Game action buttons
+│   │   ├── ModeSelector.jsx # Game mode selection
+│   │   └── NextPreview.jsx # Upcoming letter preview
+│   ├── Grid/              # Game board
+│   │   ├── Board.jsx      # Grid container
+│   │   ├── Cell.jsx       # Individual grid cell
+│   │   └── DroppingOverlay.jsx # Animation overlay
+│   ├── Layout/            # Page layout
+│   │   ├── GameLayout.jsx # Main layout structure
+│   │   └── Header.jsx     # Page header
+│   ├── Overlays/          # Game state overlays
+│   │   └── GameOverOverlay.jsx # Win/loss display
+│   └── Stats/             # Score and stats display
+│       ├── MadeWords.jsx  # Word history
+│       └── ScoreBoard.jsx # Current score
+├── context/
+│   ├── GameContext.jsx    # React Context for global state
+│   └── GameReducer.js     # State management reducer
+├── hooks/
+│   ├── useDictionary.js   # Dictionary loading hook
+│   ├── useGameLogic.js    # Core game logic hook
+├── utils/
+│   ├── clearModeUtils.js  # Clear mode specific logic
+│   ├── gameConstants.js   # Game configuration
+│   └── gameUtils.js       # Utility functions
+├── App.jsx               # Root component
+└── main.jsx              # Entry point
+
+public/
+├── word_lists/           # Word dictionaries (CSV)
+└── ...                   # Static assets
+
+index.html               # Vite entry HTML
+server.js                # Express server for production
+package.json             # Dependencies and scripts
+vite.config.js           # Vite configuration
+jest.config.js           # Jest testing configuration
+railway.toml             # Railway deployment config
 ```
+
+## 🏗️ Architecture
+
+**State Management**: React Context + Reducer pattern for centralized game state
+**Component Communication**: Props-based communication with context for global state
+**Animations**: Framer Motion for smooth, performant animations
+**Build Tool**: Vite for fast development and optimized production builds
+**Backend**: Express.js for static file serving in production
 
 ## 🎨 Customization
 
-### Animation Speed
+### Game Constants
 
-```javascript
-// In browser console
-sequencer.setSpeed(2.0);  // 2x speed
-sequencer.setSpeed(0.5);  // Half speed
-```
+Edit `src/utils/gameConstants.js` to customize:
+- Grid dimensions (rows/columns)
+- Letter pool and distribution
+- Scoring multipliers
+- Animation timings
 
-### Feature Flags
+### Styling
 
-```javascript
-// In browser console
-features.disable("animations.titleDrop");
-features.enable("debug.gridPattern");
-```
+Global styles and component-specific styling can be found throughout the component files. The design uses CSS-in-JS patterns combined with standard CSS.
 
 ## 📝 Technical Details
 
-- **Frontend**: Vanilla JavaScript ES6+ modules
-- **Backend**: Express.js (for static file serving)
+- **Frontend**: React 18.2 with Vite
+- **Styling**: Modern CSS with responsive design
+- **Animations**: Framer Motion for component animations
+- **State Management**: React Context + useReducer hook
+- **Build Tool**: Vite with React plugin for fast HMR development
+- **Backend**: Express.js with gzip compression for static file serving
+- **Testing**: Jest with jsdom for unit testing core logic
 - **Deployment**: Railway with automatic deployments
-- **Testing**: Jest with jsdom for DOM testing
-- **Word Lists**: CSV-based dictionary with 3-7 letter words
-- **Animations**: CSS-based with JavaScript timing control
+- **Word Lists**: CSV-based dictionaries with 3-7 letter words
+- **Grid**: 6 rows × 7 columns (42 cells) with gravity-based letter stacking
 
 ## 🤝 Contributing
 
@@ -183,4 +248,4 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ---
 
-Built with ❤️ using vanilla JavaScript and deployed on Railway.
+Built with ❤️ using React, Vite, and Framer Motion. Deployed on Railway.
