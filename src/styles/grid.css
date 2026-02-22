@@ -119,12 +119,6 @@
     touch-action: manipulation;
 }
 
-.game-grid.visible {
-    opacity: 1;
-    transform: scale(1);
-    pointer-events: auto;
-}
-
 /* Individual Grid Square - Extends .block-base */
 .grid-square {
     /* Inherit from .block-base: aspect-ratio, flex centering, font-weight, transition, box-sizing */

@@ -17,12 +17,6 @@
     visibility: hidden;
 }
 
-.made-words-container.visible {
-    opacity: 1;
-    transform: translateY(0);
-    visibility: visible;
-}
-
 /* Made Words Title */
 .made-words-title {
     font-size: 20px;

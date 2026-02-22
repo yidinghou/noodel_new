@@ -138,11 +138,6 @@
     transform: translateY(20px);
 }
 
-.stats.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
 .stat-group {
     text-align: center;
     flex: 1;
