@@ -524,3 +524,101 @@ body {
     transform: translateY(0);
     box-shadow: 0 4px 10px rgba(25, 118, 210, 0.3);
 }
+
+/* ===================== Tutorial ===================== */
+
+.tutorial-btn {
+    background: var(--color-letter-active);
+    color: var(--color-text-white);
+}
+
+.tutorial-btn:hover {
+    background: #45a049;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(76, 175, 80, 0.3);
+}
+
+.tutorial-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+}
+
+.tutorial-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, var(--color-blue-pale) 0%, var(--color-blue-pale-2) 100%);
+    border-bottom: 2px solid var(--color-blue-primary);
+    margin-bottom: 12px;
+    border-radius: 4px;
+    gap: 12px;
+}
+
+.tutorial-banner-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1565C0;
+    flex: 1;
+    text-align: center;
+}
+
+.tutorial-arrow-btn {
+    background: rgba(25, 118, 210, 0.9);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.tutorial-arrow-btn:hover:not(:disabled) {
+    background: #1565C0;
+    transform: scale(1.15);
+    box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
+}
+
+.tutorial-arrow-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* Tutorial visual states */
+
+.tutorial-dimmed {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.tutorial-highlight-preview {
+    box-shadow: 0 0 20px rgba(255, 200, 0, 0.8), inset 0 0 10px rgba(255, 200, 0, 0.3);
+    border: 2px solid rgba(255, 200, 0, 0.6);
+    border-radius: 8px;
+    padding: 8px;
+}
+
+.tutorial-highlight-cell {
+    box-shadow: 0 0 25px rgba(255, 200, 0, 1) inset, 0 0 10px rgba(255, 200, 0, 0.8);
+}
+
+.tutorial-ordinal {
+    font-size: 12px;
+    font-weight: bold;
+    color: var(--color-text-muted);
+    min-height: 14px;
+}
+
+.tutorial-preview-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
