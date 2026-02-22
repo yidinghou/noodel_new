@@ -22,7 +22,7 @@ async function loadWordFile(filepath) {
     if (commaIndex === -1) continue;
     const word = line.slice(0, commaIndex).toUpperCase().trim();
     const definition = line.slice(commaIndex + 1).trim();
-    if (word && word !== 'WORD') words.set(word, definition);
+    if (word) words.set(word, definition);
   }
 
   return words;
@@ -39,6 +39,10 @@ async function loadDictionary() {
       console.warn(`Failed to load ${file}:`, error);
     }
   }
+
+  // Ensure tutorial words are always available
+  if (!allWords.has('WORD')) allWords.set('WORD', 'a single unit of language');
+  if (!allWords.has('WORDS')) allWords.set('WORDS', 'plural of word');
 
   return allWords;
 }
