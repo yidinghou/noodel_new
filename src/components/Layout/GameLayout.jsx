@@ -21,6 +21,15 @@ function GameLayout({
   isMuted = false,
   showPreview = false,
   canDrop = false,
+  tutorialStep = null,
+  tutorialMessage = null,
+  showNextButton = false,
+  showBackButton = false,
+  dimElements = {},
+  highlightPreview = false,
+  highlightColumn = null,
+  onTutorialNext = null,
+  onTutorialBack = null,
 }) {
   const gridRef = useRef(null);
   const nextUpRef = useRef(null);
@@ -53,6 +62,7 @@ function GameLayout({
 
   const handleColumnClick = useCallback((column) => {
     if (!canDrop) return;
+    if (highlightColumn !== null && column !== highlightColumn) return;
 
     const fromEl = nextUpRef.current;
     const gridEl = gridRef.current;
@@ -94,7 +104,7 @@ function GameLayout({
       toFinal: { x: colLeft, y: gridRect.top + destRow * rowHeight },
       cellSize,
     }]);
-  }, [canDrop, nextLetters, getDestRow, onColumnClick]);
+  }, [canDrop, highlightColumn, nextLetters, getDestRow, onColumnClick]);
 
   const handleDropComplete = useCallback((id, column) => {
     onColumnClick?.(column);
@@ -108,10 +118,16 @@ function GameLayout({
     setActiveDrops(prev => prev.filter(d => d.id !== id));
   }, [onColumnClick]);
 
+  const previewClasses = [
+    'preview-row',
+    dimElements.preview ? 'tutorial-dimmed' : '',
+    highlightPreview ? 'tutorial-highlight-preview' : '',
+  ].filter(Boolean).join(' ');
+
   return (
     <div className="main-container">
       {/* Card Section (Top) */}
-      <div className="card">
+      <div className={`card${dimElements.card ? ' tutorial-dimmed' : ''}`}>
         <Header />
         <div className="stats visible">
           <ScoreBoard score={score} />
@@ -121,18 +137,45 @@ function GameLayout({
 
       {/* Game Grid Section (Middle) */}
       <div className="game-grid-wrapper">
-        <div className="preview-row">
-          <NextPreview nextLetters={nextLetters} visible={showPreview} nextUpRef={nextUpRef} />
+        {tutorialMessage && (
+          <div className="tutorial-banner">
+            {showBackButton && (
+              <button
+                className="tutorial-arrow-btn"
+                onClick={onTutorialBack}
+                aria-label="Go back"
+              >
+                &lt;
+              </button>
+            )}
+            <div className="tutorial-banner-text">{tutorialMessage}</div>
+            {showNextButton && (
+              <button
+                className="tutorial-arrow-btn"
+                onClick={onTutorialNext}
+                aria-label="Go next"
+              >
+                &gt;
+              </button>
+            )}
+          </div>
+        )}
+        <div className={previewClasses}>
+          <NextPreview nextLetters={nextLetters} visible={showPreview} nextUpRef={nextUpRef} showOrdinals={tutorialStep !== null} />
           <div className={`game-grid-letters-remaining${showPreview ? ' visible' : ''}`}>
             <div className="letters-remaining-label">Letters Remaining</div>
             <div className="letters-remaining-value">{lettersRemaining}</div>
           </div>
         </div>
-        <Board grid={grid} onColumnClick={handleColumnClick} gridRef={gridRef} />
+        <div className={dimElements.grid ? 'tutorial-dimmed' : undefined}>
+          <Board grid={grid} onColumnClick={handleColumnClick} gridRef={gridRef} highlightColumn={highlightColumn} />
+        </div>
       </div>
 
       {/* Made Words Section (Bottom) */}
-      <MadeWords words={madeWords} dictionary={dictionary} />
+      <div className={dimElements.madeWords ? 'tutorial-dimmed' : undefined}>
+        <MadeWords words={madeWords} dictionary={dictionary} />
+      </div>
 
       {/* One overlay per in-flight drop — each animates independently */}
       {activeDrops.map(drop => (
