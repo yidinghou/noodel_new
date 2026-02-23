@@ -360,11 +360,39 @@ body {
     visibility: hidden;
     transition: opacity var(--transition-quick), visibility var(--transition-quick);
     z-index: 1000;
+    transform-origin: top right;
 }
 
 .mode-selection-menu.visible {
     opacity: 1;
     visibility: visible;
+    animation: menuAppear var(--transition-quick) ease-out forwards;
+}
+
+.mode-selection-menu:not(.visible) {
+    animation: menuDisappear var(--transition-quick) ease-in forwards;
+}
+
+@keyframes menuAppear {
+    from {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes menuDisappear {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: scale(0.3);
+        opacity: 0;
+    }
 }
 
 .mode-selection-content {
