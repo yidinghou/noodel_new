@@ -381,8 +381,25 @@ body {
     font-size: clamp(20px, 4vw, 28px);
     font-weight: 700;
     color: var(--color-text-primary);
-    margin-bottom: clamp(16px, 3vw, 24px);
+    margin-bottom: clamp(24px, 4vw, 32px);
     letter-spacing: 0.5px;
+}
+
+.mode-selection-section {
+    margin-bottom: clamp(20px, 3vw, 28px);
+}
+
+.mode-selection-section:last-child {
+    margin-bottom: 0;
+}
+
+.mode-selection-section-title {
+    font-size: clamp(12px, 2vw, 14px);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: clamp(12px, 2vw, 16px);
 }
 
 .mode-selection-buttons {
