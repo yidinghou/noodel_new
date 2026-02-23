@@ -14,7 +14,7 @@ const GRAVITY_DELAY_MS = 150;
 
 export function useGameLogic() {
   const { state, dispatch } = useGame();
-  const { dictionary } = useDictionary();
+  const { dictionary, loading } = useDictionary();
 
   // Map<wordKey, { wordData, timerId, idxSet }>
   const pendingRef = useRef(new Map());
@@ -153,5 +153,5 @@ export function useGameLogic() {
     }
   }, [state.grid, state.gameMode, state.status, state.initialBlocks, dispatch]);
 
-  return { dictionary };
+  return { dictionary, loading };
 }
