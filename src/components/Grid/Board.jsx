@@ -27,6 +27,8 @@ function Board({ grid = Array(GRID_SIZE).fill(null), onColumnClick, gridRef, hig
               bottom: 0,
               zIndex: 10,
               cursor: 'pointer',
+              outline: 'none',
+              WebkitTapHighlightColor: 'transparent',
             }}
             onClick={() => handleCellClick(index)}
           />
