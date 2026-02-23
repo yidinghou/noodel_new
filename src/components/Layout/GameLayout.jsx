@@ -151,7 +151,7 @@ function GameLayout({
             <div className="tutorial-banner-text">{tutorialMessage}</div>
             {showNextButton && (
               <button
-                className="tutorial-arrow-btn"
+                className="tutorial-arrow-btn tutorial-next-btn"
                 onClick={onTutorialNext}
                 aria-label="Go next"
               >

@@ -591,6 +591,21 @@ body {
     cursor: not-allowed;
 }
 
+.tutorial-next-btn:not(:disabled) {
+    animation: subtlePulse 2s ease-in-out infinite;
+}
+
+@keyframes subtlePulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.08);
+        opacity: 0.8;
+    }
+}
+
 /* Tutorial visual states */
 
 .tutorial-dimmed {
