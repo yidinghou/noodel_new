@@ -100,14 +100,16 @@ export function useTutorial(state, dispatch, onComplete = () => {}) {
     };
   }, [tutorialState, columnIndex]);
 
-  // Auto-advance to TRY_WORD when user drops W during COLUMN step
+  // Auto-advance to TRY_WORD when user drops W during COLUMN step.
+  // DROP_LETTER is dispatched at the END of the drop animation (handleDropComplete),
+  // so state.grid updating here means the letter is already visually settled — no delay needed.
   useEffect(() => {
     if (tutorialState !== 'COLUMN') return;
     const columnHasLetter = state.grid.some(
       (tile, i) => i % GRID_COLS === 0 && tile
     );
     if (columnHasLetter) {
-      setTimeout(() => setTutorialState('TRY_WORD'), 600);
+      setTutorialState('TRY_WORD');
     }
   }, [state.grid, tutorialState]);
 
