@@ -107,7 +107,8 @@ export function useTutorial(state, dispatch, onComplete = () => {}) {
       (tile, i) => i % GRID_COLS === 0 && tile
     );
     if (columnHasLetter) {
-      setTimeout(() => setTutorialState('TRY_WORD'), 600);
+      const timerId = setTimeout(() => setTutorialState('TRY_WORD'), 600);
+      return () => clearTimeout(timerId);
     }
   }, [state.grid, tutorialState]);
 
