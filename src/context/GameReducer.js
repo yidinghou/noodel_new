@@ -20,7 +20,24 @@ export function gameReducer(state, action) {
   switch (action.type) {
     case 'START_GAME': {
       const { mode } = action.payload;
-      const letterSequence = generateLetterSequence(TOTAL_LETTERS);
+      let letterSequence = generateLetterSequence(TOTAL_LETTERS);
+
+      // Tutorial mode: seed WORDS letters twice so the player has a retry set
+      if (mode === 'tutorial') {
+        letterSequence = [
+          { char: 'W', id: 'tutorial-W-1' },
+          { char: 'O', id: 'tutorial-O-1' },
+          { char: 'R', id: 'tutorial-R-1' },
+          { char: 'D', id: 'tutorial-D-1' },
+          { char: 'S', id: 'tutorial-S-1' },
+          { char: 'W', id: 'tutorial-W-2' },
+          { char: 'O', id: 'tutorial-O-2' },
+          { char: 'R', id: 'tutorial-R-2' },
+          { char: 'D', id: 'tutorial-D-2' },
+          { char: 'S', id: 'tutorial-S-2' },
+          ...letterSequence.slice(10)
+        ];
+      }
 
       // Generate starting grid based on mode
       let initialGrid = Array(GRID_SIZE).fill(null);
@@ -207,6 +224,11 @@ export function gameReducer(state, action) {
         ...state,
         status: 'GAME_OVER'
       };
+    }
+
+    case 'RESTORE_STATE': {
+      const { grid, nextQueue, lettersRemaining, madeWords } = action.payload;
+      return { ...state, grid, nextQueue, lettersRemaining, madeWords, status: 'PLAYING' };
     }
 
     case 'RESET':

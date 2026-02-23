@@ -27,6 +27,12 @@ function ModeSelector({ visible, onSelectMode }) {
           >
             Clear
           </button>
+          <button
+            className="mode-selection-btn tutorial-btn"
+            onClick={() => handleModeSelect('tutorial')}
+          >
+            Tutorial
+          </button>
         </div>
       </div>
     </div>
