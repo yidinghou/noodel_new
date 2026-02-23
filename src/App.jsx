@@ -60,8 +60,8 @@ function App() {
     }
   };
 
-  // Get next 5 letters from queue
-  const nextLetters = state.nextQueue.slice(0, 5).map(item => item.char);
+  // Pass enough letters to cover max in-flight drops (7 cols) + 5 visible in preview
+  const nextLetters = state.nextQueue.slice(0, 12).map(item => item.char);
 
   return (
     <>

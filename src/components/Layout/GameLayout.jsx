@@ -161,7 +161,7 @@ function GameLayout({
           </div>
         )}
         <div className={previewClasses}>
-          <NextPreview nextLetters={nextLetters} visible={showPreview} nextUpRef={nextUpRef} showOrdinals={tutorialStep !== null} />
+          <NextPreview nextLetters={nextLetters.slice(activeDrops.length, activeDrops.length + 5)} visible={showPreview} nextUpRef={nextUpRef} showOrdinals={tutorialStep !== null} />
           <div className={`game-grid-letters-remaining${showPreview ? ' visible' : ''}`}>
             <div className="letters-remaining-label">Letters Remaining</div>
             <div className="letters-remaining-value">{lettersRemaining}</div>
