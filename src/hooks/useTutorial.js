@@ -55,6 +55,8 @@ export function useTutorial(state, dispatch, onComplete = () => {}) {
   const snapshotsRef = useRef({});
   // Guard against duplicate completion triggers within the same step
   const completionTriggeredRef = useRef(false);
+  // Track the completion timeout so we can cancel it when a new game starts
+  const completionTimeoutRef = useRef(null);
 
   const currentConfig = tutorialState ? TUTORIAL_STATES[tutorialState] : null;
 
@@ -122,12 +124,14 @@ export function useTutorial(state, dispatch, onComplete = () => {}) {
       completionTriggeredRef.current = true;
 
       setTutorialState('COMPLETE');
-      setTimeout(() => {
+      const timerId = setTimeout(() => {
         setTutorialState(null);
         setColumnIndex(0);
         dispatch({ type: 'RESET' });
         onComplete();
+        completionTimeoutRef.current = null;
       }, 2500);
+      completionTimeoutRef.current = timerId;
       return;
     }
 
@@ -162,7 +166,29 @@ export function useTutorial(state, dispatch, onComplete = () => {}) {
     setTutorialState(null);
     setColumnIndex(0);
     snapshotsRef.current = {};
+    // Cancel any pending completion cleanup timeout
+    if (completionTimeoutRef.current) {
+      clearTimeout(completionTimeoutRef.current);
+      completionTimeoutRef.current = null;
+    }
   };
+
+  // Clean up timeout on unmount or when game state changes
+  useEffect(() => {
+    return () => {
+      if (completionTimeoutRef.current) {
+        clearTimeout(completionTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Cancel completion timeout when a new game starts
+  useEffect(() => {
+    if (state.status === 'PLAYING' && state.gameMode && tutorialState === null && completionTimeoutRef.current) {
+      clearTimeout(completionTimeoutRef.current);
+      completionTimeoutRef.current = null;
+    }
+  }, [state.gameMode, state.status, tutorialState]);
 
   const handleTutorialNext = () => {
     const currentIndex = TUTORIAL_SEQUENCE.indexOf(tutorialState);
