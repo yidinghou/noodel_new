@@ -61,7 +61,12 @@
     transition: transform var(--transition-quick);
 }
 
-/* Preview Next-Up (Pulse + Glow effect) */
+/* Preview Next-Up (Pop-in on shift, then continuous pulse + glow) */
+@keyframes previewPop {
+    0%   { transform: scale(1.45); opacity: 0.6; }
+    100% { transform: scale(var(--pulse-scale-start, 1)); opacity: 1; }
+}
+
 .preview-letter-block.next-up {
     --pulse-scale-start: 1.15;
     --pulse-scale-mid: 1.22;
@@ -70,7 +75,10 @@
     background: var(--color-next-up);
     color: var(--color-text-primary);
     box-shadow: var(--shadow-next-up);
-    animation: pulse var(--animation-duration-pulse) ease-in-out infinite;
+    /* On mount: pop in, then settle into the continuous pulse */
+    animation:
+        previewPop 0.15s ease-out,
+        pulse var(--animation-duration-pulse) ease-in-out 0.15s infinite;
 }
 
 /* Empty Preview Letter Block (no letters remaining) - Supersedes next-up styling */

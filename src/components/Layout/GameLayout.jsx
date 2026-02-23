@@ -36,6 +36,8 @@ function GameLayout({
 
   // Parallel drop tracking
   const [activeDrops, setActiveDrops] = useState([]);
+  // Monotonically increases on each click to key-remount the next-up preview letter
+  const [shiftKey, setShiftKey] = useState(0);
   // Map<column, count> of in-flight drops per column — used to reserve destination rows
   const inFlightColumnsRef = useRef(new Map());
   // Total in-flight drops — used to index into nextLetters for letter assignment
@@ -94,6 +96,7 @@ function GameLayout({
 
     inFlightColumnsRef.current.set(column, columnInFlight + 1);
     inFlightCountRef.current++;
+    setShiftKey(k => k + 1);
 
     setActiveDrops(prev => [...prev, {
       id,
@@ -161,7 +164,7 @@ function GameLayout({
           </div>
         )}
         <div className={previewClasses}>
-          <NextPreview nextLetters={nextLetters.slice(activeDrops.length, activeDrops.length + 5)} visible={showPreview} nextUpRef={nextUpRef} showOrdinals={tutorialStep !== null} />
+          <NextPreview nextLetters={nextLetters.slice(activeDrops.length, activeDrops.length + 5)} visible={showPreview} nextUpRef={nextUpRef} showOrdinals={tutorialStep !== null} shiftKey={shiftKey} />
           <div className={`game-grid-letters-remaining${showPreview ? ' visible' : ''}`}>
             <div className="letters-remaining-label">Letters Remaining</div>
             <div className="letters-remaining-value">{lettersRemaining}</div>
