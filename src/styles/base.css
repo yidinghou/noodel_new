@@ -421,6 +421,17 @@ body {
     transition: all var(--transition-quick);
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.btn-emoji {
+    display: inline-block;
+    font-size: 1.2em;
+    margin-left: 4px;
 }
 
 .classic-btn {

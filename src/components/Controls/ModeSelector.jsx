@@ -22,13 +22,13 @@ function ModeSelector({ visible, onSelectMode }) {
               className="mode-selection-btn classic-btn"
               onClick={() => handleModeSelect('classic')}
             >
-              🕹️ Classic
+              Classic <span className="btn-emoji">🕹️</span>
             </button>
             <button
               className="mode-selection-btn clear-btn"
               onClick={() => handleModeSelect('clear')}
             >
-              🧹 Clear
+              Clear <span className="btn-emoji">🧹</span>
             </button>
           </div>
         </div>
