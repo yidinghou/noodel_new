@@ -26,16 +26,6 @@ const computePendingStyles = (directions) => {
     shadows.push('inset 0 -3px 0 0 var(--color-pending-vertical)');
   }
 
-  // Check for diagonal-down-right (all 4 borders)
-  if (directions.includes('diagonal-down-right')) {
-    shadows.push('inset 0 0 0 3px var(--color-pending-diagonal-down-right)');
-  }
-
-  // Check for diagonal-up-right (all 4 borders)
-  if (directions.includes('diagonal-up-right')) {
-    shadows.push('inset 0 0 0 3px var(--color-pending-diagonal-up-right)');
-  }
-
   return {
     boxShadow: shadows.length > 0 ? shadows.join(', ') : undefined
   };
@@ -58,6 +48,8 @@ const Cell = React.memo(
       isPending ? 'word-pending' : '',
       isMatched ? 'word-found' : '',
       isInitial ? 'initial' : '',
+      isPending && pendingDirections.includes('diagonal-down-right') ? 'pending-diag-dr' : '',
+      isPending && pendingDirections.includes('diagonal-up-right') ? 'pending-diag-ur' : '',
     ]
       .filter(Boolean)
       .join(' ');

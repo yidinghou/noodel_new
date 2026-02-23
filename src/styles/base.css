@@ -45,10 +45,10 @@
     --color-letter-active: var(--color-green);
 
     /* Word Direction Colors */
-    --color-pending-horizontal: var(--color-blue-primary);
-    --color-pending-vertical: var(--color-orange-primary);
-    --color-pending-diagonal-down-right: var(--color-green);
-    --color-pending-diagonal-up-right: #9C27B0;
+    --color-pending-horizontal: var(--color-green);
+    --color-pending-vertical: var(--color-blue-primary);
+    --color-pending-diagonal-down-right: #000000;
+    --color-pending-diagonal-up-right: #000000;
 
     /* Sizing */
     --size-letter-block: clamp(30px, 4vw, 38px);
