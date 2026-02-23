@@ -45,10 +45,10 @@
     --color-letter-active: var(--color-green);
 
     /* Word Direction Colors */
-    --color-pending-horizontal: var(--color-blue-primary);
-    --color-pending-vertical: var(--color-orange-primary);
-    --color-pending-diagonal-down-right: var(--color-green);
-    --color-pending-diagonal-up-right: #9C27B0;
+    --color-pending-horizontal: var(--color-green);
+    --color-pending-vertical: var(--color-blue-primary);
+    --color-pending-diagonal-down-right: #000000;
+    --color-pending-diagonal-up-right: #000000;
 
     /* Sizing */
     --size-letter-block: clamp(30px, 4vw, 38px);
@@ -360,11 +360,39 @@ body {
     visibility: hidden;
     transition: opacity var(--transition-quick), visibility var(--transition-quick);
     z-index: 1000;
+    transform-origin: top right;
 }
 
 .mode-selection-menu.visible {
     opacity: 1;
     visibility: visible;
+    animation: menuAppear var(--transition-quick) ease-out forwards;
+}
+
+.mode-selection-menu:not(.visible) {
+    animation: menuDisappear var(--transition-quick) ease-in forwards;
+}
+
+@keyframes menuAppear {
+    from {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes menuDisappear {
+    from {
+        transform: scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: scale(0.3);
+        opacity: 0;
+    }
 }
 
 .mode-selection-content {
@@ -381,8 +409,25 @@ body {
     font-size: clamp(20px, 4vw, 28px);
     font-weight: 700;
     color: var(--color-text-primary);
-    margin-bottom: clamp(16px, 3vw, 24px);
+    margin-bottom: clamp(24px, 4vw, 32px);
     letter-spacing: 0.5px;
+}
+
+.mode-selection-section {
+    margin-bottom: clamp(20px, 3vw, 28px);
+}
+
+.mode-selection-section:last-child {
+    margin-bottom: 0;
+}
+
+.mode-selection-section-title {
+    font-size: clamp(12px, 2vw, 14px);
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: clamp(12px, 2vw, 16px);
 }
 
 .mode-selection-buttons {
@@ -395,7 +440,7 @@ body {
 .mode-selection-btn {
     flex: 1;
     min-width: 120px;
-    padding: clamp(12px, 2vw, 16px) clamp(16px, 3vw, 24px);
+    padding: clamp(10px, 1.5vw, 12px) clamp(12px, 2.5vw, 18px);
     font-size: clamp(14px, 2.2vw, 18px);
     font-weight: 600;
     border: none;
@@ -404,6 +449,35 @@ body {
     transition: all var(--transition-quick);
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+
+.btn-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.btn-description {
+    font-size: clamp(11px, 1.5vw, 13px);
+    font-weight: 400;
+    color: inherit;
+    opacity: 0.9;
+    text-transform: none;
+    letter-spacing: normal;
+    line-height: 1.3;
+    white-space: nowrap;
+}
+
+.btn-emoji {
+    display: inline-block;
+    font-size: 1.2em;
+    margin-left: 4px;
 }
 
 .classic-btn {
