@@ -18,24 +18,20 @@ function ModeSelector({ visible, onSelectMode }) {
         <div className="mode-selection-section">
           <h3 className="mode-selection-section-title">Play Game</h3>
           <div className="mode-selection-buttons">
-            <div className="mode-button-group">
-              <button
-                className="mode-selection-btn classic-btn"
-                onClick={() => handleModeSelect('classic')}
-              >
-                Classic <span className="btn-emoji">🕹️</span>
-              </button>
-              <p className="mode-description">Score big with 100 letters.</p>
-            </div>
-            <div className="mode-button-group">
-              <button
-                className="mode-selection-btn clear-btn"
-                onClick={() => handleModeSelect('clear')}
-              >
-                Clear <span className="btn-emoji">🧹</span>
-              </button>
-              <p className="mode-description">Wipe the board of all tiles.</p>
-            </div>
+            <button
+              className="mode-selection-btn classic-btn"
+              onClick={() => handleModeSelect('classic')}
+            >
+              <span className="btn-title">Classic <span className="btn-emoji">🕹️</span></span>
+              <span className="btn-description">Score big with 100 letters.</span>
+            </button>
+            <button
+              className="mode-selection-btn clear-btn"
+              onClick={() => handleModeSelect('clear')}
+            >
+              <span className="btn-title">Clear <span className="btn-emoji">🧹</span></span>
+              <span className="btn-description">Wipe the board of all tiles.</span>
+            </button>
           </div>
         </div>
 
