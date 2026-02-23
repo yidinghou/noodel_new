@@ -12,8 +12,10 @@ function NextPreview({ nextLetters = [], visible = false, nextUpRef, showOrdinal
         let className = 'block-base preview-letter-block';
         if (isNextUp) className += ' next-up';
         if (isEmpty) className += ' empty';
-        // Remount the next-up slot on each shift so the CSS pop animation replays
-        const slotKey = index === 0 ? shiftKey : index;
+        // Remount the next-up slot on each shift so the CSS pop animation replays.
+        // Use a string prefix for index 0 to avoid key collisions with sibling slots
+        // (e.g. shiftKey=1 would otherwise clash with slot index=1).
+        const slotKey = index === 0 ? `next-up-${shiftKey}` : index;
         return (
           <div key={slotKey} className="tutorial-preview-slot">
             {showOrdinals && (
