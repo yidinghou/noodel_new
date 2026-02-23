@@ -10,7 +10,7 @@ function App() {
   const { state, dispatch } = useGame();
   const { dictionary, loading: dictLoading } = useGameLogic();
   const [isMuted, setIsMuted] = useState(false);
-  const [showModeSelector, setShowModeSelector] = useState(false);
+  const [showModeSelector, setShowModeSelector] = useState(true);
   const tutorial = useTutorial(state, dispatch, () => {
     setShowModeSelector(true);
   });
