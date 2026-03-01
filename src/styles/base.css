@@ -396,6 +396,7 @@ body {
 }
 
 .mode-selection-content {
+    position: relative;
     background: var(--color-bg-card);
     border-radius: var(--size-border-radius-medium);
     padding: clamp(24px, 5vw, 40px);
@@ -403,6 +404,29 @@ body {
     text-align: center;
     min-width: 300px;
     max-width: 90vw;
+}
+
+.mode-selection-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, transform 0.15s;
+}
+
+.mode-selection-close:hover {
+    background: rgba(0, 0, 0, 0.08);
+    transform: scale(1.1);
 }
 
 .mode-selection-title {

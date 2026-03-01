@@ -94,6 +94,7 @@ function App() {
       <ModeSelector
         visible={showModeSelector}
         onSelectMode={handleModeSelect}
+        onClose={() => setShowModeSelector(false)}
         pendingMode={pendingMode}
         dictLoading={dictLoading}
         dictReady={!!dictionary}
