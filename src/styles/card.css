@@ -13,6 +13,15 @@
     box-shadow: var(--shadow-card);
 }
 
+/* Intro sequence state - clickable to skip */
+.card.intro-active {
+    transition: box-shadow 0.3s ease;
+}
+
+.card.intro-active:hover {
+    box-shadow: 0 8px 24px rgba(25, 118, 210, 0.25);
+}
+
 .title {
     display: flex;
     justify-content: center;

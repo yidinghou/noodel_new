@@ -133,10 +133,25 @@ function GameLayout({
     highlightPreview ? 'tutorial-highlight-preview' : '',
   ].filter(Boolean).join(' ');
 
+  // Allow fastForward only during intro sequence (before all elements are visible)
+  const isIntroActive = !statsVisible || !controlsVisible || !boardVisible;
+
+  const handleCardClick = (e) => {
+    // Only trigger fastForward during intro, and prevent event bubbling
+    if (isIntroActive && onFastForward) {
+      e.stopPropagation();
+      onFastForward();
+    }
+  };
+
   return (
     <div className="main-container">
       {/* Card Section (Top) */}
-      <div className={`card${dimElements.card ? ' tutorial-dimmed' : ''}`} onClick={onFastForward}>
+      <div
+        className={`card${dimElements.card ? ' tutorial-dimmed' : ''}${isIntroActive ? ' intro-active' : ''}`}
+        onClick={handleCardClick}
+        style={isIntroActive ? { cursor: 'pointer' } : undefined}
+      >
         <Header dropOrderMap={dropOrderMap} />
         <div className={`stats ${statsVisible ? 'visible' : ''}`}>
           <ScoreBoard score={score} gameStatus={gameStatus} />
