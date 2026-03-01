@@ -360,7 +360,6 @@ body {
     visibility: hidden;
     transition: opacity var(--transition-quick), visibility var(--transition-quick);
     z-index: 1000;
-    transform-origin: top right;
 }
 
 .mode-selection-menu.visible {
@@ -375,22 +374,18 @@ body {
 
 @keyframes menuAppear {
     from {
-        transform: scale(0.3);
         opacity: 0;
     }
     to {
-        transform: scale(1);
         opacity: 1;
     }
 }
 
 @keyframes menuDisappear {
     from {
-        transform: scale(1);
         opacity: 1;
     }
     to {
-        transform: scale(0.3);
         opacity: 0;
     }
 }
@@ -534,6 +529,16 @@ body {
 .clear-btn:active {
     transform: translateY(0);
     box-shadow: 0 4px 10px rgba(255, 152, 0, 0.3);
+}
+
+/* Blur outer sections while mode selector is open */
+.app-root.menu-open .card,
+.app-root.menu-open .made-words-section {
+    filter: blur(4px);
+    opacity: 0.6;
+    pointer-events: none;
+    user-select: none;
+    transition: filter 0.2s ease, opacity 0.2s ease;
 }
 
 /* Game Over Overlay */

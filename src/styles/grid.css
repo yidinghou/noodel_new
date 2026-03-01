@@ -444,3 +444,22 @@
         opacity: 1;
     }
 }
+
+/* ============================
+   MODE SELECTOR POSITIONING
+   ============================ */
+
+/* When ModeSelector is portaled into .game-grid-wrapper, fill the wrapper */
+.game-grid-wrapper .mode-selection-menu {
+    position: absolute;
+    background: var(--color-bg-card);   /* no dark backdrop, match wrapper bg */
+    border-radius: var(--size-border-radius-card);
+    z-index: 10;
+}
+
+.game-grid-wrapper .mode-selection-content {
+    box-shadow: none;     /* no floating card shadow since it fills the panel */
+    min-width: unset;
+    max-width: none;
+    width: 100%;
+}

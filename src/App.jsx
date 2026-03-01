@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import GameLayout from './components/Layout/GameLayout.jsx';
 import ModeSelector from './components/Controls/ModeSelector.jsx';
 import GameOverOverlay from './components/Overlays/GameOverOverlay.jsx';
@@ -10,6 +11,7 @@ import { useIntroSequence } from './hooks/useIntroSequence.js';
 function App() {
   const { state, dispatch } = useGame();
   const { dictionary, loading: dictLoading } = useGameLogic();
+  const gridWrapperRef = useRef(null);
   const [isMuted, setIsMuted] = useState(false);
   const [showModeSelector, setShowModeSelector] = useState(false);
   const [pendingMode, setPendingMode] = useState(null);
@@ -61,8 +63,9 @@ function App() {
   const nextLetters = state.nextQueue.slice(0, 12).map(item => item.char);
 
   return (
-    <>
+    <div className={`app-root${showModeSelector ? ' menu-open' : ''}`}>
       <GameLayout
+        gridWrapperRef={gridWrapperRef}
         score={state.score}
         lettersRemaining={state.lettersRemaining}
         nextLetters={nextLetters}
@@ -91,21 +94,24 @@ function App() {
         onTutorialNext={tutorial.handleTutorialNext}
         onTutorialBack={tutorial.handleBack}
       />
-      <ModeSelector
-        visible={showModeSelector}
-        onSelectMode={handleModeSelect}
-        onClose={() => setShowModeSelector(false)}
-        pendingMode={pendingMode}
-        dictLoading={dictLoading}
-        dictReady={!!dictionary}
-      />
+      {gridWrapperRef.current && createPortal(
+        <ModeSelector
+          visible={showModeSelector}
+          onSelectMode={handleModeSelect}
+          onClose={() => setShowModeSelector(false)}
+          pendingMode={pendingMode}
+          dictLoading={dictLoading}
+          dictReady={!!dictionary}
+        />,
+        gridWrapperRef.current
+      )}
       <GameOverOverlay
         visible={state.status === 'GAME_OVER'}
         gameMode={state.gameMode}
         score={state.score}
         onRestart={handleRestart}
       />
-    </>
+    </div>
   );
 }
 

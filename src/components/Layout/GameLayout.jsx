@@ -9,6 +9,7 @@ import DroppingOverlay from '../Grid/DroppingOverlay.jsx';
 import { GRID_COLS, GRID_ROWS } from '../../utils/gameConstants.js';
 
 function GameLayout({
+  gridWrapperRef = null,
   score = 0,
   lettersRemaining = 100,
   nextLetters = [],
@@ -160,7 +161,7 @@ function GameLayout({
       </div>
 
       {/* Game Grid Section (Middle) */}
-      <div className="game-grid-wrapper">
+      <div className="game-grid-wrapper" ref={gridWrapperRef}>
         {tutorialMessage && (
           <div className="tutorial-banner">
             {showBackButton && (
@@ -197,7 +198,7 @@ function GameLayout({
       </div>
 
       {/* Made Words Section (Bottom) */}
-      <div className={dimElements.madeWords ? 'tutorial-dimmed' : undefined}>
+      <div className={`made-words-section${dimElements.madeWords ? ' tutorial-dimmed' : ''}`}>
         <MadeWords words={madeWords} dictionary={dictionary} visible={boardVisible} />
       </div>
 
