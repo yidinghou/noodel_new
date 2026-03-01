@@ -15,6 +15,12 @@ function GameLayout({
   grid = [],
   madeWords = [],
   dictionary = null,
+  gameStatus = 'IDLE',
+  dropOrderMap = {},
+  statsVisible = true,
+  controlsVisible = true,
+  boardVisible = true,
+  onFastForward = null,
   onStart,
   onMute,
   onColumnClick,
@@ -127,14 +133,29 @@ function GameLayout({
     highlightPreview ? 'tutorial-highlight-preview' : '',
   ].filter(Boolean).join(' ');
 
+  // Allow fastForward only during intro sequence (before all elements are visible)
+  const isIntroActive = !statsVisible || !controlsVisible || !boardVisible;
+
+  const handleCardClick = (e) => {
+    // Only trigger fastForward during intro, and prevent event bubbling
+    if (isIntroActive && onFastForward) {
+      e.stopPropagation();
+      onFastForward();
+    }
+  };
+
   return (
     <div className="main-container">
       {/* Card Section (Top) */}
-      <div className={`card${dimElements.card ? ' tutorial-dimmed' : ''}`}>
-        <Header />
-        <div className="stats visible">
-          <ScoreBoard score={score} />
-          <Actions onStart={onStart} onMute={onMute} isMuted={isMuted} />
+      <div
+        className={`card${dimElements.card ? ' tutorial-dimmed' : ''}${isIntroActive ? ' intro-active' : ''}`}
+        onClick={handleCardClick}
+        style={isIntroActive ? { cursor: 'pointer' } : undefined}
+      >
+        <Header dropOrderMap={dropOrderMap} />
+        <div className={`stats ${statsVisible ? 'visible' : ''}`}>
+          <ScoreBoard score={score} gameStatus={gameStatus} />
+          <Actions onStart={onStart} onMute={onMute} isMuted={isMuted} visible={controlsVisible} />
         </div>
       </div>
 
@@ -171,13 +192,13 @@ function GameLayout({
           </div>
         </div>
         <div className={dimElements.grid ? 'tutorial-dimmed' : undefined}>
-          <Board grid={grid} onColumnClick={handleColumnClick} gridRef={gridRef} highlightColumn={highlightColumn} />
+          <Board grid={grid} onColumnClick={handleColumnClick} gridRef={gridRef} highlightColumn={highlightColumn} visible={boardVisible} />
         </div>
       </div>
 
       {/* Made Words Section (Bottom) */}
       <div className={dimElements.madeWords ? 'tutorial-dimmed' : undefined}>
-        <MadeWords words={madeWords} dictionary={dictionary} />
+        <MadeWords words={madeWords} dictionary={dictionary} visible={boardVisible} />
       </div>
 
       {/* One overlay per in-flight drop — each animates independently */}

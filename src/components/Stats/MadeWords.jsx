@@ -1,8 +1,8 @@
 import React from 'react';
 
-function MadeWords({ words = [], dictionary = null }) {
+function MadeWords({ words = [], dictionary = null, visible = true }) {
   return (
-    <div className="made-words-container visible">
+    <div className={`made-words-container ${visible ? 'visible' : ''}`}>
       <div className="made-words-title">Words Made</div>
       <div className="words-list">
         {words.map((word, index) => {

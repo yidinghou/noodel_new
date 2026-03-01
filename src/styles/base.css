@@ -82,7 +82,7 @@
     --transition-fast: 0.2s;
     
     /* Animation Durations - Single Source of Truth */
-    --animation-duration-title-drop: 0.6s;
+    --animation-duration-title-drop: 0.4s;
     --animation-duration-title-shake: 0.4s;
     --animation-duration-controls-fade: 0.3s;
     --animation-duration-stats-fade: 0.3s;
@@ -615,6 +615,31 @@ body {
 .tutorial-btn:active {
     transform: translateY(0);
     box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+}
+
+/* Ready state for mode selection buttons - pulsing highlight */
+.mode-selection-btn.ready {
+    animation: buttonReady 1.2s ease-in-out infinite;
+    box-shadow: 0 0 30px rgba(25, 118, 210, 0.6);
+}
+
+.clear-btn.ready {
+    box-shadow: 0 0 30px rgba(255, 152, 0, 0.6);
+}
+
+.tutorial-btn.ready {
+    box-shadow: 0 0 30px rgba(76, 175, 80, 0.6);
+}
+
+@keyframes buttonReady {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.05);
+        opacity: 0.85;
+    }
 }
 
 .tutorial-banner {
