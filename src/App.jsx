@@ -64,6 +64,12 @@ function App() {
   // Pass enough letters to cover max in-flight drops (7 cols) + 5 visible in preview
   const nextLetters = state.nextQueue.slice(0, 12).map(item => item.char);
 
+  // Check if board was cleared in clear mode
+  const isClearMode = state.gameMode === 'clear';
+  const boardCleared = isClearMode && state.initialBlocks.length > 0
+    ? state.initialBlocks.every(index => !state.grid[index])
+    : false;
+
   return (
     <div className={`app-root${(showModeSelector || showSettingsMenu) ? ' menu-open' : ''}`}>
       <GameLayout
@@ -121,6 +127,7 @@ function App() {
         gameMode={state.gameMode}
         score={state.score}
         lettersRemaining={state.lettersRemaining}
+        boardCleared={boardCleared}
         onRestart={handleRestart}
       />
     </div>

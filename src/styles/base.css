@@ -602,6 +602,14 @@ body {
     letter-spacing: 0.3px;
 }
 
+.game-over-message {
+    font-size: clamp(16px, 3.5vw, 20px);
+    font-weight: 500;
+    color: var(--color-text-primary);
+    margin-bottom: clamp(20px, 3vw, 28px);
+    letter-spacing: 0.2px;
+}
+
 .game-over-restart-btn {
     padding: clamp(14px, 2.5vw, 18px) clamp(28px, 5vw, 40px);
     font-size: clamp(14px, 2.2vw, 18px);
