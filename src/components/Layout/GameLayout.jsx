@@ -23,9 +23,8 @@ function GameLayout({
   boardVisible = true,
   onFastForward = null,
   onStart,
-  onMute,
+  onSettings,
   onColumnClick,
-  isMuted = false,
   showPreview = false,
   canDrop = false,
   tutorialStep = null,
@@ -156,7 +155,7 @@ function GameLayout({
         <Header dropOrderMap={dropOrderMap} />
         <div className={`stats ${statsVisible ? 'visible' : ''}`}>
           <ScoreBoard score={score} gameStatus={gameStatus} />
-          <Actions onStart={onStart} onMute={onMute} isMuted={isMuted} visible={controlsVisible} />
+          <Actions onStart={onStart} onSettings={onSettings} visible={controlsVisible} />
         </div>
       </div>
 

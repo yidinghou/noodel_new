@@ -464,3 +464,8 @@
     max-width: none;
     width: 100%;
 }
+
+/* Settings menu uses orange border to match settings button */
+.game-grid-wrapper .mode-selection-menu.settings-variant {
+    border-color: var(--color-accent-secondary);   /* #FF9800 orange */
+}

@@ -2,6 +2,7 @@ import { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import GameLayout from './components/Layout/GameLayout.jsx';
 import ModeSelector from './components/Controls/ModeSelector.jsx';
+import SettingsMenu from './components/Controls/SettingsMenu.jsx';
 import GameOverOverlay from './components/Overlays/GameOverOverlay.jsx';
 import { useGame } from './context/GameContext.jsx';
 import { useGameLogic } from './hooks/useGameLogic.js';
@@ -14,6 +15,7 @@ function App() {
   const gridWrapperRef = useRef(null);
   const [isMuted, setIsMuted] = useState(false);
   const [showModeSelector, setShowModeSelector] = useState(false);
+  const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [pendingMode, setPendingMode] = useState(null);
   const tutorial = useTutorial(state, dispatch, () => {
     setShowModeSelector(true);
@@ -49,7 +51,7 @@ function App() {
     setShowModeSelector(true);
   };
 
-  const handleMute = () => {
+  const handleToggleMute = () => {
     setIsMuted(!isMuted);
   };
 
@@ -63,7 +65,7 @@ function App() {
   const nextLetters = state.nextQueue.slice(0, 12).map(item => item.char);
 
   return (
-    <div className={`app-root${showModeSelector ? ' menu-open' : ''}`}>
+    <div className={`app-root${(showModeSelector || showSettingsMenu) ? ' menu-open' : ''}`}>
       <GameLayout
         gridWrapperRef={gridWrapperRef}
         score={state.score}
@@ -79,9 +81,8 @@ function App() {
         boardVisible={boardVisible}
         onFastForward={fastForward}
         onStart={handleStart}
-        onMute={handleMute}
+        onSettings={() => setShowSettingsMenu(true)}
         onColumnClick={handleColumnClick}
-        isMuted={isMuted}
         showPreview={state.status === 'PLAYING' || state.status === 'PROCESSING'}
         canDrop={tutorial.canDrop}
         tutorialStep={tutorial.tutorialStep}
@@ -102,6 +103,15 @@ function App() {
           pendingMode={pendingMode}
           dictLoading={dictLoading}
           dictReady={!!dictionary}
+        />,
+        gridWrapperRef.current
+      )}
+      {gridWrapperRef.current && createPortal(
+        <SettingsMenu
+          visible={showSettingsMenu}
+          onClose={() => setShowSettingsMenu(false)}
+          isMuted={isMuted}
+          onToggleMute={handleToggleMute}
         />,
         gridWrapperRef.current
       )}
