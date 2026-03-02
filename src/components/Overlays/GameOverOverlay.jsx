@@ -36,9 +36,11 @@ function GameOverOverlay({ visible, gameMode, score, lettersRemaining = 0, board
       <div className="game-over-content">
         <h1 className="game-over-title">{title}</h1>
         {message && <div className="game-over-message">{message}</div>}
-        <div className="game-over-score">
-          Final Score: {finalScore}
-        </div>
+        {!isClearMode && (
+          <div className="game-over-score">
+            Final Score: {finalScore}
+          </div>
+        )}
         <button className="game-over-restart-btn" onClick={onRestart}>
           Play Again
         </button>
