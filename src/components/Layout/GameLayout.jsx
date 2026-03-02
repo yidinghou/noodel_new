@@ -17,6 +17,7 @@ function GameLayout({
   madeWords = [],
   dictionary = null,
   gameStatus = 'IDLE',
+  gameMode = null,
   dropOrderMap = {},
   statsVisible = true,
   controlsVisible = true,
@@ -161,7 +162,7 @@ function GameLayout({
       >
         <Header dropOrderMap={dropOrderMap} />
         <div className={`stats ${statsVisible ? 'visible' : ''}`}>
-          <ScoreBoard score={score} gameStatus={gameStatus} />
+          <ScoreBoard score={score} gameStatus={gameStatus} gameMode={gameMode} />
           <Actions onStart={onStart} onSettings={onSettings} visible={controlsVisible} />
         </div>
       </div>

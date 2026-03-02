@@ -10,27 +10,19 @@ import React from 'react';
  * - Leaderboard or high score tracking
  * - Share score functionality
  */
-function GameOverOverlay({ visible, gameMode, score, onRestart }) {
+function GameOverOverlay({ visible, gameMode, score, lettersRemaining = 0, onRestart }) {
   if (!visible) return null;
 
   const isClearMode = gameMode === 'clear';
-  const hasInitialBlocks = isClearMode; // Simplified check - in actual state this would be checked properly
-
-  // Determine if it's a win or loss
-  // In Clear mode: win if all initial blocks cleared, loss otherwise
-  // In Classic mode: always end of game (score-based)
-  const title = isClearMode ? (
-    <h1 className="game-over-title">Game Over!</h1>
-  ) : (
-    <h1 className="game-over-title">Game Over!</h1>
-  );
+  // In clear mode, final score is 100 - letters remaining (letters used)
+  const finalScore = isClearMode ? (100 - lettersRemaining) : score;
 
   return (
     <div className="game-over-overlay visible">
       <div className="game-over-content">
-        {title}
+        <h1 className="game-over-title">Game Over!</h1>
         <div className="game-over-score">
-          Final Score: {score}
+          Final Score: {finalScore}
         </div>
         <button className="game-over-restart-btn" onClick={onRestart}>
           Play Again

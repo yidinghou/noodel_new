@@ -75,6 +75,7 @@ function App() {
         madeWords={state.madeWords}
         dictionary={dictionary}
         gameStatus={state.status}
+        gameMode={state.gameMode}
         dropOrderMap={dropOrderMap}
         statsVisible={statsVisible}
         controlsVisible={controlsVisible}
@@ -119,6 +120,7 @@ function App() {
         visible={state.status === 'GAME_OVER'}
         gameMode={state.gameMode}
         score={state.score}
+        lettersRemaining={state.lettersRemaining}
         onRestart={handleRestart}
       />
     </div>
