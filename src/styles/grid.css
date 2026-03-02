@@ -453,12 +453,13 @@
 .game-grid-wrapper .mode-selection-menu {
     position: absolute;
     background: #d8eef9;   /* light blue indicates START mode (blue) */
+    border: 3px solid #1976D2;   /* dark blue border matches classic mode */
     border-radius: var(--size-border-radius-card);
     z-index: 10;
 }
 
 .game-grid-wrapper .mode-selection-content {
-    box-shadow: none;     /* no floating card shadow since it fills the panel */
+    box-shadow: none;      /* no floating card shadow since it fills the panel */
     min-width: unset;
     max-width: none;
     width: 100%;
