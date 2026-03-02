@@ -8,8 +8,10 @@ import React from 'react';
  * @param {string|null} pendingMode - Mode being queued (while dictionary loads)
  * @param {boolean} dictLoading - Whether dictionary is still loading
  * @param {boolean} dictReady - Whether dictionary has finished loading
+ * @param {boolean} hasSavedGame - Whether a saved game exists to resume
+ * @param {function} onResume - Callback when resume button is clicked
  */
-function ModeSelector({ visible, onSelectMode, onClose, pendingMode, dictLoading, dictReady }) {
+function ModeSelector({ visible, onSelectMode, onClose, pendingMode, dictLoading, dictReady, hasSavedGame, onResume }) {
   const handleModeSelect = (mode) => {
     onSelectMode(mode);
   };
@@ -29,6 +31,22 @@ function ModeSelector({ visible, onSelectMode, onClose, pendingMode, dictLoading
           ✕
         </button>
         <h2 className="mode-selection-title">Start Menu</h2>
+
+        {hasSavedGame && (
+          <div className="mode-selection-section">
+            <h3 className="mode-selection-section-title">Continue</h3>
+            <div className="mode-selection-buttons">
+              <button
+                className="mode-selection-btn resume-btn"
+                onClick={onResume}
+              >
+                <span className="btn-title">Resume</span>
+                <span className="btn-emoji">▶️</span>
+                {<span className="btn-description">Continue your last game.</span>}
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="mode-selection-section">
           <h3 className="mode-selection-section-title">Play Game</h3>
