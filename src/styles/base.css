@@ -531,14 +531,13 @@ body {
     box-shadow: 0 4px 10px rgba(255, 152, 0, 0.3);
 }
 
-/* Blur outer sections while mode selector is open */
+/* Shade outer sections while mode selector is open */
 .app-root.menu-open .card,
 .app-root.menu-open .made-words-section {
-    filter: blur(4px);
-    opacity: 0.6;
+    filter: brightness(0.55);
     pointer-events: none;
     user-select: none;
-    transition: filter 0.2s ease, opacity 0.2s ease;
+    transition: filter 0.2s ease;
 }
 
 /* Game Over Overlay */
