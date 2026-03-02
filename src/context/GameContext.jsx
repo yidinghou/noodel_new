@@ -121,8 +121,19 @@ export function GameProvider({ children }) {
     return true;
   }, [gameSession, wrappedDispatch]);
 
+  /**
+   * Undo to the previous snapshot.
+   */
+  const undo = useCallback(() => {
+    const undoPayload = gameSession.getUndo();
+    if (!undoPayload) return false;
+    gameSession.performUndo();
+    wrappedDispatch({ type: 'LOAD_SAVED_GAME', payload: undoPayload });
+    return true;
+  }, [gameSession, wrappedDispatch]);
+
   return (
-    <GameContext.Provider value={{ state, dispatch: wrappedDispatch, loadSavedGame, gameSession }}>
+    <GameContext.Provider value={{ state, dispatch: wrappedDispatch, loadSavedGame, undo, gameSession }}>
       {children}
     </GameContext.Provider>
   );
