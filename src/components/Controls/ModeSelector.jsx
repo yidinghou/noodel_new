@@ -4,11 +4,12 @@ import React from 'react';
  * Start menu - allows user to choose between game modes and tutorial
  * @param {boolean} visible - Whether the menu should be visible
  * @param {function} onSelectMode - Callback when a mode is selected (receives 'classic', 'clear', or 'tutorial')
+ * @param {function} onClose - Callback when close button is clicked
  * @param {string|null} pendingMode - Mode being queued (while dictionary loads)
  * @param {boolean} dictLoading - Whether dictionary is still loading
  * @param {boolean} dictReady - Whether dictionary has finished loading
  */
-function ModeSelector({ visible, onSelectMode, pendingMode, dictLoading, dictReady }) {
+function ModeSelector({ visible, onSelectMode, onClose, pendingMode, dictLoading, dictReady }) {
   const handleModeSelect = (mode) => {
     onSelectMode(mode);
   };
@@ -20,6 +21,13 @@ function ModeSelector({ visible, onSelectMode, pendingMode, dictLoading, dictRea
   return (
     <div className={`mode-selection-menu ${visible ? 'visible' : ''}`}>
       <div className="mode-selection-content">
+        <button
+          className="mode-selection-close"
+          onClick={onClose}
+          aria-label="Close menu"
+        >
+          ✕
+        </button>
         <h2 className="mode-selection-title">Start Menu</h2>
 
         <div className="mode-selection-section">

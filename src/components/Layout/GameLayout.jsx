@@ -9,6 +9,7 @@ import DroppingOverlay from '../Grid/DroppingOverlay.jsx';
 import { GRID_COLS, GRID_ROWS } from '../../utils/gameConstants.js';
 
 function GameLayout({
+  gridWrapperRef = null,
   score = 0,
   lettersRemaining = 100,
   nextLetters = [],
@@ -16,15 +17,15 @@ function GameLayout({
   madeWords = [],
   dictionary = null,
   gameStatus = 'IDLE',
+  gameMode = null,
   dropOrderMap = {},
   statsVisible = true,
   controlsVisible = true,
   boardVisible = true,
   onFastForward = null,
   onStart,
-  onMute,
+  onSettings,
   onColumnClick,
-  isMuted = false,
   showPreview = false,
   canDrop = false,
   tutorialStep = null,
@@ -131,7 +132,14 @@ function GameLayout({
     'preview-row',
     dimElements.preview ? 'tutorial-dimmed' : '',
     highlightPreview ? 'tutorial-highlight-preview' : '',
+    tutorialStep === 'PREVIEW_INTRO' ? 'tutorial-clickable' : '',
   ].filter(Boolean).join(' ');
+
+  const handlePreviewClick = () => {
+    if (tutorialStep === 'PREVIEW_INTRO' && onTutorialNext) {
+      onTutorialNext();
+    }
+  };
 
   // Allow fastForward only during intro sequence (before all elements are visible)
   const isIntroActive = !statsVisible || !controlsVisible || !boardVisible;
@@ -154,13 +162,13 @@ function GameLayout({
       >
         <Header dropOrderMap={dropOrderMap} />
         <div className={`stats ${statsVisible ? 'visible' : ''}`}>
-          <ScoreBoard score={score} gameStatus={gameStatus} />
-          <Actions onStart={onStart} onMute={onMute} isMuted={isMuted} visible={controlsVisible} />
+          <ScoreBoard score={score} gameStatus={gameStatus} gameMode={gameMode} />
+          <Actions onStart={onStart} onSettings={onSettings} visible={controlsVisible} />
         </div>
       </div>
 
       {/* Game Grid Section (Middle) */}
-      <div className="game-grid-wrapper">
+      <div className="game-grid-wrapper" ref={gridWrapperRef}>
         {tutorialMessage && (
           <div className="tutorial-banner">
             {showBackButton && (
@@ -184,7 +192,7 @@ function GameLayout({
             )}
           </div>
         )}
-        <div className={previewClasses}>
+        <div className={previewClasses} onClick={handlePreviewClick}>
           <NextPreview nextLetters={nextLetters.slice(activeDrops.length, activeDrops.length + 5)} visible={showPreview} nextUpRef={nextUpRef} showOrdinals={tutorialStep !== null} shiftKey={shiftKey} />
           <div className={`game-grid-letters-remaining${showPreview ? ' visible' : ''}`}>
             <div className="letters-remaining-label">Letters Remaining</div>
@@ -197,7 +205,7 @@ function GameLayout({
       </div>
 
       {/* Made Words Section (Bottom) */}
-      <div className={dimElements.madeWords ? 'tutorial-dimmed' : undefined}>
+      <div className={`made-words-section${dimElements.madeWords ? ' tutorial-dimmed' : ''}`}>
         <MadeWords words={madeWords} dictionary={dictionary} visible={boardVisible} />
       </div>
 

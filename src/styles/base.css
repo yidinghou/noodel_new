@@ -360,7 +360,6 @@ body {
     visibility: hidden;
     transition: opacity var(--transition-quick), visibility var(--transition-quick);
     z-index: 1000;
-    transform-origin: top right;
 }
 
 .mode-selection-menu.visible {
@@ -375,27 +374,24 @@ body {
 
 @keyframes menuAppear {
     from {
-        transform: scale(0.3);
         opacity: 0;
     }
     to {
-        transform: scale(1);
         opacity: 1;
     }
 }
 
 @keyframes menuDisappear {
     from {
-        transform: scale(1);
         opacity: 1;
     }
     to {
-        transform: scale(0.3);
         opacity: 0;
     }
 }
 
 .mode-selection-content {
+    position: relative;
     background: var(--color-bg-card);
     border-radius: var(--size-border-radius-medium);
     padding: clamp(24px, 5vw, 40px);
@@ -403,6 +399,29 @@ body {
     text-align: center;
     min-width: 300px;
     max-width: 90vw;
+}
+
+.mode-selection-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, transform 0.15s;
+}
+
+.mode-selection-close:hover {
+    background: rgba(0, 0, 0, 0.08);
+    transform: scale(1.1);
 }
 
 .mode-selection-title {
@@ -512,6 +531,15 @@ body {
     box-shadow: 0 4px 10px rgba(255, 152, 0, 0.3);
 }
 
+/* Shade outer sections while mode selector is open */
+.app-root.menu-open .card,
+.app-root.menu-open .made-words-section {
+    filter: brightness(0.55);
+    pointer-events: none;
+    user-select: none;
+    transition: filter 0.2s ease;
+}
+
 /* Game Over Overlay */
 .game-over-overlay {
     position: fixed;
@@ -572,6 +600,14 @@ body {
     color: var(--color-accent-primary);
     margin-bottom: clamp(24px, 4vw, 32px);
     letter-spacing: 0.3px;
+}
+
+.game-over-message {
+    font-size: clamp(16px, 3.5vw, 20px);
+    font-weight: 500;
+    color: var(--color-text-primary);
+    margin-bottom: clamp(20px, 3vw, 28px);
+    letter-spacing: 0.2px;
 }
 
 .game-over-restart-btn {

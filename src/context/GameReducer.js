@@ -170,7 +170,12 @@ export function gameReducer(state, action) {
       const newMadeWords = [...state.madeWords];
 
       wordsToRemove.forEach(({ word, indices }) => {
-        totalScore += calculateWordScore(word);
+        // In clear mode, score reflects letters remaining; in classic mode, score words
+        if (state.gameMode === 'clear') {
+          totalScore = state.lettersRemaining; // Score is the letters remaining in clear mode
+        } else {
+          totalScore += calculateWordScore(word);
+        }
         newMadeWords.unshift(word);
         indices.forEach(index => {
           newGrid[index] = null;
@@ -180,7 +185,7 @@ export function gameReducer(state, action) {
       return {
         ...state,
         grid: newGrid,
-        score: state.score + totalScore,
+        score: state.gameMode === 'clear' ? totalScore : state.score + totalScore,
         madeWords: newMadeWords.slice(0, 20),
         status: 'PLAYING'
       };

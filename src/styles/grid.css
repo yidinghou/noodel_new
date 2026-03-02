@@ -24,6 +24,15 @@
     gap: 10px;
 }
 
+.preview-row.tutorial-clickable {
+    cursor: pointer;
+    transition: opacity var(--transition-quick);
+}
+
+.preview-row.tutorial-clickable:hover {
+    opacity: 0.8;
+}
+
 .preview-row .game-grid-letters-remaining {
     margin-left: auto;
 }
@@ -443,4 +452,30 @@
         transform: rotateY(0deg);
         opacity: 1;
     }
+}
+
+/* ============================
+   MODE SELECTOR POSITIONING
+   ============================ */
+
+/* When ModeSelector is portaled into .game-grid-wrapper, fill the wrapper */
+.game-grid-wrapper .mode-selection-menu {
+    position: absolute;
+    background: #d8eef9;   /* light blue indicates START mode (blue) */
+    border: 3px solid #1976D2;   /* dark blue border matches classic mode */
+    border-radius: var(--size-border-radius-card);
+    z-index: 10;
+}
+
+.game-grid-wrapper .mode-selection-content {
+    box-shadow: none;      /* no floating card shadow since it fills the panel */
+    min-width: unset;
+    max-width: none;
+    width: 100%;
+}
+
+/* Settings menu uses orange border and light orange background */
+.game-grid-wrapper .mode-selection-menu.settings-variant {
+    background: #FFECC8;   /* light orange indicates SETTINGS mode (orange) */
+    border-color: var(--color-accent-secondary);   /* #FF9800 orange */
 }
