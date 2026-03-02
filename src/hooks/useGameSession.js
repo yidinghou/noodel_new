@@ -4,7 +4,7 @@
  */
 
 import { useRef } from 'react';
-import { createSession, appendEvent, takeSnapshot, completeSession } from '../services/gameSession.js';
+import { createSession, appendEvent, takeSnapshot, completeSession, getUndoPayload, undoSnapshot } from '../services/gameSession.js';
 import { saveSession, loadSession, clearSession } from '../services/sessionStorage.js';
 
 export function useGameSession() {
@@ -100,12 +100,36 @@ export function useGameSession() {
     clearSession();
   }
 
+  /**
+   * Get the undo payload if undo is possible.
+   * Returns null if no prior snapshot exists.
+   * @returns {Object|null}
+   */
+  function getUndo() {
+    if (!sessionRef.current) return null;
+    return getUndoPayload(sessionRef.current);
+  }
+
+  /**
+   * Perform undo by reverting to previous snapshot.
+   * Updates both in-memory session and localStorage.
+   */
+  function performUndo() {
+    if (!sessionRef.current) return;
+
+    const updatedSession = undoSnapshot(sessionRef.current);
+    sessionRef.current = updatedSession;
+    saveSession(updatedSession);
+  }
+
   return {
     onGameStart,
     recordDropEvent,
     onStableState,
     getSavedSession,
     loadSavedSession,
-    clearSavedSession
+    clearSavedSession,
+    getUndo,
+    performUndo
   };
 }
