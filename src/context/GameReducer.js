@@ -1,6 +1,4 @@
-import { generateLetterSequence } from '../utils/letterUtils.js';
 import { calculateWordScore } from '../utils/scoringUtils.js';
-import { generateClearModeGrid } from '../utils/clearModeUtils.js';
 import { GRID_SIZE, TOTAL_LETTERS, GRID_COLS, GRID_ROWS } from '../utils/gameConstants.js';
 
 // Game state shape
@@ -19,46 +17,18 @@ export const initialState = {
 export function gameReducer(state, action) {
   switch (action.type) {
     case 'START_GAME': {
-      const { mode } = action.payload;
-      let letterSequence = generateLetterSequence(TOTAL_LETTERS);
-
-      // Tutorial mode: seed WORDS letters twice so the player has a retry set
-      if (mode === 'tutorial') {
-        letterSequence = [
-          { char: 'W', id: 'tutorial-W-1' },
-          { char: 'O', id: 'tutorial-O-1' },
-          { char: 'R', id: 'tutorial-R-1' },
-          { char: 'D', id: 'tutorial-D-1' },
-          { char: 'S', id: 'tutorial-S-1' },
-          { char: 'W', id: 'tutorial-W-2' },
-          { char: 'O', id: 'tutorial-O-2' },
-          { char: 'R', id: 'tutorial-R-2' },
-          { char: 'D', id: 'tutorial-D-2' },
-          { char: 'S', id: 'tutorial-S-2' },
-          ...letterSequence.slice(10)
-        ];
-      }
-
-      // Generate starting grid based on mode
-      let initialGrid = Array(GRID_SIZE).fill(null);
-      let initialBlockIndices = [];
-
-      if (mode === 'clear') {
-        const clearGridResult = generateClearModeGrid();
-        initialGrid = clearGridResult.grid;
-        initialBlockIndices = clearGridResult.initialBlocks;
-      }
+      const { mode, initialQueue, initialGrid, initialBlocks } = action.payload;
 
       return {
         ...state,
-        nextQueue: letterSequence,
+        nextQueue: initialQueue,
         lettersRemaining: TOTAL_LETTERS,
         status: 'PLAYING',
-        grid: initialGrid,
+        grid: initialGrid || Array(GRID_SIZE).fill(null),
         score: 0,
         madeWords: [],
         gameMode: mode,
-        initialBlocks: initialBlockIndices
+        initialBlocks: initialBlocks || []
       };
     }
 
@@ -234,6 +204,21 @@ export function gameReducer(state, action) {
     case 'RESTORE_STATE': {
       const { grid, nextQueue, lettersRemaining, madeWords } = action.payload;
       return { ...state, grid, nextQueue, lettersRemaining, madeWords, status: 'PLAYING' };
+    }
+
+    case 'LOAD_SAVED_GAME': {
+      const { grid, nextQueue, lettersRemaining, score, madeWords, gameMode, initialBlocks } = action.payload;
+      return {
+        ...initialState,
+        grid,
+        nextQueue,
+        lettersRemaining,
+        score,
+        madeWords,
+        gameMode,
+        initialBlocks: initialBlocks || [],
+        status: 'PLAYING'
+      };
     }
 
     case 'RESET':
