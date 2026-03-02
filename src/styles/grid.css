@@ -465,7 +465,8 @@
     width: 100%;
 }
 
-/* Settings menu uses orange border to match settings button */
+/* Settings menu uses orange border and light orange background */
 .game-grid-wrapper .mode-selection-menu.settings-variant {
+    background: #FFECC8;   /* light orange indicates SETTINGS mode (orange) */
     border-color: var(--color-accent-secondary);   /* #FF9800 orange */
 }
