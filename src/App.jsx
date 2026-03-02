@@ -11,7 +11,7 @@ import { useIntroSequence } from './hooks/useIntroSequence.js';
 import { hasSavedSession } from './services/sessionStorage.js';
 
 function App() {
-  const { state, dispatch, loadSavedGame, gameSession } = useGame();
+  const { state, dispatch, loadSavedGame, undo, gameSession } = useGame();
   const { dictionary, loading: dictLoading } = useGameLogic();
   const gridWrapperRef = useRef(null);
   const [isMuted, setIsMuted] = useState(false);
@@ -110,6 +110,7 @@ function App() {
         onStart={handleStart}
         onSettings={() => setShowSettingsMenu(true)}
         onColumnClick={handleColumnClick}
+        onUndo={undo}
         showPreview={state.status === 'PLAYING' || state.status === 'PROCESSING'}
         canDrop={tutorial.canDrop}
         tutorialStep={tutorial.tutorialStep}
