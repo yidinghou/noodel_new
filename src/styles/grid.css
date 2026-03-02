@@ -452,7 +452,7 @@
 /* When ModeSelector is portaled into .game-grid-wrapper, fill the wrapper */
 .game-grid-wrapper .mode-selection-menu {
     position: absolute;
-    background: var(--color-bg-card);   /* no dark backdrop, match wrapper bg */
+    background: #d8eef9;   /* light blue indicates START mode (blue) */
     border-radius: var(--size-border-radius-card);
     z-index: 10;
 }
