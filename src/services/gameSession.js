@@ -99,6 +99,7 @@ export function sanitizeGrid(grid) {
 /**
  * Create a snapshot of the current game state. Immutable - returns new session.
  * Only call this when state is stable (no pending/matched animations in progress).
+ * Maintains a history of snapshots for undo functionality.
  *
  * @param {Object} session - current session
  * @param {Object} stableState - the game state to snapshot
@@ -109,17 +110,20 @@ export function sanitizeGrid(grid) {
 export function takeSnapshot(session, stableState, afterEventSeq) {
   const now = Date.now();
 
+  const newSnapshot = {
+    capturedAt: now,
+    afterEventSeq,
+    grid: sanitizeGrid(stableState.grid),
+    nextQueue: stableState.nextQueue.slice(), // shallow copy of queue
+    lettersRemaining: stableState.lettersRemaining,
+    score: stableState.score,
+    madeWords: stableState.madeWords.slice() // shallow copy of words list
+  };
+
   return {
     ...session,
-    snapshot: {
-      capturedAt: now,
-      afterEventSeq,
-      grid: sanitizeGrid(stableState.grid),
-      nextQueue: stableState.nextQueue.slice(), // shallow copy of queue
-      lettersRemaining: stableState.lettersRemaining,
-      score: stableState.score,
-      madeWords: stableState.madeWords.slice() // shallow copy of words list
-    }
+    snapshot: newSnapshot,
+    snapshotHistory: [...(session.snapshotHistory || []), newSnapshot]
   };
 }
 
@@ -132,6 +136,53 @@ export function completeSession(session) {
   return {
     ...session,
     status: 'completed'
+  };
+}
+
+/**
+ * Get the payload for undoing to the previous snapshot.
+ * Returns null if there's no prior snapshot (less than 2 in history).
+ *
+ * @param {Object} session
+ * @returns {Object|null} payload for LOAD_SAVED_GAME, or null if can't undo
+ */
+export function getUndoPayload(session) {
+  const history = session.snapshotHistory || [];
+
+  // Need at least 2 snapshots to undo to the previous one
+  if (history.length < 2) return null;
+
+  // Get the second-to-last snapshot
+  const previousSnapshot = history[history.length - 2];
+
+  return {
+    grid: previousSnapshot.grid,
+    nextQueue: previousSnapshot.nextQueue,
+    lettersRemaining: previousSnapshot.lettersRemaining,
+    score: previousSnapshot.score,
+    madeWords: previousSnapshot.madeWords,
+    gameMode: session.gameMode,
+    initialBlocks: session.initialBlocks
+  };
+}
+
+/**
+ * Remove the last snapshot from history (for undoing).
+ * Returns new session with updated snapshot history.
+ *
+ * @param {Object} session
+ * @returns {Object} new session with last snapshot removed
+ */
+export function undoSnapshot(session) {
+  const history = session.snapshotHistory || [];
+
+  if (history.length < 2) return session;
+
+  const newHistory = history.slice(0, -1);
+  return {
+    ...session,
+    snapshot: newHistory[newHistory.length - 1] || null,
+    snapshotHistory: newHistory
   };
 }
 
