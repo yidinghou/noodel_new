@@ -24,6 +24,15 @@
     gap: 10px;
 }
 
+.preview-row.tutorial-clickable {
+    cursor: pointer;
+    transition: opacity var(--transition-quick);
+}
+
+.preview-row.tutorial-clickable:hover {
+    opacity: 0.8;
+}
+
 .preview-row .game-grid-letters-remaining {
     margin-left: auto;
 }

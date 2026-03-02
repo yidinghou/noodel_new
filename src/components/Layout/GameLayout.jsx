@@ -131,7 +131,14 @@ function GameLayout({
     'preview-row',
     dimElements.preview ? 'tutorial-dimmed' : '',
     highlightPreview ? 'tutorial-highlight-preview' : '',
+    tutorialStep === 'PREVIEW_INTRO' ? 'tutorial-clickable' : '',
   ].filter(Boolean).join(' ');
+
+  const handlePreviewClick = () => {
+    if (tutorialStep === 'PREVIEW_INTRO' && onTutorialNext) {
+      onTutorialNext();
+    }
+  };
 
   // Allow fastForward only during intro sequence (before all elements are visible)
   const isIntroActive = !statsVisible || !controlsVisible || !boardVisible;
@@ -184,7 +191,7 @@ function GameLayout({
             )}
           </div>
         )}
-        <div className={previewClasses}>
+        <div className={previewClasses} onClick={handlePreviewClick}>
           <NextPreview nextLetters={nextLetters.slice(activeDrops.length, activeDrops.length + 5)} visible={showPreview} nextUpRef={nextUpRef} showOrdinals={tutorialStep !== null} shiftKey={shiftKey} />
           <div className={`game-grid-letters-remaining${showPreview ? ' visible' : ''}`}>
             <div className="letters-remaining-label">Letters Remaining</div>
