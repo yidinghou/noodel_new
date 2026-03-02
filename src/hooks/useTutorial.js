@@ -36,7 +36,7 @@ const TUTORIAL_STATES = {
     },
   },
   COMPLETE: {
-    message: 'You made a WORD! Tutorial complete!',
+    message: 'You made a word! Tutorial complete!',
     userCanDrop: false,
   },
 };
@@ -113,15 +113,15 @@ export function useTutorial(state, dispatch, onComplete = () => {}) {
     }
   }, [state.grid, tutorialState]);
 
-  // Check if WORD was formed during TRY_WORD
+  // Check if any word was formed during TRY_WORD
   useEffect(() => {
     if (tutorialState !== 'TRY_WORD') {
       completionTriggeredRef.current = false;
       return;
     }
 
-    // Success: WORD was scored — complete the tutorial
-    if (state.madeWords.some(word => word === 'WORD')) {
+    // Success: any word was scored — complete the tutorial
+    if (state.madeWords.length > 0) {
       if (completionTriggeredRef.current) return;
       completionTriggeredRef.current = true;
 
@@ -136,29 +136,7 @@ export function useTutorial(state, dispatch, onComplete = () => {}) {
       completionTimeoutRef.current = timerId;
       return;
     }
-
-    // Wait until all WORD letters have been placed on the board
-    const allPlaced = ['W', 'O', 'R', 'D'].every(
-      char => state.grid.some(tile => tile && tile.char === char)
-    );
-    if (!allPlaced) return;
-
-    // All letters are on the board but WORD hasn't been scored yet.
-    // Give the word-detection pipeline time to run:
-    //   grace period (1000ms) + shake (400ms) + gravity (150ms) + buffer
-    const timerId = setTimeout(() => {
-      // Re-read latest state via ref (not stale closure)
-      if (stateRef.current.madeWords.some(word => word === 'WORD')) return;
-
-      // WORD wasn't formed — reset to let user try again
-      const snapshot = snapshotsRef.current['TRY_WORD'];
-      if (snapshot) {
-        dispatch({ type: 'RESTORE_STATE', payload: snapshot });
-      }
-    }, 1800);
-
-    return () => clearTimeout(timerId);
-  }, [state.grid, state.madeWords, tutorialState, dispatch, onComplete]);
+  }, [state.madeWords, tutorialState, dispatch, onComplete]);
 
   const startTutorial = () => {
     setTutorialState('DESCRIBE');
