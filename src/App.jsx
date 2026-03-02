@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import GameLayout from './components/Layout/GameLayout.jsx';
 import ModeSelector from './components/Controls/ModeSelector.jsx';
@@ -8,19 +8,26 @@ import { useGame } from './context/GameContext.jsx';
 import { useGameLogic } from './hooks/useGameLogic.js';
 import { useTutorial } from './hooks/useTutorial.js';
 import { useIntroSequence } from './hooks/useIntroSequence.js';
+import { hasSavedSession } from './services/sessionStorage.js';
 
 function App() {
-  const { state, dispatch } = useGame();
+  const { state, dispatch, loadSavedGame, undo, gameSession } = useGame();
   const { dictionary, loading: dictLoading } = useGameLogic();
   const gridWrapperRef = useRef(null);
   const [isMuted, setIsMuted] = useState(false);
   const [showModeSelector, setShowModeSelector] = useState(false);
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [pendingMode, setPendingMode] = useState(null);
+  const [hasSavedGame, setHasSavedGame] = useState(false);
   const tutorial = useTutorial(state, dispatch, () => {
     setShowModeSelector(true);
   });
   const { dropOrderMap, statsVisible, controlsVisible, boardVisible, fastForward } = useIntroSequence();
+
+  // Check for saved game on mount
+  useEffect(() => {
+    setHasSavedGame(hasSavedSession());
+  }, []);
 
   const handleStart = () => {
     setShowModeSelector(true);
@@ -28,11 +35,24 @@ function App() {
 
   const startMode = (mode) => {
     setShowModeSelector(false);
+    // Clear any saved session when starting a new game
+    if (mode !== 'tutorial') {
+      gameSession.clearSavedSession();
+      setHasSavedGame(false);
+    }
     dispatch({ type: 'START_GAME', payload: { mode } });
     if (mode === 'tutorial') {
       tutorial.startTutorial();
     } else {
       tutorial.clearTutorial();
+    }
+  };
+
+  const handleResumeGame = () => {
+    const resumed = loadSavedGame();
+    if (resumed) {
+      setShowModeSelector(false);
+      setHasSavedGame(false);
     }
   };
 
@@ -90,6 +110,7 @@ function App() {
         onStart={handleStart}
         onSettings={() => setShowSettingsMenu(true)}
         onColumnClick={handleColumnClick}
+        onUndo={undo}
         showPreview={state.status === 'PLAYING' || state.status === 'PROCESSING'}
         canDrop={tutorial.canDrop}
         tutorialStep={tutorial.tutorialStep}
@@ -110,6 +131,8 @@ function App() {
           pendingMode={pendingMode}
           dictLoading={dictLoading}
           dictReady={!!dictionary}
+          hasSavedGame={hasSavedGame}
+          onResume={handleResumeGame}
         />,
         gridWrapperRef.current
       )}

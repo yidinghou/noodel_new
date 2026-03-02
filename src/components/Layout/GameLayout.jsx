@@ -26,6 +26,7 @@ function GameLayout({
   onStart,
   onSettings,
   onColumnClick,
+  onUndo,
   showPreview = false,
   canDrop = false,
   tutorialStep = null,
@@ -160,7 +161,7 @@ function GameLayout({
         onClick={handleCardClick}
         style={isIntroActive ? { cursor: 'pointer' } : undefined}
       >
-        <Header dropOrderMap={dropOrderMap} />
+        <Header dropOrderMap={dropOrderMap} onUndo={onUndo} />
         <div className={`stats ${statsVisible ? 'visible' : ''}`}>
           <ScoreBoard score={score} gameStatus={gameStatus} gameMode={gameMode} />
           <Actions onStart={onStart} onSettings={onSettings} visible={controlsVisible} />
