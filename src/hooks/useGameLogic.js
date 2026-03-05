@@ -100,7 +100,7 @@ export function useGameLogic() {
 
   // Main word detection effect — runs after every grid change
   useEffect(() => {
-    if (!dictionary || state.status !== 'PLAYING' || gravityScheduledRef.current) return;
+    if (!dictionary || state.status !== 'PLAYING' || gravityScheduledRef.current || pendingRemovesRef.current > 0) return;
 
     let foundWords = filterOverlappingWords(findWords(state.grid, dictionary));
 
