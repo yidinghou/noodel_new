@@ -18,6 +18,8 @@ export function useGameLogic() {
 
   // Map<wordKey, { wordData, timerId, idxSet }>
   const pendingRef = useRef(new Map());
+  // Blocks word detection during the gravity settling window
+  const gravityScheduledRef = useRef(false);
 
   // Called when a word's grace period expires
   // Only expires the specific word and any intersecting words
@@ -67,7 +69,9 @@ export function useGameLogic() {
         // Only apply gravity if no other words are still pending
         // This prevents gravity from interfering with words still in their grace period
         if (pending.size === 0) {
+          gravityScheduledRef.current = true;
           setTimeout(() => {
+            gravityScheduledRef.current = false;
             dispatch({ type: 'APPLY_GRAVITY' });
           }, GRAVITY_DELAY_MS);
         }
@@ -87,7 +91,7 @@ export function useGameLogic() {
 
   // Main word detection effect — runs after every grid change
   useEffect(() => {
-    if (!dictionary || state.status !== 'PLAYING') return;
+    if (!dictionary || state.status !== 'PLAYING' || gravityScheduledRef.current) return;
 
     let foundWords = filterOverlappingWords(findWords(state.grid, dictionary));
 
