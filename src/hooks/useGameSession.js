@@ -4,7 +4,7 @@
  */
 
 import { useRef } from 'react';
-import { createSession, appendEvent, takeSnapshot, completeSession, getUndoPayload, undoSnapshot } from '../services/gameSession.js';
+import { createSession, appendEvent, appendWordClearedEvent, addPostDropGrid, takeSnapshot, completeSession, getUndoPayload, undoSnapshot } from '../services/gameSession.js';
 import { saveSession, loadSession, clearSession } from '../services/sessionStorage.js';
 
 export function useGameSession() {
@@ -43,6 +43,28 @@ export function useGameSession() {
 
     sessionRef.current = updatedSession;
     // Don't save yet - wait for state to settle (snapshot will handle persistence)
+  }
+
+  /**
+   * Record a WORD_CLEARED event. Each call to REMOVE_WORDS in the reducer
+   * produces its own event so concurrent word removals don't overwrite each other.
+   */
+  function recordWordClearedEvent(wordsCleared, preClearGrid) {
+    if (!sessionRef.current) return;
+    sessionRef.current = appendWordClearedEvent(
+      sessionRef.current, wordsCleared, preClearGrid, Date.now()
+    );
+  }
+
+  /**
+   * Attach the grid (with pending words shown as static green) to the most recent
+   * DROP_LETTER event. Called once per drop when words are still pending.
+   */
+  function recordPendingDropState(state) {
+    if (!sessionRef.current) return;
+    sessionRef.current = addPostDropGrid(
+      sessionRef.current, state.grid, state.score, state.lettersRemaining, state.nextQueue
+    );
   }
 
   /**
@@ -125,6 +147,8 @@ export function useGameSession() {
   return {
     onGameStart,
     recordDropEvent,
+    recordWordClearedEvent,
+    recordPendingDropState,
     onStableState,
     getSavedSession,
     loadSavedSession,
