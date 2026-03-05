@@ -20,6 +20,9 @@ export function useGameLogic() {
   const pendingRef = useRef(new Map());
   // Blocks word detection during the gravity settling window
   const gravityScheduledRef = useRef(false);
+  // Counts expireWord calls whose REMOVE_WORDS hasn't fired yet
+  // Gravity must wait until this reaches 0 (all tiles actually cleared)
+  const pendingRemovesRef = useRef(0);
 
   // Called when a word's grace period expires
   // Only expires the specific word and any intersecting words
@@ -59,6 +62,7 @@ export function useGameLogic() {
       // Shake phase: mark as matched (pauses word detection)
       dispatch({ type: 'SET_MATCHED_INDICES', payload: { indices: allIndices } });
 
+      pendingRemovesRef.current++;
       setTimeout(() => {
         // Remove expired words and score them
         dispatch({
@@ -66,9 +70,12 @@ export function useGameLogic() {
           payload: { wordsToRemove: wordsToExpire.map(e => e.wordData) },
         });
 
-        // Only apply gravity if no other words are still pending
-        // This prevents gravity from interfering with words still in their grace period
-        if (pending.size === 0) {
+        pendingRemovesRef.current--;
+
+        // Apply gravity only when all in-flight removes have landed and no words are still
+        // pending. The gravityScheduledRef guard prevents double-scheduling when multiple
+        // words expire simultaneously (their REMOVE_WORDS callbacks run in the same tick).
+        if (pendingRemovesRef.current === 0 && pending.size === 0 && !gravityScheduledRef.current) {
           gravityScheduledRef.current = true;
           setTimeout(() => {
             gravityScheduledRef.current = false;
@@ -86,6 +93,8 @@ export function useGameLogic() {
       const pending = pendingRef.current;
       for (const entry of pending.values()) clearTimeout(entry.timerId);
       pending.clear();
+      pendingRemovesRef.current = 0;
+      gravityScheduledRef.current = false;
     }
   }, [state.status]);
 
