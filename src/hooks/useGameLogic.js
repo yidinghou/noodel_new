@@ -18,6 +18,11 @@ export function useGameLogic() {
 
   // Map<wordKey, { wordData, timerId, idxSet }>
   const pendingRef = useRef(new Map());
+  // Blocks word detection during the gravity settling window
+  const gravityScheduledRef = useRef(false);
+  // Counts expireWord calls whose REMOVE_WORDS hasn't fired yet
+  // Gravity must wait until this reaches 0 (all tiles actually cleared)
+  const pendingRemovesRef = useRef(0);
 
   // Called when a word's grace period expires
   // Only expires the specific word and any intersecting words
@@ -57,6 +62,7 @@ export function useGameLogic() {
       // Shake phase: mark as matched (pauses word detection)
       dispatch({ type: 'SET_MATCHED_INDICES', payload: { indices: allIndices } });
 
+      pendingRemovesRef.current++;
       setTimeout(() => {
         // Remove expired words and score them
         dispatch({
@@ -64,10 +70,15 @@ export function useGameLogic() {
           payload: { wordsToRemove: wordsToExpire.map(e => e.wordData) },
         });
 
-        // Only apply gravity if no other words are still pending
-        // This prevents gravity from interfering with words still in their grace period
-        if (pending.size === 0) {
+        pendingRemovesRef.current--;
+
+        // Apply gravity only when all in-flight removes have landed and no words are still
+        // pending. The gravityScheduledRef guard prevents double-scheduling when multiple
+        // words expire simultaneously (their REMOVE_WORDS callbacks run in the same tick).
+        if (pendingRemovesRef.current === 0 && pending.size === 0 && !gravityScheduledRef.current) {
+          gravityScheduledRef.current = true;
           setTimeout(() => {
+            gravityScheduledRef.current = false;
             dispatch({ type: 'APPLY_GRAVITY' });
           }, GRAVITY_DELAY_MS);
         }
@@ -82,14 +93,20 @@ export function useGameLogic() {
       const pending = pendingRef.current;
       for (const entry of pending.values()) clearTimeout(entry.timerId);
       pending.clear();
+      pendingRemovesRef.current = 0;
+      gravityScheduledRef.current = false;
     }
   }, [state.status]);
 
   // Main word detection effect — runs after every grid change
   useEffect(() => {
-    if (!dictionary || state.status !== 'PLAYING') return;
+    if (!dictionary || state.status !== 'PLAYING' || gravityScheduledRef.current) return;
 
-    let foundWords = filterOverlappingWords(findWords(state.grid, dictionary));
+    // Exclude tiles that are currently shaking (isMatched=true) from detection.
+    // This prevents words from being detected using about-to-be-cleared tiles while
+    // still allowing extensions and timer resets for valid pending words to proceed.
+    const detectionGrid = state.grid.map(tile => (tile?.isMatched ? null : tile));
+    let foundWords = filterOverlappingWords(findWords(detectionGrid, dictionary));
 
     // Filter words for Clear mode - must have at least one user-dropped tile
     if (state.gameMode === 'clear') {
