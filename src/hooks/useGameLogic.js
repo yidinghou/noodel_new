@@ -100,9 +100,13 @@ export function useGameLogic() {
 
   // Main word detection effect — runs after every grid change
   useEffect(() => {
-    if (!dictionary || state.status !== 'PLAYING' || gravityScheduledRef.current || pendingRemovesRef.current > 0) return;
+    if (!dictionary || state.status !== 'PLAYING' || gravityScheduledRef.current) return;
 
-    let foundWords = filterOverlappingWords(findWords(state.grid, dictionary));
+    // Exclude tiles that are currently shaking (isMatched=true) from detection.
+    // This prevents words from being detected using about-to-be-cleared tiles while
+    // still allowing extensions and timer resets for valid pending words to proceed.
+    const detectionGrid = state.grid.map(tile => (tile?.isMatched ? null : tile));
+    let foundWords = filterOverlappingWords(findWords(detectionGrid, dictionary));
 
     // Filter words for Clear mode - must have at least one user-dropped tile
     if (state.gameMode === 'clear') {
