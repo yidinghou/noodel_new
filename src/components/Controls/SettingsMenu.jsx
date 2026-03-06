@@ -7,7 +7,7 @@ import React from 'react';
  * @param {boolean} isMuted - Whether sound is muted
  * @param {function} onToggleMute - Callback to toggle mute state
  */
-function SettingsMenu({ visible, onClose, isMuted, onToggleMute }) {
+function SettingsMenu({ visible, onClose, isMuted, onToggleMute, hasGameSession, onReplay }) {
   return (
     <div className={`mode-selection-menu settings-variant ${visible ? 'visible' : ''}`}>
       <div className="mode-selection-content">
@@ -22,6 +22,11 @@ function SettingsMenu({ visible, onClose, isMuted, onToggleMute }) {
 
         <div className="mode-selection-section">
           <div className="mode-selection-buttons">
+            {hasGameSession && (
+              <button className="mode-selection-btn settings-btn-item" onClick={onReplay}>
+                🎬 Replay Game
+              </button>
+            )}
             <button className="mode-selection-btn settings-btn-item">
               👤 Login
             </button>

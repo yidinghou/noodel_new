@@ -49,6 +49,10 @@ export function GameProvider({ children }) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const gameSession = useGameSession();
   const prevStatusRef = useRef(state.status);
+  const stateRef = useRef(state);
+  stateRef.current = state;
+  // Gates recordPendingDropState to once per DROP_LETTER
+  const pendingCapturedRef = useRef(false);
 
   /**
    * Wrap dispatch to intercept game-affecting actions for session recording.
@@ -73,6 +77,12 @@ export function GameProvider({ children }) {
 
     if (action.type === 'DROP_LETTER') {
       gameSession.recordDropEvent(action.payload.column);
+      pendingCapturedRef.current = false;
+    }
+
+    if (action.type === 'REMOVE_WORDS') {
+      const wordsCleared = action.payload.wordsToRemove.map(w => ({ word: w.word, indices: w.indices }));
+      gameSession.recordWordClearedEvent(wordsCleared, stateRef.current.grid);
     }
 
     if (action.type === 'RESET') {
@@ -102,6 +112,11 @@ export function GameProvider({ children }) {
         const hasPending = state.grid.some(t => t?.isPending);
         if (!hasPending) {
           gameSession.onStableState(state);
+        } else if (!pendingCapturedRef.current) {
+          // Drop landed while words were still pending — capture the grid once
+          // so replay can show the new letter alongside the highlighted words.
+          gameSession.recordPendingDropState(state);
+          pendingCapturedRef.current = true;
         }
       }
     } else if (state.status === 'GAME_OVER') {
