@@ -4,6 +4,15 @@ import { emptyGrid, destRow, sleep } from './utils.js';
 
 const PREVIEW_SIZE = 5;
 const PCELL = 36;
+const PREVIEW_GAP = 5;
+const CURSOR_ROW_H = 22;
+const WRAPPER_GAP = 8;
+const DROP_SPEED = 20; // cells per second
+
+// First preview cell center → dropping tile top-left, relative to grid container
+const PREVIEW_ROW_W = PREVIEW_SIZE * PCELL + (PREVIEW_SIZE - 1) * PREVIEW_GAP;
+const PREVIEW_LEFT = (GRID_W - PREVIEW_ROW_W) / 2 + PCELL / 2 - CELL / 2;
+const PREVIEW_TOP = -(CURSOR_ROW_H + WRAPPER_GAP + PCELL / 2) - CELL / 2;
 
 function useDemo(demoType) {
   const [vis, setVis] = useState({
@@ -46,17 +55,25 @@ function useDemo(demoType) {
       const dr = destRow(get().grid, col);
       if (dr < 0) return;
 
+      // Phase 0: place tile at preview position
       set(s => ({
         ...s,
-        dropping:  { letter, col, destRow: dr, atTop: true },
+        dropping:  { letter, col, destRow: dr, phase: 'preview' },
         cursorCol: null,
         queue: s.queue.slice(1),
       }));
       await wait(20);
 
-      set(s => s.dropping ? { ...s, dropping: { ...s.dropping, atTop: false } } : s);
-      await wait(400);
+      // Phase 1: slide from preview to top of target column
+      set(s => s.dropping ? { ...s, dropping: { ...s.dropping, phase: 'slideToCol' } } : s);
+      await wait(280);
 
+      // Phase 2: drop down to destination row
+      set(s => s.dropping ? { ...s, dropping: { ...s.dropping, phase: 'dropping' } } : s);
+      const dropDuration = Math.max(0.05, (dr + 1) / DROP_SPEED) * 1000;
+      await wait(dropDuration + 50);
+
+      // Commit to grid
       set(s => {
         const grid = [...s.grid];
         grid[dr * COLS + col] = letter;
@@ -203,16 +220,32 @@ export default function AnimatedDemo({ demoType = 'drop' } = {}) {
           ))}
         </div>
 
-        {dropping && (
-          <div style={{
-            ...d.droppingTile,
-            left: dropping.col * STEP,
-            top:  dropping.atTop ? -(STEP + 6) : dropping.destRow * STEP,
-            transition: dropping.atTop ? 'none' : 'top 0.38s ease-in',
-          }}>
-            {dropping.letter}
-          </div>
-        )}
+        {dropping && (() => {
+          const { phase, col, destRow: dr } = dropping;
+          const colLeft = col * STEP;
+          const colTop = -(STEP + 6);
+
+          let left, top, transition;
+          if (phase === 'preview') {
+            left = PREVIEW_LEFT;
+            top = PREVIEW_TOP;
+            transition = 'none';
+          } else if (phase === 'slideToCol') {
+            left = colLeft;
+            top = colTop;
+            transition = 'left 0.25s ease-out, top 0.25s ease-out';
+          } else {
+            left = colLeft;
+            top = dr * STEP;
+            transition = `top ${Math.max(0.05, (dr + 1) / DROP_SPEED)}s linear`;
+          }
+
+          return (
+            <div style={{ ...d.droppingTile, left, top, transition }}>
+              {dropping.letter}
+            </div>
+          );
+        })()}
       </div>
 
       <p style={d.caption}>{caption || '\u00a0'}</p>
@@ -239,7 +272,7 @@ const d = {
     boxShadow: '0 8px 22px rgba(255,152,0,0.22)',
   },
   emptyCellStyle: {
-    background: '#e0e0e0', borderColor: '#bdbdbd',
+    background: '#e0e0e0', borderColor: 'transparent',
     color: '#bdbdbd', opacity: 0.4,
     boxShadow: 'none',
     fontSize: 22,
@@ -279,7 +312,7 @@ const d = {
     border: '2px solid #1976D2', color: '#333',
     fontWeight: 800, fontSize: 20,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    zIndex: 10, willChange: 'top',
+    zIndex: 10, willChange: 'top, left',
   },
   caption: {
     fontSize: 13, color: '#555', textAlign: 'center',
