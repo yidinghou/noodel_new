@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { COLS, CELL, GAP, STEP, GRID_W } from './constants.js';
+import { COLS, CELL, STEP, GRID_W } from './constants.js';
 import { emptyGrid, destRow, sleep } from './utils.js';
 
 const PREVIEW_SIZE = 5;
@@ -206,21 +206,24 @@ const d = {
   wrapper:      { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 },
   previewRow:   { display: 'flex', alignItems: 'center', gap: 5 },
   previewCell:  {
-    width: PCELL, height: PCELL, borderRadius: 6,
-    background: '#9e9e9e', border: '2px solid #757575',
+    width: PCELL, height: PCELL, borderRadius: 7,
+    background: '#888', border: '2px solid #333',
     color: '#fff', fontWeight: 800, fontSize: 16,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
+    boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
     transition: 'transform 0.15s',
   },
   nextUp: {
-    background: 'linear-gradient(145deg, #FFB74D, #FF9800)',
+    background: '#FFB74D',
     borderColor: '#FF9800',
+    color: '#333',
     transform: 'scale(1.15)',
-    boxShadow: '0 4px 12px rgba(255,152,0,0.35)',
+    boxShadow: '0 8px 22px rgba(255,152,0,0.22)',
   },
   emptyCellStyle: {
     background: '#e0e0e0', borderColor: '#bdbdbd',
     color: '#bdbdbd', opacity: 0.4,
+    boxShadow: 'none',
     fontSize: 22,
   },
   cursor: {
@@ -232,30 +235,32 @@ const d = {
   grid: {
     display: 'grid',
     gridTemplateColumns: `repeat(${COLS}, ${CELL}px)`,
-    gap: GAP,
+    gap: 1,
   },
   cell: {
     width: CELL, height: CELL, borderRadius: 6,
-    border: '2px solid #e0e0e0', background: '#f5f5f5',
+    border: '0.75px solid #ddd',
+    background: 'linear-gradient(145deg, #fff, #f5f5f5)',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     fontSize: 20, fontWeight: 800, color: '#333',
     transition: 'background 0.25s, border-color 0.25s, transform 0.15s',
   },
-  cellFilled:    { background: '#e3f2fd', borderColor: '#90caf9' },
+  cellFilled: {
+    background: '#888', color: '#fff',
+    border: '2px solid #333',
+  },
   cellHighlight: {
-    background: 'linear-gradient(145deg, #a5d6a7, #4CAF50)',
+    background: '#4CAF50',
     borderColor: '#4CAF50', color: '#fff',
-    transform: 'scale(1.06)',
-    boxShadow: '0 2px 8px rgba(76,175,80,0.45)',
+    transform: 'scale(1.05)',
   },
   droppingTile: {
     position: 'absolute',
-    width: CELL, height: CELL, borderRadius: 8,
-    background: 'linear-gradient(145deg, #FFB74D, #FF9800)',
-    border: '2px solid #FF9800', color: '#fff',
+    width: CELL, height: CELL, borderRadius: 6,
+    background: 'linear-gradient(145deg, #e3f2fd, #bbdefb)',
+    border: '2px solid #1976D2', color: '#333',
     fontWeight: 800, fontSize: 20,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    boxShadow: '0 4px 12px rgba(255,152,0,0.5)',
     zIndex: 10, willChange: 'top',
   },
   caption: {
