@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { COLS, CELL, GAP, STEP, GRID_W } from './constants.js';
 import { emptyGrid, destRow, sleep } from './utils.js';
 
-function useDemo(panelIdx) {
+function useDemo(demoType) {
   const [vis, setVis] = useState({
     grid:        emptyGrid(),
     preview:     'C',
@@ -72,9 +72,8 @@ function useDemo(panelIdx) {
       await wait(300);
     }
 
-    const panels = [
-      // 0 — Basic dropping
-      async () => {
+    const demos = {
+      drop: async () => {
         while (!signal.aborted) {
           set(s => ({ ...s, grid: emptyGrid(), highlight: null, preview: 'C', caption: 'Click a column to drop the next letter' }));
           await wait(800);
@@ -86,44 +85,50 @@ function useDemo(panelIdx) {
         }
       },
 
-      // 1 — Horizontal word
-      async () => {
+      match: async () => {
         while (!signal.aborted) {
-          set(s => ({ ...s, grid: emptyGrid(), highlight: null, preview: 'C', caption: 'Spell words left to right to score' }));
+          // Horizontal
+          set(s => ({ ...s, grid: emptyGrid(), highlight: null, preview: 'C', caption: 'Spell words left to right' }));
           await wait(800);
           await dropLetter('C', 0, 'A', 'Drop C...');
           await dropLetter('A', 1, 'T', 'Drop A next to it...');
           await dropLetter('T', 2, 'S', 'Complete the word!');
-          await highlightWord([3 * COLS + 0, 3 * COLS + 1, 3 * COLS + 2], '"CAT" — word found! Letters clear.');
-          set(s => ({ ...s, caption: 'Longer words score more points' }));
-          await wait(1000);
-        }
-      },
+          await highlightWord([3 * COLS + 0, 3 * COLS + 1, 3 * COLS + 2], '"CAT" across — word found!');
+          await wait(600);
 
-      // 2 — Vertical word
-      async () => {
-        while (!signal.aborted) {
+          // Vertical
           set(s => ({ ...s, grid: emptyGrid(), highlight: null, preview: 'C', caption: 'Stack letters in a column' }));
           await wait(800);
-          await dropLetter('C', 1, 'A', 'Drop C into column 2...');
-          await dropLetter('A', 1, 'T', 'Same column — it stacks up!');
+          await dropLetter('C', 1, 'A', 'Drop C...');
+          await dropLetter('A', 1, 'T', 'Same column — it stacks!');
           await dropLetter('T', 1, 'S', 'One more...');
-          await highlightWord([1 * COLS + 1, 2 * COLS + 1, 3 * COLS + 1], '"CAT" down — scores the same!');
-          set(s => ({ ...s, caption: 'Mix horizontal and vertical for big scores' }));
-          await wait(1000);
+          await highlightWord([1 * COLS + 1, 2 * COLS + 1, 3 * COLS + 1], '"CAT" down — also scores!');
+          await wait(600);
+
+          // Diagonal
+          set(s => {
+            const grid = emptyGrid();
+            grid[3 * COLS + 0] = 'C';
+            grid[3 * COLS + 1] = 'X';  grid[2 * COLS + 1] = 'A';
+            grid[3 * COLS + 2] = 'X';  grid[2 * COLS + 2] = 'X';  grid[1 * COLS + 2] = 'T';
+            return { ...s, grid, highlight: null, preview: 'S', cursorCol: null, caption: 'Diagonals count too!' };
+          });
+          await wait(800);
+          await highlightWord([3 * COLS + 0, 2 * COLS + 1, 1 * COLS + 2], '"CAT" diagonal — nice!');
+          await wait(600);
         }
       },
-    ];
+    };
 
-    panels[panelIdx]?.().catch(e => { if (e.name !== 'AbortError') console.error(e); });
+    demos[demoType]?.().catch(e => { if (e.name !== 'AbortError') console.error(e); });
     return () => ac.abort();
-  }, [panelIdx]);
+  }, [demoType]);
 
   return vis;
 }
 
-export default function AnimatedDemo({ panelIdx = 0 } = {}) {
-  const { grid, preview, dropping, cursorCol, cursorClick, highlight, caption } = useDemo(panelIdx);
+export default function AnimatedDemo({ demoType = 'drop' } = {}) {
+  const { grid, preview, dropping, cursorCol, cursorClick, highlight, caption } = useDemo(demoType);
 
   return (
     <div style={d.wrapper}>
