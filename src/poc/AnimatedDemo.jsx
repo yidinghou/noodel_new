@@ -107,35 +107,37 @@ function useDemo(demoType) {
 
       match: async () => {
         while (!signal.aborted) {
-          // Horizontal
-          set(s => ({ ...s, grid: emptyGrid(), highlight: null, queue: ['C', 'A', 'T', 'S', 'B'], caption: 'Spell words left to right' }));
+          const fullQueue = ['C', 'A', 'T', 'G', 'O', 'D', 'X', 'Y', 'Z', 'T', 'C', 'A'];
+          set(s => ({ ...s, grid: emptyGrid(), highlight: null, queue: fullQueue, caption: 'Spell words left to right' }));
           await wait(800);
+
+          // Horizontal CAT
           await dropLetter(0, 'Drop C...');
           await dropLetter(1, 'Drop A next to it...');
           await dropLetter(2, 'Complete the word!');
           await highlightWord([3 * COLS + 0, 3 * COLS + 1, 3 * COLS + 2], '"CAT" across — word found!');
           await wait(600);
 
-          // Vertical
-          set(s => ({ ...s, grid: emptyGrid(), highlight: null, queue: ['C', 'A', 'T', 'S', 'B'], caption: 'Stack letters in a column' }));
-          await wait(800);
-          await dropLetter(1, 'Drop C...');
-          await dropLetter(1, 'Same column — it stacks!');
-          await dropLetter(1, 'One more...');
-          await highlightWord([1 * COLS + 1, 2 * COLS + 1, 3 * COLS + 1], '"CAT" down — also scores!');
+          // Vertical DOG
+          set(s => ({ ...s, caption: 'Now stack letters vertically' }));
+          await wait(600);
+          await dropLetter(3, 'Drop G...');
+          await dropLetter(3, 'Stack O on top...');
+          await dropLetter(3, 'D completes the column!');
+          await highlightWord([1 * COLS + 3, 2 * COLS + 3, 3 * COLS + 3], '"DOG" down — vertical match!');
           await wait(600);
 
-          // Diagonal
-          set(s => {
-            const grid = emptyGrid();
-            grid[3 * COLS + 0] = 'C';
-            grid[3 * COLS + 1] = 'X';  grid[2 * COLS + 1] = 'A';
-            grid[3 * COLS + 2] = 'X';  grid[2 * COLS + 2] = 'X';  grid[1 * COLS + 2] = 'T';
-            return { ...s, grid, highlight: null, queue: ['S', 'B', 'E', 'D', 'A'], cursorCol: null, caption: 'Diagonals count too!' };
-          });
-          await wait(800);
-          await highlightWord([3 * COLS + 0, 2 * COLS + 1, 1 * COLS + 2], '"CAT" diagonal — nice!');
+          // Diagonal CAT — build support letters then the diagonal
+          set(s => ({ ...s, caption: 'Build up for a diagonal' }));
           await wait(600);
+          await dropLetter(0);                              // X → (3,0)
+          await dropLetter(0);                              // Y → (2,0)
+          await dropLetter(1);                              // Z → (3,1)
+          await dropLetter(2, 'Place the diagonal letters...');  // T → (3,2)
+          await dropLetter(0, 'C on top...');               // C → (1,0)
+          await dropLetter(1, 'A completes the diagonal!'); // A → (2,1)
+          await highlightWord([1 * COLS + 0, 2 * COLS + 1, 3 * COLS + 2], '"CAT" diagonal — nice!');
+          await wait(1000);
         }
       },
     };
