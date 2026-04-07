@@ -77,6 +77,21 @@ function useDemo(demoType) {
     }
 
     const demos = {
+      queue: async () => {
+        while (!signal.aborted) {
+          set(s => ({ ...s, grid: emptyGrid(), highlight: null, queue: ['C', 'A', 'T', 'S', 'B'], caption: 'The first letter is next to drop' }));
+          await wait(1200);
+          await dropLetter(0, 'C drops — queue shifts left');
+          await wait(600);
+          set(s => ({ ...s, caption: 'A is now next, then T, S, B...' }));
+          await wait(1200);
+          await dropLetter(1, 'A drops — queue shifts again');
+          await wait(600);
+          set(s => ({ ...s, caption: 'Plan ahead using the queue!' }));
+          await wait(1500);
+        }
+      },
+
       drop: async () => {
         while (!signal.aborted) {
           set(s => ({ ...s, grid: emptyGrid(), highlight: null, queue: ['C', 'A', 'B', 'C', 'A'], caption: 'Click a column to drop the next letter' }));
