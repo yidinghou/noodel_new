@@ -2,10 +2,13 @@ import { useState, useEffect, useRef } from 'react';
 import { COLS, CELL, GAP, STEP, GRID_W } from './constants.js';
 import { emptyGrid, destRow, sleep } from './utils.js';
 
+const PREVIEW_SIZE = 5;
+const PCELL = 36;
+
 function useDemo(demoType) {
   const [vis, setVis] = useState({
     grid:        emptyGrid(),
-    preview:     'C',
+    queue:       ['C', 'A', 'B', 'C', 'A'],
     dropping:    null,
     cursorCol:   null,
     cursorClick: false,
@@ -35,7 +38,8 @@ function useDemo(demoType) {
       await wait(30);
     }
 
-    async function dropLetter(letter, col, nextPreview, caption) {
+    async function dropLetter(col, caption) {
+      const letter = get().queue[0];
       await moveCursor(col, caption);
       await click();
 
@@ -46,7 +50,7 @@ function useDemo(demoType) {
         ...s,
         dropping:  { letter, col, destRow: dr, atTop: true },
         cursorCol: null,
-        ...(nextPreview ? { preview: nextPreview } : {}),
+        queue: s.queue.slice(1),
       }));
       await wait(20);
 
@@ -75,11 +79,11 @@ function useDemo(demoType) {
     const demos = {
       drop: async () => {
         while (!signal.aborted) {
-          set(s => ({ ...s, grid: emptyGrid(), highlight: null, preview: 'C', caption: 'Click a column to drop the next letter' }));
+          set(s => ({ ...s, grid: emptyGrid(), highlight: null, queue: ['C', 'A', 'B', 'C', 'A'], caption: 'Click a column to drop the next letter' }));
           await wait(800);
-          await dropLetter('C', 0, 'A');
-          await dropLetter('A', 3, 'B');
-          await dropLetter('B', 1, 'C');
+          await dropLetter(0);
+          await dropLetter(3);
+          await dropLetter(1);
           set(s => ({ ...s, caption: 'Letters fall to the lowest empty row' }));
           await wait(1000);
         }
@@ -88,20 +92,20 @@ function useDemo(demoType) {
       match: async () => {
         while (!signal.aborted) {
           // Horizontal
-          set(s => ({ ...s, grid: emptyGrid(), highlight: null, preview: 'C', caption: 'Spell words left to right' }));
+          set(s => ({ ...s, grid: emptyGrid(), highlight: null, queue: ['C', 'A', 'T', 'S', 'B'], caption: 'Spell words left to right' }));
           await wait(800);
-          await dropLetter('C', 0, 'A', 'Drop C...');
-          await dropLetter('A', 1, 'T', 'Drop A next to it...');
-          await dropLetter('T', 2, 'S', 'Complete the word!');
+          await dropLetter(0, 'Drop C...');
+          await dropLetter(1, 'Drop A next to it...');
+          await dropLetter(2, 'Complete the word!');
           await highlightWord([3 * COLS + 0, 3 * COLS + 1, 3 * COLS + 2], '"CAT" across — word found!');
           await wait(600);
 
           // Vertical
-          set(s => ({ ...s, grid: emptyGrid(), highlight: null, preview: 'C', caption: 'Stack letters in a column' }));
+          set(s => ({ ...s, grid: emptyGrid(), highlight: null, queue: ['C', 'A', 'T', 'S', 'B'], caption: 'Stack letters in a column' }));
           await wait(800);
-          await dropLetter('C', 1, 'A', 'Drop C...');
-          await dropLetter('A', 1, 'T', 'Same column — it stacks!');
-          await dropLetter('T', 1, 'S', 'One more...');
+          await dropLetter(1, 'Drop C...');
+          await dropLetter(1, 'Same column — it stacks!');
+          await dropLetter(1, 'One more...');
           await highlightWord([1 * COLS + 1, 2 * COLS + 1, 3 * COLS + 1], '"CAT" down — also scores!');
           await wait(600);
 
@@ -111,7 +115,7 @@ function useDemo(demoType) {
             grid[3 * COLS + 0] = 'C';
             grid[3 * COLS + 1] = 'X';  grid[2 * COLS + 1] = 'A';
             grid[3 * COLS + 2] = 'X';  grid[2 * COLS + 2] = 'X';  grid[1 * COLS + 2] = 'T';
-            return { ...s, grid, highlight: null, preview: 'S', cursorCol: null, caption: 'Diagonals count too!' };
+            return { ...s, grid, highlight: null, queue: ['S', 'B', 'E', 'D', 'A'], cursorCol: null, caption: 'Diagonals count too!' };
           });
           await wait(800);
           await highlightWord([3 * COLS + 0, 2 * COLS + 1, 1 * COLS + 2], '"CAT" diagonal — nice!');
@@ -128,13 +132,29 @@ function useDemo(demoType) {
 }
 
 export default function AnimatedDemo({ demoType = 'drop' } = {}) {
-  const { grid, preview, dropping, cursorCol, cursorClick, highlight, caption } = useDemo(demoType);
+  const { grid, queue, dropping, cursorCol, cursorClick, highlight, caption } = useDemo(demoType);
 
   return (
     <div style={d.wrapper}>
+      {/* 5-letter preview queue */}
       <div style={d.previewRow}>
-        <span style={d.previewLabel}>Next</span>
-        <div style={d.previewCell}>{preview}</div>
+        {Array(PREVIEW_SIZE).fill(null).map((_, i) => {
+          const letter = queue[i];
+          const isNextUp = i === 0 && letter;
+          const isEmpty = !letter;
+          return (
+            <div
+              key={i}
+              style={{
+                ...d.previewCell,
+                ...(isNextUp ? d.nextUp : {}),
+                ...(isEmpty ? d.emptyCellStyle : {}),
+              }}
+            >
+              {isEmpty ? '\u2014' : letter}
+            </div>
+          );
+        })}
       </div>
 
       <div style={{ position: 'relative', width: GRID_W, height: 22 }}>
@@ -184,14 +204,24 @@ export default function AnimatedDemo({ demoType = 'drop' } = {}) {
 
 const d = {
   wrapper:      { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 },
-  previewRow:   { display: 'flex', alignItems: 'center', gap: 8 },
-  previewLabel: { fontSize: 11, color: '#888', textTransform: 'uppercase', letterSpacing: '0.08em' },
+  previewRow:   { display: 'flex', alignItems: 'center', gap: 5 },
   previewCell:  {
-    width: CELL, height: CELL,
-    background: 'linear-gradient(145deg, #FFB74D, #FF9800)',
-    color: '#fff', fontWeight: 800, fontSize: 20,
+    width: PCELL, height: PCELL, borderRadius: 6,
+    background: '#9e9e9e', border: '2px solid #757575',
+    color: '#fff', fontWeight: 800, fontSize: 16,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    borderRadius: 8, boxShadow: '0 2px 6px rgba(255,152,0,0.4)',
+    transition: 'transform 0.15s',
+  },
+  nextUp: {
+    background: 'linear-gradient(145deg, #FFB74D, #FF9800)',
+    borderColor: '#FF9800',
+    transform: 'scale(1.15)',
+    boxShadow: '0 4px 12px rgba(255,152,0,0.35)',
+  },
+  emptyCellStyle: {
+    background: '#e0e0e0', borderColor: '#bdbdbd',
+    color: '#bdbdbd', opacity: 0.4,
+    fontSize: 22,
   },
   cursor: {
     position: 'absolute', top: 2,
