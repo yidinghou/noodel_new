@@ -94,13 +94,14 @@ function useDemo(demoType) {
 
       drop: async () => {
         while (!signal.aborted) {
-          set(s => ({ ...s, grid: emptyGrid(), highlight: null, queue: ['C', 'A', 'B', 'C', 'A'], caption: 'Click a column to drop the next letter' }));
+          set(s => ({ ...s, grid: emptyGrid(), highlight: null, queue: ['C', 'A', 'B', 'T', 'S'], caption: 'Click a column to drop the next letter' }));
           await wait(800);
-          await dropLetter(0);
+          await dropLetter(1, 'Letters fall to the lowest empty row');
           await dropLetter(3);
-          await dropLetter(1);
-          set(s => ({ ...s, caption: 'Letters fall to the lowest empty row' }));
-          await wait(1000);
+          await dropLetter(1, 'Same column — it stacks on top!');
+          await dropLetter(1, 'Letters keep stacking up');
+          set(s => ({ ...s, caption: 'Plan your columns carefully!' }));
+          await wait(1200);
         }
       },
 
