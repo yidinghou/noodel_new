@@ -89,13 +89,28 @@ function useDemo(demoType) {
       await wait(160);
     }
 
+    function applyGravity(grid) {
+      const g = [...grid];
+      for (let c = 0; c < COLS; c++) {
+        const tiles = [];
+        for (let r = 0; r < ROWS; r++) {
+          if (g[r * COLS + c]) tiles.push(g[r * COLS + c]);
+        }
+        for (let r = 0; r < ROWS; r++) {
+          const offset = r - (ROWS - tiles.length);
+          g[r * COLS + c] = offset >= 0 ? tiles[offset] : null;
+        }
+      }
+      return g;
+    }
+
     async function highlightWord(indices, caption) {
       set(s => ({ ...s, highlight: new Set(indices), caption }));
       await wait(850);
       set(s => {
         const grid = [...s.grid];
         indices.forEach(i => { grid[i] = null; });
-        return { ...s, grid, highlight: null };
+        return { ...s, grid: applyGravity(grid), highlight: null };
       });
       await wait(300);
     }
@@ -129,15 +144,15 @@ function useDemo(demoType) {
           set(s => ({ ...s, grid: startGrid, highlight: null, queue: ['T', 'D', 'G', 'X', 'Y'], caption: 'Clear every tile to win' }));
           await wait(1400);
 
-          // Drop T at col 2 → CAT across row 3
+          // Drop T at col 2 → CAT across row 3, then O falls to (3,1)
           await dropLetter(2, 'T completes "CAT"');
-          await highlightWord([3 * COLS + 0, 3 * COLS + 1, 3 * COLS + 2], '"CAT" cleared!');
+          await highlightWord([3 * COLS + 0, 3 * COLS + 1, 3 * COLS + 2], '"CAT" cleared! O falls down');
           await wait(600);
 
-          // Drop D at col 1 → (3,1), then G at col 1 → (1,1) → DOG in column
-          await dropLetter(1, 'D starts a column...');
-          await dropLetter(1, 'G completes "DOG"');
-          await highlightWord([1 * COLS + 1, 2 * COLS + 1, 3 * COLS + 1], '"DOG" cleared!');
+          // O is now at (3,1). Drop D at col 0, G at col 2 → D-O-G across row 3
+          await dropLetter(0, 'D to the left of O...');
+          await dropLetter(2, 'G completes "DOG"');
+          await highlightWord([3 * COLS + 0, 3 * COLS + 1, 3 * COLS + 2], '"DOG" cleared!');
           await wait(600);
 
           set(s => ({ ...s, caption: 'Board cleared — you win!' }));
