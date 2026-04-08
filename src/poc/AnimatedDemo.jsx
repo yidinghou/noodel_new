@@ -311,13 +311,13 @@ const d = {
     fontSize: 22,
   },
   orderHighlight: {
-    border: '2px solid #1976D2',
-    boxShadow: '0 0 8px rgba(25,118,210,0.35)',
+    border: '2px solid #333',
+    boxShadow: '0 0 8px rgba(0,0,0,0.25)',
   },
   orderBadge: {
-    position: 'absolute', top: 1, left: 2,
-    fontSize: 11, fontWeight: 700, lineHeight: 1,
-    color: '#1976D2',
+    position: 'absolute', top: 2, left: 4,
+    fontSize: 12, fontWeight: 700, lineHeight: 1,
+    color: '#333',
   },
   cursor: {
     position: 'absolute', top: 2,
