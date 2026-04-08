@@ -122,6 +122,25 @@ function useDemo(demoType) {
         }
       },
 
+      win: async () => {
+        while (!signal.aborted) {
+          // Start with two starter tiles on the bottom row: C at (3,0), A at (3,1)
+          const startGrid = emptyGrid();
+          startGrid[3 * COLS + 0] = 'C';
+          startGrid[3 * COLS + 1] = 'A';
+          set(s => ({ ...s, grid: startGrid, highlight: null, queue: ['T', 'X', 'Y', 'Z', 'W'], caption: 'Two tiles left on the board' }));
+          await wait(1200);
+
+          // Player drops T at column 2 to complete "CAT"
+          await dropLetter(2, 'Drop T to complete the word');
+          await highlightWord([3 * COLS + 0, 3 * COLS + 1, 3 * COLS + 2], '"CAT" — includes your placed tile!');
+          await wait(600);
+
+          set(s => ({ ...s, caption: 'Board cleared — you win!' }));
+          await wait(2000);
+        }
+      },
+
       match: async () => {
         while (!signal.aborted) {
           const fullQueue = ['C', 'A', 'T', 'G', 'O', 'D', 'X', 'Y', 'Z', 'T', 'C', 'A'];
