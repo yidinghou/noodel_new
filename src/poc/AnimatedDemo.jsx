@@ -17,6 +17,7 @@ const PREVIEW_TOP = -(CURSOR_ROW_H + WRAPPER_GAP + PCELL / 2) - CELL / 2;
 // Tile can be a string 'C' or object { letter: 'C', order: 1 }
 const letterOf = v => v && typeof v === 'object' ? v.letter : v;
 const orderOf = v => v && typeof v === 'object' ? v.order : null;
+const ordinalOf = n => ['1st', '2nd', '3rd', '4th', '5th'][n - 1];
 
 function useDemo(demoType) {
   const [vis, setVis] = useState({
@@ -194,20 +195,22 @@ export default function AnimatedDemo({ demoType = 'drop' } = {}) {
           const isNextUp = i === 0 && tile;
           const isEmpty = !tile;
           return (
-            <div
-              key={i}
-              style={{
-                ...d.previewCell,
-                ...(isNextUp ? d.nextUp : {}),
-                ...(isEmpty ? d.emptyCellStyle : {}),
-                ...(showOrder && order ? d.orderHighlight : {}),
-                position: 'relative',
-              }}
-            >
-              {isEmpty ? '\u2014' : letter}
-              {showOrder && order && (
-                <span style={d.orderBadge}>{order}</span>
+            <div key={i} style={d.previewCol}>
+              {showOrder && order ? (
+                <span style={d.orderLabel}>{ordinalOf(order)}</span>
+              ) : (
+                <span style={d.orderLabelPlaceholder} />
               )}
+              <div
+                style={{
+                  ...d.previewCell,
+                  ...(isNextUp ? d.nextUp : {}),
+                  ...(isEmpty ? d.emptyCellStyle : {}),
+                  ...(showOrder && order ? d.orderHighlight : {}),
+                }}
+              >
+                {isEmpty ? '\u2014' : letter}
+              </div>
             </div>
           );
         })}
@@ -288,7 +291,10 @@ export default function AnimatedDemo({ demoType = 'drop' } = {}) {
 
 const d = {
   wrapper:      { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 },
-  previewRow:   { display: 'flex', alignItems: 'center', gap: 5 },
+  previewRow:   { display: 'flex', alignItems: 'flex-end', gap: 5 },
+  previewCol:   { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 },
+  orderLabel:   { fontSize: 10, fontWeight: 700, color: '#333', lineHeight: 1 },
+  orderLabelPlaceholder: { height: 10 },
   previewCell:  {
     width: PCELL, height: PCELL, borderRadius: 7,
     background: '#888', border: '2px solid #333',
