@@ -14,6 +14,10 @@ const PREVIEW_ROW_W = PREVIEW_SIZE * PCELL + (PREVIEW_SIZE - 1) * PREVIEW_GAP;
 const PREVIEW_LEFT = (GRID_W - PREVIEW_ROW_W) / 2 + PCELL / 2 - CELL / 2;
 const PREVIEW_TOP = -(CURSOR_ROW_H + WRAPPER_GAP + PCELL / 2) - CELL / 2;
 
+// Tile can be a string 'C' or object { letter: 'C', order: 1 }
+const letterOf = v => v && typeof v === 'object' ? v.letter : v;
+const orderOf = v => v && typeof v === 'object' ? v.order : null;
+
 function useDemo(demoType) {
   const [vis, setVis] = useState({
     grid:        emptyGrid(),
@@ -97,11 +101,12 @@ function useDemo(demoType) {
     const demos = {
       'click-plan': async () => {
         while (!signal.aborted) {
-          set(s => ({ ...s, grid: emptyGrid(), highlight: null, showOrder: true, queue: ['C', 'A', 'T', 'S', 'B'], caption: 'Letters drop in order: 1st, 2nd, 3rd...' }));
+          const q = ['C', 'A', 'T', 'S', 'B'].map((l, i) => ({ letter: l, order: i + 1 }));
+          set(s => ({ ...s, grid: emptyGrid(), highlight: null, showOrder: true, queue: q, caption: 'Letters drop in order: 1st, 2nd, 3rd...' }));
           await wait(1800);
           await dropLetter(0, 'Click a column — C falls to the bottom');
           await wait(500);
-          set(s => ({ ...s, caption: 'A is now 1st, then T, S, B...' }));
+          set(s => ({ ...s, caption: 'A is now 2nd, then T, S, B...' }));
           await wait(1200);
           await dropLetter(1, 'A drops — queue shifts again');
           await wait(500);
@@ -183,9 +188,11 @@ export default function AnimatedDemo({ demoType = 'drop' } = {}) {
       {/* 5-letter preview queue */}
       <div style={d.previewRow}>
         {Array(PREVIEW_SIZE).fill(null).map((_, i) => {
-          const letter = queue[i];
-          const isNextUp = i === 0 && letter;
-          const isEmpty = !letter;
+          const tile = queue[i];
+          const letter = letterOf(tile);
+          const order = orderOf(tile);
+          const isNextUp = i === 0 && tile;
+          const isEmpty = !tile;
           return (
             <div
               key={i}
@@ -193,13 +200,13 @@ export default function AnimatedDemo({ demoType = 'drop' } = {}) {
                 ...d.previewCell,
                 ...(isNextUp ? d.nextUp : {}),
                 ...(isEmpty ? d.emptyCellStyle : {}),
-                ...(showOrder && letter ? d.orderHighlight : {}),
+                ...(showOrder && order ? d.orderHighlight : {}),
                 position: 'relative',
               }}
             >
               {isEmpty ? '\u2014' : letter}
-              {showOrder && letter && (
-                <span style={d.orderBadge}>{i + 1}</span>
+              {showOrder && order && (
+                <span style={d.orderBadge}>{order}</span>
               )}
             </div>
           );
@@ -220,18 +227,26 @@ export default function AnimatedDemo({ demoType = 'drop' } = {}) {
 
       <div style={{ position: 'relative', width: GRID_W, overflow: 'visible' }}>
         <div style={d.grid}>
-          {grid.map((letter, i) => (
-            <div
-              key={i}
-              style={{
-                ...d.cell,
-                ...(letter ? d.cellFilled : {}),
-                ...(highlight?.has(i) ? d.cellHighlight : {}),
-              }}
-            >
-              {letter ?? ''}
-            </div>
-          ))}
+          {grid.map((tile, i) => {
+            const letter = letterOf(tile);
+            const order = orderOf(tile);
+            return (
+              <div
+                key={i}
+                style={{
+                  ...d.cell,
+                  ...(tile ? d.cellFilled : {}),
+                  ...(highlight?.has(i) ? d.cellHighlight : {}),
+                  position: 'relative',
+                }}
+              >
+                {letter ?? ''}
+                {showOrder && order && (
+                  <span style={{ ...d.orderBadge, color: '#fff' }}>{order}</span>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {dropping && (() => {
@@ -254,9 +269,13 @@ export default function AnimatedDemo({ demoType = 'drop' } = {}) {
             transition = `top ${Math.max(0.05, (dr + 1) / DROP_SPEED)}s linear`;
           }
 
+          const droppingOrder = orderOf(dropping.letter);
           return (
-            <div style={{ ...d.droppingTile, left, top, transition }}>
-              {dropping.letter}
+            <div style={{ ...d.droppingTile, left, top, transition, position: 'absolute' }}>
+              {letterOf(dropping.letter)}
+              {showOrder && droppingOrder && (
+                <span style={d.orderBadge}>{droppingOrder}</span>
+              )}
             </div>
           );
         })()}
