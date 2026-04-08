@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { COLS, CELL, STEP, GRID_W } from './constants.js';
+import { COLS, ROWS, CELL, STEP, GRID_W } from './constants.js';
 import { emptyGrid, destRow, sleep } from './utils.js';
 
 const PREVIEW_SIZE = 5;
@@ -14,6 +14,12 @@ const PREVIEW_ROW_W = PREVIEW_SIZE * PCELL + (PREVIEW_SIZE - 1) * PREVIEW_GAP;
 const PREVIEW_LEFT = (GRID_W - PREVIEW_ROW_W) / 2 + PCELL / 2 - CELL / 2;
 const PREVIEW_TOP = -(CURSOR_ROW_H + WRAPPER_GAP + PCELL / 2) - CELL / 2;
 
+// Tile can be a string 'C' or object { letter: 'C', order: 1 }
+const letterOf = v => v && typeof v === 'object' ? v.letter : v;
+const orderOf = v => v && typeof v === 'object' ? v.order : null;
+const isPreplaced = v => v && typeof v === 'object' && v.preplaced;
+const ordinalOf = n => ['1st', '2nd', '3rd', '4th', '5th'][n - 1];
+
 function useDemo(demoType) {
   const [vis, setVis] = useState({
     grid:        emptyGrid(),
@@ -22,6 +28,7 @@ function useDemo(demoType) {
     cursorCol:   null,
     cursorClick: false,
     highlight:   null,
+    showOrder:   false,
     caption:     '',
   });
 
@@ -82,43 +89,74 @@ function useDemo(demoType) {
       await wait(160);
     }
 
+    function applyGravity(grid) {
+      const g = [...grid];
+      for (let c = 0; c < COLS; c++) {
+        const tiles = [];
+        for (let r = 0; r < ROWS; r++) {
+          if (g[r * COLS + c]) tiles.push(g[r * COLS + c]);
+        }
+        for (let r = 0; r < ROWS; r++) {
+          const offset = r - (ROWS - tiles.length);
+          g[r * COLS + c] = offset >= 0 ? tiles[offset] : null;
+        }
+      }
+      return g;
+    }
+
     async function highlightWord(indices, caption) {
       set(s => ({ ...s, highlight: new Set(indices), caption }));
       await wait(850);
       set(s => {
         const grid = [...s.grid];
         indices.forEach(i => { grid[i] = null; });
-        return { ...s, grid, highlight: null };
+        return { ...s, grid: applyGravity(grid), highlight: null };
       });
       await wait(300);
     }
 
     const demos = {
-      queue: async () => {
+      'click-plan': async () => {
         while (!signal.aborted) {
-          set(s => ({ ...s, grid: emptyGrid(), highlight: null, queue: ['C', 'A', 'T', 'S', 'B'], caption: 'The first letter is next to drop' }));
-          await wait(1200);
-          await dropLetter(0, 'C drops — queue shifts left');
-          await wait(600);
-          set(s => ({ ...s, caption: 'A is now next, then T, S, B...' }));
+          const q = ['C', 'A', 'T', 'S', 'B'].map((l, i) => ({ letter: l, order: i + 1 }));
+          set(s => ({ ...s, grid: emptyGrid(), highlight: null, showOrder: true, queue: q, caption: 'Letters drop in order: 1st, 2nd, 3rd...' }));
+          await wait(1800);
+          await dropLetter(0, 'Click a column — C falls to the bottom');
+          await wait(500);
+          set(s => ({ ...s, caption: 'A is now 2nd, then T, S, B...' }));
           await wait(1200);
           await dropLetter(1, 'A drops — queue shifts again');
-          await wait(600);
+          await wait(500);
+          await dropLetter(1, 'Same column — it stacks on top!');
+          await wait(500);
           set(s => ({ ...s, caption: 'Plan ahead using the queue!' }));
           await wait(1500);
         }
       },
 
-      drop: async () => {
+      win: async () => {
         while (!signal.aborted) {
-          set(s => ({ ...s, grid: emptyGrid(), highlight: null, queue: ['C', 'A', 'B', 'T', 'S'], caption: 'Click a column to drop the next letter' }));
-          await wait(800);
-          await dropLetter(1, 'Letters fall to the lowest empty row');
-          await dropLetter(3);
-          await dropLetter(1, 'Same column — it stacks on top!');
-          await dropLetter(1, 'Letters keep stacking up');
-          set(s => ({ ...s, caption: 'Plan your columns carefully!' }));
-          await wait(1200);
+          // Pre-placed tiles (white): C(3,0), A(3,1), O(2,1)
+          const startGrid = emptyGrid();
+          startGrid[3 * COLS + 0] = { letter: 'C', preplaced: true };
+          startGrid[3 * COLS + 1] = { letter: 'A', preplaced: true };
+          startGrid[2 * COLS + 1] = { letter: 'O', preplaced: true };
+          set(s => ({ ...s, grid: startGrid, highlight: null, queue: ['T', 'D', 'G', 'X', 'Y'], caption: 'Clear every tile to win' }));
+          await wait(1400);
+
+          // Drop T at col 2 → CAT across row 3, then O falls to (3,1)
+          await dropLetter(2, 'T completes "CAT"');
+          await highlightWord([3 * COLS + 0, 3 * COLS + 1, 3 * COLS + 2], '"CAT" cleared! O falls down');
+          await wait(600);
+
+          // O is now at (3,1). Drop D at col 0, G at col 2 → D-O-G across row 3
+          await dropLetter(0, 'D to the left of O...');
+          await dropLetter(2, 'G completes "DOG"');
+          await highlightWord([3 * COLS + 0, 3 * COLS + 1, 3 * COLS + 2], '"DOG" cleared!');
+          await wait(600);
+
+          set(s => ({ ...s, caption: 'Board cleared — you win!' }));
+          await wait(2000);
         }
       },
 
@@ -167,26 +205,35 @@ function useDemo(demoType) {
 }
 
 export default function AnimatedDemo({ demoType = 'drop' } = {}) {
-  const { grid, queue, dropping, cursorCol, cursorClick, highlight, caption } = useDemo(demoType);
+  const { grid, queue, dropping, cursorCol, cursorClick, highlight, showOrder, caption } = useDemo(demoType);
 
   return (
     <div style={d.wrapper}>
       {/* 5-letter preview queue */}
       <div style={d.previewRow}>
         {Array(PREVIEW_SIZE).fill(null).map((_, i) => {
-          const letter = queue[i];
-          const isNextUp = i === 0 && letter;
-          const isEmpty = !letter;
+          const tile = queue[i];
+          const letter = letterOf(tile);
+          const order = orderOf(tile);
+          const isNextUp = i === 0 && tile;
+          const isEmpty = !tile;
           return (
-            <div
-              key={i}
-              style={{
-                ...d.previewCell,
-                ...(isNextUp ? d.nextUp : {}),
-                ...(isEmpty ? d.emptyCellStyle : {}),
-              }}
-            >
-              {isEmpty ? '\u2014' : letter}
+            <div key={i} style={d.previewCol}>
+              {showOrder && order ? (
+                <span style={d.orderLabel}>{ordinalOf(order)}</span>
+              ) : (
+                <span style={d.orderLabelPlaceholder} />
+              )}
+              <div
+                style={{
+                  ...d.previewCell,
+                  ...(isNextUp ? d.nextUp : {}),
+                  ...(isEmpty ? d.emptyCellStyle : {}),
+                  ...(showOrder && order ? d.orderHighlight : {}),
+                }}
+              >
+                {isEmpty ? '\u2014' : letter}
+              </div>
             </div>
           );
         })}
@@ -206,18 +253,26 @@ export default function AnimatedDemo({ demoType = 'drop' } = {}) {
 
       <div style={{ position: 'relative', width: GRID_W, overflow: 'visible' }}>
         <div style={d.grid}>
-          {grid.map((letter, i) => (
-            <div
-              key={i}
-              style={{
-                ...d.cell,
-                ...(letter ? d.cellFilled : {}),
-                ...(highlight?.has(i) ? d.cellHighlight : {}),
-              }}
-            >
-              {letter ?? ''}
-            </div>
-          ))}
+          {grid.map((tile, i) => {
+            const letter = letterOf(tile);
+            const order = orderOf(tile);
+            return (
+              <div
+                key={i}
+                style={{
+                  ...d.cell,
+                  ...(tile ? (isPreplaced(tile) ? d.cellPreplaced : d.cellFilled) : {}),
+                  ...(highlight?.has(i) ? d.cellHighlight : {}),
+                  position: 'relative',
+                }}
+              >
+                {letter ?? ''}
+                {showOrder && order && (
+                  <span style={d.orderBadge}>{order}</span>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {dropping && (() => {
@@ -240,9 +295,13 @@ export default function AnimatedDemo({ demoType = 'drop' } = {}) {
             transition = `top ${Math.max(0.05, (dr + 1) / DROP_SPEED)}s linear`;
           }
 
+          const droppingOrder = orderOf(dropping.letter);
           return (
-            <div style={{ ...d.droppingTile, left, top, transition }}>
-              {dropping.letter}
+            <div style={{ ...d.droppingTile, left, top, transition, position: 'absolute' }}>
+              {letterOf(dropping.letter)}
+              {showOrder && droppingOrder && (
+                <span style={d.orderBadge}>{droppingOrder}</span>
+              )}
             </div>
           );
         })()}
@@ -255,7 +314,10 @@ export default function AnimatedDemo({ demoType = 'drop' } = {}) {
 
 const d = {
   wrapper:      { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 },
-  previewRow:   { display: 'flex', alignItems: 'center', gap: 5 },
+  previewRow:   { display: 'flex', alignItems: 'flex-end', gap: 5 },
+  previewCol:   { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 },
+  orderLabel:   { fontSize: 14, fontWeight: 700, color: '#333', lineHeight: 1 },
+  orderLabelPlaceholder: { height: 14 },
   previewCell:  {
     width: PCELL, height: PCELL, borderRadius: 7,
     background: '#888', border: '2px solid #333',
@@ -276,6 +338,15 @@ const d = {
     color: '#ccc',
     boxShadow: 'none',
     fontSize: 22,
+  },
+  orderHighlight: {
+    border: '2px solid #333',
+    boxShadow: '0 0 8px rgba(0,0,0,0.25)',
+  },
+  orderBadge: {
+    position: 'absolute', top: 2, left: 4,
+    fontSize: 12, fontWeight: 700, lineHeight: 1,
+    color: 'inherit',
   },
   cursor: {
     position: 'absolute', top: 2,
@@ -298,6 +369,10 @@ const d = {
   },
   cellFilled: {
     background: '#888', color: '#fff',
+    border: '2px solid #333',
+  },
+  cellPreplaced: {
+    background: '#fff', color: '#333',
     border: '2px solid #333',
   },
   cellHighlight: {
