@@ -22,6 +22,7 @@ function useDemo(demoType) {
     cursorCol:   null,
     cursorClick: false,
     highlight:   null,
+    showOrder:   false,
     caption:     '',
   });
 
@@ -96,12 +97,14 @@ function useDemo(demoType) {
     const demos = {
       queue: async () => {
         while (!signal.aborted) {
-          set(s => ({ ...s, grid: emptyGrid(), highlight: null, queue: ['C', 'A', 'T', 'S', 'B'], caption: 'The first letter is next to drop' }));
-          await wait(1200);
+          set(s => ({ ...s, grid: emptyGrid(), highlight: null, showOrder: true, queue: ['C', 'A', 'T', 'S', 'B'], caption: 'Letters drop in order: 1st, 2nd, 3rd...' }));
+          await wait(2000);
+          set(s => ({ ...s, showOrder: false }));
           await dropLetter(0, 'C drops — queue shifts left');
           await wait(600);
-          set(s => ({ ...s, caption: 'A is now next, then T, S, B...' }));
-          await wait(1200);
+          set(s => ({ ...s, showOrder: true, caption: 'A is now 1st, then T, S, B...' }));
+          await wait(1500);
+          set(s => ({ ...s, showOrder: false }));
           await dropLetter(1, 'A drops — queue shifts again');
           await wait(600);
           set(s => ({ ...s, caption: 'Plan ahead using the queue!' }));
@@ -186,7 +189,7 @@ function useDemo(demoType) {
 }
 
 export default function AnimatedDemo({ demoType = 'drop' } = {}) {
-  const { grid, queue, dropping, cursorCol, cursorClick, highlight, caption } = useDemo(demoType);
+  const { grid, queue, dropping, cursorCol, cursorClick, highlight, showOrder, caption } = useDemo(demoType);
 
   return (
     <div style={d.wrapper}>
@@ -203,9 +206,14 @@ export default function AnimatedDemo({ demoType = 'drop' } = {}) {
                 ...d.previewCell,
                 ...(isNextUp ? d.nextUp : {}),
                 ...(isEmpty ? d.emptyCellStyle : {}),
+                ...(showOrder && letter ? d.orderHighlight : {}),
+                position: 'relative',
               }}
             >
               {isEmpty ? '\u2014' : letter}
+              {showOrder && letter && (
+                <span style={d.orderBadge}>{i + 1}</span>
+              )}
             </div>
           );
         })}
@@ -295,6 +303,15 @@ const d = {
     color: '#ccc',
     boxShadow: 'none',
     fontSize: 22,
+  },
+  orderHighlight: {
+    border: '2px solid #1976D2',
+    boxShadow: '0 0 8px rgba(25,118,210,0.35)',
+  },
+  orderBadge: {
+    position: 'absolute', top: 2, left: 3,
+    fontSize: 9, fontWeight: 700, lineHeight: 1,
+    color: '#1976D2',
   },
   cursor: {
     position: 'absolute', top: 2,
