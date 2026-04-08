@@ -17,6 +17,7 @@ const PREVIEW_TOP = -(CURSOR_ROW_H + WRAPPER_GAP + PCELL / 2) - CELL / 2;
 // Tile can be a string 'C' or object { letter: 'C', order: 1 }
 const letterOf = v => v && typeof v === 'object' ? v.letter : v;
 const orderOf = v => v && typeof v === 'object' ? v.order : null;
+const isPreplaced = v => v && typeof v === 'object' && v.preplaced;
 const ordinalOf = n => ['1st', '2nd', '3rd', '4th', '5th'][n - 1];
 
 function useDemo(demoType) {
@@ -120,16 +121,23 @@ function useDemo(demoType) {
 
       win: async () => {
         while (!signal.aborted) {
-          // Start with two starter tiles on the bottom row: C at (3,0), A at (3,1)
+          // Pre-placed tiles (white): C(3,0), A(3,1), O(2,1)
           const startGrid = emptyGrid();
-          startGrid[3 * COLS + 0] = 'C';
-          startGrid[3 * COLS + 1] = 'A';
-          set(s => ({ ...s, grid: startGrid, highlight: null, queue: ['T', 'X', 'Y', 'Z', 'W'], caption: 'Two tiles left on the board' }));
-          await wait(1200);
+          startGrid[3 * COLS + 0] = { letter: 'C', preplaced: true };
+          startGrid[3 * COLS + 1] = { letter: 'A', preplaced: true };
+          startGrid[2 * COLS + 1] = { letter: 'O', preplaced: true };
+          set(s => ({ ...s, grid: startGrid, highlight: null, queue: ['T', 'D', 'G', 'X', 'Y'], caption: 'Clear every tile to win' }));
+          await wait(1400);
 
-          // Player drops T at column 2 to complete "CAT"
-          await dropLetter(2, 'Drop T to complete the word');
-          await highlightWord([3 * COLS + 0, 3 * COLS + 1, 3 * COLS + 2], '"CAT" — includes your placed tile!');
+          // Drop T at col 2 → CAT across row 3
+          await dropLetter(2, 'T completes "CAT"');
+          await highlightWord([3 * COLS + 0, 3 * COLS + 1, 3 * COLS + 2], '"CAT" cleared!');
+          await wait(600);
+
+          // Drop D at col 1 → (3,1), then G at col 1 → (1,1) → DOG in column
+          await dropLetter(1, 'D starts a column...');
+          await dropLetter(1, 'G completes "DOG"');
+          await highlightWord([1 * COLS + 1, 2 * COLS + 1, 3 * COLS + 1], '"DOG" cleared!');
           await wait(600);
 
           set(s => ({ ...s, caption: 'Board cleared — you win!' }));
@@ -238,7 +246,7 @@ export default function AnimatedDemo({ demoType = 'drop' } = {}) {
                 key={i}
                 style={{
                   ...d.cell,
-                  ...(tile ? d.cellFilled : {}),
+                  ...(tile ? (isPreplaced(tile) ? d.cellPreplaced : d.cellFilled) : {}),
                   ...(highlight?.has(i) ? d.cellHighlight : {}),
                   position: 'relative',
                 }}
@@ -346,6 +354,10 @@ const d = {
   },
   cellFilled: {
     background: '#888', color: '#fff',
+    border: '2px solid #333',
+  },
+  cellPreplaced: {
+    background: '#fff', color: '#333',
     border: '2px solid #333',
   },
   cellHighlight: {
