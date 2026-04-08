@@ -22,7 +22,7 @@ function ScoreBoard({ score = 0, gameStatus = 'IDLE', gameMode = null }) {
         </>
       ) : (
         <>
-          <div className="stat-label">NOODLE</div>
+          <div className="stat-label">NOODEL</div>
           <div className="stat-value">a word puzzle game</div>
         </>
       )}
