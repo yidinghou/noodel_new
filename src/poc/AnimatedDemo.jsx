@@ -95,33 +95,20 @@ function useDemo(demoType) {
     }
 
     const demos = {
-      queue: async () => {
+      'click-plan': async () => {
         while (!signal.aborted) {
           set(s => ({ ...s, grid: emptyGrid(), highlight: null, showOrder: true, queue: ['C', 'A', 'T', 'S', 'B'], caption: 'Letters drop in order: 1st, 2nd, 3rd...' }));
-          await wait(2000);
-          set(s => ({ ...s, showOrder: false }));
-          await dropLetter(0, 'C drops — queue shifts left');
-          await wait(600);
-          set(s => ({ ...s, showOrder: true, caption: 'A is now 1st, then T, S, B...' }));
-          await wait(1500);
-          set(s => ({ ...s, showOrder: false }));
+          await wait(1800);
+          await dropLetter(0, 'Click a column — C falls to the bottom');
+          await wait(500);
+          set(s => ({ ...s, caption: 'A is now 1st, then T, S, B...' }));
+          await wait(1200);
           await dropLetter(1, 'A drops — queue shifts again');
-          await wait(600);
+          await wait(500);
+          await dropLetter(1, 'Same column — it stacks on top!');
+          await wait(500);
           set(s => ({ ...s, caption: 'Plan ahead using the queue!' }));
           await wait(1500);
-        }
-      },
-
-      drop: async () => {
-        while (!signal.aborted) {
-          set(s => ({ ...s, grid: emptyGrid(), highlight: null, queue: ['C', 'A', 'B', 'T', 'S'], caption: 'Click a column to drop the next letter' }));
-          await wait(800);
-          await dropLetter(1, 'Letters fall to the lowest empty row');
-          await dropLetter(3);
-          await dropLetter(1, 'Same column — it stacks on top!');
-          await dropLetter(1, 'Letters keep stacking up');
-          set(s => ({ ...s, caption: 'Plan your columns carefully!' }));
-          await wait(1200);
         }
       },
 

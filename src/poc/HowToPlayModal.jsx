@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import AnimatedDemo from './AnimatedDemo.jsx';
-import { STEPS } from './constants.js';
+import { STEPS, DEMOS } from './constants.js';
 
 export default function HowToPlayModal({ onClose = () => {} } = {}) {
   const [exampleIdx, setExampleIdx] = useState(0);
-  const current = STEPS[exampleIdx];
+  const current = DEMOS[exampleIdx];
 
   return (
     <div style={m.backdrop} onClick={onClose}>
@@ -31,13 +31,13 @@ export default function HowToPlayModal({ onClose = () => {} } = {}) {
         {/* Examples panel */}
         <div style={m.exampleSection}>
           <div style={m.exampleTabs}>
-            {STEPS.map((step, i) => (
+            {DEMOS.map((demo, i) => (
               <button
                 key={i}
                 style={{ ...m.tab, ...(i === exampleIdx ? m.tabActive : {}) }}
                 onClick={() => setExampleIdx(i)}
               >
-                {step.title}
+                {demo.title}
               </button>
             ))}
           </div>
