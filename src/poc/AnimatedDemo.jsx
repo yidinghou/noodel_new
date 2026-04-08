@@ -242,7 +242,7 @@ export default function AnimatedDemo({ demoType = 'drop' } = {}) {
               >
                 {letter ?? ''}
                 {showOrder && order && (
-                  <span style={{ ...d.orderBadge, color: '#fff' }}>{order}</span>
+                  <span style={d.orderBadge}>{order}</span>
                 )}
               </div>
             );
@@ -317,7 +317,7 @@ const d = {
   orderBadge: {
     position: 'absolute', top: 2, left: 4,
     fontSize: 12, fontWeight: 700, lineHeight: 1,
-    color: '#333',
+    color: 'inherit',
   },
   cursor: {
     position: 'absolute', top: 2,
