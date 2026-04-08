@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { COLS, CELL, STEP, GRID_W } from './constants.js';
+import { COLS, ROWS, CELL, STEP, GRID_W } from './constants.js';
 import { emptyGrid, destRow, sleep } from './utils.js';
 
 const PREVIEW_SIZE = 5;
