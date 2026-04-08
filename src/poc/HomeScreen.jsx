@@ -10,9 +10,9 @@ export default function HomeScreen() {
         <h1 style={h.title}><span style={h.titleN}>N</span>OODLE</h1>
         <p style={h.desc}>a word puzzle game</p>
         <div style={h.btns}>
-          <button className="start-btn"    title="Play"         onClick={() => alert('Play!')}>&#9654;</button>
-          <button className="settings-btn" title="Settings"     onClick={() => alert('Settings!')}>&#9881;</button>
-          <button style={h.htpBtn}         title="How to play"  onClick={() => setShowHTP(true)}>?</button>
+          <button style={h.btn} title="Play"         onClick={() => alert('Play!')}>&#9654;</button>
+          <button style={h.btn} title="Settings"     onClick={() => alert('Settings!')}>&#9881;</button>
+          <button style={h.btn} title="How to play"  onClick={() => setShowHTP(true)}>?</button>
         </div>
       </div>
 
@@ -39,11 +39,11 @@ const h = {
   },
   desc:  { fontSize: 'clamp(13px,2vw,16px)', color: 'var(--color-text-secondary)', margin: 0 },
   btns:  { display: 'flex', flexDirection: 'row', gap: 12, marginTop: 8 },
-  htpBtn: {
+  btn: {
     width: 'var(--size-letter-block)', height: 'var(--size-letter-block)', aspectRatio: '1/1',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: 'linear-gradient(145deg, #a5d6a7, #4CAF50)', color: '#fff',
-    border: 'none', borderRadius: 8, fontSize: 'clamp(16px,2vw,20px)',
-    fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 6px rgba(76,175,80,0.3)',
+    background: '#fff', color: '#333',
+    border: '2px solid #333', borderRadius: 8, fontSize: 'clamp(16px,2vw,20px)',
+    fontWeight: 'bold', cursor: 'pointer',
   },
 };
