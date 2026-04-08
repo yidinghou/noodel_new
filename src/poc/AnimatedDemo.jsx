@@ -272,8 +272,8 @@ const d = {
     boxShadow: '0 8px 22px rgba(255,152,0,0.22)',
   },
   emptyCellStyle: {
-    background: '#e0e0e0', borderColor: 'transparent',
-    color: '#bdbdbd', opacity: 0.4,
+    background: '#f0f0f0', border: '2px solid #f0f0f0',
+    color: '#ccc',
     boxShadow: 'none',
     fontSize: 22,
   },
