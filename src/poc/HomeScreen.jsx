@@ -31,7 +31,7 @@ const h = {
     display: 'flex', flexDirection: 'column', alignItems: 'center',
     gap: 16, padding: '32px 40px', minWidth: 260,
   },
-  title: { fontSize: 'clamp(32px,8vw,56px)', fontFamily: "'Montserrat', sans-serif", fontWeight: 900, letterSpacing: '0.05em', color: 'var(--color-text-primary)', margin: 0 },
+  title: { fontSize: 'clamp(32px,8vw,56px)', fontFamily: "'Montserrat', sans-serif", fontWeight: 400, letterSpacing: '0.05em', color: 'var(--color-text-primary)', margin: 0 },
   titleN: {
     background: '#4CAF50', color: '#fff',
     borderRadius: 6, padding: '0 0.08em',
