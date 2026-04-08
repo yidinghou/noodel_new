@@ -7,7 +7,7 @@ export default function HomeScreen() {
   return (
     <div style={h.page}>
       <div className="card" style={h.card}>
-        <h1 style={h.title}><span style={h.titleN}>N</span>OO<span style={h.titleN}>D</span>LE</h1>
+        <h1 style={h.title}><span style={h.titleN}>N</span>OO<span style={h.titleN}>D</span>EL</h1>
         <p style={h.desc}>a word puzzle game</p>
         <div style={h.btns}>
           <button style={h.btn} title="Play"         onClick={() => alert('Play!')}>&#9654;</button>
