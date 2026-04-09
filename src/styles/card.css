@@ -154,16 +154,6 @@
     box-shadow: 0 3px 8px rgba(255, 152, 0, 0.4);
 }
 
-/* Stats (Score & Letters Remaining) */
-.stats {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    background: var(--color-bg-stats);
-    border-radius: var(--size-border-radius-stat);
-    padding: 10px;
-    margin-top: var(--size-gap-standard);
-}
 
 .stat-group {
     text-align: center;

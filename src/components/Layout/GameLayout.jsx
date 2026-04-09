@@ -143,9 +143,7 @@ function GameLayout({
           onHowToPlay={onHowToPlay}
           visible={controlsVisible}
         />
-        <div className="stats">
-          <ScoreBoard score={score} gameStatus={gameStatus} gameMode={gameMode} />
-        </div>
+        <ScoreBoard score={score} gameStatus={gameStatus} gameMode={gameMode} />
       </div>
 
       {/* Game Grid Section (Middle) */}
