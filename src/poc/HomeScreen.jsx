@@ -53,14 +53,14 @@ const h = {
   },
   subtitleBar: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    background: '#43A047',
+    background: '#ffffff',
     padding: '5px 10px',
     borderRadius: '0 0 7px 7px',
     marginTop: -2,
-    boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+    borderTop: '2px solid #000',
   },
   subtitleText: {
-    color: 'rgba(255,255,255,0.9)', fontSize: 'clamp(10px,2vw,14px)',
+    color: 'rgba(0, 0, 0, 0.9)', fontSize: 'clamp(10px,2vw,14px)',
     fontWeight: 500, letterSpacing: '0.3px',
     flex: 2, whiteSpace: 'nowrap',
   },
@@ -69,7 +69,7 @@ const h = {
   },
   subtitleBtn: {
     background: 'transparent', border: 'none',
-    color: 'rgba(255,255,255,0.7)', cursor: 'pointer',
+    color: 'rgba(0, 0, 0, 0.7)', cursor: 'pointer',
     padding: '4px 8px', borderRadius: 4,
     fontSize: 'clamp(10px,1.5vw,15px)', fontWeight: 500,
     transition: 'background 0.15s, color 0.15s',
