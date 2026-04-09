@@ -49,11 +49,12 @@ function Header({ onUndo, onStart, onSettings, onHowToPlay, visible }) {
 
 const h = {
   titleGroup: {
-    display: 'inline-flex', flexDirection: 'column', gap: 8,
+    display: 'flex', flexDirection: 'column', gap: 8, width: '100%',
   },
   title: {
     fontSize: 'clamp(32px,8vw,56px)', fontFamily: "'Montserrat', sans-serif",
     fontWeight: 400, letterSpacing: '0.05em', color: 'var(--color-text-primary)', margin: 0,
+    textAlign: 'center',
   },
   titleHighlight: {
     background: '#4CAF50', color: '#fff',
