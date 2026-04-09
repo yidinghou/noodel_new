@@ -40,7 +40,7 @@ const h = {
     gap: 16, padding: '32px 40px', minWidth: 260,
   },
   titleGroup: {
-    display: 'inline-flex', flexDirection: 'column',
+    display: 'inline-flex', flexDirection: 'column', gap: 8,
   },
   title: {
     fontSize: 'clamp(32px,8vw,56px)', fontFamily: "'Montserrat', sans-serif",
@@ -57,7 +57,7 @@ const h = {
     padding: '5px 10px',
     borderRadius: '0 0 7px 7px',
     marginTop: -2,
-    borderTop: '2px solid #000',
+    borderTop: '1px solid #000',
   },
   subtitleText: {
     color: 'rgba(0, 0, 0, 0.9)', fontSize: 'clamp(10px,2vw,14px)',
