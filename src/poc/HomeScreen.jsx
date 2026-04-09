@@ -18,7 +18,7 @@ export default function HomeScreen() {
             <div style={h.subtitleActions}>
               <button className="poc-subtitle-btn" style={h.subtitleBtn} title="Play"        onClick={() => alert('Play!')}>&#9654;</button>
               <button className="poc-subtitle-btn" style={h.subtitleBtn} title="Settings"    onClick={() => alert('Settings!')}>&#9881;</button>
-              <button className="poc-subtitle-btn" style={h.subtitleBtn} title="How to play" onClick={() => setShowHTP(true)}>?</button>
+              <button className="poc-subtitle-btn" style={h.subtitleBtn} title="How to play" onClick={() => setShowHTP(true)}>i</button>
             </div>
           </div>
         </div>
@@ -72,6 +72,8 @@ const h = {
     color: 'rgba(0, 0, 0, 0.7)', cursor: 'pointer',
     padding: '4px 8px', borderRadius: 4,
     fontSize: 'clamp(10px,1.5vw,15px)', fontWeight: 500,
+    fontFamily: 'monospace',
+    minWidth: '24px', textAlign: 'center',
     transition: 'background 0.15s, color 0.15s',
   },
 };
