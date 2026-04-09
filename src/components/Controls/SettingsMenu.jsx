@@ -8,6 +8,10 @@ import React from 'react';
  * @param {function} onToggleMute - Callback to toggle mute state
  */
 function SettingsMenu({ visible, onClose, isMuted, onToggleMute, hasGameSession, onReplay }) {
+  const isOnPoc = window.location.pathname.includes('poc.html');
+  const switchTarget = isOnPoc ? '/noodel_new/' : '/noodel_new/poc.html';
+  const switchLabel = isOnPoc ? 'Switch to Classic' : 'Switch to New UI';
+
   return (
     <div className={`mode-selection-menu settings-variant ${visible ? 'visible' : ''}`}>
       <div className="mode-selection-content">
@@ -41,6 +45,12 @@ function SettingsMenu({ visible, onClose, isMuted, onToggleMute, hasGameSession,
               onClick={onToggleMute}
             >
               {isMuted ? '🔇 Unmute' : '🔊 Sound'}
+            </button>
+            <button
+              className="mode-selection-btn settings-btn-item"
+              onClick={() => { window.location.href = switchTarget; }}
+            >
+              {isOnPoc ? '🎮 Switch to Classic' : '✨ Switch to New UI'}
             </button>
           </div>
         </div>
