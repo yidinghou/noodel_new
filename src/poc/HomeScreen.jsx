@@ -6,13 +6,21 @@ export default function HomeScreen() {
 
   return (
     <div style={h.page}>
+      <style>{`
+        .poc-subtitle-btn:hover { background: rgba(255,255,255,0.18) !important; color: #fff !important; }
+        .poc-subtitle-btn:active { background: rgba(255,255,255,0.28) !important; }
+      `}</style>
       <div className="card" style={h.card}>
-        <h1 style={h.title}><span style={h.titleN}>N</span>OO<span style={h.titleN}>D</span>EL</h1>
-        <p style={h.desc}>a word puzzle game</p>
-        <div style={h.btns}>
-          <button style={h.btn} title="Play"         onClick={() => alert('Play!')}>&#9654;</button>
-          <button style={h.btn} title="Settings"     onClick={() => alert('Settings!')}>&#9881;</button>
-          <button style={h.btn} title="How to play"  onClick={() => setShowHTP(true)}>?</button>
+        <div style={h.titleGroup}>
+          <h1 style={h.title}><span style={h.titleN}>N</span>OO<span style={h.titleN}>D</span>EL</h1>
+          <div style={h.subtitleBar}>
+            <span style={h.subtitleText}>a word puzzle game</span>
+            <div style={h.subtitleActions}>
+              <button className="poc-subtitle-btn" style={h.subtitleBtn} title="Play"        onClick={() => alert('Play!')}>&#9654;</button>
+              <button className="poc-subtitle-btn" style={h.subtitleBtn} title="Settings"    onClick={() => alert('Settings!')}>&#9881;</button>
+              <button className="poc-subtitle-btn" style={h.subtitleBtn} title="How to play" onClick={() => setShowHTP(true)}>?</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -31,19 +39,39 @@ const h = {
     display: 'flex', flexDirection: 'column', alignItems: 'center',
     gap: 16, padding: '32px 40px', minWidth: 260,
   },
-  title: { fontSize: 'clamp(32px,8vw,56px)', fontFamily: "'Montserrat', sans-serif", fontWeight: 400, letterSpacing: '0.05em', color: 'var(--color-text-primary)', margin: 0 },
+  titleGroup: {
+    display: 'inline-flex', flexDirection: 'column',
+  },
+  title: {
+    fontSize: 'clamp(32px,8vw,56px)', fontFamily: "'Montserrat', sans-serif",
+    fontWeight: 400, letterSpacing: '0.05em', color: 'var(--color-text-primary)', margin: 0,
+  },
   titleN: {
     background: '#4CAF50', color: '#fff',
     borderRadius: 6, padding: '0 0.08em',
     marginRight: '0.02em',
   },
-  desc:  { fontSize: 'clamp(13px,2vw,16px)', color: 'var(--color-text-secondary)', margin: 0 },
-  btns:  { display: 'flex', flexDirection: 'row', gap: 12, marginTop: 8 },
-  btn: {
-    width: 'var(--size-letter-block)', height: 'var(--size-letter-block)', aspectRatio: '1/1',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    background: '#fff', color: '#333',
-    border: '2px solid #333', borderRadius: 8, fontSize: 'clamp(16px,2vw,20px)',
-    fontWeight: 'bold', cursor: 'pointer',
+  subtitleBar: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    background: '#43A047',
+    padding: '5px 10px',
+    borderRadius: '0 0 7px 7px',
+    marginTop: -2,
+    boxShadow: '0 2px 4px rgba(0,0,0,0.15)',
+  },
+  subtitleText: {
+    color: 'rgba(255,255,255,0.9)', fontSize: 'clamp(10px,2vw,14px)',
+    fontWeight: 500, letterSpacing: '0.3px',
+    flex: 2, whiteSpace: 'nowrap',
+  },
+  subtitleActions: {
+    display: 'flex', gap: 4, flex: 1, justifyContent: 'flex-end',
+  },
+  subtitleBtn: {
+    background: 'transparent', border: 'none',
+    color: 'rgba(255,255,255,0.7)', cursor: 'pointer',
+    padding: '4px 8px', borderRadius: 4,
+    fontSize: 'clamp(10px,1.5vw,15px)', fontWeight: 500,
+    transition: 'background 0.15s, color 0.15s',
   },
 };
