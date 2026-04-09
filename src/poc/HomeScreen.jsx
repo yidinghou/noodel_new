@@ -7,8 +7,8 @@ export default function HomeScreen() {
   return (
     <div style={h.page}>
       <style>{`
-        .poc-subtitle-btn:hover { background: rgba(255,255,255,0.18) !important; color: #fff !important; }
-        .poc-subtitle-btn:active { background: rgba(255,255,255,0.28) !important; }
+        .poc-subtitle-btn:hover { background: #e8e8e8 !important; }
+        .poc-subtitle-btn:active { background: #d0d0d0 !important; }
       `}</style>
       <div className="card" style={h.card}>
         <div style={h.titleGroup}>
