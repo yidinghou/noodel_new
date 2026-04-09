@@ -52,7 +52,7 @@ const h = {
     display: 'flex', flexDirection: 'column', gap: 8, width: '100%',
   },
   title: {
-    fontSize: 'clamp(32px,8vw,56px)', fontFamily: "'Montserrat', sans-serif",
+    fontSize: 'clamp(38px,9.6vw,67px)', fontFamily: "'Montserrat', sans-serif",
     fontWeight: 400, letterSpacing: '0.05em', color: 'var(--color-text-primary)', margin: 0,
     textAlign: 'center',
   },
