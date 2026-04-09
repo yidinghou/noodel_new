@@ -52,14 +52,14 @@ const h = {
     display: 'flex', flexDirection: 'column', gap: 8, width: '100%',
   },
   title: {
-    fontSize: 'clamp(60px,9.6vw,70px)', fontFamily: "'Montserrat', sans-serif",
+    fontSize: 'clamp(55px,9.6vw,70px)', fontFamily: "'Montserrat', sans-serif",
     fontWeight: 400, letterSpacing: '0.2em', color: 'var(--color-text-primary)', margin: 0,
     textAlign: 'center',
   },
   titleHighlight: {
     background: '#4CAF50', color: '#fff',
     borderRadius: 6, padding: '0 0.08em',
-    marginRight: '0.02em',
+    letterSpacing: 0, marginRight: '0.2em',
   },
   subtitleBar: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
