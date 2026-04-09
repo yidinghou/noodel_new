@@ -21,7 +21,6 @@ function generateRandomDropOrder() {
 
 export function useIntroSequence() {
   const [dropOrderMap] = useState(generateRandomDropOrder()); // Random drop order (stable across renders)
-  const [statsVisible, setStatsVisible] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(false);
   const [boardVisible, setBoardVisible] = useState(false);
 
@@ -37,7 +36,6 @@ export function useIntroSequence() {
     if (isDoneRef.current) return;
     isDoneRef.current = true;
     clearAllTimers();
-    setStatsVisible(true);
     setControlsVisible(true);
     setBoardVisible(true);
   }, [clearAllTimers]);
@@ -46,19 +44,15 @@ export function useIntroSequence() {
     // Calculate timing: last letter drops at 5 * 0.2s = 1.0s, animates for 0.4s = 1.4s total
     const lastLetterFinishesAt = LAST_LETTER_DROP_DELAY_MS + LETTER_DROP_ANIMATION_MS;
 
-    // Stats appear after last letter finishes
-    const t1 = setTimeout(() => setStatsVisible(true), lastLetterFinishesAt + 200);
-    timersRef.current.push(t1);
-
-    // Controls appear shortly after stats
-    const t2 = setTimeout(() => setControlsVisible(true), lastLetterFinishesAt + 700);
+    // Controls appear after last letter finishes
+    const t2 = setTimeout(() => setControlsVisible(true), lastLetterFinishesAt + 200);
     timersRef.current.push(t2);
 
-    // Board appears last
+    // Board appears shortly after
     const t3 = setTimeout(() => {
       setBoardVisible(true);
       isDoneRef.current = true;
-    }, lastLetterFinishesAt + 1100);
+    }, lastLetterFinishesAt + 600);
     timersRef.current.push(t3);
 
     return clearAllTimers;
@@ -66,7 +60,6 @@ export function useIntroSequence() {
 
   return {
     dropOrderMap,
-    statsVisible,
     controlsVisible,
     boardVisible,
     fastForward,

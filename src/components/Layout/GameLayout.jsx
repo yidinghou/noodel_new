@@ -17,7 +17,6 @@ function GameLayout({
   dictionary = null,
   gameStatus = 'IDLE',
   gameMode = null,
-  statsVisible = true,
   controlsVisible = true,
   boardVisible = true,
   onFastForward = null,
@@ -119,7 +118,7 @@ function GameLayout({
   }, [onColumnClick]);
 
   // Allow fastForward only during intro sequence (before all elements are visible)
-  const isIntroActive = !statsVisible || !controlsVisible || !boardVisible;
+  const isIntroActive = !controlsVisible || !boardVisible;
 
   const handleCardClick = (e) => {
     // Only trigger fastForward during intro, and prevent event bubbling
@@ -144,7 +143,7 @@ function GameLayout({
           onHowToPlay={onHowToPlay}
           visible={controlsVisible}
         />
-        <div className={`stats ${statsVisible ? 'visible' : ''}`}>
+        <div className="stats">
           <ScoreBoard score={score} gameStatus={gameStatus} gameMode={gameMode} />
         </div>
       </div>

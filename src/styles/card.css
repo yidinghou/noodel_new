@@ -163,14 +163,6 @@
     border-radius: var(--size-border-radius-stat);
     padding: 10px;
     margin-top: var(--size-gap-standard);
-    opacity: 0;
-    transition: opacity var(--transition-standard), transform var(--transition-standard);
-    transform: translateY(20px);
-}
-
-.stats.visible {
-    opacity: 1;
-    transform: translateY(0);
 }
 
 .stat-group {

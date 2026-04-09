@@ -22,7 +22,7 @@ function App() {
   const [showHTP, setShowHTP] = useState(false);
   const [pendingMode, setPendingMode] = useState(null);
   const [hasSavedGame, setHasSavedGame] = useState(false);
-  const { statsVisible, controlsVisible, boardVisible, fastForward } = useIntroSequence();
+  const { controlsVisible, boardVisible, fastForward } = useIntroSequence();
 
   // Check for saved game on mount
   useEffect(() => {
@@ -97,7 +97,6 @@ function App() {
         dictionary={dictionary}
         gameStatus={state.status}
         gameMode={state.gameMode}
-        statsVisible={statsVisible}
         controlsVisible={controlsVisible}
         boardVisible={boardVisible}
         onFastForward={fastForward}
