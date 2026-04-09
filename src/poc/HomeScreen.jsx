@@ -18,7 +18,7 @@ export default function HomeScreen() {
             <div style={h.subtitleActions}>
               <button className="poc-subtitle-btn" style={h.subtitleBtn} title="Play"        onClick={() => alert('Play!')}>&#9654;</button>
               <button className="poc-subtitle-btn" style={h.subtitleBtn} title="Settings"    onClick={() => alert('Settings!')}>&#9881;</button>
-              <button className="poc-subtitle-btn" style={h.subtitleBtn} title="How to play" onClick={() => setShowHTP(true)}>ℹ️</button>
+              <button className="poc-subtitle-btn" style={h.subtitleBtn} title="How to play" onClick={() => setShowHTP(true)}>🛈</button>
             </div>
           </div>
         </div>
