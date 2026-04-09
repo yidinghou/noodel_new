@@ -1,90 +1,44 @@
-const LETTERS = ['N', 'O', 'O', 'D', 'E', 'L'];
+import React from 'react';
 
-function Header({ onUndo, onStart, onSettings, onHowToPlay }) {
+function Header({ dropOrderMap = {}, onUndo }) {
+  const LETTERS = ['N', 'O', 'O', 'D', 'E', 'L'];
+
   const handleUndoClick = (e) => {
     e.stopPropagation();
     if (onUndo) {
       const success = onUndo();
       if (success) {
+        // Visual feedback on successful undo
         const target = e.currentTarget;
         target.style.opacity = '0.5';
-        setTimeout(() => { target.style.opacity = '1'; }, 100);
+        setTimeout(() => {
+          target.style.opacity = '1';
+        }, 100);
       }
     }
   };
 
   return (
-    <div style={h.titleGroup}>
-      <style>{`
-        .header-subtitle-btn:hover { background: #e8e8e8 !important; }
-        .header-subtitle-btn:active { background: #d0d0d0 !important; }
-      `}</style>
-      <h1 style={h.title}>
-        {LETTERS.map((letter, index) => {
-          const isGreen = index === 0 || index === 3; // N and D
-          const isUndo = index === 2; // second O
-          return (
-            <span
-              key={index}
-              style={isGreen ? h.titleHighlight : undefined}
-              onClick={isUndo ? handleUndoClick : undefined}
-              title={isUndo ? 'Click to undo (hidden feature)' : undefined}
-            >
-              {letter}
-            </span>
-          );
-        })}
-      </h1>
-      <div style={h.subtitleBar}>
-        <span style={h.subtitleText}>a word puzzle game</span>
-        <div style={h.subtitleActions}>
-          <button className="header-subtitle-btn" style={h.subtitleBtn} title="Play"        onClick={onStart}>&#9654;</button>
-          <button className="header-subtitle-btn" style={h.subtitleBtn} title="Settings"    onClick={onSettings}>&#9881;</button>
-          <button className="header-subtitle-btn" style={h.subtitleBtn} title="How to play" onClick={onHowToPlay}>🛈</button>
-        </div>
-      </div>
+    <div className="title">
+      {LETTERS.map((letter, index) => {
+        // Get the drop order position for this letter (0-5 position in random drop sequence)
+        const dropOrder = dropOrderMap[index] ?? index;
+        // Second O (index 2) is the hidden undo button
+        const isUndoButton = index === 2;
+        return (
+          <div
+            key={index}
+            className={`block-base letter-block${isUndoButton ? ' undo-button' : ''}`}
+            style={{ '--drop-order': dropOrder }}
+            onClick={isUndoButton ? handleUndoClick : undefined}
+            title={isUndoButton ? 'Click to undo (hidden feature)' : undefined}
+          >
+            {letter}
+          </div>
+        );
+      })}
     </div>
   );
 }
-
-const h = {
-  titleGroup: {
-    display: 'flex', flexDirection: 'column', gap: 8, width: '100%',
-  },
-  title: {
-    fontSize: 'clamp(50px,9.6vw,70px)', fontFamily: "'Montserrat', sans-serif",
-    fontWeight: 400, letterSpacing: '0.1em', color: 'var(--color-text-primary)', margin: 0,
-    textAlign: 'center',
-  },
-  titleHighlight: {
-    background: '#4CAF50', color: '#fff',
-    borderRadius: 6, padding: '0 0.1em',
-    letterSpacing: 0, marginRight: '0.1em',
-  },
-  subtitleBar: {
-    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    background: '#ffffff',
-    padding: '5px 10px',
-    borderRadius: '0 0 7px 7px',
-    marginTop: -2,
-    borderTop: '1px solid #000',
-  },
-  subtitleText: {
-    color: 'rgba(0, 0, 0, 0.9)', fontSize: 'clamp(13px,2vw,18px)',
-    fontWeight: 500, letterSpacing: '0.3px',
-    flex: 2, whiteSpace: 'nowrap',
-  },
-  subtitleActions: {
-    display: 'flex', gap: 4, flex: 1, justifyContent: 'flex-end',
-  },
-  subtitleBtn: {
-    background: 'transparent', border: 'none',
-    color: 'rgba(0, 0, 0, 0.7)', cursor: 'pointer',
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    width: '36px', height: '36px', borderRadius: 4,
-    fontSize: 'clamp(14px,1.5vw,20px)', fontWeight: 500,
-    transition: 'background 0.15s, color 0.15s',
-  },
-};
 
 export default Header;

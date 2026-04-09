@@ -76,7 +76,18 @@ function ModeSelector({ visible, onSelectMode, onClose, pendingMode, dictLoading
           </div>
         </div>
 
-
+        <div className="mode-selection-section">
+          <h3 className="mode-selection-section-title">Learn</h3>
+          <div className="mode-selection-buttons">
+            <button
+              className={`mode-selection-btn tutorial-btn ${isButtonReady('tutorial') ? 'ready' : ''}`}
+              onClick={() => handleModeSelect('tutorial')}
+              disabled={isButtonDisabled('tutorial')}
+            >
+              {isButtonPending('tutorial') ? (dictReady ? 'Click to start' : 'Loading...') : 'Tutorial'}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
