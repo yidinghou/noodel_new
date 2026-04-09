@@ -70,7 +70,7 @@ const h = {
     borderTop: '1px solid #000',
   },
   subtitleText: {
-    color: 'rgba(0, 0, 0, 0.9)', fontSize: 'clamp(10px,2vw,14px)',
+    color: 'rgba(0, 0, 0, 0.9)', fontSize: 'clamp(13px,2vw,18px)',
     fontWeight: 500, letterSpacing: '0.3px',
     flex: 2, whiteSpace: 'nowrap',
   },
@@ -81,8 +81,8 @@ const h = {
     background: 'transparent', border: 'none',
     color: 'rgba(0, 0, 0, 0.7)', cursor: 'pointer',
     display: 'flex', alignItems: 'center', justifyContent: 'center',
-    width: '28px', height: '28px', borderRadius: 4,
-    fontSize: 'clamp(10px,1.5vw,15px)', fontWeight: 500,
+    width: '36px', height: '36px', borderRadius: 4,
+    fontSize: 'clamp(14px,1.5vw,20px)', fontWeight: 500,
     transition: 'background 0.15s, color 0.15s',
   },
 };
