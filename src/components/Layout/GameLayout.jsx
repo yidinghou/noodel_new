@@ -1,6 +1,5 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import Header from './Header.jsx';
-import ScoreBoard from '../Stats/ScoreBoard.jsx';
 import NextPreview from '../Controls/NextPreview.jsx';
 import Board from '../Grid/Board.jsx';
 import MadeWords from '../Stats/MadeWords.jsx';
@@ -9,14 +8,11 @@ import { GRID_COLS, GRID_ROWS } from '../../utils/gameConstants.js';
 
 function GameLayout({
   gridWrapperRef = null,
-  score = 0,
   lettersRemaining = 100,
   nextLetters = [],
   grid = [],
   madeWords = [],
   dictionary = null,
-  gameStatus = 'IDLE',
-  gameMode = null,
   controlsVisible = true,
   boardVisible = true,
   onFastForward = null,
@@ -143,7 +139,6 @@ function GameLayout({
           onHowToPlay={onHowToPlay}
           visible={controlsVisible}
         />
-        <ScoreBoard score={score} gameStatus={gameStatus} gameMode={gameMode} />
       </div>
 
       {/* Game Grid Section (Middle) */}

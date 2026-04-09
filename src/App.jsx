@@ -89,14 +89,11 @@ function App() {
     <div className={`app-root${(showModeSelector || showSettingsMenu) ? ' menu-open' : ''}`}>
       <GameLayout
         gridWrapperRef={gridWrapperRef}
-        score={state.score}
         lettersRemaining={state.lettersRemaining}
         nextLetters={nextLetters}
         grid={state.grid}
         madeWords={state.madeWords}
         dictionary={dictionary}
-        gameStatus={state.status}
-        gameMode={state.gameMode}
         controlsVisible={controlsVisible}
         boardVisible={boardVisible}
         onFastForward={fastForward}
