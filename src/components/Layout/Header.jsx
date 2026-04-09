@@ -52,8 +52,8 @@ const h = {
     display: 'flex', flexDirection: 'column', gap: 8, width: '100%',
   },
   title: {
-    fontSize: 'clamp(38px,9.6vw,67px)', fontFamily: "'Montserrat', sans-serif",
-    fontWeight: 400, letterSpacing: '0.05em', color: 'var(--color-text-primary)', margin: 0,
+    fontSize: 'clamp(60px,9.6vw,70px)', fontFamily: "'Montserrat', sans-serif",
+    fontWeight: 400, letterSpacing: '0.2em', color: 'var(--color-text-primary)', margin: 0,
     textAlign: 'center',
   },
   titleHighlight: {
