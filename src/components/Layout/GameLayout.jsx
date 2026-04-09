@@ -13,9 +13,6 @@ function GameLayout({
   grid = [],
   madeWords = [],
   dictionary = null,
-  controlsVisible = true,
-  boardVisible = true,
-  onFastForward = null,
   onStart,
   onSettings,
   onHowToPlay,
@@ -113,31 +110,15 @@ function GameLayout({
     setActiveDrops(prev => prev.filter(d => d.id !== id));
   }, [onColumnClick]);
 
-  // Allow fastForward only during intro sequence (before all elements are visible)
-  const isIntroActive = !controlsVisible || !boardVisible;
-
-  const handleCardClick = (e) => {
-    // Only trigger fastForward during intro, and prevent event bubbling
-    if (isIntroActive && onFastForward) {
-      e.stopPropagation();
-      onFastForward();
-    }
-  };
-
   return (
     <div className="main-container">
       {/* Card Section (Top) */}
-      <div
-        className={`card${isIntroActive ? ' intro-active' : ''}`}
-        onClick={handleCardClick}
-        style={isIntroActive ? { cursor: 'pointer' } : undefined}
-      >
+      <div className="card">
         <Header
           onUndo={onUndo}
           onStart={onStart}
           onSettings={onSettings}
           onHowToPlay={onHowToPlay}
-          visible={controlsVisible}
         />
       </div>
 
@@ -150,12 +131,12 @@ function GameLayout({
             <div className="letters-remaining-value">{lettersRemaining}</div>
           </div>
         </div>
-        <Board grid={grid} onColumnClick={handleColumnClick} gridRef={gridRef} highlightColumn={null} visible={boardVisible} />
+        <Board grid={grid} onColumnClick={handleColumnClick} gridRef={gridRef} highlightColumn={null} />
       </div>
 
       {/* Made Words Section (Bottom) */}
       <div className="made-words-section">
-        <MadeWords words={madeWords} dictionary={dictionary} visible={boardVisible} />
+        <MadeWords words={madeWords} dictionary={dictionary} />
       </div>
 
       {/* One overlay per in-flight drop — each animates independently */}

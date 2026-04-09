@@ -1,6 +1,6 @@
 const LETTERS = ['N', 'O', 'O', 'D', 'E', 'L'];
 
-function Header({ onUndo, onStart, onSettings, onHowToPlay, visible }) {
+function Header({ onUndo, onStart, onSettings, onHowToPlay }) {
   const handleUndoClick = (e) => {
     e.stopPropagation();
     if (onUndo) {
@@ -35,7 +35,7 @@ function Header({ onUndo, onStart, onSettings, onHowToPlay, visible }) {
           );
         })}
       </h1>
-      <div style={{ ...h.subtitleBar, ...(visible ? undefined : { opacity: 0, pointerEvents: 'none' }) }}>
+      <div style={h.subtitleBar}>
         <span style={h.subtitleText}>a word puzzle game</span>
         <div style={h.subtitleActions}>
           <button className="header-subtitle-btn" style={h.subtitleBtn} title="Play"        onClick={onStart}>&#9654;</button>
@@ -68,7 +68,6 @@ const h = {
     borderRadius: '0 0 7px 7px',
     marginTop: -2,
     borderTop: '1px solid #000',
-    transition: 'opacity 0.3s',
   },
   subtitleText: {
     color: 'rgba(0, 0, 0, 0.9)', fontSize: 'clamp(10px,2vw,14px)',

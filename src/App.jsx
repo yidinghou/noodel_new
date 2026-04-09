@@ -8,7 +8,6 @@ import ReplayOverlay from './components/Overlays/ReplayOverlay.jsx';
 import HowToPlayModal from './poc/HowToPlayModal.jsx';
 import { useGame } from './context/GameContext.jsx';
 import { useGameLogic } from './hooks/useGameLogic.js';
-import { useIntroSequence } from './hooks/useIntroSequence.js';
 import { hasSavedSession } from './services/sessionStorage.js';
 
 function App() {
@@ -22,8 +21,6 @@ function App() {
   const [showHTP, setShowHTP] = useState(false);
   const [pendingMode, setPendingMode] = useState(null);
   const [hasSavedGame, setHasSavedGame] = useState(false);
-  const { controlsVisible, boardVisible, fastForward } = useIntroSequence();
-
   // Check for saved game on mount
   useEffect(() => {
     setHasSavedGame(hasSavedSession());
@@ -94,9 +91,6 @@ function App() {
         grid={state.grid}
         madeWords={state.madeWords}
         dictionary={dictionary}
-        controlsVisible={controlsVisible}
-        boardVisible={boardVisible}
-        onFastForward={fastForward}
         onStart={handleStart}
         onSettings={() => setShowSettingsMenu(true)}
         onHowToPlay={() => setShowHTP(true)}

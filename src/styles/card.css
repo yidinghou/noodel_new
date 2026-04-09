@@ -13,14 +13,6 @@
     box-shadow: var(--shadow-card);
 }
 
-/* Intro sequence state - clickable to skip */
-.card.intro-active {
-    transition: box-shadow 0.3s ease;
-}
-
-.card.intro-active:hover {
-    box-shadow: 0 8px 24px rgba(25, 118, 210, 0.25);
-}
 
 .title {
     display: flex;
@@ -88,19 +80,6 @@
     animation: shake var(--animation-duration-title-shake) ease-in-out forwards;
 }
 
-/* Controls (Start & Mute buttons) - Now inside stats */
-.controls {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    margin-left: 10px;
-    opacity: 0;
-    transition: opacity 0.4s ease-out;
-}
-
-.controls.visible {
-    opacity: 1;
-}
 
 .start-btn {
     /* Match .block-base sizing: square, same size as letter blocks */
