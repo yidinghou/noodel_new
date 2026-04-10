@@ -4,7 +4,6 @@ import GameLayout from './components/Layout/GameLayout.jsx';
 import ModeSelector from './components/Controls/ModeSelector.jsx';
 import SettingsMenu from '../components/Controls/SettingsMenu.jsx';
 import GameOverOverlay from '../components/Overlays/GameOverOverlay.jsx';
-import ReplayOverlay from '../components/Overlays/ReplayOverlay.jsx';
 import HowToPlayModal from './HowToPlayModal.jsx';
 import { useGame } from '../context/GameContext.jsx';
 import { useGameLogic } from '../hooks/useGameLogic.js';
@@ -17,7 +16,6 @@ function App() {
   const [isMuted, setIsMuted] = useState(false);
   const [showModeSelector, setShowModeSelector] = useState(false);
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
-  const [showReplayOverlay, setShowReplayOverlay] = useState(false);
   const [showHTP, setShowHTP] = useState(false);
   const [pendingMode, setPendingMode] = useState(null);
   const [hasSavedGame, setHasSavedGame] = useState(false);
@@ -51,11 +49,6 @@ function App() {
       return;
     }
     startMode(mode);
-  };
-
-  const handleReplayGame = () => {
-    setShowSettingsMenu(false);
-    setShowReplayOverlay(true);
   };
 
   const handleRestart = () => {
@@ -118,16 +111,6 @@ function App() {
           onClose={() => setShowSettingsMenu(false)}
           isMuted={isMuted}
           onToggleMute={handleToggleMute}
-          hasGameSession={!!gameSession.getSavedSession()}
-          onReplay={handleReplayGame}
-        />,
-        gridWrapperRef.current
-      )}
-      {gridWrapperRef.current && createPortal(
-        <ReplayOverlay
-          visible={showReplayOverlay}
-          onClose={() => setShowReplayOverlay(false)}
-          session={gameSession.getSavedSession()}
         />,
         gridWrapperRef.current
       )}
