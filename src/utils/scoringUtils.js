@@ -38,12 +38,3 @@ export function calculateWordScore(word) {
     
     return baseScore + lengthBonus;
 }
-
-/**
- * Get the point value for a single letter
- * @param {string} letter - The letter to get the value for
- * @returns {number} The point value
- */
-export function getLetterValue(letter) {
-    return LETTER_VALUES[letter.toUpperCase()] || 0;
-}
