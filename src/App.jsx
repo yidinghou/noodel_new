@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import GameLayout from './components/Layout/GameLayout.jsx';
 import ModeSelector from './components/Controls/ModeSelector.jsx';
@@ -8,24 +8,17 @@ import HowToPlayModal from './poc/HowToPlayModal.jsx';
 import { useGame } from './context/GameContext.jsx';
 import { useGameLogic } from './hooks/useGameLogic.js';
 import { useIntroSequence } from './hooks/useIntroSequence.js';
-import { hasSavedSession } from './services/sessionStorage.js';
 
 function App() {
-  const { state, dispatch, loadSavedGame, undo, gameSession } = useGame();
-  const { dictionary, loading: dictLoading } = useGameLogic();
+  const { state, dispatch, undo, gameSession } = useGame();
+  const { dictionary } = useGameLogic();
   const gridWrapperRef = useRef(null);
   const [isMuted, setIsMuted] = useState(false);
   const [showModeSelector, setShowModeSelector] = useState(false);
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [pendingMode, setPendingMode] = useState(null);
-  const [hasSavedGame, setHasSavedGame] = useState(false);
   const { dropOrderMap, statsVisible, controlsVisible, boardVisible, fastForward } = useIntroSequence();
-
-  // Check for saved game on mount
-  useEffect(() => {
-    setHasSavedGame(hasSavedSession());
-  }, []);
 
   const handleStart = () => {
     setShowModeSelector(true);
@@ -35,16 +28,7 @@ function App() {
     setShowModeSelector(false);
     // Clear any saved session when starting a new game
     gameSession.clearSavedSession();
-    setHasSavedGame(false);
     dispatch({ type: 'START_GAME', payload: { mode } });
-  };
-
-  const handleResumeGame = () => {
-    const resumed = loadSavedGame();
-    if (resumed) {
-      setShowModeSelector(false);
-      setHasSavedGame(false);
-    }
   };
 
   const handleModeSelect = (mode) => {
