@@ -32,9 +32,7 @@ export function createSession(mode, initialQueue, initialGrid, initialBlocks) {
     lastActivityAt: now,
     status: 'in_progress',
 
-    // Replay data
-    initialQueue: [...initialQueue], // copy to prevent mutation
-    initialGrid: initialGrid ? [...initialGrid] : null,
+    // Initial blocks for clear mode
     initialBlocks: [...(initialBlocks || [])],
 
     // Event log (append-only)
@@ -68,55 +66,7 @@ export function appendEvent(session, eventType, payload, ts) {
   };
 }
 
-/**
- * Append a WORD_CLEARED event. Sits between DROP_LETTER events so each
- * word removal gets its own seq number — no overwrite, no attribution drift.
- */
-export function appendWordClearedEvent(session, wordsCleared, preClearGrid, ts) {
-  const newEvent = {
-    seq: session.events.length,
-    type: 'WORD_CLEARED',
-    wordsCleared: wordsCleared || [],
-    preRemoveGrid: preClearGrid ? sanitizeGrid(preClearGrid) : null,
-    ts
-  };
-  return { ...session, events: [...session.events, newEvent], lastActivityAt: ts };
-}
 
-/**
- * Attach a post-drop grid to the most recent DROP_LETTER event.
- * Called when a drop lands while words are pending — captures the grid
- * with those pending cells shown as static green so replay doesn't skip the drop.
- */
-export function addPostDropGrid(session, grid, score, lettersRemaining, nextQueue) {
-  const events = session.events;
-  let lastDropIdx = -1;
-  for (let i = events.length - 1; i >= 0; i--) {
-    if (events[i].type === 'DROP_LETTER') { lastDropIdx = i; break; }
-  }
-  if (lastDropIdx === -1) return session;
-
-  const updatedEvents = events.map((e, i) =>
-    i === lastDropIdx
-      ? { ...e, postDropGrid: pendingToMatched(grid), postDropScore: score,
-              postDropLettersRemaining: lettersRemaining, postDropNextQueue: nextQueue.slice() }
-      : e
-  );
-  return { ...session, events: updatedEvents };
-}
-
-/** Convert isPending cells to isMatched for static replay display. */
-function pendingToMatched(grid) {
-  return grid.map(cell => {
-    if (!cell) return null;
-    return {
-      char: cell.char, id: cell.id, type: cell.type,
-      isMatched: !!(cell.isPending || cell.isMatched),
-      isPending: false, pendingDirections: [], pendingResetCount: 0,
-      isInitial: cell.isInitial ?? false,
-    };
-  });
-}
 
 /**
  * Remove animation-only fields from a tile to sanitize for storage.
@@ -142,7 +92,7 @@ function sanitizeTile(tile) {
  * @param {Array} grid - 42-element grid
  * @returns {Array} sanitized grid
  */
-export function sanitizeGrid(grid) {
+function sanitizeGrid(grid) {
   return grid.map(sanitizeTile);
 }
 
