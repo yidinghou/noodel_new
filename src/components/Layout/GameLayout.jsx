@@ -28,16 +28,6 @@ function GameLayout({
   onColumnClick,
   onUndo,
   showPreview = false,
-  canDrop = false,
-  tutorialStep = null,
-  tutorialMessage = null,
-  showNextButton = false,
-  showBackButton = false,
-  dimElements = {},
-  highlightPreview = false,
-  highlightColumn = null,
-  onTutorialNext = null,
-  onTutorialBack = null,
 }) {
   const gridRef = useRef(null);
   const nextUpRef = useRef(null);
@@ -71,8 +61,6 @@ function GameLayout({
   }, [grid]);
 
   const handleColumnClick = useCallback((column) => {
-    if (!canDrop) return;
-    if (highlightColumn !== null && column !== highlightColumn) return;
 
     const fromEl = nextUpRef.current;
     const gridEl = gridRef.current;
@@ -115,7 +103,7 @@ function GameLayout({
       toFinal: { x: colLeft, y: gridRect.top + destRow * rowHeight },
       cellSize,
     }]);
-  }, [canDrop, highlightColumn, nextLetters, getDestRow, onColumnClick]);
+  }, [nextLetters, getDestRow, onColumnClick]);
 
   const handleDropComplete = useCallback((id, column) => {
     onColumnClick?.(column);
@@ -129,18 +117,7 @@ function GameLayout({
     setActiveDrops(prev => prev.filter(d => d.id !== id));
   }, [onColumnClick]);
 
-  const previewClasses = [
-    'preview-row',
-    dimElements.preview ? 'tutorial-dimmed' : '',
-    highlightPreview ? 'tutorial-highlight-preview' : '',
-    tutorialStep === 'PREVIEW_INTRO' ? 'tutorial-clickable' : '',
-  ].filter(Boolean).join(' ');
-
-  const handlePreviewClick = () => {
-    if (tutorialStep === 'PREVIEW_INTRO' && onTutorialNext) {
-      onTutorialNext();
-    }
-  };
+  const previewClasses = 'preview-row';
 
   // Allow fastForward only during intro sequence (before all elements are visible)
   const isIntroActive = !statsVisible || !controlsVisible || !boardVisible;
@@ -157,7 +134,7 @@ function GameLayout({
     <div className="main-container">
       {/* Card Section (Top) */}
       <div
-        className={`card${dimElements.card ? ' tutorial-dimmed' : ''}${isIntroActive ? ' intro-active' : ''}`}
+        className={`card${isIntroActive ? ' intro-active' : ''}`}
         onClick={handleCardClick}
         style={isIntroActive ? { cursor: 'pointer' } : undefined}
       >
@@ -170,43 +147,18 @@ function GameLayout({
 
       {/* Game Grid Section (Middle) */}
       <div className="game-grid-wrapper" ref={gridWrapperRef}>
-        {tutorialMessage && (
-          <div className="tutorial-banner">
-            {showBackButton && (
-              <button
-                className="tutorial-arrow-btn"
-                onClick={onTutorialBack}
-                aria-label="Go back"
-              >
-                &lt;
-              </button>
-            )}
-            <div className="tutorial-banner-text">{tutorialMessage}</div>
-            {showNextButton && (
-              <button
-                className="tutorial-arrow-btn tutorial-next-btn"
-                onClick={onTutorialNext}
-                aria-label="Go next"
-              >
-                &gt;
-              </button>
-            )}
-          </div>
-        )}
-        <div className={previewClasses} onClick={handlePreviewClick}>
-          <NextPreview nextLetters={nextLetters.slice(activeDrops.length, activeDrops.length + 5)} visible={showPreview} nextUpRef={nextUpRef} showOrdinals={tutorialStep !== null} shiftKey={shiftKey} />
+        <div className={previewClasses}>
+          <NextPreview nextLetters={nextLetters.slice(activeDrops.length, activeDrops.length + 5)} visible={showPreview} nextUpRef={nextUpRef} shiftKey={shiftKey} />
           <div className={`game-grid-letters-remaining${showPreview ? ' visible' : ''}`}>
             <div className="letters-remaining-label">Letters Remaining</div>
             <div className="letters-remaining-value">{lettersRemaining}</div>
           </div>
         </div>
-        <div className={dimElements.grid ? 'tutorial-dimmed' : undefined}>
-          <Board grid={grid} onColumnClick={handleColumnClick} gridRef={gridRef} highlightColumn={highlightColumn} visible={boardVisible} />
-        </div>
+        <Board grid={grid} onColumnClick={handleColumnClick} gridRef={gridRef} visible={boardVisible} />
       </div>
 
       {/* Made Words Section (Bottom) */}
-      <div className={`made-words-section${dimElements.madeWords ? ' tutorial-dimmed' : ''}`}>
+      <div className="made-words-section">
         <MadeWords words={madeWords} dictionary={dictionary} visible={boardVisible} />
       </div>
 
