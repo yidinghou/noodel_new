@@ -201,11 +201,6 @@ export function gameReducer(state, action) {
       };
     }
 
-    case 'RESTORE_STATE': {
-      const { grid, nextQueue, lettersRemaining, madeWords } = action.payload;
-      return { ...state, grid, nextQueue, lettersRemaining, madeWords, status: 'PLAYING' };
-    }
-
     case 'LOAD_SAVED_GAME': {
       const { grid, nextQueue, lettersRemaining, score, madeWords, gameMode, initialBlocks } = action.payload;
       return {
