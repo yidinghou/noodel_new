@@ -1,6 +1,6 @@
 import React from 'react';
 
-function ModeSelector({ visible, onSelectMode, onClose, pendingMode, dictLoading, dictReady }) {
+function ModeSelector({ visible, onSelectMode, onClose, pendingMode, dictReady }) {
   const handleModeSelect = (mode) => {
     onSelectMode(mode);
   };

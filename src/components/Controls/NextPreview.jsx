@@ -1,6 +1,4 @@
-const ORDINALS = ['1st', '2nd', '3rd', '4th', '5th'];
-
-function NextPreview({ nextLetters = [], visible = false, nextUpRef, showOrdinals = false, shiftKey = 0 }) {
+function NextPreview({ nextLetters = [], visible = false, nextUpRef, shiftKey = 0 }) {
   const displayLetters = nextLetters.slice(0, 5);
 
   return (
@@ -18,9 +16,6 @@ function NextPreview({ nextLetters = [], visible = false, nextUpRef, showOrdinal
         const slotKey = index === 0 ? `next-up-${shiftKey}` : index;
         return (
           <div key={slotKey} className="tutorial-preview-slot">
-            {showOrdinals && (
-              <div className="tutorial-ordinal">{ORDINALS[index]}</div>
-            )}
             <div
               ref={isNextUp ? nextUpRef : null}
               className={className}
