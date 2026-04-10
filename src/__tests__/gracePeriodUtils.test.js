@@ -89,6 +89,59 @@ describe('classifyIncomingWord', () => {
 
       expect(classifyIncomingWord(w, pending)).toEqual({ type: 'skip' });
     });
+
+    test('returns skip when new word partially overlaps a same-direction pending word', () => {
+      // RAT (horizontal, [1,2,3]) is pending. Player places E at index 0 → ERA
+      // (horizontal, [0,1,2]) is detected. ERA shares indices 1 and 2 with RAT
+      // but is not a superset of it — both come from the same tile run.
+      const rat = word('RAT', [1, 2, 3], 'horizontal', 0, 1);
+      const ratKey = generateWordKey(rat);
+      const pending = pendingView({ key: ratKey, direction: 'horizontal', indices: [1, 2, 3] });
+
+      const era = word('ERA', [0, 1, 2], 'horizontal', 0, 0);
+      expect(classifyIncomingWord(era, pending)).toEqual({ type: 'skip' });
+    });
+
+    test('returns skip when new word is contained within a same-direction pending word', () => {
+      // RATE (horizontal, [0,1,2,3]) is pending. RAT (horizontal, [0,1,2]) is
+      // detected — its cells are a subset of RATE. The extension check does not
+      // fire (new word is smaller), but same-direction sharing still → skip.
+      const rate = word('RATE', [0, 1, 2, 3], 'horizontal', 0, 0);
+      const rateKey = generateWordKey(rate);
+      const pending = pendingView({ key: rateKey, direction: 'horizontal', indices: [0, 1, 2, 3] });
+
+      const rat = word('RAT', [0, 1, 2], 'horizontal', 0, 0);
+      expect(classifyIncomingWord(rat, pending)).toEqual({ type: 'skip' });
+    });
+
+    test('extension (strict superset, same direction) is not affected by the partial-overlap skip', () => {
+      // The extension check runs before the partial-overlap guard, so CATS
+      // extending CAT must still return 'extend', not 'skip'.
+      const cat = word('CAT', [0, 1, 2], 'horizontal', 0, 0);
+      const catKey = generateWordKey(cat);
+      const pending = pendingView({ key: catKey, direction: 'horizontal', indices: [0, 1, 2] });
+
+      const cats = word('CATS', [0, 1, 2, 3], 'horizontal', 0, 0);
+      const result = classifyIncomingWord(cats, pending);
+
+      expect(result.type).toBe('extend');
+      expect(result.replaceKey).toBe(catKey);
+    });
+
+    test('cross-direction intersection still returns add, not skip', () => {
+      // CAT horizontal at [3,4,5] is pending. ACE vertical at [5,12,19] shares
+      // only index 5 but runs in a different direction — genuinely a distinct
+      // word, must get its own timer.
+      const cat = word('CAT', [3, 4, 5], 'horizontal', 0, 3);
+      const catKey = generateWordKey(cat);
+      const pending = pendingView({ key: catKey, direction: 'horizontal', indices: [3, 4, 5] });
+
+      const ace = word('ACE', [5, 12, 19], 'vertical', 0, 5);
+      const result = classifyIncomingWord(ace, pending);
+
+      expect(result.type).toBe('add');
+      expect(result.resetKeys).toContain(catKey);
+    });
   });
 
   describe('extend', () => {

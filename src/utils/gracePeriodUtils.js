@@ -34,7 +34,10 @@ export function hasIntersection(setA, setB) {
  *
  * @returns one of:
  *   { type: 'skip' }
- *     The exact same word key is already pending — nothing to do.
+ *     Either the exact same word key is already pending, OR the new word
+ *     partially overlaps (in the same direction) a word that is already
+ *     pending — both arise from the same linear tile run, so no new timer
+ *     should start.
  *
  *   { type: 'extend', replaceKey: string }
  *     The new word is a strict superset of an existing same-direction pending word.
@@ -61,8 +64,20 @@ export function classifyIncomingWord(wordData, pendingEntries) {
     }
   }
 
-  // New word — collect all pending words that share any cell (any direction)
-  // so the caller can reset their timers alongside starting this word's timer.
+  // A same-direction intersection that isn't an extension means both words come
+  // from the same linear tile run — skip so only one timer runs per sequence.
+  // Cross-direction intersections (e.g., horizontal CAT + vertical ACE sharing
+  // one cell) fall through to 'add' and correctly get separate timers.
+  for (const [, entry] of pendingEntries) {
+    if (entry.direction === wordData.direction && hasIntersection(newIdxSet, entry.idxSet)) {
+      return { type: 'skip' };
+    }
+  }
+
+  // Genuinely new word — collect all pending words that share any cell (any
+  // direction) so the caller can reset their timers alongside starting this
+  // word's timer. Same-direction partial overlaps are already skipped above,
+  // so every intersection here is cross-direction.
   const resetKeys = [];
   for (const [key, entry] of pendingEntries) {
     if (hasIntersection(newIdxSet, entry.idxSet)) {

@@ -26,9 +26,11 @@ function extractWord(grid, startRow, startCol, rowDelta, colDelta, length) {
   return { word: letters.join(''), indices, startRow, startCol, direction };
 }
 
-// Filter overlapping words in the same direction, keeping the longest.
-// When same-direction words share any cell, the longer word wins.
-// Equal-length partial overlaps keep the first-encountered word.
+// Filter overlapping words in the same direction among *newly found* words,
+// keeping the longest. When same-direction words share any cell, the longer
+// word wins. Equal-length partial overlaps keep the first-encountered word.
+// Note: conflicts between a newly found word and an *already-pending* word
+// are handled separately in classifyIncomingWord (gracePeriodUtils.js).
 export function filterOverlappingWords(words) {
   const filtered = [];
 
