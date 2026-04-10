@@ -25,6 +25,7 @@ function GameLayout({
   onFastForward = null,
   onStart,
   onSettings,
+  onInfo,
   onColumnClick,
   onUndo,
   showPreview = false,
@@ -141,7 +142,7 @@ function GameLayout({
         <Header dropOrderMap={dropOrderMap} onUndo={onUndo} />
         <div className={`stats ${statsVisible ? 'visible' : ''}`}>
           <ScoreBoard score={score} gameStatus={gameStatus} gameMode={gameMode} />
-          <Actions onStart={onStart} onSettings={onSettings} visible={controlsVisible} />
+          <Actions onStart={onStart} onSettings={onSettings} onInfo={onInfo} visible={controlsVisible} />
         </div>
       </div>
 
