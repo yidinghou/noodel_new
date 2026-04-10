@@ -92,7 +92,7 @@ function sanitizeTile(tile) {
  * @param {Array} grid - 42-element grid
  * @returns {Array} sanitized grid
  */
-export function sanitizeGrid(grid) {
+function sanitizeGrid(grid) {
   return grid.map(sanitizeTile);
 }
 

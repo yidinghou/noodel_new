@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-const LETTERS = ['N', 'O', 'O', 'D', 'E', 'L'];
 const LETTER_DROP_ANIMATION_MS = 400;  // CSS animation duration
 const LAST_LETTER_DROP_DELAY_MS = 5 * 200; // Last letter drops at 5 * 0.2s = 1.0s, plus animation duration
 

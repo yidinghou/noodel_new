@@ -2,7 +2,7 @@ import React from 'react';
 import Cell from './Cell.jsx';
 import { GRID_SIZE, GRID_COLS } from '../../utils/gameConstants.js';
 
-function Board({ grid = Array(GRID_SIZE).fill(null), onColumnClick, gridRef, highlightColumn = null, visible = true }) {
+function Board({ grid = Array(GRID_SIZE).fill(null), onColumnClick, gridRef, visible = true }) {
   const handleCellClick = (index) => {
     const column = index % GRID_COLS;
     if (onColumnClick) {
@@ -14,9 +14,8 @@ function Board({ grid = Array(GRID_SIZE).fill(null), onColumnClick, gridRef, hig
     <div ref={gridRef} className={`game-grid ${visible ? 'visible' : ''}`}>
       {grid.map((cell, index) => {
         const column = index % GRID_COLS;
-        const isHighlighted = highlightColumn !== null && column === highlightColumn;
         return (
-        <div key={`cell-${index}`} className={isHighlighted ? 'tutorial-highlight-cell' : undefined} style={{ position: 'relative' }}>
+        <div key={`cell-${index}`} style={{ position: 'relative' }}>
           {/* Invisible touch shield — never animates or remounts */}
           <div
             style={{
