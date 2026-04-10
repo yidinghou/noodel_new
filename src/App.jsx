@@ -4,9 +4,9 @@ import GameLayout from './components/Layout/GameLayout.jsx';
 import ModeSelector from './components/Controls/ModeSelector.jsx';
 import SettingsMenu from './components/Controls/SettingsMenu.jsx';
 import GameOverOverlay from './components/Overlays/GameOverOverlay.jsx';
+import HowToPlayModal from './components/Overlays/HowToPlayModal.jsx';
 import { useGame } from './context/GameContext.jsx';
 import { useGameLogic } from './hooks/useGameLogic.js';
-import { useTutorial } from './hooks/useTutorial.js';
 import { useIntroSequence } from './hooks/useIntroSequence.js';
 import { hasSavedSession } from './services/sessionStorage.js';
 
@@ -17,11 +17,9 @@ function App() {
   const [isMuted, setIsMuted] = useState(false);
   const [showModeSelector, setShowModeSelector] = useState(false);
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
+  const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [pendingMode, setPendingMode] = useState(null);
   const [hasSavedGame, setHasSavedGame] = useState(false);
-  const tutorial = useTutorial(state, dispatch, () => {
-    setShowModeSelector(true);
-  });
   const { dropOrderMap, statsVisible, controlsVisible, boardVisible, fastForward } = useIntroSequence();
 
   // Check for saved game on mount
@@ -36,16 +34,9 @@ function App() {
   const startMode = (mode) => {
     setShowModeSelector(false);
     // Clear any saved session when starting a new game
-    if (mode !== 'tutorial') {
-      gameSession.clearSavedSession();
-      setHasSavedGame(false);
-    }
+    gameSession.clearSavedSession();
+    setHasSavedGame(false);
     dispatch({ type: 'START_GAME', payload: { mode } });
-    if (mode === 'tutorial') {
-      tutorial.startTutorial();
-    } else {
-      tutorial.clearTutorial();
-    }
   };
 
   const handleResumeGame = () => {
@@ -65,7 +56,6 @@ function App() {
   };
 
   const handleRestart = () => {
-    tutorial.clearTutorial();
     dispatch({ type: 'RESET' });
     setShowModeSelector(true);
   };
@@ -108,19 +98,10 @@ function App() {
         onFastForward={fastForward}
         onStart={handleStart}
         onSettings={() => setShowSettingsMenu(true)}
+        onInfo={() => setShowHowToPlay(true)}
         onColumnClick={handleColumnClick}
         onUndo={undo}
         showPreview={state.status === 'PLAYING' || state.status === 'PROCESSING'}
-        canDrop={tutorial.canDrop}
-        tutorialStep={tutorial.tutorialStep}
-        tutorialMessage={tutorial.tutorialMessage}
-        showNextButton={tutorial.showNextButton}
-        showBackButton={tutorial.showBackButton}
-        dimElements={tutorial.dimElements}
-        highlightPreview={tutorial.highlightPreview}
-        highlightColumn={tutorial.highlightColumn}
-        onTutorialNext={tutorial.handleTutorialNext}
-        onTutorialBack={tutorial.handleBack}
       />
       {gridWrapperRef.current && createPortal(
         <ModeSelector
@@ -128,10 +109,7 @@ function App() {
           onSelectMode={handleModeSelect}
           onClose={() => setShowModeSelector(false)}
           pendingMode={pendingMode}
-          dictLoading={dictLoading}
           dictReady={!!dictionary}
-          hasSavedGame={hasSavedGame}
-          onResume={handleResumeGame}
         />,
         gridWrapperRef.current
       )}
@@ -152,6 +130,7 @@ function App() {
         boardCleared={boardCleared}
         onRestart={handleRestart}
       />
+      {showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}
     </div>
   );
 }
