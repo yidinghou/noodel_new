@@ -35,16 +35,24 @@ export function useGameLogic() {
       const expiredWord = pending.get(wordKey);
       const expiredIndices = new Set(expiredWord.wordData.indices);
 
-      // Find all words that intersect with the expired word
+      // Find all words that intersect with the expired word (transitive closure via BFS).
+      // If A∩B and B∩C, then A, B, C all expire together even if A∩C is empty.
       const wordsToExpire = [expiredWord];
-      const keysToDelete = [wordKey];
+      const visitedKeys = new Set([wordKey]);
+      const queue = [expiredWord];
 
-      for (const [key, entry] of pending) {
-        if (key !== wordKey && hasIntersection(expiredIndices, entry.idxSet)) {
-          wordsToExpire.push(entry);
-          keysToDelete.push(key);
+      while (queue.length > 0) {
+        const frontier = queue.shift();
+        for (const [key, entry] of pending) {
+          if (!visitedKeys.has(key) && hasIntersection(frontier.idxSet, entry.idxSet)) {
+            visitedKeys.add(key);
+            wordsToExpire.push(entry);
+            queue.push(entry);
+          }
         }
       }
+
+      const keysToDelete = [...visitedKeys];
 
       // Cancel timers only for words being expired
       for (const entry of wordsToExpire) {
