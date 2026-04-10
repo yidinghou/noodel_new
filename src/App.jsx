@@ -4,7 +4,7 @@ import GameLayout from './components/Layout/GameLayout.jsx';
 import ModeSelector from './components/Controls/ModeSelector.jsx';
 import SettingsMenu from './components/Controls/SettingsMenu.jsx';
 import GameOverOverlay from './components/Overlays/GameOverOverlay.jsx';
-import HowToPlayModal from './components/Overlays/HowToPlayModal.jsx';
+import HowToPlayModal from './poc/HowToPlayModal.jsx';
 import { useGame } from './context/GameContext.jsx';
 import { useGameLogic } from './hooks/useGameLogic.js';
 import { useIntroSequence } from './hooks/useIntroSequence.js';
