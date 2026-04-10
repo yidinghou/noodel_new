@@ -7,7 +7,7 @@ import React from 'react';
  * @param {boolean} isMuted - Whether sound is muted
  * @param {function} onToggleMute - Callback to toggle mute state
  */
-function SettingsMenu({ visible, onClose, isMuted, onToggleMute, hasGameSession, onReplay }) {
+function SettingsMenu({ visible, onClose, isMuted, onToggleMute }) {
   const isOnPoc = window.location.pathname.includes('poc.html');
   const switchTarget = isOnPoc ? '/noodel_new/' : '/noodel_new/poc.html';
   const switchLabel = isOnPoc ? 'Switch to Classic' : 'Switch to New UI';
@@ -26,11 +26,6 @@ function SettingsMenu({ visible, onClose, isMuted, onToggleMute, hasGameSession,
 
         <div className="mode-selection-section">
           <div className="mode-selection-buttons">
-            {hasGameSession && (
-              <button className="mode-selection-btn settings-btn-item" onClick={onReplay}>
-                🎬 Replay Game
-              </button>
-            )}
             <button className="mode-selection-btn settings-btn-item">
               👤 Login
             </button>
