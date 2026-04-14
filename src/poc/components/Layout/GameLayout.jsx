@@ -19,6 +19,7 @@ function GameLayout({
   onColumnClick,
   onUndo,
   showPreview = false,
+  boardVisible = true,
   canDrop = false,
 }) {
   const gridRef = useRef(null);
@@ -131,7 +132,7 @@ function GameLayout({
             <div className="letters-remaining-value">{lettersRemaining}</div>
           </div>
         </div>
-        <Board grid={grid} onColumnClick={handleColumnClick} gridRef={gridRef} highlightColumn={null} visible={showPreview} />
+        <Board grid={grid} onColumnClick={handleColumnClick} gridRef={gridRef} highlightColumn={null} visible={boardVisible} />
       </div>
 
       {/* Made Words Section (Bottom) */}
