@@ -5,7 +5,8 @@ function MadeWords({ words = [], dictionary = null, visible = true }) {
     <div className={`made-words-container ${visible ? 'visible' : ''}`}>
       <div className="made-words-title">Words Made</div>
       <div className="words-list">
-        {words.map((word, index) => {
+        {words.map((entry, index) => {
+          const word = typeof entry === 'string' ? entry : entry.word;
           const definition = dictionary?.get(word);
           return (
             <div key={index} className="word-item">

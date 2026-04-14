@@ -83,7 +83,7 @@ describe('gameReducer – REMOVE_WORDS', () => {
       payload: { wordsToRemove: [wordData('CAT', [idx(5,0), idx(5,1), idx(5,2)])] },
     });
 
-    expect(next.madeWords).toContain('CAT');
+    expect(next.madeWords.some(w => w.word === 'CAT')).toBe(true);
   });
 
   test('clears multiple words in a single dispatch', () => {
@@ -105,8 +105,8 @@ describe('gameReducer – REMOVE_WORDS', () => {
     [idx(5,0), idx(5,1), idx(5,2), idx(3,6), idx(4,6), idx(5,6)].forEach(i => {
       expect(next.grid[i]).toBeNull();
     });
-    expect(next.madeWords).toContain('CAT');
-    expect(next.madeWords).toContain('DOG');
+    expect(next.madeWords.some(w => w.word === 'CAT')).toBe(true);
+    expect(next.madeWords.some(w => w.word === 'DOG')).toBe(true);
   });
 
   test('transitions status back to PLAYING', () => {
@@ -245,7 +245,7 @@ describe('gameReducer – grace period action sequence', () => {
     [idx(5,0), idx(5,1), idx(5,2), idx(5,3)].forEach(i => {
       expect(state.grid[i]).toBeNull();
     });
-    expect(state.madeWords).toContain('CATS');
+    expect(state.madeWords.some(w => w.word === 'CATS')).toBe(true);
     expect(state.status).toBe('PLAYING');
   });
 
