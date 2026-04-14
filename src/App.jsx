@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import GameLayout from './components/Layout/GameLayout.jsx';
+import { DebugOverlay } from './components/Debug/DebugOverlay.jsx';
 import ModeSelector from './components/Controls/ModeSelector.jsx';
 import SettingsMenu from './components/Controls/SettingsMenu.jsx';
 import GameOverOverlay from './components/Overlays/GameOverOverlay.jsx';
@@ -115,6 +116,7 @@ function App() {
         onRestart={handleRestart}
       />
       {showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}
+      <DebugOverlay />
     </div>
   );
 }
