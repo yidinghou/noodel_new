@@ -131,7 +131,7 @@ function GameLayout({
             <div className="letters-remaining-value">{lettersRemaining}</div>
           </div>
         </div>
-        <Board grid={grid} onColumnClick={handleColumnClick} gridRef={gridRef} highlightColumn={null} />
+        <Board grid={grid} onColumnClick={handleColumnClick} gridRef={gridRef} highlightColumn={null} visible={showPreview} />
       </div>
 
       {/* Made Words Section (Bottom) */}
