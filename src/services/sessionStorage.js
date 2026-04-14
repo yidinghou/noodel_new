@@ -4,20 +4,12 @@
  */
 
 const STORAGE_KEY = 'noodel_session_v1';
-const CURRENT_SCHEMA_VERSION = 1;
+const CURRENT_SCHEMA_VERSION = 3;
 
-/**
- * Save a session document to localStorage.
- * Silently swallows quota exceeded errors and parse errors.
- * @param {Object} session
- */
 export function saveSession(session) {
   try {
-    const serialized = JSON.stringify(session);
-    localStorage.setItem(STORAGE_KEY, serialized);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
   } catch (error) {
-    // Silently ignore quota exceeded, permission denied, etc.
-    // User can still play, just won't have resume capability
     if (error.name !== 'QuotaExceededError' && error.name !== 'NS_ERROR_DOM_QUOTA_REACHED') {
       console.warn('Failed to save session:', error);
     }
@@ -25,9 +17,9 @@ export function saveSession(session) {
 }
 
 /**
- * Load the session document from localStorage.
- * Returns null if nothing saved, schema mismatch, parse error, or corrupted data.
- * @returns {Object|null}
+ * Load the session from localStorage.
+ * Returns null on schema mismatch, parse error, or missing required fields.
+ * The checkpoint field is optional — it can be rebuilt from events.
  */
 export function loadSession() {
   try {
@@ -36,26 +28,15 @@ export function loadSession() {
 
     const session = JSON.parse(stored);
 
-    // Reject if schema version doesn't match
-    if (session.schemaVersion !== CURRENT_SCHEMA_VERSION) {
-      return null;
-    }
-
-    // Basic validation: session should have required fields
-    if (!session.sessionId || !session.gameMode || !session.snapshot) {
-      return null;
-    }
+    if (session.schemaVersion !== CURRENT_SCHEMA_VERSION) return null;
+    if (!session.sessionId || !session.gameMode || !Array.isArray(session.events)) return null;
 
     return session;
-  } catch (error) {
-    // Parse error or other issue - return null
+  } catch {
     return null;
   }
 }
 
-/**
- * Remove the saved session from localStorage.
- */
 export function clearSession() {
   try {
     localStorage.removeItem(STORAGE_KEY);
@@ -64,25 +45,19 @@ export function clearSession() {
   }
 }
 
-/**
- * Check if a resumable session exists without loading the full document.
- * @returns {boolean}
- */
 export function hasSavedSession() {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) return false;
-
     const session = JSON.parse(stored);
-
-    // Check schema and required fields
     return (
       session.schemaVersion === CURRENT_SCHEMA_VERSION &&
-      session.sessionId &&
-      session.gameMode &&
-      session.snapshot !== null
+      Boolean(session.sessionId) &&
+      Boolean(session.gameMode) &&
+      Array.isArray(session.events) &&
+      session.events.length > 0
     );
-  } catch (error) {
+  } catch {
     return false;
   }
 }
