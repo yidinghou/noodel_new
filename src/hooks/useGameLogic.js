@@ -7,6 +7,7 @@ import {
   hasIntersection,
   classifyIncomingWord,
 } from '../utils/gracePeriodUtils.js';
+import { GRID_COLS } from '../utils/gameConstants.js';
 
 const GRACE_PERIOD_MS = 1000;
 const SHAKE_DURATION_MS = 400;
@@ -23,6 +24,13 @@ export function useGameLogic() {
   // Counts expireWord calls whose REMOVE_WORDS hasn't fired yet
   // Gravity must wait until this reaches 0 (all tiles actually cleared)
   const pendingRemovesRef = useRef(0);
+
+  // Combo chain tracking: Map<chainId, { columns: Set<number>, depth: number }>
+  // Chains accumulate across a full cascade and reset on each new player drop.
+  const activeChainMapRef = useRef(new Map());
+  const chainCounterRef = useRef(0);
+  // Tracks lettersRemaining to detect new player drops (each drop decrements it)
+  const lastLettersRef = useRef(null);
 
   // Called when a word's grace period expires
   // Only expires the specific word and any intersecting words
@@ -67,6 +75,30 @@ export function useGameLogic() {
       // Gather indices for expired words
       const allIndices = [...new Set(wordsToExpire.flatMap(e => e.wordData.indices))];
 
+      // --- Combo chain attribution ---
+      const expiredCols = new Set(allIndices.map(i => i % GRID_COLS));
+
+      const overlapping = [...activeChainMapRef.current.entries()]
+        .filter(([, chain]) => [...expiredCols].some(col => chain.columns.has(col)));
+
+      let chainId, comboDepth;
+      if (overlapping.length === 0) {
+        chainId = `${Date.now()}_${++chainCounterRef.current}`;
+        comboDepth = 1;
+        activeChainMapRef.current.set(chainId, { columns: new Set(expiredCols), depth: 1 });
+      } else {
+        overlapping.sort((a, b) => b[1].depth - a[1].depth);
+        const [deepestId, deepestChain] = overlapping[0];
+        chainId = deepestId;
+        comboDepth = deepestChain.depth + 1;
+        for (const [cId, chain] of overlapping.slice(1)) {
+          chain.columns.forEach(col => deepestChain.columns.add(col));
+          activeChainMapRef.current.delete(cId);
+        }
+        expiredCols.forEach(col => deepestChain.columns.add(col));
+        deepestChain.depth = comboDepth;
+      }
+
       // Shake phase: mark as matched (pauses word detection)
       dispatch({ type: 'SET_MATCHED_INDICES', payload: { indices: allIndices } });
 
@@ -75,7 +107,12 @@ export function useGameLogic() {
         // Remove expired words and score them
         dispatch({
           type: 'REMOVE_WORDS',
-          payload: { wordsToRemove: wordsToExpire.map(e => e.wordData) },
+          payload: {
+            wordsToRemove: wordsToExpire.map(e => e.wordData),
+            chainId,
+            comboDepth,
+            groupSize: wordsToExpire.length,
+          },
         });
 
         pendingRemovesRef.current--;
@@ -103,12 +140,21 @@ export function useGameLogic() {
       pending.clear();
       pendingRemovesRef.current = 0;
       gravityScheduledRef.current = false;
+      activeChainMapRef.current.clear();
+      lastLettersRef.current = null;
     }
   }, [state.status]);
 
   // Main word detection effect — runs after every grid change
   useEffect(() => {
     if (!dictionary || state.status !== 'PLAYING' || gravityScheduledRef.current) return;
+
+    // Detect new player drop: lettersRemaining decreases on each DROP_LETTER.
+    // Clear chains synchronously before scanning so words from this drop start fresh.
+    if (lastLettersRef.current !== null && state.lettersRemaining < lastLettersRef.current) {
+      activeChainMapRef.current.clear();
+    }
+    lastLettersRef.current = state.lettersRemaining;
 
     // Exclude tiles that are currently shaking (isMatched=true) from detection.
     // This prevents words from being detected using about-to-be-cleared tiles while

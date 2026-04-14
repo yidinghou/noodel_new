@@ -134,19 +134,21 @@ export function gameReducer(state, action) {
 
     // Remove specific words from grid and score them
     case 'REMOVE_WORDS': {
-      const { wordsToRemove } = action.payload; // Array of { word, indices }
+      const { wordsToRemove, chainId, comboDepth } = action.payload;
       const newGrid = [...state.grid];
       let totalScore = 0;
       const newMadeWords = [...state.madeWords];
 
       wordsToRemove.forEach(({ word, indices }) => {
-        // In clear mode, score reflects letters remaining; in classic mode, score words
+        let wordScore;
         if (state.gameMode === 'clear') {
-          totalScore = state.lettersRemaining; // Score is the letters remaining in clear mode
+          totalScore = state.lettersRemaining;
+          wordScore = state.lettersRemaining;
         } else {
-          totalScore += calculateWordScore(word);
+          wordScore = calculateWordScore(word);
+          totalScore += wordScore;
         }
-        newMadeWords.unshift(word);
+        newMadeWords.unshift({ word, score: wordScore, chainId, comboDepth });
         indices.forEach(index => {
           newGrid[index] = null;
         });

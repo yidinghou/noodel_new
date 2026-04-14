@@ -1,22 +1,17 @@
 import React, { createContext, useReducer, useContext, useCallback, useEffect, useRef } from 'react';
 import { gameReducer, initialState } from './GameReducer.js';
 import { useGameSession } from '../hooks/useGameSession.js';
-import { buildLoadPayload } from '../services/gameSession.js';
+import { replayAll } from '../services/replayEngine.js';
 import { generateLetterSequence } from '../utils/letterUtils.js';
 import { generateClearModeGrid } from '../utils/clearModeUtils.js';
 import { TOTAL_LETTERS } from '../utils/gameConstants.js';
 
 const GameContext = createContext(null);
 
-/**
- * Generate the initial letter queue for a given game mode.
- * Includes tutorial override for seeded letters.
- */
 function buildInitialQueue(mode) {
-  let letterSequence = generateLetterSequence(TOTAL_LETTERS);
-
+  let seq = generateLetterSequence(TOTAL_LETTERS);
   if (mode === 'tutorial') {
-    letterSequence = [
+    seq = [
       { char: 'W', id: 'tutorial-W-1' },
       { char: 'O', id: 'tutorial-O-1' },
       { char: 'R', id: 'tutorial-R-1' },
@@ -27,54 +22,57 @@ function buildInitialQueue(mode) {
       { char: 'R', id: 'tutorial-R-2' },
       { char: 'D', id: 'tutorial-D-2' },
       { char: 'S', id: 'tutorial-S-2' },
-      ...letterSequence.slice(10)
+      ...seq.slice(10),
     ];
   }
-
-  return letterSequence;
+  return seq;
 }
 
-/**
- * Generate the initial grid for a given game mode.
- * Returns { grid, initialBlocks }.
- */
 function buildInitialGrid(mode) {
-  if (mode === 'clear') {
-    return generateClearModeGrid();
-  }
+  if (mode === 'clear') return generateClearModeGrid();
   return { grid: null, initialBlocks: [] };
 }
 
 export function GameProvider({ children }) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const gameSession = useGameSession();
-  const prevStatusRef = useRef(state.status);
   const stateRef = useRef(state);
   stateRef.current = state;
 
-  /**
-   * Wrap dispatch to intercept game-affecting actions for session recording.
-   */
   const wrappedDispatch = useCallback((action) => {
     if (action.type === 'START_GAME') {
       const { mode } = action.payload;
       const initialQueue = buildInitialQueue(mode);
       const { grid: initialGrid, initialBlocks } = buildInitialGrid(mode);
 
-      // Only record tutorial-less games
       if (mode !== 'tutorial') {
         gameSession.onGameStart(mode, initialQueue, initialGrid, initialBlocks);
       }
 
-      dispatch({
-        type: 'START_GAME',
-        payload: { mode, initialQueue, initialGrid, initialBlocks }
-      });
+      dispatch({ type: 'START_GAME', payload: { mode, initialQueue, initialGrid, initialBlocks } });
       return;
     }
 
     if (action.type === 'DROP_LETTER') {
-      gameSession.recordDropEvent(action.payload.column);
+      gameSession.recordDrop(action.payload.column, stateRef.current.nextQueue[0]?.char);
+    }
+
+    if (action.type === 'REMOVE_WORDS') {
+      const { wordsToRemove, chainId, comboDepth, groupSize } = action.payload;
+      gameSession.recordClear(
+        wordsToRemove.map(w => ({
+          word: w.word,
+          indices: w.indices,
+          direction: w.direction,
+          chainId,
+          comboDepth,
+          groupSize,
+        }))
+      );
+    }
+
+    if (action.type === 'APPLY_GRAVITY') {
+      gameSession.recordGravity();
     }
 
     if (action.type === 'RESET') {
@@ -84,53 +82,64 @@ export function GameProvider({ children }) {
     dispatch(action);
   }, [dispatch, gameSession]);
 
-  /**
-   * Watch for stable game state transitions and capture snapshots.
-   * Snapshots are taken after:
-   * - APPLY_GRAVITY completes (status: PROCESSING -> PLAYING)
-   * - DROP_LETTER with no words formed (stays PLAYING, no pending tiles)
-   * - GAME_OVER
-   */
+  // Mark session complete when game ends.
   useEffect(() => {
-    const prev = prevStatusRef.current;
-    prevStatusRef.current = state.status;
-
-    if (state.status === 'PLAYING') {
-      if (prev === 'PROCESSING') {
-        // APPLY_GRAVITY just completed - grid is now stable
-        gameSession.onStableState(state);
-      } else if (prev === 'PLAYING') {
-        // DROP_LETTER that didn't form words - check if truly stable
-        const hasPending = state.grid.some(t => t?.isPending);
-        if (!hasPending) {
-          gameSession.onStableState(state);
-        }
-      }
-    } else if (state.status === 'GAME_OVER') {
-      gameSession.onStableState(state);
+    if (state.status === 'GAME_OVER') {
+      gameSession.onGameOver(state);
     }
-  }, [state.status, state.grid, gameSession]);
+  }, [state.status]);
 
-  /**
-   * Load a previously saved game from localStorage.
-   */
   const loadSavedGame = useCallback(() => {
     const session = gameSession.getSavedSession();
-    if (!session) return false;
-    const payload = buildLoadPayload(session);
+    if (!session || session.events.length === 0) return false;
+
+    // Use cached checkpoint if it covers all events; otherwise replay from scratch.
+    const lastSeq = session.events[session.events.length - 1].seq;
+    let payload;
+    if (session.checkpoint?.afterEventSeq === lastSeq) {
+      payload = gameSession.getLoadPayload();
+    } else {
+      const derived = replayAll(session);
+      payload = {
+        grid: derived.grid,
+        nextQueue: derived.nextQueue,
+        lettersRemaining: derived.lettersRemaining,
+        score: derived.score,
+        madeWords: derived.madeWords,
+        gameMode: session.gameMode,
+        initialBlocks: session.initialBlocks,
+      };
+    }
     if (!payload) return false;
     wrappedDispatch({ type: 'LOAD_SAVED_GAME', payload });
     return true;
   }, [gameSession, wrappedDispatch]);
 
-  /**
-   * Undo to the previous snapshot.
-   */
   const undo = useCallback(() => {
-    const undoPayload = gameSession.getUndo();
-    if (!undoPayload) return false;
-    gameSession.performUndo();
-    wrappedDispatch({ type: 'LOAD_SAVED_GAME', payload: undoPayload });
+    const session = gameSession.getSavedSession();
+    if (!session) return false;
+
+    // Find the index of the last DROP_LETTER event.
+    let lastDropIdx = -1;
+    for (let i = session.events.length - 1; i >= 0; i--) {
+      if (session.events[i].type === 'DROP_LETTER') { lastDropIdx = i; break; }
+    }
+    if (lastDropIdx <= 0) return false;
+
+    const truncated = { ...session, events: session.events.slice(0, lastDropIdx) };
+    const derived = replayAll(truncated);
+    const payload = {
+      grid: derived.grid,
+      nextQueue: derived.nextQueue,
+      lettersRemaining: derived.lettersRemaining,
+      score: derived.score,
+      madeWords: derived.madeWords,
+      gameMode: session.gameMode,
+      initialBlocks: session.initialBlocks,
+    };
+
+    gameSession.replaceSession(truncated);
+    wrappedDispatch({ type: 'LOAD_SAVED_GAME', payload });
     return true;
   }, [gameSession, wrappedDispatch]);
 
@@ -143,8 +152,6 @@ export function GameProvider({ children }) {
 
 export function useGame() {
   const context = useContext(GameContext);
-  if (!context) {
-    throw new Error('useGame must be used within a GameProvider');
-  }
+  if (!context) throw new Error('useGame must be used within a GameProvider');
   return context;
 }
