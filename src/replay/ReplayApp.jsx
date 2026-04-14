@@ -167,7 +167,9 @@ export function ReplayApp() {
           <button onClick={advance} disabled={!canGoFwd}>→</button>
         </div>
 
-        <Board grid={grid} onColumnClick={null} visible />
+        <div className="replay-grid-wrapper">
+          <Board grid={grid} onColumnClick={null} visible />
+        </div>
 
         {turn && <TurnDetail turn={turn} stepIdx={stepIdx} score={score} />}
       </main>
