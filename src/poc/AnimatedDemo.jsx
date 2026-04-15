@@ -22,14 +22,16 @@ const ordinalOf = n => ['1st', '2nd', '3rd', '4th', '5th'][n - 1];
 
 function useDemo(demoType) {
   const [vis, setVis] = useState({
-    grid:        emptyGrid(),
-    queue:       ['C', 'A', 'B', 'C', 'A'],
-    dropping:    null,
-    cursorCol:   null,
-    cursorClick: false,
-    highlight:   null,
-    showOrder:   false,
-    caption:     '',
+    grid:          emptyGrid(),
+    queue:         ['C', 'A', 'B', 'C', 'A'],
+    dropping:      null,
+    cursorCol:     null,
+    cursorClick:   false,
+    highlight:     null,
+    showOrder:     false,
+    caption:       '',
+    cycleKey:      0,
+    cycleDuration: 0,
   });
 
   const ref = useRef(vis);
@@ -118,6 +120,8 @@ function useDemo(demoType) {
     const demos = {
       'click-plan': async () => {
         while (!signal.aborted) {
+          const cycleStart = Date.now();
+          set(s => ({ ...s, cycleKey: s.cycleKey + 1 }));
           const q = ['C', 'A', 'T', 'S', 'B'].map((l, i) => ({ letter: l, order: i + 1 }));
           set(s => ({ ...s, grid: emptyGrid(), highlight: null, showOrder: true, queue: q, caption: 'Letters drop in order: 1st, 2nd, 3rd...' }));
           await wait(1800);
@@ -131,11 +135,14 @@ function useDemo(demoType) {
           await wait(500);
           set(s => ({ ...s, caption: 'Plan ahead using the queue!' }));
           await wait(1500);
+          set(s => ({ ...s, cycleDuration: Date.now() - cycleStart }));
         }
       },
 
       win: async () => {
         while (!signal.aborted) {
+          const cycleStart = Date.now();
+          set(s => ({ ...s, cycleKey: s.cycleKey + 1 }));
           // Pre-placed tiles (white): C(3,0), A(3,1), O(2,1)
           const startGrid = emptyGrid();
           startGrid[3 * COLS + 0] = { letter: 'C', preplaced: true };
@@ -157,11 +164,14 @@ function useDemo(demoType) {
 
           set(s => ({ ...s, caption: 'Board cleared — you win!' }));
           await wait(2000);
+          set(s => ({ ...s, cycleDuration: Date.now() - cycleStart }));
         }
       },
 
       match: async () => {
         while (!signal.aborted) {
+          const cycleStart = Date.now();
+          set(s => ({ ...s, cycleKey: s.cycleKey + 1 }));
           const fullQueue = ['C', 'A', 'T', 'G', 'O', 'D', 'X', 'Y', 'Z', 'T', 'C', 'A'];
           set(s => ({ ...s, grid: emptyGrid(), highlight: null, queue: fullQueue, caption: 'Spell words left to right' }));
           await wait(800);
@@ -193,6 +203,7 @@ function useDemo(demoType) {
           await dropLetter(1, 'A completes the diagonal!'); // A → (2,1)
           await highlightWord([1 * COLS + 0, 2 * COLS + 1, 3 * COLS + 2], '"CAT" diagonal — nice!');
           await wait(1000);
+          set(s => ({ ...s, cycleDuration: Date.now() - cycleStart }));
         }
       },
     };
@@ -205,10 +216,11 @@ function useDemo(demoType) {
 }
 
 export default function AnimatedDemo({ demoType = 'drop' } = {}) {
-  const { grid, queue, dropping, cursorCol, cursorClick, highlight, showOrder, caption } = useDemo(demoType);
+  const { grid, queue, dropping, cursorCol, cursorClick, highlight, showOrder, caption, cycleKey, cycleDuration } = useDemo(demoType);
 
   return (
     <div style={d.wrapper}>
+      <style>{`@keyframes htp-progress { from { width: 0% } to { width: 100% } }`}</style>
       {/* 5-letter preview queue */}
       <div style={d.previewRow}>
         {Array(PREVIEW_SIZE).fill(null).map((_, i) => {
@@ -308,6 +320,13 @@ export default function AnimatedDemo({ demoType = 'drop' } = {}) {
       </div>
 
       <p style={d.caption}>{caption || '\u00a0'}</p>
+
+      <div style={d.progressTrack}>
+        <div
+          key={cycleKey}
+          style={{ ...d.progressFill, animationDuration: `${cycleDuration / 1000}s` }}
+        />
+      </div>
     </div>
   );
 }
@@ -392,5 +411,16 @@ const d = {
   caption: {
     fontSize: 13, color: '#555', textAlign: 'center',
     minHeight: 36, maxWidth: 220, lineHeight: 1.4, margin: 0,
+  },
+  progressTrack: {
+    width: GRID_W, height: 3, borderRadius: 2,
+    background: '#e0e0e0', overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%', width: 0, borderRadius: 2,
+    background: '#1976D2',
+    animationName: 'htp-progress',
+    animationTimingFunction: 'linear',
+    animationFillMode: 'forwards',
   },
 };
