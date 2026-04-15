@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import AnimatedDemo from './AnimatedDemo.jsx';
-import { STEPS, DEMOS } from './constants.js';
+import { PANELS } from './constants.js';
 
 export default function HowToPlayModal({ onClose = () => {} } = {}) {
-  const [exampleIdx, setExampleIdx] = useState(0);
-  const current = DEMOS[exampleIdx];
+  const [panelIdx, setPanelIdx] = useState(0);
+  const panel = PANELS[panelIdx];
+  const isFirst = panelIdx === 0;
+  const isLast  = panelIdx === PANELS.length - 1;
 
   return (
     <div style={m.backdrop} onClick={onClose}>
@@ -12,9 +14,9 @@ export default function HowToPlayModal({ onClose = () => {} } = {}) {
 
         <h2 style={m.title}>How to Play</h2>
 
-        {/* Steps (text only) */}
-        <div style={m.steps}>
-          {STEPS.map(step => (
+        {/* Panel content */}
+        <div style={m.panelContent}>
+          {panel.steps.map(step => (
             <div key={step.number} style={m.step}>
               <div style={m.stepHeader}>
                 <span style={m.stepNumber}>{step.number}</span>
@@ -23,29 +25,45 @@ export default function HowToPlayModal({ onClose = () => {} } = {}) {
               <p style={m.stepDesc}>{step.description}</p>
             </div>
           ))}
+
+          <AnimatedDemo key={panelIdx} demoType={panel.demoType} />
         </div>
 
-        {/* Divider */}
-        <hr style={m.divider} />
+        {/* Nav row */}
+        <div style={m.navRow}>
+          <button
+            style={{ ...m.arrowBtn, opacity: isFirst ? 0.3 : 1 }}
+            onClick={() => setPanelIdx(i => i - 1)}
+            disabled={isFirst}
+            aria-label="Previous"
+          >
+            ‹
+          </button>
 
-        {/* Examples panel */}
-        <div style={m.exampleSection}>
-          <div style={m.exampleTabs}>
-            {DEMOS.map((demo, i) => (
+          <div style={m.dots}>
+            {PANELS.map((_, i) => (
               <button
                 key={i}
-                style={{ ...m.tab, ...(i === exampleIdx ? m.tabActive : {}) }}
-                onClick={() => setExampleIdx(i)}
-              >
-                {demo.title}
-              </button>
+                style={{ ...m.dot, ...(i === panelIdx ? m.dotActive : {}) }}
+                onClick={() => setPanelIdx(i)}
+                aria-label={`Panel ${i + 1}`}
+              />
             ))}
           </div>
 
-          <AnimatedDemo key={exampleIdx} demoType={current.demoType} />
+          <button
+            style={{ ...m.arrowBtn, opacity: isLast ? 0.3 : 1 }}
+            onClick={() => setPanelIdx(i => i + 1)}
+            disabled={isLast}
+            aria-label="Next"
+          >
+            ›
+          </button>
         </div>
 
-        <button style={m.gotItBtn} onClick={onClose}>Got it</button>
+        {isLast && (
+          <button style={m.gotItBtn} onClick={onClose}>Got it</button>
+        )}
 
       </div>
     </div>
@@ -65,11 +83,12 @@ const m = {
     overflowY: 'auto',
   },
   title: { fontSize: 20, fontWeight: 700, color: '#333', margin: 0 },
-  steps: {
-    width: '100%', display: 'flex', flexDirection: 'column', gap: 16,
+  panelContent: {
+    width: '100%', display: 'flex', flexDirection: 'column',
+    alignItems: 'center', gap: 12,
   },
   step: {
-    display: 'flex', flexDirection: 'column', gap: 4,
+    width: '100%', display: 'flex', flexDirection: 'column', gap: 4,
   },
   stepHeader: {
     display: 'flex', alignItems: 'center', gap: 8,
@@ -89,27 +108,26 @@ const m = {
     fontSize: 13, color: '#555', lineHeight: 1.4,
     margin: '0 0 0 30px',
   },
-  divider: {
-    width: '100%', border: 'none',
-    borderTop: '1px solid #e0e0e0', margin: '4px 0',
+  navRow: {
+    width: '100%', display: 'flex', alignItems: 'center',
+    justifyContent: 'space-between', marginTop: 4,
   },
-  exampleSection: {
-    width: '100%', display: 'flex', flexDirection: 'column',
-    alignItems: 'center', gap: 12,
+  arrowBtn: {
+    background: 'none', border: 'none', fontSize: 28,
+    color: '#1976D2', cursor: 'pointer', padding: '4px 10px',
+    lineHeight: 1, borderRadius: 6,
+    transition: 'opacity 0.15s', userSelect: 'none',
   },
-  exampleTabs: {
-    display: 'flex', gap: 0, borderRadius: 8, overflow: 'hidden',
-    border: '2px solid #1976D2',
+  dots: {
+    display: 'flex', gap: 8, alignItems: 'center',
   },
-  tab: {
-    padding: '6px 20px', fontSize: 12, fontWeight: 600,
-    textTransform: 'uppercase', letterSpacing: '0.04em',
-    border: 'none', cursor: 'pointer',
-    background: '#fff', color: '#1976D2',
-    transition: 'background 0.15s, color 0.15s',
+  dot: {
+    width: 8, height: 8, borderRadius: '50%',
+    background: '#ccc', border: 'none', padding: 0,
+    cursor: 'pointer', transition: 'background 0.2s, transform 0.2s',
   },
-  tabActive: {
-    background: '#1976D2', color: '#fff',
+  dotActive: {
+    background: '#1976D2', transform: 'scale(1.25)',
   },
   gotItBtn: {
     width: '100%', padding: '10px 0', borderRadius: 8,

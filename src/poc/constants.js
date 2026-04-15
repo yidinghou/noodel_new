@@ -17,3 +17,25 @@ export const DEMOS = [
   { title: 'MAKE',         demoType: 'match' },
   { title: 'WIN',          demoType: 'win' },
 ];
+
+export const PANELS = [
+  {
+    steps: [
+      { number: 1, title: 'CLICK', description: 'a column to drop the next letter onto the board. It falls to the lowest empty tile.' },
+      { number: 2, title: 'PLAN',  description: 'ahead using the letter queue. Letters arrive in order from left to right.' },
+    ],
+    demoType: 'click-plan',
+  },
+  {
+    steps: [
+      { number: 3, title: 'MAKE', description: 'words horizontally, vertically, or diagonally. Three-letter minimum.' },
+    ],
+    demoType: 'match',
+  },
+  {
+    steps: [
+      { number: 4, title: 'WIN', description: 'by clearing every tile. Words only count if they include a tile you placed.' },
+    ],
+    demoType: 'win',
+  },
+];
