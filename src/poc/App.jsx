@@ -90,6 +90,7 @@ function App() {
         onColumnClick={handleColumnClick}
         onUndo={undo}
         showPreview={state.status === 'PLAYING' || state.status === 'PROCESSING'}
+        boardVisible={state.status !== 'IDLE'}
         canDrop={state.status === 'PLAYING' || state.status === 'PROCESSING'}
       />
       {gridWrapperRef.current && createPortal(

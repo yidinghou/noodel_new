@@ -115,13 +115,14 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     padding: 20px;
     min-height: 100dvh;
+    scrollbar-gutter: stable;
 }
 
 .main-container {
     display: flex;
     flex-direction: column;
     gap: var(--size-gap-large);
-    max-width: 1400px;
+    max-width: 600px;
     margin: 0 auto;
 }
 
