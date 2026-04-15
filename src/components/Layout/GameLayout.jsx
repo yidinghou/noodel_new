@@ -43,9 +43,19 @@ function GameLayout({
   const inFlightCountRef = useRef(0);
 
   // Lock body scroll while any drop is in flight so position:fixed coords stay valid
+  // Block scroll during drop so position:fixed overlay coords stay valid
   useEffect(() => {
-    document.body.style.overflow = activeDrops.length > 0 ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    if (activeDrops.length > 0) {
+      document.body.style.overscrollBehavior = 'none';
+      document.body.style.touchAction = 'none';
+    } else {
+      document.body.style.overscrollBehavior = '';
+      document.body.style.touchAction = '';
+    }
+    return () => {
+      document.body.style.overscrollBehavior = '';
+      document.body.style.touchAction = '';
+    };
   }, [activeDrops.length]);
 
   // Find the destination row for a drop, skipping the `skipFromBottom` lowest empty rows
