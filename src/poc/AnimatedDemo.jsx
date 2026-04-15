@@ -316,8 +316,8 @@ const d = {
   wrapper:      { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 },
   previewRow:   { display: 'flex', alignItems: 'flex-end', gap: 5 },
   previewCol:   { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 },
-  orderLabel:   { fontSize: 14, fontWeight: 700, color: '#333', lineHeight: 1 },
-  orderLabelPlaceholder: { height: 14 },
+  orderLabel:   { display: 'block', height: 14, fontSize: 14, fontWeight: 700, color: '#333', lineHeight: 1 },
+  orderLabelPlaceholder: { display: 'block', height: 14 },
   previewCell:  {
     width: PCELL, height: PCELL, borderRadius: 7,
     background: '#888', border: '2px solid #333',
