@@ -9,7 +9,7 @@ function MadeWords({ words = [], dictionary = null, visible = true }) {
           const word = typeof entry === 'string' ? entry : entry.word;
           const definition = dictionary?.get(word);
           return (
-            <div key={index} className="word-item">
+            <div key={word} className="word-item">
               <span className="word-item-word">{word}</span>
               {definition && <span className="word-item-definition">{definition}</span>}
             </div>
