@@ -43,7 +43,7 @@
 
 /* Next Letters Preview (Queue of upcoming letters) */
 .next-letters-preview {
-    display: none;
+    display: flex;
     justify-content: flex-start;
     gap: 5px;
     opacity: 0;
@@ -52,7 +52,6 @@
 }
 
 .next-letters-preview.visible {
-    display: flex;
     opacity: 1;
     visibility: visible;
 }
