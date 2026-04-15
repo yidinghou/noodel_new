@@ -16,15 +16,17 @@ export default function HowToPlayModal({ onClose = () => {} } = {}) {
 
         {/* Panel content */}
         <div style={m.panelContent}>
-          {panel.steps.map(step => (
-            <div key={step.number} style={m.step}>
-              <div style={m.stepHeader}>
-                <span style={m.stepNumber}>{step.number}</span>
-                <span style={m.stepTitle}>{step.title}</span>
+          <div style={m.stepsArea}>
+            {panel.steps.map(step => (
+              <div key={step.number} style={m.step}>
+                <div style={m.stepHeader}>
+                  <span style={m.stepNumber}>{step.number}</span>
+                  <span style={m.stepTitle}>{step.title}</span>
+                </div>
+                <p style={m.stepDesc}>{step.description}</p>
               </div>
-              <p style={m.stepDesc}>{step.description}</p>
-            </div>
-          ))}
+            ))}
+          </div>
 
           <AnimatedDemo key={panelIdx} demoType={panel.demoType} />
         </div>
@@ -61,9 +63,12 @@ export default function HowToPlayModal({ onClose = () => {} } = {}) {
           </button>
         </div>
 
-        {isLast && (
-          <button style={m.gotItBtn} onClick={onClose}>Got it</button>
-        )}
+        <button
+          style={{ ...m.gotItBtn, visibility: isLast ? 'visible' : 'hidden' }}
+          onClick={onClose}
+        >
+          Got it
+        </button>
 
       </div>
     </div>
@@ -86,6 +91,10 @@ const m = {
   panelContent: {
     width: '100%', display: 'flex', flexDirection: 'column',
     alignItems: 'center', gap: 12,
+  },
+  stepsArea: {
+    width: '100%', minHeight: 104,
+    display: 'flex', flexDirection: 'column', gap: 16,
   },
   step: {
     width: '100%', display: 'flex', flexDirection: 'column', gap: 4,
