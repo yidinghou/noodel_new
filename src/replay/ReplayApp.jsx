@@ -87,7 +87,10 @@ export function ReplayApp() {
     if (!turn) return null;
     const evt = turn.events[stepIdx];
     if (!evt) return null;
-    return statesMap.get(evt.seq)?.score ?? null;
+    // WORDS_CLEARED shows the pre-clear grid, so show the pre-clear score too.
+    // seq values are dense integers, so seq-1 is always the prior state.
+    const seqToRead = evt.type === 'WORDS_CLEARED' ? evt.seq - 1 : evt.seq;
+    return statesMap.get(seqToRead)?.score ?? null;
   })();
 
   const canGoBack = turnIdx > 0 || stepIdx > 0;
