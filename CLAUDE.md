@@ -52,6 +52,45 @@ Append to any URL during development:
 - `?skipAnimations=true` — skip Framer Motion animations
 - `?debugGrid=true` — grid pattern overlay
 
+## Design Decisions
+
+### Game loop timing constants (`src/hooks/useGameLogic.js`)
+
+| Constant | Value | Purpose |
+|---|---|---|
+| `GRACE_PERIOD_MS` | 1000ms | How long a detected word shows its countdown before clearing |
+| `SHAKE_DURATION_MS` | 400ms | Shake animation duration after `SET_MATCHED_INDICES` fires |
+| `GRAVITY_DELAY_MS` | 150ms | Pause after tiles clear before gravity drops remaining tiles |
+
+### `PROCESSING` status
+
+`SET_MATCHED_INDICES` sets `status: 'PROCESSING'` while tiles are shaking. The word detection effect in `useGameLogic.js` checks `status !== 'PLAYING'` and skips, preventing double-detection of shaking tiles. However, the UI still allows player drops during `PROCESSING` — this is intentional so fast players aren't blocked during animations.
+
+### Grace period word classification (`src/utils/gracePeriodUtils.js`)
+
+Every grid change re-runs word detection. Each found word is classified against the current pending set:
+- **`skip`**: same word already pending, or a same-direction partial overlap (only one timer runs per linear tile run to avoid timer proliferation)
+- **`extend`**: new word is a strict superset of an existing same-direction pending word — replaces it with a fresh timer
+- **`add`**: genuinely new word; also resets timers for all cross-direction words sharing any cell
+
+### Transitive BFS expiration (`expireWord` in `useGameLogic.js`)
+
+When a word's grace period expires, a BFS finds all pending words that intersect it (transitively). If A∩B and B∩C, then A, B, and C all expire together even if A∩C=∅. This prevents partial-word scenarios where two halves of a cross would disappear at different times.
+
+### Gravity concurrency guards
+
+Two refs prevent double-gravity when multiple words expire in the same tick:
+- **`pendingRemovesRef`**: counts in-flight `REMOVE_WORDS` dispatches; gravity only schedules when this reaches 0
+- **`gravityScheduledRef`**: set true the moment gravity is scheduled, blocks any subsequent expiry callbacks from scheduling a second gravity
+
+### Session event sourcing (`src/services/gameSession.js`)
+
+Events (DROP_LETTER, WORDS_CLEARED, GRAVITY) are recorded at the `wrappedDispatch` intercept in `GameContext.jsx` and written to `localStorage` immediately — every event is crash-safe. A checkpoint (derivable from events) is only stored at game-over as an optimization for fast resume. Mid-game resume falls back to full `replayAll()` from the event log. The session model itself is pure (no React, no I/O); all side effects live in `useGameSession.js`.
+
+### Clear mode scoring design
+
+In `REMOVE_WORDS`, Clear mode uses assignment (`totalScore = state.lettersRemaining`) not accumulation (`totalScore +=`). The final `score:` field is also set rather than added to. This means: your score equals the letters remaining at the time of your most recent clear, regardless of how many words cleared simultaneously. This is intentional — it creates a "beat the clock" feel where every drop costs potential score.
+
 ## Database
 
 The app requires `DATABASE_URL` in `.env`. The `.env` file has two URLs (`LOCAL_DATABASE_URL`, `RAILWAY_DATABASE_URL`) — toggle which one `DATABASE_URL` points to.
