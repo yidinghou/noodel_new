@@ -231,17 +231,17 @@
         var(--color-text-muted) 100%
     );
     background-size: 200% 100%;
-    background-position: 100% 0;
-    animation: fillGreen var(--animation-duration-word-grace) linear forwards;
+    background-position: 0% 0;
+    animation: drainGreen var(--animation-duration-word-grace) linear forwards;
 }
 
-/* Grace Period Fill Animation - slowly turns green from left to right */
-@keyframes fillGreen {
+/* Grace Period Drain Animation - starts fully green, drains right as timer counts down */
+@keyframes drainGreen {
     0% {
-        background-position: 100% 0;
+        background-position: 0% 0;
     }
     100% {
-        background-position: 0% 0;
+        background-position: 100% 0;
     }
 }
 
