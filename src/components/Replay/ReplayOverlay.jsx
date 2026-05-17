@@ -81,7 +81,7 @@ function buildFrames(turns, statesMap, preClearGrid) {
       const pendingGrid = [...preDropState.grid];
       let hasPending = false;
       for (const w of allClearedWords) {
-        if (w.indices.every(idx => preDropState.grid[idx] != null)) {
+        if (w.indices.every((idx, j) => preDropState.grid[idx]?.char === w.word[j])) {
           for (const idx of w.indices) {
             if (pendingGrid[idx] && !pendingGrid[idx].isPending) {
               pendingGrid[idx] = { ...pendingGrid[idx], isPending: true, pendingDirections: [w.direction], pendingResetCount: 0 };
