@@ -282,7 +282,11 @@ export default function ReplayOverlay({ session, onClose }) {
                     setFrameIdx(0);
                     setPlaying(true);
                   } else {
-                    setPlaying(p => !p);
+                    const nextPlaying = !playing;
+                    setPlaying(nextPlaying);
+                    if (nextPlaying && replayData?.frames[frameIdx]?.isDropFrame) {
+                      setFrameIdx(i => Math.min(i + 1, totalFrames - 1));
+                    }
                   }
                 }}
                 aria-label={playing ? 'Pause' : (frameIdx >= totalFrames - 1 ? 'Restart' : 'Play')}
