@@ -64,9 +64,12 @@ app.get('/api/scores/:id/session', async (req, res) => {
   res.json(result.rows[0].session_data);
 });
 
-// Handle SPA routing - serve dist/index.html for all other routes
+// Serve known HTML entry points directly; fall back to index.html for SPA routes
+const HTML_ENTRIES = ['index.html', 'poc.html', 'game_replay.html'];
 app.get('*', (req, res) => {
-  res.sendFile(path.join(DIST, 'index.html'));
+  const requested = path.basename(req.path);
+  const file = HTML_ENTRIES.includes(requested) ? requested : 'index.html';
+  res.sendFile(path.join(DIST, file));
 });
 
 app.listen(PORT, '0.0.0.0', () => {
