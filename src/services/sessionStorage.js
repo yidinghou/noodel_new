@@ -4,6 +4,7 @@
  */
 
 const STORAGE_KEY = 'noodel_session_v1';
+const REPLAY_KEY = 'noodel_replay_v1';
 const CURRENT_SCHEMA_VERSION = 3;
 
 export function saveSession(session) {
@@ -31,6 +32,31 @@ export function loadSession() {
     if (session.schemaVersion !== CURRENT_SCHEMA_VERSION) return null;
     if (!session.sessionId || !session.gameMode || !Array.isArray(session.events)) return null;
 
+    return session;
+  } catch {
+    return null;
+  }
+}
+
+/** Save a completed session for the replay viewer. Separate from the active session. */
+export function saveReplaySession(session) {
+  try {
+    localStorage.setItem(REPLAY_KEY, JSON.stringify(session));
+  } catch (error) {
+    if (error.name !== 'QuotaExceededError' && error.name !== 'NS_ERROR_DOM_QUOTA_REACHED') {
+      console.warn('Failed to save replay session:', error);
+    }
+  }
+}
+
+/** Load the most recent completed session for the replay viewer. */
+export function loadReplaySession() {
+  try {
+    const stored = localStorage.getItem(REPLAY_KEY);
+    if (!stored) return null;
+    const session = JSON.parse(stored);
+    if (session.schemaVersion !== CURRENT_SCHEMA_VERSION) return null;
+    if (!session.sessionId || !session.gameMode || !Array.isArray(session.events)) return null;
     return session;
   } catch {
     return null;
