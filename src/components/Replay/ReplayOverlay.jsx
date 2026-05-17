@@ -19,7 +19,7 @@ function computeDestRow(grid, column) {
   return 0;
 }
 
-function computeDropPositions(boardRef, column, destRow) {
+function computeDropPositions(boardRef, nextUpRef, column, destRow) {
   // Measure the inner game-grid element, not the wrapper, to match GameLayout's math exactly.
   const gridEl = boardRef.current.querySelector('.game-grid');
   const rect = (gridEl ?? boardRef.current).getBoundingClientRect();
@@ -29,7 +29,13 @@ function computeDropPositions(boardRef, column, destRow) {
   const colLeft = rect.left + column * colWidth + (colWidth - cellSize) / 2;
   const toTop = { x: colLeft, y: rect.top };
   const toFinal = { x: colLeft, y: rect.top + destRow * rowHeight };
-  return { from: toTop, toTop, toFinal, cellSize };
+  // Use the preview chip's position as the animation origin, mirroring the real game.
+  let from = toTop;
+  if (nextUpRef?.current) {
+    const previewRect = nextUpRef.current.getBoundingClientRect();
+    from = { x: previewRect.left, y: previewRect.top };
+  }
+  return { from, toTop, toFinal, cellSize };
 }
 
 // Pair each WORDS_CLEARED in a turn with its following GRAVITY event.
@@ -137,6 +143,7 @@ export default function ReplayOverlay({ session, onClose }) {
   const [playing, setPlaying] = useState(true);
   const [speedIdx, setSpeedIdx] = useState(1);
   const boardRef = useRef(null);
+  const nextUpRef = useRef(null);
 
   useEffect(() => {
     import('../../services/replayEngine.js').then(({ buildTurns, buildReplayStates, preClearGrid }) => {
@@ -188,7 +195,7 @@ export default function ReplayOverlay({ session, onClose }) {
   let dropOverlay = null;
   if (frame?.isDropFrame && boardRef.current) {
     const destRow = computeDestRow(frame.grid, frame.column);
-    const { from, toTop, toFinal, cellSize } = computeDropPositions(boardRef, frame.column, destRow);
+    const { from, toTop, toFinal, cellSize } = computeDropPositions(boardRef, nextUpRef, frame.column, destRow);
     dropOverlay = (
       <DroppingOverlay
         key={frameIdx}
@@ -222,8 +229,10 @@ export default function ReplayOverlay({ session, onClose }) {
             <div className="replay-next-queue">
               {(frame?.nextQueue ?? []).slice(0, 5).map((item, i) => (
                 <span
+                  ref={i === 0 ? nextUpRef : null}
                   key={i}
                   className={`replay-next-chip${i === 0 ? ' replay-next-chip--next' : ''}`}
+                  style={i === 0 && frame?.isDropFrame ? { visibility: 'hidden' } : undefined}
                 >
                   {item.char}
                 </span>
