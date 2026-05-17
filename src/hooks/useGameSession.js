@@ -41,13 +41,14 @@ export function useGameSession() {
     saveSession(sessionRef.current);
   }
 
-  /** Called when the game ends or reaches a stable rest point. */
+  /** Called when the game ends or reaches a stable rest point. Returns the completed session. */
   function onGameOver(state) {
-    if (!sessionRef.current) return;
+    if (!sessionRef.current) return null;
     let session = setCheckpoint(sessionRef.current, state);
     session = completeSession(session);
     sessionRef.current = session;
     saveSession(session);
+    return session;
   }
 
   /** Replace the in-memory session and persist (used by undo). */
