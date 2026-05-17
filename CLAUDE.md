@@ -43,7 +43,7 @@ Sessions are **event-sourced** (schema v3): every `DROP_LETTER`, `WORDS_CLEARED`
 ### Game modes
 
 - **Classic**: score by word length; `calculateWordScore()` in `scoringUtils.js`
-- **Clear**: board starts 20% pre-filled with blocks; scoring is `lettersRemaining` at word-clear time; win condition is clearing all initial blocks
+- **Clear**: board starts 20% pre-filled with blocks; score is set (not accumulated) to `lettersRemaining` at the time of each clear — the score reflects the most recent clear only; win condition is a fully empty board (all cells null, including player-placed tiles)
 
 ### URL debug flags
 
@@ -51,7 +51,6 @@ Append to any URL during development:
 - `?debug=true` — debug overlay
 - `?skipAnimations=true` — skip Framer Motion animations
 - `?debugGrid=true` — grid pattern overlay
-- `?betaClearModeEmptyBoard=true` — stricter clear-mode win (fully empty board)
 
 ## Database
 
