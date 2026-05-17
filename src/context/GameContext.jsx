@@ -82,10 +82,15 @@ export function GameProvider({ children }) {
     dispatch(action);
   }, [dispatch, gameSession]);
 
-  // Mark session complete when game ends.
+  // Mark session complete and save score when game ends.
   useEffect(() => {
     if (state.status === 'GAME_OVER') {
       gameSession.onGameOver(state);
+      fetch('/api/scores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ score: state.score, gameMode: state.gameMode }),
+      }).catch(() => {}); // fire-and-forget; don't break the game on DB errors
     }
   }, [state.status]);
 

@@ -120,6 +120,53 @@ test('should handle letter placement', () => {
 });
 ```
 
+### Local Database
+
+The app uses PostgreSQL. Your `.env` file has two database URLs — toggle `DATABASE_URL` between them to switch between local and Railway.
+
+**Verify local PostgreSQL is running:**
+```bash
+brew services list | grep postgresql
+# Should show: postgresql@16   started
+```
+
+**Connect and inspect the database:**
+```bash
+psql postgresql://localhost:5432/noodel_dev
+```
+
+Once inside `psql`, useful commands:
+```sql
+-- List all tables
+\dt
+
+-- Check database connection info
+\conninfo
+
+-- Exit
+\q
+```
+
+**Quick one-liner health check (no psql prompt):**
+```bash
+psql postgresql://localhost:5432/noodel_dev -c "SELECT current_database(), now();"
+```
+
+**Stop / start the local database:**
+```bash
+brew services stop postgresql@16
+brew services start postgresql@16
+```
+
+**Switch to Railway database** (edit `.env`):
+```env
+# Local development
+DATABASE_URL=${LOCAL_DATABASE_URL}
+
+# Remote Railway (production/staging)
+DATABASE_URL=${RAILWAY_DATABASE_URL}
+```
+
 ### Debug Features
 
 Add these URL parameters for debugging:

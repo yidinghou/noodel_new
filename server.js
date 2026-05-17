@@ -1,18 +1,26 @@
 
+import 'dotenv/config';
 import express from 'express';
 import expressStaticGzip from 'express-static-gzip';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import pg from 'pg';
+
+const { Pool } = pg;
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const DIST = path.join(__dirname, 'dist');
 
-// Enable gzip compression for static files
-app.use('/', expressStaticGzip(path.join(__dirname), {
+app.use(express.json());
+
+// Serve compressed assets from dist/
+app.use('/', expressStaticGzip(DIST, {
   enableBrotli: true,
   customCompressions: [{
     encodingName: 'deflate',
@@ -21,23 +29,32 @@ app.use('/', expressStaticGzip(path.join(__dirname), {
   orderPreference: ['br', 'gzip']
 }));
 
-// Set proper MIME types for JavaScript modules
-app.use((req, res, next) => {
-  if (req.url.endsWith('.js')) {
-    res.type('application/javascript');
-  }
-  next();
-});
-
-// Serve static files
-app.use(express.static(__dirname, {
-  maxAge: '1d', // Cache static assets for 1 day
+app.use(express.static(DIST, {
+  maxAge: '1d',
   etag: true
 }));
 
-// Handle SPA routing - serve index.html for unknown routes
+// Leaderboard API
+app.post('/api/scores', async (req, res) => {
+  const { score, gameMode } = req.body;
+  if (typeof score !== 'number') return res.status(400).json({ error: 'score required' });
+  const result = await pool.query(
+    'INSERT INTO leaderboard (score, game_mode) VALUES ($1, $2) RETURNING *',
+    [score, gameMode || 'classic']
+  );
+  res.status(201).json(result.rows[0]);
+});
+
+app.get('/api/scores', async (req, res) => {
+  const result = await pool.query(
+    'SELECT * FROM leaderboard ORDER BY score DESC LIMIT 20'
+  );
+  res.json(result.rows);
+});
+
+// Handle SPA routing - serve dist/index.html for all other routes
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
+  res.sendFile(path.join(DIST, 'index.html'));
 });
 
 app.listen(PORT, '0.0.0.0', () => {
