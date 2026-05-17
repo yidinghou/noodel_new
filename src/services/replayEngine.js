@@ -134,7 +134,8 @@ export function buildTurns(session) {
  * @returns {Array} 42-cell grid with matched cells flagged
  */
 export function preClearGrid(statesMap, clearEvent) {
-  // State before this event = state after the previous event (seq - 1), or initial (-1)
+  // seq values are dense 0-indexed integers (guaranteed by appendEvent), so seq-1
+  // is always the state after the immediately preceding event, or -1 for the initial state.
   const preState = statesMap.get(clearEvent.seq - 1) ?? statesMap.get(-1);
   if (!preState) return Array(GRID_SIZE).fill(null);
 
