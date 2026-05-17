@@ -61,19 +61,22 @@ function buildFrames(turns, statesMap, preClearGrid) {
     // Pre-drop frame: board before the letter lands; DroppingOverlay animates over this.
     const preDropState = statesMap.get(turn.dropSeq - 1) ?? statesMap.get(-1);
 
-    // Highlight any words that were already fully formed before this drop (e.g. SIP pending
-    // when D is about to drop and form DIE — both clear together). A word is "pre-formed" if
-    // every one of its tile indices is non-null in the pre-drop grid.
+    // Highlight any words that were already fully formed before this drop. A word is
+    // "pre-formed" if every one of its tile indices is non-null in the pre-drop grid.
+    // Check ALL clear events in the turn — a pre-pending word may clear in pairs[1+]
+    // if it has no intersection with the word formed by this drop.
     let preDropGrid = preDropState.grid;
     if (pairs.length > 0) {
       const pendingGrid = [...preDropState.grid];
       let hasPending = false;
-      for (const w of pairs[0].clearEvent.payload.words) {
-        if (w.indices.every(idx => preDropState.grid[idx] != null)) {
-          for (const idx of w.indices) {
-            if (pendingGrid[idx]) {
-              pendingGrid[idx] = { ...pendingGrid[idx], isPending: true, pendingDirections: [w.direction], pendingResetCount: 0 };
-              hasPending = true;
+      for (const { clearEvent } of pairs) {
+        for (const w of clearEvent.payload.words) {
+          if (w.indices.every(idx => preDropState.grid[idx] != null)) {
+            for (const idx of w.indices) {
+              if (pendingGrid[idx]) {
+                pendingGrid[idx] = { ...pendingGrid[idx], isPending: true, pendingDirections: [w.direction], pendingResetCount: 0 };
+                hasPending = true;
+              }
             }
           }
         }
@@ -113,7 +116,7 @@ function buildFrames(turns, statesMap, preClearGrid) {
           score: preState.score,
           nextQueue: dropState.nextQueue ?? [],
           isMatchFrame: true,
-          speedMultiplier: 0.5,
+          graceMs: 1000,
           dropIndex: i,
         });
 
@@ -160,7 +163,8 @@ export default function ReplayOverlay({ session, onClose }) {
     const frame = replayData.frames[frameIdx];
     // Drop frames are advanced by the DroppingOverlay's onComplete, not by a timer.
     if (frame.isDropFrame) return;
-    const t = setTimeout(() => setFrameIdx(i => i + 1), SPEEDS[speedIdx].ms * frame.speedMultiplier);
+    const delay = frame.graceMs ?? SPEEDS[speedIdx].ms * frame.speedMultiplier;
+    const t = setTimeout(() => setFrameIdx(i => i + 1), delay);
     return () => clearTimeout(t);
   }, [playing, frameIdx, replayData, speedIdx]);
 
@@ -183,8 +187,8 @@ export default function ReplayOverlay({ session, onClose }) {
   const currentDrop = (frame?.dropIndex ?? 0) + 1;
   const progress = totalDrops > 1 ? (currentDrop / totalDrops) * 100 : 0;
 
-  // CSS variable for the grace period fill animation duration — matches the frame hold time.
-  const graceDuration = `${SPEEDS[speedIdx].ms * 0.5}ms`;
+  // CSS variable for the grace period fill animation — always 1s to match the real game.
+  const graceDuration = '1000ms';
 
   const username = session?.checkpoint?.username ?? session?.username ?? '';
   const gameMode = session?.checkpoint?.gameMode ?? session?.gameMode ?? 'classic';
