@@ -12,7 +12,9 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
-    "migrate": "node scripts/migrate.js"
+    "migrate": "node scripts/migrate.js",
+    "claude:play": "node scripts/claude_play.js",
+    "claude:load": "node scripts/load_replay.js"
   },
   "engines": {
     "node": ">=18.0.0",
