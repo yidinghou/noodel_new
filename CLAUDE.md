@@ -91,6 +91,34 @@ Events (DROP_LETTER, WORDS_CLEARED, GRAVITY) are recorded at the `wrappedDispatc
 
 In `REMOVE_WORDS`, Clear mode uses assignment (`totalScore = state.lettersRemaining`) not accumulation (`totalScore +=`). The final `score:` field is also set rather than added to. This means: your score equals the letters remaining at the time of your most recent clear, regardless of how many words cleared simultaneously. This is intentional — it creates a "beat the clock" feel where every drop costs potential score.
 
+### Replay overlay (`src/components/Replay/ReplayOverlay.jsx`)
+
+The leaderboard shows a ▶ button next to each score. Clicking it fetches the stored session from `GET /api/scores/:id/session` and mounts `ReplayOverlay` via a React Portal in `App.jsx`.
+
+**Frame pipeline** (all pure, no React hooks):
+
+1. `buildReplayStates(session)` — single-pass replay using `replayStep` + `gameReducer`, returns `Map<seq, state>` for every event (`replayEngine.js`)
+2. `buildTurns(session)` — groups events into turns: one `DROP_LETTER` + its trailing `WORDS_CLEARED`/`GRAVITY` events
+3. `pairClearGravity(turnEvents)` — pairs each `WORDS_CLEARED` with its following `GRAVITY` so settled frames use post-gravity state (no holes in grid)
+4. `buildFrames(turns, statesMap, preClearGrid)` — produces the final frame list
+
+**Frame sequence per turn** (mirrors actual game flow):
+
+| Frame | `isDropFrame` | `isMatchFrame` | Visual |
+|---|---|---|---|
+| Pre-drop | ✓ | — | Board before letter lands; `DroppingOverlay` animates |
+| Grace | — | ✓ | Words highlighted green (`isPending`) — one per `WORDS_CLEARED` |
+| Settled | — | — | Post-gravity state — one per `WORDS_CLEARED` |
+| Post-drop (no clear) | — | — | Board after letter lands, no word formed |
+
+**Pre-existing pending words**: Before each drop, words from the upcoming clear that are already fully formed (all tile indices non-null in the pre-drop grid) are pre-highlighted green on the drop frame — e.g. SIP is green while D is falling and about to form DIE.
+
+**Drop animation** (`DroppingOverlay`): positions are computed by measuring `.game-grid` via `boardRef.current.querySelector('.game-grid').getBoundingClientRect()` — same element `GameLayout` measures. `cellSize = Math.min(colWidth, rowHeight)` with horizontal centering offset matches the game exactly. The animation drives frame advancement via `onComplete`; the playback `setTimeout` skips drop frames.
+
+**Grace period CSS**: `--animation-duration-word-grace` is overridden on the board wrapper to `SPEEDS[speedIdx].ms * 0.5` so the `fillGreen` animation completes exactly as the frame transitions.
+
+**Score deduplication** (`GameContext.jsx`): `scoreSubmittedRef` guards the `POST /api/scores` call so React Strict Mode's double-mount doesn't submit two entries. Reset to `false` on each `START_GAME`.
+
 ## Database
 
 The app requires `DATABASE_URL` in `.env`. The `.env` file has two URLs (`LOCAL_DATABASE_URL`, `RAILWAY_DATABASE_URL`) — toggle which one `DATABASE_URL` points to.

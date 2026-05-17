@@ -1,0 +1,2464 @@
+{
+  "schemaVersion": 3,
+  "sessionId": "mp96f1dw-3muv4b2d4",
+  "gameMode": "classic",
+  "startedAt": 1778986143428,
+  "lastActivityAt": 1778986143576,
+  "status": "completed",
+  "initialQueue": [
+    {
+      "char": "E",
+      "id": "tile-0",
+      "type": "letter"
+    },
+    {
+      "char": "R",
+      "id": "tile-1",
+      "type": "letter"
+    },
+    {
+      "char": "T",
+      "id": "tile-2",
+      "type": "letter"
+    },
+    {
+      "char": "H",
+      "id": "tile-3",
+      "type": "letter"
+    },
+    {
+      "char": "E",
+      "id": "tile-4",
+      "type": "letter"
+    },
+    {
+      "char": "A",
+      "id": "tile-5",
+      "type": "letter"
+    },
+    {
+      "char": "P",
+      "id": "tile-6",
+      "type": "letter"
+    },
+    {
+      "char": "L",
+      "id": "tile-7",
+      "type": "letter"
+    },
+    {
+      "char": "E",
+      "id": "tile-8",
+      "type": "letter"
+    },
+    {
+      "char": "S",
+      "id": "tile-9",
+      "type": "letter"
+    },
+    {
+      "char": "T",
+      "id": "tile-10",
+      "type": "letter"
+    },
+    {
+      "char": "A",
+      "id": "tile-11",
+      "type": "letter"
+    },
+    {
+      "char": "B",
+      "id": "tile-12",
+      "type": "letter"
+    },
+    {
+      "char": "G",
+      "id": "tile-13",
+      "type": "letter"
+    },
+    {
+      "char": "E",
+      "id": "tile-14",
+      "type": "letter"
+    },
+    {
+      "char": "S",
+      "id": "tile-15",
+      "type": "letter"
+    },
+    {
+      "char": "N",
+      "id": "tile-16",
+      "type": "letter"
+    },
+    {
+      "char": "P",
+      "id": "tile-17",
+      "type": "letter"
+    },
+    {
+      "char": "O",
+      "id": "tile-18",
+      "type": "letter"
+    },
+    {
+      "char": "T",
+      "id": "tile-19",
+      "type": "letter"
+    },
+    {
+      "char": "A",
+      "id": "tile-20",
+      "type": "letter"
+    },
+    {
+      "char": "E",
+      "id": "tile-21",
+      "type": "letter"
+    },
+    {
+      "char": "F",
+      "id": "tile-22",
+      "type": "letter"
+    },
+    {
+      "char": "O",
+      "id": "tile-23",
+      "type": "letter"
+    },
+    {
+      "char": "I",
+      "id": "tile-24",
+      "type": "letter"
+    },
+    {
+      "char": "T",
+      "id": "tile-25",
+      "type": "letter"
+    },
+    {
+      "char": "H",
+      "id": "tile-26",
+      "type": "letter"
+    },
+    {
+      "char": "A",
+      "id": "tile-27",
+      "type": "letter"
+    },
+    {
+      "char": "E",
+      "id": "tile-28",
+      "type": "letter"
+    },
+    {
+      "char": "A",
+      "id": "tile-29",
+      "type": "letter"
+    },
+    {
+      "char": "M",
+      "id": "tile-30",
+      "type": "letter"
+    },
+    {
+      "char": "N",
+      "id": "tile-31",
+      "type": "letter"
+    },
+    {
+      "char": "A",
+      "id": "tile-32",
+      "type": "letter"
+    },
+    {
+      "char": "D",
+      "id": "tile-33",
+      "type": "letter"
+    },
+    {
+      "char": "I",
+      "id": "tile-34",
+      "type": "letter"
+    },
+    {
+      "char": "O",
+      "id": "tile-35",
+      "type": "letter"
+    },
+    {
+      "char": "S",
+      "id": "tile-36",
+      "type": "letter"
+    },
+    {
+      "char": "E",
+      "id": "tile-37",
+      "type": "letter"
+    },
+    {
+      "char": "T",
+      "id": "tile-38",
+      "type": "letter"
+    },
+    {
+      "char": "G",
+      "id": "tile-39",
+      "type": "letter"
+    },
+    {
+      "char": "O",
+      "id": "tile-40",
+      "type": "letter"
+    },
+    {
+      "char": "A",
+      "id": "tile-41",
+      "type": "letter"
+    },
+    {
+      "char": "R",
+      "id": "tile-42",
+      "type": "letter"
+    },
+    {
+      "char": "Z",
+      "id": "tile-43",
+      "type": "letter"
+    },
+    {
+      "char": "D",
+      "id": "tile-44",
+      "type": "letter"
+    },
+    {
+      "char": "I",
+      "id": "tile-45",
+      "type": "letter"
+    },
+    {
+      "char": "S",
+      "id": "tile-46",
+      "type": "letter"
+    },
+    {
+      "char": "T",
+      "id": "tile-47",
+      "type": "letter"
+    },
+    {
+      "char": "N",
+      "id": "tile-48",
+      "type": "letter"
+    },
+    {
+      "char": "E",
+      "id": "tile-49",
+      "type": "letter"
+    },
+    {
+      "char": "W",
+      "id": "tile-50",
+      "type": "letter"
+    },
+    {
+      "char": "M",
+      "id": "tile-51",
+      "type": "letter"
+    },
+    {
+      "char": "N",
+      "id": "tile-52",
+      "type": "letter"
+    },
+    {
+      "char": "O",
+      "id": "tile-53",
+      "type": "letter"
+    },
+    {
+      "char": "N",
+      "id": "tile-54",
+      "type": "letter"
+    },
+    {
+      "char": "E",
+      "id": "tile-55",
+      "type": "letter"
+    },
+    {
+      "char": "S",
+      "id": "tile-56",
+      "type": "letter"
+    },
+    {
+      "char": "T",
+      "id": "tile-57",
+      "type": "letter"
+    },
+    {
+      "char": "G",
+      "id": "tile-58",
+      "type": "letter"
+    },
+    {
+      "char": "U",
+      "id": "tile-59",
+      "type": "letter"
+    },
+    {
+      "char": "W",
+      "id": "tile-60",
+      "type": "letter"
+    },
+    {
+      "char": "M",
+      "id": "tile-61",
+      "type": "letter"
+    },
+    {
+      "char": "R",
+      "id": "tile-62",
+      "type": "letter"
+    },
+    {
+      "char": "A",
+      "id": "tile-63",
+      "type": "letter"
+    },
+    {
+      "char": "T",
+      "id": "tile-64",
+      "type": "letter"
+    },
+    {
+      "char": "R",
+      "id": "tile-65",
+      "type": "letter"
+    },
+    {
+      "char": "E",
+      "id": "tile-66",
+      "type": "letter"
+    },
+    {
+      "char": "O",
+      "id": "tile-67",
+      "type": "letter"
+    },
+    {
+      "char": "I",
+      "id": "tile-68",
+      "type": "letter"
+    },
+    {
+      "char": "L",
+      "id": "tile-69",
+      "type": "letter"
+    },
+    {
+      "char": "S",
+      "id": "tile-70",
+      "type": "letter"
+    },
+    {
+      "char": "T",
+      "id": "tile-71",
+      "type": "letter"
+    },
+    {
+      "char": "O",
+      "id": "tile-72",
+      "type": "letter"
+    },
+    {
+      "char": "I",
+      "id": "tile-73",
+      "type": "letter"
+    },
+    {
+      "char": "R",
+      "id": "tile-74",
+      "type": "letter"
+    },
+    {
+      "char": "I",
+      "id": "tile-75",
+      "type": "letter"
+    },
+    {
+      "char": "N",
+      "id": "tile-76",
+      "type": "letter"
+    },
+    {
+      "char": "R",
+      "id": "tile-77",
+      "type": "letter"
+    },
+    {
+      "char": "D",
+      "id": "tile-78",
+      "type": "letter"
+    },
+    {
+      "char": "O",
+      "id": "tile-79",
+      "type": "letter"
+    },
+    {
+      "char": "R",
+      "id": "tile-80",
+      "type": "letter"
+    },
+    {
+      "char": "S",
+      "id": "tile-81",
+      "type": "letter"
+    },
+    {
+      "char": "E",
+      "id": "tile-82",
+      "type": "letter"
+    },
+    {
+      "char": "S",
+      "id": "tile-83",
+      "type": "letter"
+    },
+    {
+      "char": "N",
+      "id": "tile-84",
+      "type": "letter"
+    },
+    {
+      "char": "A",
+      "id": "tile-85",
+      "type": "letter"
+    },
+    {
+      "char": "S",
+      "id": "tile-86",
+      "type": "letter"
+    },
+    {
+      "char": "L",
+      "id": "tile-87",
+      "type": "letter"
+    },
+    {
+      "char": "D",
+      "id": "tile-88",
+      "type": "letter"
+    },
+    {
+      "char": "E",
+      "id": "tile-89",
+      "type": "letter"
+    },
+    {
+      "char": "I",
+      "id": "tile-90",
+      "type": "letter"
+    },
+    {
+      "char": "T",
+      "id": "tile-91",
+      "type": "letter"
+    },
+    {
+      "char": "I",
+      "id": "tile-92",
+      "type": "letter"
+    },
+    {
+      "char": "O",
+      "id": "tile-93",
+      "type": "letter"
+    },
+    {
+      "char": "A",
+      "id": "tile-94",
+      "type": "letter"
+    },
+    {
+      "char": "U",
+      "id": "tile-95",
+      "type": "letter"
+    },
+    {
+      "char": "E",
+      "id": "tile-96",
+      "type": "letter"
+    },
+    {
+      "char": "G",
+      "id": "tile-97",
+      "type": "letter"
+    },
+    {
+      "char": "O",
+      "id": "tile-98",
+      "type": "letter"
+    },
+    {
+      "char": "N",
+      "id": "tile-99",
+      "type": "letter"
+    }
+  ],
+  "initialGrid": null,
+  "initialBlocks": [],
+  "events": [
+    {
+      "seq": 0,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "E"
+      },
+      "ts": 1778986143428
+    },
+    {
+      "seq": 1,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 1,
+        "letter": "R"
+      },
+      "ts": 1778986143429
+    },
+    {
+      "seq": 2,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "T"
+      },
+      "ts": 1778986143430
+    },
+    {
+      "seq": 3,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 1,
+        "letter": "H"
+      },
+      "ts": 1778986143431
+    },
+    {
+      "seq": 4,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "E"
+      },
+      "ts": 1778986143432
+    },
+    {
+      "seq": 5,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 1,
+        "letter": "A"
+      },
+      "ts": 1778986143433
+    },
+    {
+      "seq": 6,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "P"
+      },
+      "ts": 1778986143434
+    },
+    {
+      "seq": 7,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "PEE",
+            "indices": [
+              21,
+              28,
+              35
+            ],
+            "direction": "vertical",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143435
+    },
+    {
+      "seq": 8,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143436
+    },
+    {
+      "seq": 9,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "L"
+      },
+      "ts": 1778986143437
+    },
+    {
+      "seq": 10,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "E"
+      },
+      "ts": 1778986143438
+    },
+    {
+      "seq": 11,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "S"
+      },
+      "ts": 1778986143439
+    },
+    {
+      "seq": 12,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 1,
+        "letter": "T"
+      },
+      "ts": 1778986143440
+    },
+    {
+      "seq": 13,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "A"
+      },
+      "ts": 1778986143441
+    },
+    {
+      "seq": 14,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 1,
+        "letter": "B"
+      },
+      "ts": 1778986143442
+    },
+    {
+      "seq": 15,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "G"
+      },
+      "ts": 1778986143443
+    },
+    {
+      "seq": 16,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "GAEL",
+            "indices": [
+              14,
+              21,
+              28,
+              35
+            ],
+            "direction": "vertical",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143444
+    },
+    {
+      "seq": 17,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143445
+    },
+    {
+      "seq": 18,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "E"
+      },
+      "ts": 1778986143446
+    },
+    {
+      "seq": 19,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "S"
+      },
+      "ts": 1778986143447
+    },
+    {
+      "seq": 20,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "N"
+      },
+      "ts": 1778986143448
+    },
+    {
+      "seq": 21,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "P"
+      },
+      "ts": 1778986143449
+    },
+    {
+      "seq": 22,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "NAP",
+            "indices": [
+              21,
+              22,
+              23
+            ],
+            "direction": "horizontal",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 2
+          },
+          {
+            "word": "PST",
+            "indices": [
+              23,
+              30,
+              37
+            ],
+            "direction": "vertical",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 2
+          }
+        ]
+      },
+      "ts": 1778986143450
+    },
+    {
+      "seq": 23,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143451
+    },
+    {
+      "seq": 24,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "O"
+      },
+      "ts": 1778986143452
+    },
+    {
+      "seq": 25,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 3,
+        "letter": "T"
+      },
+      "ts": 1778986143453
+    },
+    {
+      "seq": 26,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "ROT",
+            "indices": [
+              36,
+              37,
+              38
+            ],
+            "direction": "horizontal",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143454
+    },
+    {
+      "seq": 27,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143455
+    },
+    {
+      "seq": 28,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "A"
+      },
+      "ts": 1778986143456
+    },
+    {
+      "seq": 29,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "E"
+      },
+      "ts": 1778986143457
+    },
+    {
+      "seq": 30,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 1,
+        "letter": "F"
+      },
+      "ts": 1778986143458
+    },
+    {
+      "seq": 31,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 3,
+        "letter": "O"
+      },
+      "ts": 1778986143459
+    },
+    {
+      "seq": 32,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "HAO",
+            "indices": [
+              36,
+              37,
+              38
+            ],
+            "direction": "horizontal",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143460
+    },
+    {
+      "seq": 33,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143461
+    },
+    {
+      "seq": 34,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "I"
+      },
+      "ts": 1778986143462
+    },
+    {
+      "seq": 35,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "T"
+      },
+      "ts": 1778986143463
+    },
+    {
+      "seq": 36,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "TIE",
+            "indices": [
+              23,
+              30,
+              37
+            ],
+            "direction": "vertical",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143464
+    },
+    {
+      "seq": 37,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143465
+    },
+    {
+      "seq": 38,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "H"
+      },
+      "ts": 1778986143466
+    },
+    {
+      "seq": 39,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "A"
+      },
+      "ts": 1778986143467
+    },
+    {
+      "seq": 40,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 3,
+        "letter": "E"
+      },
+      "ts": 1778986143468
+    },
+    {
+      "seq": 41,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "THE",
+            "indices": [
+              36,
+              37,
+              38
+            ],
+            "direction": "horizontal",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143469
+    },
+    {
+      "seq": 42,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143470
+    },
+    {
+      "seq": 43,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 3,
+        "letter": "A"
+      },
+      "ts": 1778986143471
+    },
+    {
+      "seq": 44,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "BAA",
+            "indices": [
+              36,
+              37,
+              38
+            ],
+            "direction": "horizontal",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143472
+    },
+    {
+      "seq": 45,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143473
+    },
+    {
+      "seq": 46,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 1,
+        "letter": "M"
+      },
+      "ts": 1778986143474
+    },
+    {
+      "seq": 47,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "N"
+      },
+      "ts": 1778986143475
+    },
+    {
+      "seq": 48,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 1,
+        "letter": "A"
+      },
+      "ts": 1778986143476
+    },
+    {
+      "seq": 49,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 1,
+        "letter": "D"
+      },
+      "ts": 1778986143477
+    },
+    {
+      "seq": 50,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "DAM",
+            "indices": [
+              15,
+              22,
+              29
+            ],
+            "direction": "vertical",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143478
+    },
+    {
+      "seq": 51,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143479
+    },
+    {
+      "seq": 52,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 1,
+        "letter": "I"
+      },
+      "ts": 1778986143480
+    },
+    {
+      "seq": 53,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 1,
+        "letter": "O"
+      },
+      "ts": 1778986143481
+    },
+    {
+      "seq": 54,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "S"
+      },
+      "ts": 1778986143482
+    },
+    {
+      "seq": 55,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "SIS",
+            "indices": [
+              28,
+              29,
+              30
+            ],
+            "direction": "horizontal",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143483
+    },
+    {
+      "seq": 56,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143484
+    },
+    {
+      "seq": 57,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "E"
+      },
+      "ts": 1778986143485
+    },
+    {
+      "seq": 58,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "T"
+      },
+      "ts": 1778986143486
+    },
+    {
+      "seq": 59,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "TEE",
+            "indices": [
+              21,
+              28,
+              35
+            ],
+            "direction": "vertical",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143487
+    },
+    {
+      "seq": 60,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143488
+    },
+    {
+      "seq": 61,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "G"
+      },
+      "ts": 1778986143489
+    },
+    {
+      "seq": 62,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "O"
+      },
+      "ts": 1778986143490
+    },
+    {
+      "seq": 63,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 1,
+        "letter": "A"
+      },
+      "ts": 1778986143491
+    },
+    {
+      "seq": 64,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "R"
+      },
+      "ts": 1778986143492
+    },
+    {
+      "seq": 65,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 1,
+        "letter": "Z"
+      },
+      "ts": 1778986143493
+    },
+    {
+      "seq": 66,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "D"
+      },
+      "ts": 1778986143494
+    },
+    {
+      "seq": 67,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "DOG",
+            "indices": [
+              21,
+              28,
+              35
+            ],
+            "direction": "vertical",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143495
+    },
+    {
+      "seq": 68,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143496
+    },
+    {
+      "seq": 69,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "I"
+      },
+      "ts": 1778986143497
+    },
+    {
+      "seq": 70,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "S"
+      },
+      "ts": 1778986143498
+    },
+    {
+      "seq": 71,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "T"
+      },
+      "ts": 1778986143499
+    },
+    {
+      "seq": 72,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "N"
+      },
+      "ts": 1778986143500
+    },
+    {
+      "seq": 73,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "TAN",
+            "indices": [
+              21,
+              22,
+              23
+            ],
+            "direction": "horizontal",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143501
+    },
+    {
+      "seq": 74,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143502
+    },
+    {
+      "seq": 75,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 1,
+        "letter": "E"
+      },
+      "ts": 1778986143503
+    },
+    {
+      "seq": 76,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "W"
+      },
+      "ts": 1778986143504
+    },
+    {
+      "seq": 77,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 1,
+        "letter": "M"
+      },
+      "ts": 1778986143505
+    },
+    {
+      "seq": 78,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "N"
+      },
+      "ts": 1778986143506
+    },
+    {
+      "seq": 79,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "O"
+      },
+      "ts": 1778986143507
+    },
+    {
+      "seq": 80,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "N"
+      },
+      "ts": 1778986143508
+    },
+    {
+      "seq": 81,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "NOW",
+            "indices": [
+              7,
+              14,
+              21
+            ],
+            "direction": "vertical",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143509
+    },
+    {
+      "seq": 82,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143510
+    },
+    {
+      "seq": 83,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "E"
+      },
+      "ts": 1778986143511
+    },
+    {
+      "seq": 84,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "S"
+      },
+      "ts": 1778986143512
+    },
+    {
+      "seq": 85,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "T"
+      },
+      "ts": 1778986143513
+    },
+    {
+      "seq": 86,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "SET",
+            "indices": [
+              14,
+              15,
+              16
+            ],
+            "direction": "horizontal",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143514
+    },
+    {
+      "seq": 87,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143515
+    },
+    {
+      "seq": 88,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "G"
+      },
+      "ts": 1778986143516
+    },
+    {
+      "seq": 89,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "GES",
+            "indices": [
+              14,
+              21,
+              28
+            ],
+            "direction": "vertical",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143517
+    },
+    {
+      "seq": 90,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143518
+    },
+    {
+      "seq": 91,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "U"
+      },
+      "ts": 1778986143519
+    },
+    {
+      "seq": 92,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "W"
+      },
+      "ts": 1778986143520
+    },
+    {
+      "seq": 93,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 1,
+        "letter": "M"
+      },
+      "ts": 1778986143521
+    },
+    {
+      "seq": 94,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "R"
+      },
+      "ts": 1778986143522
+    },
+    {
+      "seq": 95,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 1,
+        "letter": "A"
+      },
+      "ts": 1778986143523
+    },
+    {
+      "seq": 96,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "T"
+      },
+      "ts": 1778986143524
+    },
+    {
+      "seq": 97,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "R"
+      },
+      "ts": 1778986143525
+    },
+    {
+      "seq": 98,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "E"
+      },
+      "ts": 1778986143526
+    },
+    {
+      "seq": 99,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "ERR",
+            "indices": [
+              0,
+              7,
+              14
+            ],
+            "direction": "vertical",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143527
+    },
+    {
+      "seq": 100,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143528
+    },
+    {
+      "seq": 101,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "O"
+      },
+      "ts": 1778986143529
+    },
+    {
+      "seq": 102,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "I"
+      },
+      "ts": 1778986143530
+    },
+    {
+      "seq": 103,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "L"
+      },
+      "ts": 1778986143531
+    },
+    {
+      "seq": 104,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 3,
+        "letter": "S"
+      },
+      "ts": 1778986143532
+    },
+    {
+      "seq": 105,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "T"
+      },
+      "ts": 1778986143533
+    },
+    {
+      "seq": 106,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "O"
+      },
+      "ts": 1778986143534
+    },
+    {
+      "seq": 107,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "OAT",
+            "indices": [
+              0,
+              1,
+              2
+            ],
+            "direction": "horizontal",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143535
+    },
+    {
+      "seq": 108,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143536
+    },
+    {
+      "seq": 109,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 1,
+        "letter": "I"
+      },
+      "ts": 1778986143537
+    },
+    {
+      "seq": 110,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "R"
+      },
+      "ts": 1778986143538
+    },
+    {
+      "seq": 111,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "RIO",
+            "indices": [
+              0,
+              7,
+              14
+            ],
+            "direction": "vertical",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143539
+    },
+    {
+      "seq": 112,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143540
+    },
+    {
+      "seq": 113,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "I"
+      },
+      "ts": 1778986143541
+    },
+    {
+      "seq": 114,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "N"
+      },
+      "ts": 1778986143542
+    },
+    {
+      "seq": 115,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 3,
+        "letter": "R"
+      },
+      "ts": 1778986143543
+    },
+    {
+      "seq": 116,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 3,
+        "letter": "D"
+      },
+      "ts": 1778986143544
+    },
+    {
+      "seq": 117,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 3,
+        "letter": "O"
+      },
+      "ts": 1778986143545
+    },
+    {
+      "seq": 118,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 3,
+        "letter": "R"
+      },
+      "ts": 1778986143546
+    },
+    {
+      "seq": 119,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "ROD",
+            "indices": [
+              10,
+              17,
+              24
+            ],
+            "direction": "vertical",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143547
+    },
+    {
+      "seq": 120,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143548
+    },
+    {
+      "seq": 121,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 3,
+        "letter": "S"
+      },
+      "ts": 1778986143549
+    },
+    {
+      "seq": 122,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 3,
+        "letter": "E"
+      },
+      "ts": 1778986143550
+    },
+    {
+      "seq": 123,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "S"
+      },
+      "ts": 1778986143551
+    },
+    {
+      "seq": 124,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 3,
+        "letter": "N"
+      },
+      "ts": 1778986143552
+    },
+    {
+      "seq": 125,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "A"
+      },
+      "ts": 1778986143553
+    },
+    {
+      "seq": 126,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "AIN",
+            "indices": [
+              0,
+              1,
+              2
+            ],
+            "direction": "horizontal",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143554
+    },
+    {
+      "seq": 127,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143555
+    },
+    {
+      "seq": 128,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 1,
+        "letter": "S"
+      },
+      "ts": 1778986143556
+    },
+    {
+      "seq": 129,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "L"
+      },
+      "ts": 1778986143557
+    },
+    {
+      "seq": 130,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 4,
+        "letter": "D"
+      },
+      "ts": 1778986143558
+    },
+    {
+      "seq": 131,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 3,
+        "letter": "E"
+      },
+      "ts": 1778986143559
+    },
+    {
+      "seq": 132,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 0,
+        "letter": "I"
+      },
+      "ts": 1778986143560
+    },
+    {
+      "seq": 133,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "ISLE",
+            "indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "direction": "horizontal",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143561
+    },
+    {
+      "seq": 134,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143562
+    },
+    {
+      "seq": 135,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 1,
+        "letter": "T"
+      },
+      "ts": 1778986143563
+    },
+    {
+      "seq": 136,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "I"
+      },
+      "ts": 1778986143564
+    },
+    {
+      "seq": 137,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 3,
+        "letter": "O"
+      },
+      "ts": 1778986143565
+    },
+    {
+      "seq": 138,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "ONE",
+            "indices": [
+              3,
+              10,
+              17
+            ],
+            "direction": "vertical",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143566
+    },
+    {
+      "seq": 139,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143567
+    },
+    {
+      "seq": 140,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 3,
+        "letter": "A"
+      },
+      "ts": 1778986143568
+    },
+    {
+      "seq": 141,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 3,
+        "letter": "U"
+      },
+      "ts": 1778986143569
+    },
+    {
+      "seq": 142,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 3,
+        "letter": "E"
+      },
+      "ts": 1778986143570
+    },
+    {
+      "seq": 143,
+      "type": "WORDS_CLEARED",
+      "payload": {
+        "words": [
+          {
+            "word": "TIE",
+            "indices": [
+              1,
+              2,
+              3
+            ],
+            "direction": "horizontal",
+            "chainId": 0,
+            "comboDepth": 0,
+            "groupSize": 1
+          }
+        ]
+      },
+      "ts": 1778986143571
+    },
+    {
+      "seq": 144,
+      "type": "GRAVITY",
+      "payload": {},
+      "ts": 1778986143572
+    },
+    {
+      "seq": 145,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 1,
+        "letter": "G"
+      },
+      "ts": 1778986143573
+    },
+    {
+      "seq": 146,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 2,
+        "letter": "O"
+      },
+      "ts": 1778986143574
+    },
+    {
+      "seq": 147,
+      "type": "DROP_LETTER",
+      "payload": {
+        "column": 3,
+        "letter": "N"
+      },
+      "ts": 1778986143575
+    }
+  ],
+  "checkpoint": {
+    "afterEventSeq": 147,
+    "grid": [
+      null,
+      {
+        "char": "G",
+        "id": "tile-97",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      {
+        "char": "O",
+        "id": "tile-98",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      {
+        "char": "N",
+        "id": "tile-99",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      null,
+      null,
+      null,
+      {
+        "char": "S",
+        "id": "tile-83",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      {
+        "char": "M",
+        "id": "tile-61",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      {
+        "char": "L",
+        "id": "tile-69",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      {
+        "char": "U",
+        "id": "tile-95",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      null,
+      null,
+      null,
+      {
+        "char": "I",
+        "id": "tile-75",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      {
+        "char": "M",
+        "id": "tile-51",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      {
+        "char": "T",
+        "id": "tile-64",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      {
+        "char": "A",
+        "id": "tile-94",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      null,
+      null,
+      null,
+      {
+        "char": "W",
+        "id": "tile-60",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      {
+        "char": "Z",
+        "id": "tile-43",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      {
+        "char": "N",
+        "id": "tile-52",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      {
+        "char": "S",
+        "id": "tile-81",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      null,
+      null,
+      null,
+      {
+        "char": "U",
+        "id": "tile-59",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      {
+        "char": "O",
+        "id": "tile-35",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      {
+        "char": "R",
+        "id": "tile-42",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      {
+        "char": "R",
+        "id": "tile-77",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      null,
+      null,
+      null,
+      {
+        "char": "I",
+        "id": "tile-45",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      {
+        "char": "F",
+        "id": "tile-22",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      {
+        "char": "N",
+        "id": "tile-31",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      {
+        "char": "S",
+        "id": "tile-70",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      {
+        "char": "D",
+        "id": "tile-88",
+        "type": "filled",
+        "isMatched": false,
+        "isPending": false,
+        "pendingDirections": [],
+        "pendingResetCount": 0,
+        "isInitial": false
+      },
+      null,
+      null
+    ],
+    "nextQueue": [],
+    "lettersRemaining": 0,
+    "score": 104,
+    "madeWords": [
+      {
+        "word": "TIE",
+        "score": 3,
+        "chainId": 0,
+        "comboDepth": 0
+      },
+      {
+        "word": "ONE",
+        "score": 3,
+        "chainId": 0,
+        "comboDepth": 0
+      },
+      {
+        "word": "ISLE",
+        "score": 5,
+        "chainId": 0,
+        "comboDepth": 0
+      },
+      {
+        "word": "AIN",
+        "score": 3,
+        "chainId": 0,
+        "comboDepth": 0
+      },
+      {
+        "word": "ROD",
+        "score": 4,
+        "chainId": 0,
+        "comboDepth": 0
+      },
+      {
+        "word": "RIO",
+        "score": 3,
+        "chainId": 0,
+        "comboDepth": 0
+      },
+      {
+        "word": "OAT",
+        "score": 3,
+        "chainId": 0,
+        "comboDepth": 0
+      },
+      {
+        "word": "ERR",
+        "score": 3,
+        "chainId": 0,
+        "comboDepth": 0
+      },
+      {
+        "word": "GES",
+        "score": 4,
+        "chainId": 0,
+        "comboDepth": 0
+      },
+      {
+        "word": "SET",
+        "score": 3,
+        "chainId": 0,
+        "comboDepth": 0
+      },
+      {
+        "word": "NOW",
+        "score": 6,
+        "chainId": 0,
+        "comboDepth": 0
+      },
+      {
+        "word": "TAN",
+        "score": 3,
+        "chainId": 0,
+        "comboDepth": 0
+      },
+      {
+        "word": "DOG",
+        "score": 5,
+        "chainId": 0,
+        "comboDepth": 0
+      },
+      {
+        "word": "TEE",
+        "score": 3,
+        "chainId": 0,
+        "comboDepth": 0
+      },
+      {
+        "word": "SIS",
+        "score": 3,
+        "chainId": 0,
+        "comboDepth": 0
+      },
+      {
+        "word": "DAM",
+        "score": 6,
+        "chainId": 0,
+        "comboDepth": 0
+      },
+      {
+        "word": "BAA",
+        "score": 5,
+        "chainId": 0,
+        "comboDepth": 0
+      },
+      {
+        "word": "THE",
+        "score": 6,
+        "chainId": 0,
+        "comboDepth": 0
+      },
+      {
+        "word": "TIE",
+        "score": 3,
+        "chainId": 0,
+        "comboDepth": 0
+      },
+      {
+        "word": "HAO",
+        "score": 6,
+        "chainId": 0,
+        "comboDepth": 0
+      }
+    ]
+  }
+}
