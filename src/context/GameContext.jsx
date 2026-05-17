@@ -38,9 +38,11 @@ export function GameProvider({ children }) {
   const gameSession = useGameSession();
   const stateRef = useRef(state);
   stateRef.current = state;
+  const scoreSubmittedRef = useRef(false);
 
   const wrappedDispatch = useCallback((action) => {
     if (action.type === 'START_GAME') {
+      scoreSubmittedRef.current = false;
       const { mode } = action.payload;
       const initialQueue = buildInitialQueue(mode);
       const { grid: initialGrid, initialBlocks } = buildInitialGrid(mode);
@@ -84,7 +86,8 @@ export function GameProvider({ children }) {
 
   // Mark session complete and save score when game ends.
   useEffect(() => {
-    if (state.status === 'GAME_OVER') {
+    if (state.status === 'GAME_OVER' && !scoreSubmittedRef.current) {
+      scoreSubmittedRef.current = true;
       const completedSession = gameSession.onGameOver(state);
       const username = localStorage.getItem('noodel_username') ?? 'anonymous';
       fetch('/api/scores', {

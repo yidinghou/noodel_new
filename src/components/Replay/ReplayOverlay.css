@@ -1,0 +1,190 @@
+.replay-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.replay-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+  width: min(360px, 95vw);
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.replay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.replay-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+.replay-score-badge {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1976D2;
+}
+
+.replay-close-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #999;
+  cursor: pointer;
+  padding: 2px 6px;
+  line-height: 1;
+}
+
+.replay-close-btn:hover {
+  color: #333;
+}
+
+.replay-board-wrapper {
+  padding: 12px 16px;
+  display: flex;
+  justify-content: center;
+  flex: 1;
+  min-height: 0;
+}
+
+.replay-board-wrapper .game-grid {
+  pointer-events: none;
+}
+
+.replay-progress-bar-track {
+  height: 3px;
+  background: #eee;
+  margin: 0 16px;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.replay-progress-bar-fill {
+  height: 100%;
+  background: #1976D2;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.replay-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px 14px;
+  gap: 8px;
+}
+
+.replay-nav-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #1976D2;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  line-height: 1;
+  transition: opacity 0.15s;
+}
+
+.replay-nav-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.replay-nav-btn:not(:disabled):hover {
+  background: #e3f0ff;
+}
+
+.replay-play-btn {
+  background: #1976D2;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.replay-play-btn:hover {
+  background: #1565C0;
+}
+
+.replay-turn-info {
+  font-size: 12px;
+  color: #888;
+  text-align: center;
+  flex: 1;
+  white-space: nowrap;
+}
+
+.replay-speed-btn {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #666;
+  cursor: pointer;
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+
+.replay-speed-btn:hover {
+  border-color: #1976D2;
+  color: #1976D2;
+}
+
+.replay-next-queue {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px 0;
+}
+
+.replay-next-chip {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  background: #f0f0f0;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #555;
+}
+
+.replay-next-chip--next {
+  background: #1976D2;
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  font-size: 15px;
+}
+
+.replay-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 0;
+  color: #aaa;
+  font-size: 14px;
+}

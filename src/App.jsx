@@ -5,6 +5,7 @@ import { DebugOverlay } from './components/Debug/DebugOverlay.jsx';
 import ModeSelector from './components/Controls/ModeSelector.jsx';
 import SettingsMenu from './components/Controls/SettingsMenu.jsx';
 import GameOverOverlay from './components/Overlays/GameOverOverlay.jsx';
+import ReplayOverlay from './components/Replay/ReplayOverlay.jsx';
 import HowToPlayModal from './poc/HowToPlayModal.jsx';
 import { useGame } from './context/GameContext.jsx';
 import { useGameLogic } from './hooks/useGameLogic.js';
@@ -18,6 +19,7 @@ function App() {
   const [showModeSelector, setShowModeSelector] = useState(false);
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
+  const [replaySession, setReplaySession] = useState(null);
   const [pendingMode, setPendingMode] = useState(null);
   const { dropOrderMap, statsVisible, controlsVisible, boardVisible, fastForward } = useIntroSequence();
 
@@ -65,7 +67,7 @@ function App() {
     : false;
 
   return (
-    <div className={`app-root${(showModeSelector || showSettingsMenu) ? ' menu-open' : ''}`}>
+    <div className={`app-root${(showModeSelector || showSettingsMenu || replaySession) ? ' menu-open' : ''}`}>
       <GameLayout
         gridWrapperRef={gridWrapperRef}
         score={state.score}
@@ -104,7 +106,15 @@ function App() {
           onClose={() => setShowSettingsMenu(false)}
           isMuted={isMuted}
           onToggleMute={handleToggleMute}
+          onReplay={(session) => {
+            setShowSettingsMenu(false);
+            setReplaySession(session);
+          }}
         />,
+        gridWrapperRef.current
+      )}
+      {replaySession && gridWrapperRef.current && createPortal(
+        <ReplayOverlay session={replaySession} onClose={() => setReplaySession(null)} />,
         gridWrapperRef.current
       )}
       <GameOverOverlay

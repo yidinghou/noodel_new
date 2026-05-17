@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 const USERS = ['yiding', 'hannah'];
 
-function SettingsMenu({ visible, onClose, isMuted, onToggleMute }) {
+function SettingsMenu({ visible, onClose, isMuted, onToggleMute, onReplay }) {
   const isOnPoc = window.location.pathname.includes('poc.html');
   const switchTarget = isOnPoc ? '/noodel_new/' : '/noodel_new/poc.html';
 
@@ -40,8 +40,7 @@ function SettingsMenu({ visible, onClose, isMuted, onToggleMute }) {
       const res = await fetch(`/api/scores/${scoreId}/session`);
       if (!res.ok) { alert('No replay available for this score.'); return; }
       const session = await res.json();
-      localStorage.setItem('noodel_replay_session', JSON.stringify(session));
-      window.open('/game_replay.html', '_blank');
+      onReplay(session);
     } catch {
       alert('Failed to load replay.');
     }

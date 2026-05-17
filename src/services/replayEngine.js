@@ -140,9 +140,16 @@ export function preClearGrid(statesMap, clearEvent) {
   if (!preState) return Array(GRID_SIZE).fill(null);
 
   const grid = [...preState.grid];
+  const dirMap = new Map();
   for (const w of clearEvent.payload.words) {
     for (const idx of w.indices) {
-      if (grid[idx]) grid[idx] = { ...grid[idx], isMatched: true };
+      if (!dirMap.has(idx)) dirMap.set(idx, new Set());
+      dirMap.get(idx).add(w.direction);
+    }
+  }
+  for (const [idx, dirs] of dirMap) {
+    if (grid[idx]) {
+      grid[idx] = { ...grid[idx], isPending: true, pendingDirections: [...dirs], pendingResetCount: 0 };
     }
   }
   return grid;
