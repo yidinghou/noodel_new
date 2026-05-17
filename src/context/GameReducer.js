@@ -142,6 +142,9 @@ export function gameReducer(state, action) {
       wordsToRemove.forEach(({ word, indices }) => {
         let wordScore;
         if (state.gameMode === 'clear') {
+          // Intentional assignment (not +=): score = lettersRemaining at time of this clear.
+          // Multiple simultaneous clears still yield a single snapshot value. The final
+          // `score:` below also sets (not adds) so the score reflects the latest clear only.
           totalScore = state.lettersRemaining;
           wordScore = state.lettersRemaining;
         } else {

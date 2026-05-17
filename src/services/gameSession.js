@@ -45,6 +45,8 @@ export function createSession(mode, initialQueue, initialGrid, initialBlocks) {
  * @param {number} ts - timestamp
  */
 export function appendEvent(session, type, payload, ts) {
+  // seq = events.length before append → dense 0-indexed integers (0, 1, 2, …).
+  // preClearGrid in replayEngine relies on this to look up seq-1 as "prior state".
   const event = { seq: session.events.length, type, payload: { ...payload }, ts };
   return {
     ...session,

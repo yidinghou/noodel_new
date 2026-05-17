@@ -217,6 +217,8 @@ export function useGameLogic() {
   useEffect(() => {
     if (state.gameMode !== 'clear' || state.status !== 'PLAYING') return;
 
+    // Win requires the entire board to be empty (not just the initial block cells).
+    // Player-placed tiles must also be cleared for victory to trigger.
     const gridEmpty = state.grid.every(cell => !cell);
 
     if (gridEmpty && state.initialBlocks.length > 0) {

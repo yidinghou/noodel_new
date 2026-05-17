@@ -1,4 +1,4 @@
-import { loadSession } from '../services/sessionStorage.js';
+import { loadReplaySession } from '../services/sessionStorage.js';
 import { buildTurns, buildReplayStates, preClearGrid } from '../services/replayEngine.js';
 
 /**
@@ -11,7 +11,7 @@ import { buildTurns, buildReplayStates, preClearGrid } from '../services/replayE
  *   preClear  - (clearEvent) => 42-cell grid with matched cells flagged
  */
 export function useReplaySession() {
-  const session = loadSession();
+  const session = loadReplaySession();
 
   if (!session || !session.events?.length) {
     return { session, turns: [], statesMap: new Map(), preClear: () => [] };

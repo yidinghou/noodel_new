@@ -12,7 +12,7 @@ import {
   completeSession,
   buildLoadPayload,
 } from '../services/gameSession.js';
-import { saveSession, loadSession, clearSession } from '../services/sessionStorage.js';
+import { saveSession, loadSession, clearSession, saveReplaySession } from '../services/sessionStorage.js';
 
 export function useGameSession() {
   const sessionRef = useRef(null);
@@ -48,6 +48,9 @@ export function useGameSession() {
     session = completeSession(session);
     sessionRef.current = session;
     saveSession(session);
+    // Also persist to the replay key so the replay viewer can show this game
+    // even after the active session is overwritten by a new game.
+    saveReplaySession(session);
   }
 
   /** Replace the in-memory session and persist (used by undo). */
