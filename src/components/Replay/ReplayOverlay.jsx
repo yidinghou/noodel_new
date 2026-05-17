@@ -52,6 +52,17 @@ function pairClearGravity(turnEvents) {
 
 function buildFrames(turns, statesMap, preClearGrid) {
   const frames = [];
+
+  // All words ever cleared in the session — used for look-ahead pre-highlighting.
+  // A word is shown as pending on any drop frame where all its tiles were already
+  // on the board before that drop (including turns after the current one, since
+  // rapid multi-drops can push a word's WORDS_CLEARED into a later turn).
+  const allClearedWords = turns.flatMap(t =>
+    t.events
+      .filter(e => e.type === 'WORDS_CLEARED')
+      .flatMap(e => e.payload.words)
+  );
+
   for (let i = 0; i < turns.length; i++) {
     const turn = turns[i];
     const dropState = statesMap.get(turn.dropSeq);
@@ -61,22 +72,20 @@ function buildFrames(turns, statesMap, preClearGrid) {
     // Pre-drop frame: board before the letter lands; DroppingOverlay animates over this.
     const preDropState = statesMap.get(turn.dropSeq - 1) ?? statesMap.get(-1);
 
-    // Highlight any words that were already fully formed before this drop. A word is
-    // "pre-formed" if every one of its tile indices is non-null in the pre-drop grid.
-    // Check ALL clear events in the turn — a pre-pending word may clear in pairs[1+]
-    // if it has no intersection with the word formed by this drop.
+    // Pre-highlight any word whose tiles were all already on the board before this drop.
+    // Look across ALL turns (not just the current one) so words pending from rapid earlier
+    // drops are caught even when their WORDS_CLEARED event falls in a later turn.
+    // The all-non-null check naturally excludes words completed by this drop itself.
     let preDropGrid = preDropState.grid;
-    if (pairs.length > 0) {
+    {
       const pendingGrid = [...preDropState.grid];
       let hasPending = false;
-      for (const { clearEvent } of pairs) {
-        for (const w of clearEvent.payload.words) {
-          if (w.indices.every(idx => preDropState.grid[idx] != null)) {
-            for (const idx of w.indices) {
-              if (pendingGrid[idx]) {
-                pendingGrid[idx] = { ...pendingGrid[idx], isPending: true, pendingDirections: [w.direction], pendingResetCount: 0 };
-                hasPending = true;
-              }
+      for (const w of allClearedWords) {
+        if (w.indices.every(idx => preDropState.grid[idx] != null)) {
+          for (const idx of w.indices) {
+            if (pendingGrid[idx] && !pendingGrid[idx].isPending) {
+              pendingGrid[idx] = { ...pendingGrid[idx], isPending: true, pendingDirections: [w.direction], pendingResetCount: 0 };
+              hasPending = true;
             }
           }
         }
