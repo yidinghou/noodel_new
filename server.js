@@ -36,25 +36,40 @@ app.use(express.static(DIST, {
 
 // Leaderboard API
 app.post('/api/scores', async (req, res) => {
-  const { score, gameMode } = req.body;
+  const { score, gameMode, username, sessionData } = req.body;
   if (typeof score !== 'number') return res.status(400).json({ error: 'score required' });
   const result = await pool.query(
-    'INSERT INTO leaderboard (score, game_mode) VALUES ($1, $2) RETURNING *',
-    [score, gameMode || 'classic']
+    'INSERT INTO leaderboard (score, game_mode, username, session_data) VALUES ($1, $2, $3, $4) RETURNING id, username, score, game_mode, created_at',
+    [score, gameMode || 'classic', username || 'anonymous', sessionData ? JSON.stringify(sessionData) : null]
   );
   res.status(201).json(result.rows[0]);
 });
 
 app.get('/api/scores', async (req, res) => {
   const result = await pool.query(
-    'SELECT * FROM leaderboard ORDER BY score DESC LIMIT 20'
+    'SELECT id, username, score, game_mode, created_at FROM leaderboard ORDER BY score DESC LIMIT 20'
   );
   res.json(result.rows);
 });
 
-// Handle SPA routing - serve dist/index.html for all other routes
+app.get('/api/scores/:id/session', async (req, res) => {
+  const { id } = req.params;
+  const result = await pool.query(
+    'SELECT session_data FROM leaderboard WHERE id = $1',
+    [id]
+  );
+  if (!result.rows.length || !result.rows[0].session_data) {
+    return res.status(404).json({ error: 'session not found' });
+  }
+  res.json(result.rows[0].session_data);
+});
+
+// Serve known HTML entry points directly; fall back to index.html for SPA routes
+const HTML_ENTRIES = ['index.html', 'poc.html', 'game_replay.html'];
 app.get('*', (req, res) => {
-  res.sendFile(path.join(DIST, 'index.html'));
+  const requested = path.basename(req.path);
+  const file = HTML_ENTRIES.includes(requested) ? requested : 'index.html';
+  res.sendFile(path.join(DIST, file));
 });
 
 app.listen(PORT, '0.0.0.0', () => {

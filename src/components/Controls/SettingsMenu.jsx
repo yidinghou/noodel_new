@@ -1,16 +1,51 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
-/**
- * Settings menu - allows user to configure game and account settings
- * @param {boolean} visible - Whether the menu should be visible
- * @param {function} onClose - Callback when close button is clicked
- * @param {boolean} isMuted - Whether sound is muted
- * @param {function} onToggleMute - Callback to toggle mute state
- */
+const USERS = ['yiding', 'hannah'];
+
 function SettingsMenu({ visible, onClose, isMuted, onToggleMute }) {
   const isOnPoc = window.location.pathname.includes('poc.html');
   const switchTarget = isOnPoc ? '/noodel_new/' : '/noodel_new/poc.html';
-  const switchLabel = isOnPoc ? 'Switch to Classic' : 'Switch to New UI';
+
+  const [panel, setPanel] = useState(null); // null | 'login' | 'leaderboard'
+  const [currentUser, setCurrentUser] = useState(() => localStorage.getItem('noodel_username') ?? null);
+  const [scores, setScores] = useState([]);
+  const [loadingScores, setLoadingScores] = useState(false);
+
+  useEffect(() => {
+    if (!visible) setPanel(null);
+  }, [visible]);
+
+  function selectUser(name) {
+    localStorage.setItem('noodel_username', name);
+    setCurrentUser(name);
+    setPanel(null);
+  }
+
+  async function openLeaderboard() {
+    setPanel('leaderboard');
+    setLoadingScores(true);
+    try {
+      const res = await fetch('/api/scores');
+      const data = await res.json();
+      setScores(data);
+    } catch {
+      setScores([]);
+    } finally {
+      setLoadingScores(false);
+    }
+  }
+
+  async function handleReplay(scoreId) {
+    try {
+      const res = await fetch(`/api/scores/${scoreId}/session`);
+      if (!res.ok) { alert('No replay available for this score.'); return; }
+      const session = await res.json();
+      localStorage.setItem('noodel_replay_session', JSON.stringify(session));
+      window.open('/game_replay.html', '_blank');
+    } catch {
+      alert('Failed to load replay.');
+    }
+  }
 
   return (
     <div className={`mode-selection-menu settings-variant ${visible ? 'visible' : ''}`}>
@@ -24,31 +59,99 @@ function SettingsMenu({ visible, onClose, isMuted, onToggleMute }) {
         </button>
         <h2 className="mode-selection-title">Settings</h2>
 
-        <div className="mode-selection-section">
-          <div className="mode-selection-buttons">
-            <button className="mode-selection-btn settings-btn-item">
-              👤 Login
-            </button>
-            <button className="mode-selection-btn settings-btn-item">
-              📊 Stats
-            </button>
-            <button className="mode-selection-btn settings-btn-item">
-              🏆 Leaderboard
-            </button>
-            <button
-              className="mode-selection-btn settings-btn-item"
-              onClick={onToggleMute}
-            >
-              {isMuted ? '🔇 Unmute' : '🔊 Sound'}
-            </button>
-            <button
-              className="mode-selection-btn settings-btn-item"
-              onClick={() => { window.location.href = switchTarget; }}
-            >
-              {isOnPoc ? '🎮 Switch to Classic' : '✨ Switch to New UI'}
-            </button>
+        {panel === null && (
+          <div className="mode-selection-section">
+            <div className="mode-selection-buttons">
+              <button
+                className="mode-selection-btn settings-btn-item"
+                onClick={() => setPanel('login')}
+              >
+                👤 {currentUser ? `Logged in: ${currentUser}` : 'Login'}
+              </button>
+              <button className="mode-selection-btn settings-btn-item">
+                📊 Stats
+              </button>
+              <button
+                className="mode-selection-btn settings-btn-item"
+                onClick={openLeaderboard}
+              >
+                🏆 Leaderboard
+              </button>
+              <button
+                className="mode-selection-btn settings-btn-item"
+                onClick={onToggleMute}
+              >
+                {isMuted ? '🔇 Unmute' : '🔊 Sound'}
+              </button>
+              <button
+                className="mode-selection-btn settings-btn-item"
+                onClick={() => { window.location.href = switchTarget; }}
+              >
+                {isOnPoc ? '🎮 Switch to Classic' : '✨ Switch to New UI'}
+              </button>
+            </div>
           </div>
-        </div>
+        )}
+
+        {panel === 'login' && (
+          <div className="mode-selection-section">
+            <p className="mode-selection-subtitle">Select your name</p>
+            <div className="mode-selection-buttons">
+              {USERS.map(name => (
+                <button
+                  key={name}
+                  className={`mode-selection-btn settings-btn-item ${currentUser === name ? 'active' : ''}`}
+                  onClick={() => selectUser(name)}
+                >
+                  {currentUser === name ? '✓ ' : ''}{name.charAt(0).toUpperCase() + name.slice(1)}
+                </button>
+              ))}
+              <button
+                className="mode-selection-btn settings-btn-item"
+                onClick={() => setPanel(null)}
+              >
+                ← Back
+              </button>
+            </div>
+          </div>
+        )}
+
+        {panel === 'leaderboard' && (
+          <div className="mode-selection-section">
+            <p className="mode-selection-subtitle">Top Scores</p>
+            {loadingScores ? (
+              <p style={{ textAlign: 'center', padding: '1rem' }}>Loading...</p>
+            ) : scores.length === 0 ? (
+              <p style={{ textAlign: 'center', padding: '1rem' }}>No scores yet.</p>
+            ) : (
+              <div className="leaderboard-list">
+                {scores.map((row, i) => (
+                  <div key={row.id} className="leaderboard-row">
+                    <span className="leaderboard-rank">#{i + 1}</span>
+                    <span className="leaderboard-user">{row.username}</span>
+                    <span className="leaderboard-score">{row.score}</span>
+                    <span className="leaderboard-mode">{row.game_mode}</span>
+                    <button
+                      className="leaderboard-replay-btn"
+                      onClick={() => handleReplay(row.id)}
+                      title="Watch replay"
+                    >
+                      ▶
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="mode-selection-buttons" style={{ marginTop: '1rem' }}>
+              <button
+                className="mode-selection-btn settings-btn-item"
+                onClick={() => setPanel(null)}
+              >
+                ← Back
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

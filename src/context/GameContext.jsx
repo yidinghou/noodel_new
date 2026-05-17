@@ -85,11 +85,12 @@ export function GameProvider({ children }) {
   // Mark session complete and save score when game ends.
   useEffect(() => {
     if (state.status === 'GAME_OVER') {
-      gameSession.onGameOver(state);
+      const completedSession = gameSession.onGameOver(state);
+      const username = localStorage.getItem('noodel_username') ?? 'anonymous';
       fetch('/api/scores', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ score: state.score, gameMode: state.gameMode }),
+        body: JSON.stringify({ score: state.score, gameMode: state.gameMode, username, sessionData: completedSession }),
       }).catch(() => {}); // fire-and-forget; don't break the game on DB errors
     }
   }, [state.status]);
