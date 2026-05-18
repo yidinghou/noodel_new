@@ -14,7 +14,7 @@ const SHAKE_DURATION_MS = 400;
 const GRAVITY_DELAY_MS = 150;
 
 export function useGameLogic() {
-  const { state, dispatch } = useGame();
+  const { state, dispatch, recordWordIdentified } = useGame();
   const { dictionary, loading } = useDictionary();
 
   // Map<wordKey, { wordData, timerId, idxSet }>
@@ -210,8 +210,15 @@ export function useGameLogic() {
       });
       const timerId = setTimeout(() => expireWord(wordKey), GRACE_PERIOD_MS);
       pending.set(wordKey, { wordData, timerId, idxSet: newIdxSet });
+      recordWordIdentified(
+        [...pending.values()].map(entry => ({
+          word: entry.wordData.word,
+          indices: entry.wordData.indices,
+          direction: entry.wordData.direction,
+        }))
+      );
     }
-  }, [state.grid, state.status, state.gameMode, dictionary, dispatch, expireWord]);
+  }, [state.grid, state.status, state.gameMode, dictionary, dispatch, expireWord, recordWordIdentified]);
 
   // Check for Clear mode victory condition
   useEffect(() => {

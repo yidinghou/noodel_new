@@ -153,7 +153,7 @@ export function GameProvider({ children }) {
   }, [gameSession, wrappedDispatch]);
 
   return (
-    <GameContext.Provider value={{ state, dispatch: wrappedDispatch, loadSavedGame, undo, gameSession }}>
+    <GameContext.Provider value={{ state, dispatch: wrappedDispatch, loadSavedGame, undo, gameSession, recordWordIdentified: gameSession.recordWordIdentified }}>
       {children}
     </GameContext.Provider>
   );

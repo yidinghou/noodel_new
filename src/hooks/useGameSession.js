@@ -41,6 +41,12 @@ export function useGameSession() {
     saveSession(sessionRef.current);
   }
 
+  function recordWordIdentified(pendingSnapshot) {
+    if (!sessionRef.current) return;
+    sessionRef.current = appendEvent(sessionRef.current, 'WORD_IDENTIFIED', { words: pendingSnapshot }, Date.now());
+    saveSession(sessionRef.current);
+  }
+
   /** Called when the game ends or reaches a stable rest point. Returns the completed session. */
   function onGameOver(state) {
     if (!sessionRef.current) return null;
@@ -83,6 +89,7 @@ export function useGameSession() {
     recordDrop,
     recordClear,
     recordGravity,
+    recordWordIdentified,
     onGameOver,
     replaceSession,
     getSavedSession,
