@@ -48,8 +48,8 @@ function useDemo(demoType) {
 
     async function moveCursor(col, caption) {
       const totalMs  = 320 + Math.random() * 160;          // 320–480ms total travel
-      const midY     = 2  + Math.random() * 5;              // arc peak: 2–7px from top
-      const finalY   = 8  + Math.random() * 7;              // landing: 8–15px from top
+      const midY     = 20 + Math.random() * 5;              // arc peak: 20–25px from top
+      const finalY   = 28 + Math.random() * 7;              // landing: 28–35px from top
       const finalOff = (Math.random() - 0.5) * 10;          // ±5px horizontal scatter
       set(s => ({ ...s, cursorCol: col, cursorClick: false, cursorY: midY, ...(caption ? { caption } : {}) }));
       await wait(totalMs * 0.55);
