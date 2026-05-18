@@ -126,8 +126,33 @@ export function buildTurns(session) {
 }
 
 /**
+ * Apply isPending highlights from a WORD_IDENTIFIED event onto a base grid.
+ * Used by the replay UI to show grace-period state from forward-recorded events.
+ *
+ * @param {Array} baseGrid - 42-cell grid to highlight
+ * @param {Object} wordIdentifiedEvent - a WORD_IDENTIFIED event
+ * @returns {Array} new grid with matched cells flagged
+ */
+export function applyWordIdentifiedGrid(baseGrid, wordIdentifiedEvent) {
+  const grid = [...baseGrid];
+  const dirMap = new Map();
+  for (const w of wordIdentifiedEvent.payload.words) {
+    for (const idx of w.indices) {
+      if (!dirMap.has(idx)) dirMap.set(idx, new Set());
+      dirMap.get(idx).add(w.direction);
+    }
+  }
+  for (const [idx, dirs] of dirMap) {
+    if (grid[idx]) {
+      grid[idx] = { ...grid[idx], isPending: true, pendingDirections: [...dirs], pendingResetCount: 0 };
+    }
+  }
+  return grid;
+}
+
+/**
  * Return a grid with the cells from a WORDS_CLEARED event highlighted (isMatched=true).
- * Used by the replay UI to show which cells were about to be cleared.
+ * Fallback for pre-Stage-1 sessions that lack WORD_IDENTIFIED events.
  *
  * @param {Object} statesMap - output of buildReplayStates
  * @param {Object} clearEvent - a WORDS_CLEARED event

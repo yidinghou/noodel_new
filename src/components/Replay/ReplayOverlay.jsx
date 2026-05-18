@@ -50,7 +50,14 @@ function pairClearGravity(turnEvents) {
   return pairs;
 }
 
-function buildFrames(turns, statesMap, preClearGrid) {
+function findLastBefore(events, seq) {
+  for (let i = events.length - 1; i >= 0; i--) {
+    if (events[i].seq < seq) return events[i];
+  }
+  return null;
+}
+
+function buildFrames(turns, statesMap, preClearGrid, applyWordIdentifiedGrid, wordIdentifiedEvents = []) {
   const frames = [];
 
   // All words ever cleared in the session — used for look-ahead pre-highlighting.
@@ -72,12 +79,14 @@ function buildFrames(turns, statesMap, preClearGrid) {
     // Pre-drop frame: board before the letter lands; DroppingOverlay animates over this.
     const preDropState = statesMap.get(turn.dropSeq - 1) ?? statesMap.get(-1);
 
-    // Pre-highlight any word whose tiles were all already on the board before this drop.
-    // Look across ALL turns (not just the current one) so words pending from rapid earlier
-    // drops are caught even when their WORDS_CLEARED event falls in a later turn.
-    // The all-non-null check naturally excludes words completed by this drop itself.
+    // Pre-highlight words that were already pending before this drop.
+    // New sessions: read directly from the last WORD_IDENTIFIED event before this drop.
+    // Old sessions (no WORD_IDENTIFIED events): fall back to look-ahead from allClearedWords.
     let preDropGrid = preDropState.grid;
-    {
+    const lastWI = findLastBefore(wordIdentifiedEvents, turn.dropSeq);
+    if (lastWI) {
+      preDropGrid = applyWordIdentifiedGrid(preDropState.grid, lastWI);
+    } else {
       const pendingGrid = [...preDropState.grid];
       let hasPending = false;
       for (const w of allClearedWords) {
@@ -118,7 +127,12 @@ function buildFrames(turns, statesMap, preClearGrid) {
     } else {
       for (const { clearEvent, gravityEvent } of pairs) {
         // Grace frame: word highlighted green, matching the in-game grace period.
-        const matchedGrid = preClearGrid(statesMap, clearEvent);
+        // New sessions: drive forward from WORD_IDENTIFIED recorded within this turn.
+        // Old sessions: fall back to backward-lookup from WORDS_CLEARED.
+        const wi = turn.events.find(e => e.type === 'WORD_IDENTIFIED' && e.seq < clearEvent.seq);
+        const matchedGrid = wi
+          ? applyWordIdentifiedGrid(statesMap.get(turn.dropSeq)?.grid ?? preDropState.grid, wi)
+          : preClearGrid(statesMap, clearEvent);
         const preState = statesMap.get(clearEvent.seq - 1) ?? dropState;
         frames.push({
           grid: matchedGrid,
@@ -158,10 +172,11 @@ export default function ReplayOverlay({ session, onClose }) {
   const nextUpRef = useRef(null);
 
   useEffect(() => {
-    import('../../services/replayEngine.js').then(({ buildTurns, buildReplayStates, preClearGrid }) => {
+    import('../../services/replayEngine.js').then(({ buildTurns, buildReplayStates, preClearGrid, applyWordIdentifiedGrid }) => {
       const turns = buildTurns(session);
       const statesMap = buildReplayStates(session);
-      const frames = buildFrames(turns, statesMap, preClearGrid);
+      const wordIdentifiedEvents = session.events.filter(e => e.type === 'WORD_IDENTIFIED');
+      const frames = buildFrames(turns, statesMap, preClearGrid, applyWordIdentifiedGrid, wordIdentifiedEvents);
       setReplayData({ frames });
     });
   }, [session]);
