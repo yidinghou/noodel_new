@@ -67,8 +67,7 @@ function useDemo(demoType) {
       // Phase 0: place tile at preview position
       set(s => ({
         ...s,
-        dropping:  { letter, col, destRow: dr, phase: 'preview' },
-        cursorCol: null,
+        dropping: { letter, col, destRow: dr, phase: 'preview' },
         queue: s.queue.slice(1),
       }));
       await wait(20);
@@ -215,6 +214,30 @@ function useDemo(demoType) {
   return vis;
 }
 
+function MouseCursor({ clicked }) {
+  return (
+    <svg
+      width="18" height="24"
+      viewBox="0 0 18 24"
+      style={{
+        display: 'block',
+        filter: 'drop-shadow(1px 2px 3px rgba(0,0,0,0.35))',
+        transform: clicked ? 'translateY(2px) scale(0.92)' : 'none',
+        transition: 'transform 0.08s ease',
+      }}
+    >
+      <polygon
+        points="1,1 1,19 5,14.5 8,22 11,21 8,13.5 14,13.5"
+        fill="white"
+        stroke="#222"
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
+
 export default function AnimatedDemo({ demoType = 'drop' } = {}) {
   const { grid, queue, dropping, cursorCol, cursorClick, highlight, showOrder, caption, cycleKey, cycleDuration } = useDemo(demoType);
 
@@ -251,17 +274,7 @@ export default function AnimatedDemo({ demoType = 'drop' } = {}) {
         })}
       </div>
 
-      <div style={{ position: 'relative', width: GRID_W, height: 22 }}>
-        {cursorCol !== null && (
-          <div style={{
-            ...d.cursor,
-            left: cursorCol * STEP + (CELL - 16) / 2,
-            transform: cursorClick ? 'scale(0.65)' : 'scale(1)',
-          }}>
-            ▼
-          </div>
-        )}
-      </div>
+      <div style={{ width: GRID_W, height: 22 }} />
 
       <div style={{ position: 'relative', width: GRID_W, overflow: 'visible' }}>
         <div style={d.grid}>
@@ -275,6 +288,7 @@ export default function AnimatedDemo({ demoType = 'drop' } = {}) {
                   ...d.cell,
                   ...(tile ? (isPreplaced(tile) ? d.cellPreplaced : d.cellFilled) : {}),
                   ...(highlight?.has(i) ? d.cellHighlight : {}),
+                  ...(cursorClick && (i % COLS) === cursorCol ? d.cellDepressed : {}),
                   position: 'relative',
                 }}
               >
@@ -286,6 +300,21 @@ export default function AnimatedDemo({ demoType = 'drop' } = {}) {
             );
           })}
         </div>
+
+        {cursorCol !== null && (
+          <div style={{
+            position: 'absolute',
+            top: 10,
+            left: cursorCol * STEP + CELL / 2 - 1,
+            zIndex: 20,
+            transition: 'left 0.35s ease-in-out',
+            lineHeight: 0,
+            userSelect: 'none',
+            pointerEvents: 'none',
+          }}>
+            <MouseCursor clicked={cursorClick} />
+          </div>
+        )}
 
         {dropping && (() => {
           const { phase, col, destRow: dr } = dropping;
@@ -367,11 +396,11 @@ const d = {
     fontSize: 12, fontWeight: 700, lineHeight: 1,
     color: 'inherit',
   },
-  cursor: {
-    position: 'absolute', top: 2,
-    fontSize: 16, color: '#1976D2',
-    transition: 'left 0.3s ease-out, transform 0.1s ease',
-    userSelect: 'none', lineHeight: 1,
+  cellDepressed: {
+    background: 'linear-gradient(145deg, #e0e0e0, #d0d0d0)',
+    transform: 'scale(0.95)',
+    boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.18)',
+    transition: 'transform 0.08s ease, box-shadow 0.08s ease, background 0.08s ease',
   },
   grid: {
     display: 'grid',
