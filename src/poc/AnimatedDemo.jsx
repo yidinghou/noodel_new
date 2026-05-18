@@ -27,6 +27,8 @@ function useDemo(demoType) {
     dropping:      null,
     cursorCol:     null,
     cursorClick:   false,
+    cursorY:       10,
+    cursorOffset:  0,
     highlight:     null,
     showOrder:     false,
     caption:       '',
@@ -45,8 +47,14 @@ function useDemo(demoType) {
     const set  = fn => { if (!signal.aborted) setVis(fn); };
 
     async function moveCursor(col, caption) {
-      set(s => ({ ...s, cursorCol: col, cursorClick: false, ...(caption ? { caption } : {}) }));
-      await wait(400);
+      const totalMs  = 320 + Math.random() * 160;          // 320–480ms total travel
+      const midY     = 2  + Math.random() * 5;              // arc peak: 2–7px from top
+      const finalY   = 8  + Math.random() * 7;              // landing: 8–15px from top
+      const finalOff = (Math.random() - 0.5) * 10;          // ±5px horizontal scatter
+      set(s => ({ ...s, cursorCol: col, cursorClick: false, cursorY: midY, ...(caption ? { caption } : {}) }));
+      await wait(totalMs * 0.55);
+      set(s => ({ ...s, cursorY: finalY, cursorOffset: finalOff }));
+      await wait(totalMs * 0.45);
     }
 
     async function click() {
@@ -239,7 +247,7 @@ function MouseCursor({ clicked }) {
 }
 
 export default function AnimatedDemo({ demoType = 'drop' } = {}) {
-  const { grid, queue, dropping, cursorCol, cursorClick, highlight, showOrder, caption, cycleKey, cycleDuration } = useDemo(demoType);
+  const { grid, queue, dropping, cursorCol, cursorClick, cursorY, cursorOffset, highlight, showOrder, caption, cycleKey, cycleDuration } = useDemo(demoType);
 
   return (
     <div style={d.wrapper}>
@@ -304,10 +312,10 @@ export default function AnimatedDemo({ demoType = 'drop' } = {}) {
         {cursorCol !== null && (
           <div style={{
             position: 'absolute',
-            top: 10,
-            left: cursorCol * STEP + CELL / 2 - 1,
+            top: cursorY,
+            left: cursorCol * STEP + CELL / 2 - 1 + cursorOffset,
             zIndex: 20,
-            transition: 'left 0.35s ease-in-out',
+            transition: 'left 0.35s ease-in-out, top 0.22s ease-out',
             lineHeight: 0,
             userSelect: 'none',
             pointerEvents: 'none',
