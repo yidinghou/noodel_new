@@ -6,6 +6,7 @@ import ModeSelector from './components/Controls/ModeSelector.jsx';
 import SettingsMenu from './components/Controls/SettingsMenu.jsx';
 import GameOverOverlay from './components/Overlays/GameOverOverlay.jsx';
 import HowToPlayModal from './poc/HowToPlayModal.jsx';
+import ReplayOverlay from './components/Replay/ReplayOverlay.jsx';
 import { useGame } from './context/GameContext.jsx';
 import { useGameLogic } from './hooks/useGameLogic.js';
 import { useIntroSequence } from './hooks/useIntroSequence.js';
@@ -19,6 +20,7 @@ function App() {
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
   const [pendingMode, setPendingMode] = useState(null);
+  const [replaySession, setReplaySession] = useState(null);
   const { dropOrderMap, statsVisible, controlsVisible, boardVisible, fastForward } = useIntroSequence();
 
   const handleStart = () => {
@@ -102,6 +104,7 @@ function App() {
           onClose={() => setShowSettingsMenu(false)}
           isMuted={isMuted}
           onToggleMute={handleToggleMute}
+          onPlayReplay={setReplaySession}
         />,
         gridWrapperRef.current
       )}
@@ -114,6 +117,14 @@ function App() {
         onRestart={handleRestart}
       />
       {showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}
+      {replaySession && createPortal(
+        <ReplayOverlay
+          session={replaySession.session}
+          meta={replaySession.meta}
+          onClose={() => setReplaySession(null)}
+        />,
+        document.body
+      )}
       <DebugOverlay />
     </div>
   );

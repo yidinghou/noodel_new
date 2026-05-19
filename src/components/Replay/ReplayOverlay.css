@@ -1,0 +1,151 @@
+.replay-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.replay-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.replay-overlay-panel {
+  position: relative;
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+  border-radius: 12px;
+  padding: 16px;
+  width: min(420px, 92vw);
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.replay-overlay-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.replay-overlay-summary {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-variant-numeric: tabular-nums;
+}
+
+.replay-overlay-score {
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--color-text-primary);
+}
+
+.replay-overlay-date {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+
+.replay-overlay-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.replay-overlay-close:hover {
+  background: var(--color-bg-stats);
+}
+
+.replay-overlay-board {
+  display: flex;
+  justify-content: center;
+}
+
+.replay-overlay-preview {
+  display: flex;
+  justify-content: center;
+}
+
+.replay-overlay-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.replay-btn {
+  background: var(--color-bg-stats);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-light);
+  border-radius: 6px;
+  width: 36px;
+  height: 32px;
+  padding: 0;
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.replay-btn:hover {
+  background: var(--color-gray-bg);
+}
+
+.replay-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.replay-btn:disabled:hover {
+  background: var(--color-bg-stats);
+}
+
+.replay-btn.active {
+  background: var(--color-green);
+  border-color: var(--color-green);
+  color: var(--color-text-white);
+}
+
+.replay-btn-speed {
+  width: auto;
+  height: 28px;
+  padding: 0 8px;
+  font-size: 12px;
+}
+
+.replay-progress {
+  width: 100%;
+  height: 6px;
+  background: var(--color-bg-stats);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.replay-progress-fill {
+  height: 100%;
+  background: var(--color-green);
+  transition: width 0.1s linear;
+}
+
+.replay-speed {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
