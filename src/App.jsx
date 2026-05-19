@@ -114,6 +114,7 @@ function App() {
         score={state.score}
         lettersRemaining={state.lettersRemaining}
         boardCleared={boardCleared}
+        wordStats={state.wordStats}
         onRestart={handleRestart}
       />
       {showHowToPlay && <HowToPlayModal onClose={() => setShowHowToPlay(false)} />}
