@@ -24,7 +24,6 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         poc: resolve(__dirname, 'poc.html'),
-        replay: resolve(__dirname, 'game_replay.html'),
       },
     },
   },

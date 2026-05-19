@@ -65,7 +65,7 @@ app.get('/api/scores/:id/session', async (req, res) => {
 });
 
 // Serve known HTML entry points directly; fall back to index.html for SPA routes
-const HTML_ENTRIES = ['index.html', 'poc.html', 'game_replay.html'];
+const HTML_ENTRIES = ['index.html', 'poc.html'];
 app.get('*', (req, res) => {
   const requested = path.basename(req.path);
   const file = HTML_ENTRIES.includes(requested) ? requested : 'index.html';

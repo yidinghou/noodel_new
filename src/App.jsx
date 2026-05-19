@@ -5,21 +5,19 @@ import { DebugOverlay } from './components/Debug/DebugOverlay.jsx';
 import ModeSelector from './components/Controls/ModeSelector.jsx';
 import SettingsMenu from './components/Controls/SettingsMenu.jsx';
 import GameOverOverlay from './components/Overlays/GameOverOverlay.jsx';
-import ReplayOverlay from './components/Replay/ReplayOverlay.jsx';
 import HowToPlayModal from './poc/HowToPlayModal.jsx';
 import { useGame } from './context/GameContext.jsx';
 import { useGameLogic } from './hooks/useGameLogic.js';
 import { useIntroSequence } from './hooks/useIntroSequence.js';
 
 function App() {
-  const { state, dispatch, undo, gameSession } = useGame();
+  const { state, dispatch } = useGame();
   const { dictionary } = useGameLogic();
   const gridWrapperRef = useRef(null);
   const [isMuted, setIsMuted] = useState(false);
   const [showModeSelector, setShowModeSelector] = useState(false);
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
-  const [replaySession, setReplaySession] = useState(null);
   const [pendingMode, setPendingMode] = useState(null);
   const { dropOrderMap, statsVisible, controlsVisible, boardVisible, fastForward } = useIntroSequence();
 
@@ -29,8 +27,6 @@ function App() {
 
   const startMode = (mode) => {
     setShowModeSelector(false);
-    // Clear any saved session when starting a new game
-    gameSession.clearSavedSession();
     dispatch({ type: 'START_GAME', payload: { mode } });
   };
 
@@ -67,7 +63,7 @@ function App() {
     : false;
 
   return (
-    <div className={`app-root${(showModeSelector || showSettingsMenu || replaySession) ? ' menu-open' : ''}`}>
+    <div className={`app-root${(showModeSelector || showSettingsMenu) ? ' menu-open' : ''}`}>
       <GameLayout
         gridWrapperRef={gridWrapperRef}
         score={state.score}
@@ -87,7 +83,7 @@ function App() {
         onSettings={() => setShowSettingsMenu(true)}
         onInfo={() => setShowHowToPlay(true)}
         onColumnClick={handleColumnClick}
-        onUndo={undo}
+        onUndo={() => {}}
         showPreview={state.status === 'PLAYING' || state.status === 'PROCESSING'}
       />
       {gridWrapperRef.current && createPortal(
@@ -106,15 +102,7 @@ function App() {
           onClose={() => setShowSettingsMenu(false)}
           isMuted={isMuted}
           onToggleMute={handleToggleMute}
-          onReplay={(session) => {
-            setShowSettingsMenu(false);
-            setReplaySession(session);
-          }}
         />,
-        gridWrapperRef.current
-      )}
-      {replaySession && gridWrapperRef.current && createPortal(
-        <ReplayOverlay session={replaySession} onClose={() => setReplaySession(null)} />,
         gridWrapperRef.current
       )}
       <GameOverOverlay

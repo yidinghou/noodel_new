@@ -14,8 +14,13 @@ const SHAKE_DURATION_MS = 400;
 const GRAVITY_DELAY_MS = 150;
 
 export function useGameLogic() {
-  const { state, dispatch, recordWordIdentified } = useGame();
+  const { state, dispatch } = useGame();
   const { dictionary, loading } = useDictionary();
+
+  // Mirror state into a ref so timer callbacks can read the latest grid/score/queue
+  // without forcing expireWord to re-create (which would invalidate live timers).
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
   // Map<wordKey, { wordData, timerId, idxSet }>
   const pendingRef = useRef(new Map());
@@ -129,7 +134,7 @@ export function useGameLogic() {
         }
       }, SHAKE_DURATION_MS);
     },
-    [dispatch, hasIntersection]
+    [dispatch]
   );
 
   // Clear all pending state when the game resets
@@ -210,15 +215,8 @@ export function useGameLogic() {
       });
       const timerId = setTimeout(() => expireWord(wordKey), GRACE_PERIOD_MS);
       pending.set(wordKey, { wordData, timerId, idxSet: newIdxSet });
-      recordWordIdentified(
-        [...pending.values()].map(entry => ({
-          word: entry.wordData.word,
-          indices: entry.wordData.indices,
-          direction: entry.wordData.direction,
-        }))
-      );
     }
-  }, [state.grid, state.status, state.gameMode, dictionary, dispatch, expireWord, recordWordIdentified]);
+  }, [state.grid, state.status, state.gameMode, dictionary, dispatch, expireWord]);
 
   // Check for Clear mode victory condition
   useEffect(() => {
