@@ -10,6 +10,8 @@ function SettingsMenu({ visible, onClose, isMuted, onToggleMute, onPlayReplay })
   const [currentUser, setCurrentUser] = useState(() => localStorage.getItem('noodel_username') ?? null);
   const [scores, setScores] = useState([]);
   const [loadingScores, setLoadingScores] = useState(false);
+  const [stats, setStats] = useState(null);
+  const [loadingStats, setLoadingStats] = useState(false);
 
   useEffect(() => {
     if (!visible) setPanel(null);
@@ -19,6 +21,20 @@ function SettingsMenu({ visible, onClose, isMuted, onToggleMute, onPlayReplay })
     localStorage.setItem('noodel_username', name);
     setCurrentUser(name);
     setPanel(null);
+  }
+
+  async function openStats() {
+    setPanel('stats');
+    setLoadingStats(true);
+    try {
+      const username = localStorage.getItem('noodel_username') ?? 'anonymous';
+      const res = await fetch(`/api/user-stats?username=${encodeURIComponent(username)}`);
+      setStats(await res.json());
+    } catch {
+      setStats(null);
+    } finally {
+      setLoadingStats(false);
+    }
   }
 
   async function openLeaderboard() {
@@ -73,7 +89,7 @@ function SettingsMenu({ visible, onClose, isMuted, onToggleMute, onPlayReplay })
               >
                 👤 {currentUser ? `Logged in: ${currentUser}` : 'Login'}
               </button>
-              <button className="mode-selection-btn settings-btn-item">
+              <button className="mode-selection-btn settings-btn-item" onClick={openStats}>
                 📊 Stats
               </button>
               <button
@@ -115,6 +131,50 @@ function SettingsMenu({ visible, onClose, isMuted, onToggleMute, onPlayReplay })
                 className="mode-selection-btn settings-btn-item"
                 onClick={() => setPanel(null)}
               >
+                ← Back
+              </button>
+            </div>
+          </div>
+        )}
+
+        {panel === 'stats' && (
+          <div className="mode-selection-section">
+            <p className="mode-selection-subtitle">
+              {currentUser ? `${currentUser}'s Stats` : 'Your Stats'}
+            </p>
+            {loadingStats ? (
+              <p style={{ textAlign: 'center', padding: '1rem' }}>Loading...</p>
+            ) : !stats || stats.vocabularySize === 0 ? (
+              <p style={{ textAlign: 'center', padding: '1rem' }}>No stats yet — play a game!</p>
+            ) : (
+              <>
+                <div className="leaderboard-row" style={{ justifyContent: 'space-between', padding: '0.5rem 0' }}>
+                  <span>Unique words ever made</span>
+                  <strong>{stats.vocabularySize}</strong>
+                </div>
+                {stats.worldFirsts.length > 0 && (
+                  <div style={{ margin: '0.75rem 0' }}>
+                    <p className="mode-selection-subtitle" style={{ fontSize: '0.85em', marginBottom: '0.25rem' }}>World firsts 🌍</p>
+                    <p style={{ textAlign: 'center', wordBreak: 'break-word' }}>{stats.worldFirsts.join(', ')}</p>
+                  </div>
+                )}
+                {stats.topWords.length > 0 && (
+                  <div style={{ margin: '0.75rem 0' }}>
+                    <p className="mode-selection-subtitle" style={{ fontSize: '0.85em', marginBottom: '0.25rem' }}>Most made</p>
+                    <div className="leaderboard-list">
+                      {stats.topWords.map(({ word, timesMade }) => (
+                        <div key={word} className="leaderboard-row">
+                          <span className="leaderboard-user">{word}</span>
+                          <span className="leaderboard-score">×{timesMade}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+            <div className="mode-selection-buttons" style={{ marginTop: '1rem' }}>
+              <button className="mode-selection-btn settings-btn-item" onClick={() => setPanel(null)}>
                 ← Back
               </button>
             </div>
