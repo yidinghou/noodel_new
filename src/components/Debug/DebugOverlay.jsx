@@ -42,31 +42,15 @@ const styles = {
   word: { color: '#fff', fontWeight: 'bold', minWidth: '60px' },
   meta: { color: '#666' },
   chain: { color: '#4a6fa5', fontStyle: 'italic' },
-  eventRow: {
-    display: 'flex',
-    gap: '8px',
-    padding: '2px 0',
-    borderBottom: '1px solid #1a1a1a',
-    flexWrap: 'wrap',
-  },
-  eventPayload: { color: '#666', wordBreak: 'break-all' },
 };
 
 function depthStyle(depth) {
   return { fontWeight: 'bold', color: depth > 1 ? '#f59e0b' : '#555', minWidth: '24px' };
 }
 
-function eventTypeStyle(type) {
-  return {
-    color: type === 'WORDS_CLEARED' ? '#4ade80' : type === 'DROP_LETTER' ? '#60a5fa' : '#a78bfa',
-    whiteSpace: 'nowrap',
-    flexShrink: 0,
-  };
-}
-
 export function DebugOverlay() {
   const [visible, setVisible] = useState(false);
-  const { state, gameSession } = useGame();
+  const { state } = useGame();
 
   useEffect(() => {
     const handler = (e) => { if (e.key === '`') setVisible(v => !v); };
@@ -76,22 +60,9 @@ export function DebugOverlay() {
 
   if (!visible) return null;
 
-  const session = gameSession.getSavedSession();
-  const recentEvents = (session?.events ?? []).slice(-10).reverse();
-
   return (
     <div style={styles.overlay}>
-      <div style={styles.header}>
-        DEBUG  [` to close]
-        <a
-          href="/noodel_new/game_replay.html"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ float: 'right', color: '#60a5fa', fontSize: '11px', textDecoration: 'none' }}
-        >
-          open replay ↗
-        </a>
-      </div>
+      <div style={styles.header}>DEBUG  [` to close]</div>
 
       <div style={styles.sectionTitle}>madeWords ({state.madeWords.length})</div>
       {state.madeWords.length === 0 && <div style={styles.meta}>— none yet —</div>}
@@ -109,15 +80,6 @@ export function DebugOverlay() {
           </div>
         );
       })}
-
-      <div style={styles.sectionTitle}>events — last 10, newest first</div>
-      {recentEvents.length === 0 && <div style={styles.meta}>— no events yet —</div>}
-      {recentEvents.map((evt, i) => (
-        <div key={i} style={styles.eventRow}>
-          <span style={eventTypeStyle(evt.type)}>{evt.type}</span>
-          <span style={styles.eventPayload}>{JSON.stringify(evt.payload)}</span>
-        </div>
-      ))}
     </div>
   );
 }

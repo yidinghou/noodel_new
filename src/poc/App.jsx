@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import GameLayout from './components/Layout/GameLayout.jsx';
 import ModeSelector from './components/Controls/ModeSelector.jsx';
@@ -7,10 +7,9 @@ import GameOverOverlay from '../components/Overlays/GameOverOverlay.jsx';
 import HowToPlayModal from './HowToPlayModal.jsx';
 import { useGame } from '../context/GameContext.jsx';
 import { useGameLogic } from '../hooks/useGameLogic.js';
-import { hasSavedSession } from '../services/sessionStorage.js';
 
 function App() {
-  const { state, dispatch, loadSavedGame, undo, gameSession } = useGame();
+  const { state, dispatch } = useGame();
   const { dictionary, loading: dictLoading } = useGameLogic();
   const gridWrapperRef = useRef(null);
   const [isMuted, setIsMuted] = useState(false);
@@ -18,11 +17,6 @@ function App() {
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   const [showHTP, setShowHTP] = useState(false);
   const [pendingMode, setPendingMode] = useState(null);
-  const [hasSavedGame, setHasSavedGame] = useState(false);
-  // Check for saved game on mount
-  useEffect(() => {
-    setHasSavedGame(hasSavedSession());
-  }, []);
 
   const handleStart = () => {
     setShowModeSelector(true);
@@ -30,17 +24,7 @@ function App() {
 
   const startMode = (mode) => {
     setShowModeSelector(false);
-    gameSession.clearSavedSession();
-    setHasSavedGame(false);
     dispatch({ type: 'START_GAME', payload: { mode } });
-  };
-
-  const handleResumeGame = () => {
-    const resumed = loadSavedGame();
-    if (resumed) {
-      setShowModeSelector(false);
-      setHasSavedGame(false);
-    }
   };
 
   const handleModeSelect = (mode) => {
@@ -88,7 +72,7 @@ function App() {
         onSettings={() => setShowSettingsMenu(true)}
         onHowToPlay={() => setShowHTP(true)}
         onColumnClick={handleColumnClick}
-        onUndo={undo}
+        onUndo={() => {}}
         showPreview={state.status === 'PLAYING' || state.status === 'PROCESSING'}
         boardVisible={state.status !== 'IDLE'}
         canDrop={state.status === 'PLAYING' || state.status === 'PROCESSING'}
@@ -101,8 +85,6 @@ function App() {
           pendingMode={pendingMode}
           dictLoading={dictLoading}
           dictReady={!!dictionary}
-          hasSavedGame={hasSavedGame}
-          onResume={handleResumeGame}
         />,
         gridWrapperRef.current
       )}
