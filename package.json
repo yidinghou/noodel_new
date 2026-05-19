@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "concurrently \"node server.js\" \"vite\"",
+    "dev": "concurrently \"node --watch server.js\" \"vite\"",
     "dev:vite": "vite",
     "build": "vite build",
     "preview": "vite preview",
