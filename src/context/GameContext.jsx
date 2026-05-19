@@ -109,8 +109,13 @@ export function GameProvider({ children }) {
       fetch('/api/scores', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ score: state.score, gameMode: state.gameMode, username, sessionData }),
-      }).catch(() => {}); // fire-and-forget; don't break the game on DB errors
+        body: JSON.stringify({ score: state.score, gameMode: state.gameMode, username, sessionData, wordsCleared: state.allWordsThisGame }),
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.wordStats) dispatch({ type: 'SET_WORD_STATS', payload: data.wordStats });
+        })
+        .catch(() => {}); // don't break the game on DB errors
       sessionStorage.clear(); // game complete — nothing left to resume
     }
   }, [state.status]);
