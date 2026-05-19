@@ -11,7 +11,7 @@ import { useGameLogic } from './hooks/useGameLogic.js';
 import { useIntroSequence } from './hooks/useIntroSequence.js';
 
 function App() {
-  const { state, dispatch } = useGame();
+  const { state, dispatch, undo } = useGame();
   const { dictionary } = useGameLogic();
   const gridWrapperRef = useRef(null);
   const [isMuted, setIsMuted] = useState(false);
@@ -83,7 +83,7 @@ function App() {
         onSettings={() => setShowSettingsMenu(true)}
         onInfo={() => setShowHowToPlay(true)}
         onColumnClick={handleColumnClick}
-        onUndo={() => {}}
+        onUndo={undo}
         showPreview={state.status === 'PLAYING' || state.status === 'PROCESSING'}
       />
       {gridWrapperRef.current && createPortal(

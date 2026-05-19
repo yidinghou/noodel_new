@@ -4,6 +4,7 @@ import { generateLetterSequence } from '../utils/letterUtils.js';
 import { generateClearModeGrid } from '../utils/clearModeUtils.js';
 import { TOTAL_LETTERS } from '../utils/gameConstants.js';
 import { createRecorder } from '../services/sessionRecorder.js';
+import * as sessionStorage from '../services/sessionStorage.js';
 
 const GameContext = createContext(null);
 
@@ -36,7 +37,30 @@ export function GameProvider({ children }) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const scoreSubmittedRef = useRef(false);
   const recorderRef = useRef(null);
-  if (recorderRef.current === null) recorderRef.current = createRecorder();
+  const stateRef = useRef(state);
+  stateRef.current = state;
+
+  if (recorderRef.current === null) {
+    recorderRef.current = createRecorder();
+    recorderRef.current.onChange(() => {
+      const snap = recorderRef.current.snapshot();
+      if (snap) sessionStorage.save(snap);
+    });
+  }
+
+  // Auto-resume on first mount if a mid-game snapshot exists.
+  const resumedRef = useRef(false);
+  useEffect(() => {
+    if (resumedRef.current) return;
+    resumedRef.current = true;
+    const snap = sessionStorage.load();
+    if (!snap || !Array.isArray(snap.checkpoints) || snap.checkpoints.length === 0) return;
+    const hasGameOver = Array.isArray(snap.events) && snap.events.some(e => e.type === 'GAME_OVER');
+    if (hasGameOver) { sessionStorage.clear(); return; }
+    if (!recorderRef.current.loadSnapshot(snap)) { sessionStorage.clear(); return; }
+    const latest = snap.checkpoints[snap.checkpoints.length - 1];
+    dispatch({ type: 'LOAD_SAVED_GAME', payload: latest.state });
+  }, []);
 
   const wrappedDispatch = useCallback((action) => {
     if (action.type === 'START_GAME') {
@@ -50,8 +74,26 @@ export function GameProvider({ children }) {
       return;
     }
 
+    if (action.type === 'DROP_LETTER') {
+      recorderRef.current.recordCheckpoint(stateRef.current);
+    }
+
+    if (action.type === 'RESET') {
+      recorderRef.current.reset();
+      sessionStorage.clear();
+      dispatch(action);
+      return;
+    }
+
     recorderRef.current.record(action);
     dispatch(action);
+  }, [dispatch]);
+
+  const undo = useCallback(() => {
+    const cp = recorderRef.current.popLastCheckpoint();
+    if (!cp) return false;
+    dispatch({ type: 'LOAD_SAVED_GAME', payload: cp.state });
+    return true;
   }, [dispatch]);
 
   // Submit score when game ends.
@@ -69,11 +111,12 @@ export function GameProvider({ children }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ score: state.score, gameMode: state.gameMode, username, sessionData }),
       }).catch(() => {}); // fire-and-forget; don't break the game on DB errors
+      sessionStorage.clear(); // game complete — nothing left to resume
     }
   }, [state.status]);
 
   return (
-    <GameContext.Provider value={{ state, dispatch: wrappedDispatch }}>
+    <GameContext.Provider value={{ state, dispatch: wrappedDispatch, undo }}>
       {children}
     </GameContext.Provider>
   );

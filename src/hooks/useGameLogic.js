@@ -150,6 +150,23 @@ export function useGameLogic() {
     }
   }, [state.status]);
 
+  // Cancel in-flight grace/gravity work when the reducer rewinds (undo or resume).
+  // Only LOAD_SAVED_GAME causes lettersRemaining to increase mid-game.
+  useEffect(() => {
+    if (
+      lastLettersRef.current !== null &&
+      state.lettersRemaining > lastLettersRef.current
+    ) {
+      const pending = pendingRef.current;
+      for (const entry of pending.values()) clearTimeout(entry.timerId);
+      pending.clear();
+      pendingRemovesRef.current = 0;
+      gravityScheduledRef.current = false;
+      activeChainMapRef.current.clear();
+      lastLettersRef.current = state.lettersRemaining;
+    }
+  }, [state.lettersRemaining]);
+
   // Main word detection effect — runs after every grid change
   useEffect(() => {
     if (!dictionary || state.status !== 'PLAYING' || gravityScheduledRef.current) return;
