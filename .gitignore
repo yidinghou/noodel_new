@@ -1,6 +1,9 @@
 .claude/*
 !.claude/commands/
 
+# Analysis script outputs
+scripts/output/
+
 # Dependencies
 node_modules/
 npm-debug.log*

@@ -194,12 +194,29 @@ def main():
         flag = " *" if abs(diff) > 0.02 else ""
         print(f"{letter:<8} {d_pct*100:>7.2f}% {g_pct*100:>7.2f}% {diff*100:>+7.2f}%{flag}")
 
-    print()
+    lines = []
     flagged = [l for l, _, _, d in diffs if abs(d) > 0.02]
     if flagged:
-        print(f"* Letters with |diff| > 2%: {', '.join(flagged)}")
+        lines.append(f"* Letters with |diff| > 2%: {', '.join(flagged)}")
     else:
-        print("All letters within 2% of dictionary frequency.")
+        lines.append("All letters within 2% of dictionary frequency.")
+
+    print()
+    for line in lines:
+        print(line)
+
+    output_path = os.path.join(base_dir, "scripts", "output", "letter_frequency.txt")
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as out:
+        out.write(f"{'Letter':<8} {'Dict %':>8} {'Gen %':>8} {'Diff':>8}\n")
+        out.write("-" * 36 + "\n")
+        for letter, d_pct, g_pct, diff in diffs:
+            flag = " *" if abs(diff) > 0.02 else ""
+            out.write(f"{letter:<8} {d_pct*100:>7.2f}% {g_pct*100:>7.2f}% {diff*100:>+7.2f}%{flag}\n")
+        out.write("\n")
+        for line in lines:
+            out.write(line + "\n")
+    print(f"\nResults written to {output_path}")
 
 
 if __name__ == "__main__":
