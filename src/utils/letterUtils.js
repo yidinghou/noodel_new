@@ -16,8 +16,13 @@ function buildCumulativeWeights(distObj) {
   });
 }
 
+// Probability of skipping the Markov chain entirely and sampling from raw
+// dictionary frequency — acts as an escape valve to prevent letter clustering.
+const RANDOM_INJECTION_PROB = 0.10;
+
 // Pre-build cumulative weight tables at module load for O(n) sampling
 const startWeights = buildCumulativeWeights(markovData.start);
+const frequencyWeights = buildCumulativeWeights(markovData.frequency);
 const bigramWeights = {};
 for (const letter of Object.keys(markovData.bigrams)) {
   bigramWeights[letter] = buildCumulativeWeights(markovData.bigrams[letter]);
@@ -51,9 +56,16 @@ function backwardsBlend(blended, lastLetter, letters) {
 
 // Blend up to 3 forward bigram distributions with equal weight, then apply
 // backwards blend from the most recent letter before sampling.
+// 10% of the time skips Markov entirely and samples from raw dictionary
+// frequency as an escape valve to prevent letter clustering.
 // history is an array of the last 1–3 letter strings (most recent last).
 // Falls back to start distribution when history is empty.
 function getMarkovLetter(history) {
+  // Random injection: occasionally sample from raw dictionary frequency.
+  if (Math.random() < RANDOM_INJECTION_PROB) {
+    return sampleFromWeights(frequencyWeights);
+  }
+
   if (!history || history.length === 0) {
     return sampleFromWeights(startWeights);
   }

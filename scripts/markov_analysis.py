@@ -37,6 +37,21 @@ def load_words(base_dir):
     return words
 
 
+def build_frequency(words):
+    """
+    Compute raw letter frequency from the word corpus.
+
+    Counts every letter occurrence across all words (not per-word) and
+    normalizes. Returns a dict mapping each letter to its corpus frequency.
+    """
+    counts = defaultdict(int)
+    for word in words:
+        for ch in word:
+            counts[ch] += 1
+    total = sum(counts.values())
+    return {l: counts.get(l, 0) / total for l in LETTERS}
+
+
 def build_reverse_bigrams(words):
     """
     Compute backwards bigram transition probabilities from a word list.
@@ -115,6 +130,7 @@ def main():
 
     start, bigrams = build_tables(words)
     reverse_bigrams = build_reverse_bigrams(words)
+    frequency = build_frequency(words)
 
     # Sanity check
     for letter in LETTERS:
@@ -123,7 +139,7 @@ def main():
         rev_sum = sum(reverse_bigrams[letter].values())
         assert abs(rev_sum - 1.0) < 1e-6, f"Reverse row {letter} sums to {rev_sum}"
 
-    output = {"start": start, "bigrams": bigrams, "reverse_bigrams": reverse_bigrams}
+    output = {"start": start, "bigrams": bigrams, "reverse_bigrams": reverse_bigrams, "frequency": frequency}
     output_path = os.path.join(base_dir, OUTPUT_PATH)
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, sort_keys=True)
