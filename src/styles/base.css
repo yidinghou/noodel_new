@@ -400,6 +400,8 @@ body {
     text-align: center;
     min-width: 300px;
     max-width: 90vw;
+    max-height: min(520px, 85vh);
+    overflow-y: auto;
 }
 
 .mode-selection-close {

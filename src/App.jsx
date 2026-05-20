@@ -98,7 +98,7 @@ function App() {
         />,
         gridWrapperRef.current
       )}
-      {gridWrapperRef.current && createPortal(
+      {createPortal(
         <SettingsMenu
           visible={showSettingsMenu}
           onClose={() => setShowSettingsMenu(false)}
@@ -106,7 +106,7 @@ function App() {
           onToggleMute={handleToggleMute}
           onPlayReplay={setReplaySession}
         />,
-        gridWrapperRef.current
+        document.body
       )}
       <GameOverOverlay
         visible={state.status === 'GAME_OVER'}
