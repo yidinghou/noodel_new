@@ -139,6 +139,6 @@ Branch naming: `feat/`, `fix/`, `chore/` prefixes. PRs target `main`. After merg
 ### Commit → PR → Merge flow
 1. Stage files by logical group and commit each atomically (`git add <specific files>`)
 2. `git push -u origin <branch>`
-3. `gh pr create --title "..." --base main`
-4. `gh pr merge --merge --delete-branch`
-5. `git checkout main && git pull`
+3. Create PR via GitHub MCP: `mcp__github__create_pull_request` (owner: yidinghou, repo: noodel_new, base: main)
+4. Merge via GitHub MCP: `mcp__github__merge_pull_request` (merge_method: merge)
+5. `git checkout main && git pull && git branch -d <branch>`
