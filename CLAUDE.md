@@ -126,3 +126,19 @@ The app requires `DATABASE_URL` in `.env`. The `.env` file has two URLs (`LOCAL_
 Run `npm run migrate` once to create the `leaderboard` table before starting the server locally.
 
 Local PostgreSQL (Homebrew): `brew services start postgresql@16`, connect at `postgresql://localhost:5432/noodel_dev`.
+
+## Git Workflow
+
+Branch naming: `feat/`, `fix/`, `chore/` prefixes. PRs target `main`. After merge, pull main and delete the branch.
+
+### Commit convention
+- One logical change per commit — keep commits atomic
+- Prefix: `feat:` (new behaviour), `fix:` (bug/polish), `chore:` (tooling/docs)
+- Never batch unrelated changes into one commit
+
+### Commit → PR → Merge flow
+1. Stage files by logical group and commit each atomically (`git add <specific files>`)
+2. `git push -u origin <branch>`
+3. `gh pr create --title "..." --base main`
+4. `gh pr merge --merge --delete-branch`
+5. `git checkout main && git pull`
