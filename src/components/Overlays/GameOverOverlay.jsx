@@ -1,16 +1,31 @@
 import React from 'react';
 
-/**
- * Game over overlay - shows win/loss message and restart button
- *
- * TODO: Enhance this overlay with:
- * - Distinct win vs loss messaging for Clear mode
- * - Animations on appearance (confetti for wins, etc.)
- * - Stats display (tiles cleared, words found, etc.)
- * - Leaderboard or high score tracking
- * - Share score functionality
- */
-function GameOverOverlay({ visible, gameMode, score, lettersRemaining = 0, boardCleared = false, onRestart }) {
+function WordStatsPanel({ wordStats }) {
+  if (!wordStats) return <div className="word-stats-loading">Loading stats…</div>;
+
+  const { vocabularySize, rarestWord, worldFirsts } = wordStats;
+  const showRarity = rarestWord && rarestWord.timesThisUser <= 3;
+
+  return (
+    <div className="word-stats-panel">
+      <div className="word-stat">
+        You&apos;ve now made <strong>{vocabularySize}</strong> unique {vocabularySize === 1 ? 'word' : 'words'} total.
+      </div>
+      {showRarity && (
+        <div className="word-stat">
+          <strong>{rarestWord.word}</strong> — only your {rarestWord.timesThisUser === 1 ? '1st' : rarestWord.timesThisUser === 2 ? '2nd' : '3rd'} time making it!
+        </div>
+      )}
+      {worldFirsts.length > 0 && (
+        <div className="word-stat">
+          World {worldFirsts.length === 1 ? 'first' : 'firsts'}: <strong>{worldFirsts.join(', ')}</strong> — no one else has ever made {worldFirsts.length === 1 ? 'it' : 'these'}!
+        </div>
+      )}
+    </div>
+  );
+}
+
+function GameOverOverlay({ visible, gameMode, score, lettersRemaining = 0, boardCleared = false, wordStats, onRestart }) {
   if (!visible) return null;
 
   const isClearMode = gameMode === 'clear';
@@ -41,6 +56,7 @@ function GameOverOverlay({ visible, gameMode, score, lettersRemaining = 0, board
             Final Score: {finalScore}
           </div>
         )}
+        {wordStats !== undefined && <WordStatsPanel wordStats={wordStats} />}
         <button className="game-over-restart-btn" onClick={onRestart}>
           Play Again
         </button>

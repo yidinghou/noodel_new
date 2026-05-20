@@ -10,6 +10,8 @@ function SettingsMenu({ visible, onClose, isMuted, onToggleMute, onPlayReplay })
   const [currentUser, setCurrentUser] = useState(() => localStorage.getItem('noodel_username') ?? null);
   const [scores, setScores] = useState([]);
   const [loadingScores, setLoadingScores] = useState(false);
+  const [stats, setStats] = useState(null);
+  const [loadingStats, setLoadingStats] = useState(false);
 
   useEffect(() => {
     if (!visible) setPanel(null);
@@ -19,6 +21,20 @@ function SettingsMenu({ visible, onClose, isMuted, onToggleMute, onPlayReplay })
     localStorage.setItem('noodel_username', name);
     setCurrentUser(name);
     setPanel(null);
+  }
+
+  async function openStats() {
+    setPanel('stats');
+    setLoadingStats(true);
+    try {
+      const username = localStorage.getItem('noodel_username') ?? 'anonymous';
+      const res = await fetch(`/api/user-stats?username=${encodeURIComponent(username)}`);
+      setStats(await res.json());
+    } catch {
+      setStats(null);
+    } finally {
+      setLoadingStats(false);
+    }
   }
 
   async function openLeaderboard() {
@@ -62,7 +78,7 @@ function SettingsMenu({ visible, onClose, isMuted, onToggleMute, onPlayReplay })
         >
           ✕
         </button>
-        <h2 className="mode-selection-title">Settings</h2>
+        <h2 className="mode-selection-title">{panel === 'stats' ? 'Stats' : 'Settings'}</h2>
 
         {panel === null && (
           <div className="mode-selection-section">
@@ -73,7 +89,7 @@ function SettingsMenu({ visible, onClose, isMuted, onToggleMute, onPlayReplay })
               >
                 👤 {currentUser ? `Logged in: ${currentUser}` : 'Login'}
               </button>
-              <button className="mode-selection-btn settings-btn-item">
+              <button className="mode-selection-btn settings-btn-item" onClick={openStats}>
                 📊 Stats
               </button>
               <button
@@ -115,6 +131,63 @@ function SettingsMenu({ visible, onClose, isMuted, onToggleMute, onPlayReplay })
                 className="mode-selection-btn settings-btn-item"
                 onClick={() => setPanel(null)}
               >
+                ← Back
+              </button>
+            </div>
+          </div>
+        )}
+
+        {panel === 'stats' && (
+          <div className="mode-selection-section">
+            <p className="mode-selection-subtitle">
+              {currentUser ? `${currentUser}'s Stats` : 'Your Stats'}
+            </p>
+            {loadingStats ? (
+              <p style={{ textAlign: 'center', padding: '1rem' }}>Loading...</p>
+            ) : !stats || stats.vocabularySize === 0 ? (
+              <p style={{ textAlign: 'center', padding: '1rem' }}>No stats yet — play a game!</p>
+            ) : (
+              <>
+                <div className="leaderboard-row" style={{ justifyContent: 'space-between', padding: '0.5rem 0' }}>
+                  <span>Vocabulary</span>
+                  <strong>{stats.vocabularySize}</strong>
+                </div>
+                {stats.worldFirsts.length > 0 && (
+                  <div style={{ margin: '0.75rem 0' }}>
+                    <p className="mode-selection-subtitle" style={{ fontSize: '0.85em', marginBottom: '0.25rem' }}>World firsts 🌍</p>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                      {stats.worldFirsts.map(word => (
+                        <li key={word} className="leaderboard-row" style={{ justifyContent: 'center' }}>{word}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {stats.topWords.length > 0 && (
+                  <div style={{ margin: '0.75rem 0' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                      <div>
+                        <p className="mode-selection-subtitle" style={{ fontSize: '0.8em', marginBottom: '0.25rem' }}>Most made</p>
+                        {stats.topWords.map(({ word, timesMade }) => (
+                          <div key={word} className="leaderboard-row" style={{ justifyContent: 'space-between' }}>
+                            <span>{word}</span><span>×{timesMade}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <div>
+                        <p className="mode-selection-subtitle" style={{ fontSize: '0.8em', marginBottom: '0.25rem' }}>Least made</p>
+                        {stats.rareWords.map(({ word, timesMade }) => (
+                          <div key={word} className="leaderboard-row" style={{ justifyContent: 'space-between' }}>
+                            <span>{word}</span><span>×{timesMade}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+            <div className="mode-selection-buttons" style={{ marginTop: '1rem' }}>
+              <button className="mode-selection-btn settings-btn-item" onClick={() => setPanel(null)}>
                 ← Back
               </button>
             </div>

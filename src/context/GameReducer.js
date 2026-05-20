@@ -9,6 +9,8 @@ export const initialState = {
   nextQueue: [], // Array of upcoming letter objects
   status: 'IDLE', // IDLE, PLAYING, GAME_OVER, PROCESSING
   madeWords: [],
+  allWordsThisGame: [], // deduped list of all words cleared this game, for server submission
+  wordStats: null, // populated after game-over score submission
   gameMode: null, // null, 'classic', or 'clear'
   initialBlocks: [] // Array of indices for Clear mode initial blocks
 };
@@ -27,6 +29,8 @@ export function gameReducer(state, action) {
         grid: initialGrid || Array(GRID_SIZE).fill(null),
         score: 0,
         madeWords: [],
+        allWordsThisGame: [],
+        wordStats: null,
         gameMode: mode,
         initialBlocks: initialBlocks || []
       };
@@ -138,6 +142,7 @@ export function gameReducer(state, action) {
       const newGrid = [...state.grid];
       let totalScore = 0;
       const newMadeWords = [...state.madeWords];
+      const wordsSet = new Set(state.allWordsThisGame);
 
       wordsToRemove.forEach(({ word, indices }) => {
         let wordScore;
@@ -152,6 +157,7 @@ export function gameReducer(state, action) {
           totalScore += wordScore;
         }
         newMadeWords.unshift({ word, score: wordScore, chainId, comboDepth });
+        wordsSet.add(word);
         indices.forEach(index => {
           newGrid[index] = null;
         });
@@ -162,9 +168,13 @@ export function gameReducer(state, action) {
         grid: newGrid,
         score: state.gameMode === 'clear' ? totalScore : state.score + totalScore,
         madeWords: newMadeWords.slice(0, 20),
+        allWordsThisGame: Array.from(wordsSet),
         status: 'PLAYING'
       };
     }
+
+    case 'SET_WORD_STATS':
+      return { ...state, wordStats: action.payload };
 
     case 'APPLY_GRAVITY': {
       const newGrid = Array(GRID_SIZE).fill(null);

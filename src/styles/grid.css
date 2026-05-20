@@ -476,10 +476,9 @@
     width: 100%;
 }
 
-/* Settings menu uses orange border and light orange background */
-.game-grid-wrapper .mode-selection-menu.settings-variant {
-    background: #FFECC8;   /* light orange indicates SETTINGS mode (orange) */
-    border-color: var(--color-accent-secondary);   /* #FF9800 orange */
+/* Settings menu: dark backdrop (same as replay overlay), orange accent on the card only */
+.mode-selection-menu.settings-variant .mode-selection-content {
+    border-top: 4px solid var(--color-accent-secondary);
 }
 
 /* Leaderboard panel */
