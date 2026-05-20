@@ -37,6 +37,36 @@ def load_words(base_dir):
     return words
 
 
+def build_reverse_bigrams(words):
+    """
+    Compute backwards bigram transition probabilities from a word list.
+
+    For every consecutive pair A→B in a word, records A as a predecessor of B.
+    Returns reverse_bigrams[B][A] = P(A preceded B) = P(A | next=B).
+    Uniform fallback for letters never observed as successors.
+    """
+    reverse_counts = defaultdict(lambda: defaultdict(int))
+
+    for word in words:
+        for i in range(len(word) - 1):
+            reverse_counts[word[i + 1]][word[i]] += 1
+
+    def normalize(counts_dict):
+        total = sum(counts_dict.values())
+        if total == 0:
+            return {l: 1 / len(LETTERS) for l in LETTERS}
+        return {k: v / total for k, v in counts_dict.items()}
+
+    reverse_bigrams = {}
+    for letter in LETTERS:
+        if reverse_counts[letter]:
+            reverse_bigrams[letter] = normalize(reverse_counts[letter])
+        else:
+            reverse_bigrams[letter] = {l: 1 / len(LETTERS) for l in LETTERS}
+
+    return reverse_bigrams
+
+
 def build_tables(words):
     """
     Compute start unigram and bigram transition probabilities from a word list.
@@ -84,13 +114,16 @@ def main():
     print(f"Loaded {len(words)} words.")
 
     start, bigrams = build_tables(words)
+    reverse_bigrams = build_reverse_bigrams(words)
 
     # Sanity check
     for letter in LETTERS:
         row_sum = sum(bigrams[letter].values())
         assert abs(row_sum - 1.0) < 1e-6, f"Row {letter} sums to {row_sum}"
+        rev_sum = sum(reverse_bigrams[letter].values())
+        assert abs(rev_sum - 1.0) < 1e-6, f"Reverse row {letter} sums to {rev_sum}"
 
-    output = {"start": start, "bigrams": bigrams}
+    output = {"start": start, "bigrams": bigrams, "reverse_bigrams": reverse_bigrams}
     output_path = os.path.join(base_dir, OUTPUT_PATH)
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, sort_keys=True)
@@ -98,6 +131,8 @@ def main():
     print(f"Written to {output_path}")
     print(f"Top 5 start letters: {sorted(start.items(), key=lambda x: -x[1])[:5]}")
     print(f"Sample bigrams['T']: {sorted(bigrams['T'].items(), key=lambda x: -x[1])[:5]}")
+    print(f"Top predecessors of H: {sorted(reverse_bigrams['H'].items(), key=lambda x: -x[1])[:5]}")
+    print(f"Top predecessors of U: {sorted(reverse_bigrams['U'].items(), key=lambda x: -x[1])[:5]}")
 
 
 if __name__ == "__main__":
