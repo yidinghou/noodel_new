@@ -80,7 +80,7 @@ app.post('/api/scores', async (req, res) => {
 
 app.get('/api/scores', async (req, res) => {
   const result = await pool.query(
-    'SELECT id, username, score, game_mode, created_at FROM leaderboard ORDER BY score DESC LIMIT 20'
+    'SELECT id, username, score, game_mode, created_at FROM leaderboard ORDER BY score DESC LIMIT 10'
   );
   res.json(result.rows);
 });
@@ -99,10 +99,14 @@ app.get('/api/scores/:id/session', async (req, res) => {
 
 app.get('/api/user-stats', async (req, res) => {
   const username = req.query.username || 'anonymous';
-  const [sizeResult, topWordsResult, worldFirstsResult] = await Promise.all([
+  const [sizeResult, topWordsResult, rareWordsResult, worldFirstsResult] = await Promise.all([
     pool.query('SELECT COUNT(*)::int AS count FROM word_history WHERE username = $1', [username]),
     pool.query(
-      'SELECT word, times_made FROM word_history WHERE username = $1 ORDER BY times_made DESC LIMIT 10',
+      'SELECT word, times_made FROM word_history WHERE username = $1 ORDER BY times_made DESC LIMIT 5',
+      [username]
+    ),
+    pool.query(
+      'SELECT word, times_made FROM word_history WHERE username = $1 ORDER BY times_made ASC LIMIT 5',
       [username]
     ),
     pool.query(
@@ -112,13 +116,14 @@ app.get('/api/user-stats', async (req, res) => {
            SELECT 1 FROM word_history wh2
            WHERE wh2.word = wh.word AND wh2.username != $1
          )
-       ORDER BY wh.times_made DESC`,
+       ORDER BY wh.times_made DESC LIMIT 5`,
       [username]
     ),
   ]);
   res.json({
     vocabularySize: sizeResult.rows[0].count,
     topWords: topWordsResult.rows.map(r => ({ word: r.word, timesMade: r.times_made })),
+    rareWords: rareWordsResult.rows.map(r => ({ word: r.word, timesMade: r.times_made })),
     worldFirsts: worldFirstsResult.rows.map(r => r.word),
   });
 });
