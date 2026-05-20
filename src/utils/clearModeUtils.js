@@ -1,6 +1,15 @@
 import { GRID_SIZE, GRID_COLS, GRID_ROWS, CLEAR_MODE_INITIAL_FILL_PERCENTAGE } from './gameConstants.js';
 import { getWeightedRandomLetter } from './letterUtils.js';
 
+// Max column (0-based) for letters that rarely end 3-4 letter words.
+// Keeps them away from the right edge where they'd have nowhere to extend.
+const MAX_COL = {
+  J: 2, Q: 2,       // virtually never end words
+  V: 3,             // extremely rare endings
+  Z: 4, C: 4,       // quite rare endings
+  I: 5, W: 5, X: 5, // uncommon but present as endings
+};
+
 /**
  * Generate grid with initial blocks for Clear mode
  * Approximately 20% of grid cells are pre-filled with random letters
@@ -28,7 +37,8 @@ export function generateClearModeGrid(rng = Math.random) {
   const lettersPerColumn = Array.from({ length: GRID_COLS }, () => []);
 
   shuffledLetters.forEach(letter => {
-    const randomCol = Math.floor(rng() * GRID_COLS);
+    const maxCol = MAX_COL[letter.char] ?? GRID_COLS - 1;
+    const randomCol = Math.floor(Math.random() * (maxCol + 1));
     lettersPerColumn[randomCol].push(letter);
   });
 
