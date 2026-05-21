@@ -638,6 +638,21 @@ body {
     box-shadow: 0 4px 10px rgba(25, 118, 210, 0.3);
 }
 
+.clear-win-bullets {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 clamp(16px, 3vw, 24px) 0;
+    text-align: left;
+    display: inline-block;
+}
+
+.clear-win-bullets li {
+    font-size: clamp(14px, 3vw, 17px);
+    color: var(--color-text-primary);
+    margin-bottom: clamp(6px, 1.5vw, 10px);
+    line-height: 1.4;
+}
+
 /* ===================== Tutorial ===================== */
 
 .tutorial-btn {

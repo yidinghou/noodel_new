@@ -2,26 +2,33 @@ import React from 'react';
 
 function WordStatsPanel({ wordStats }) {
   if (!wordStats) return <div className="word-stats-loading">Loading stats…</div>;
-
-  const { vocabularySize, rarestWord, worldFirsts } = wordStats;
-  const showRarity = rarestWord && rarestWord.timesThisUser <= 3;
-
+  const { vocabularySize } = wordStats;
   return (
     <div className="word-stats-panel">
       <div className="word-stat">
         You&apos;ve now made <strong>{vocabularySize}</strong> unique {vocabularySize === 1 ? 'word' : 'words'} total.
       </div>
-      {showRarity && (
-        <div className="word-stat">
-          <strong>{rarestWord.word}</strong> — only your {rarestWord.timesThisUser === 1 ? '1st' : rarestWord.timesThisUser === 2 ? '2nd' : '3rd'} time making it!
-        </div>
-      )}
-      {worldFirsts.length > 0 && (
-        <div className="word-stat">
-          World {worldFirsts.length === 1 ? 'first' : 'firsts'}: <strong>{worldFirsts.join(', ')}</strong> — no one else has ever made {worldFirsts.length === 1 ? 'it' : 'these'}!
-        </div>
-      )}
     </div>
+  );
+}
+
+function ClearWinStats({ wordStats }) {
+  if (!wordStats) return <div className="word-stats-loading">Loading stats…</div>;
+  const { longestWord, newWords = [], vocabularySize } = wordStats;
+  const hasContent = longestWord || newWords.length > 0;
+  if (!hasContent) return null;
+  return (
+    <ul className="clear-win-bullets">
+      {longestWord && (
+        <li>🏆 Longest word: <strong>{longestWord}</strong></li>
+      )}
+      {newWords.length > 0 && (
+        <li>✨ New words: <strong>{newWords.slice(0, 3).join(', ')}</strong></li>
+      )}
+      {newWords.length > 0 && (
+        <li>📈 +{newWords.length}: you added {newWords.length} new {newWords.length === 1 ? 'word' : 'words'} and expanded your vocab to {vocabularySize} {vocabularySize === 1 ? 'word' : 'words'}!</li>
+      )}
+    </ul>
   );
 }
 
@@ -56,7 +63,9 @@ function GameOverOverlay({ visible, gameMode, score, lettersRemaining = 0, board
             Final Score: {finalScore}
           </div>
         )}
-        {wordStats !== undefined && <WordStatsPanel wordStats={wordStats} />}
+        {isClearMode && boardCleared
+          ? <ClearWinStats wordStats={wordStats} />
+          : wordStats !== undefined && <WordStatsPanel wordStats={wordStats} />}
         <button className="game-over-restart-btn" onClick={onRestart}>
           Play Again
         </button>
