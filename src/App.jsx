@@ -63,6 +63,7 @@ function App() {
   const boardCleared = isClearMode && state.initialBlocks.length > 0
     ? state.initialBlocks.every(index => !state.grid[index])
     : false;
+  const tilesOnBoard = state.grid.filter(Boolean).length;
 
   return (
     <div className={`app-root${(showModeSelector || showSettingsMenu) ? ' menu-open' : ''}`}>
@@ -114,6 +115,7 @@ function App() {
         score={state.score}
         lettersRemaining={state.lettersRemaining}
         boardCleared={boardCleared}
+        tilesOnBoard={tilesOnBoard}
         wordStats={state.wordStats}
         onRestart={handleRestart}
       />

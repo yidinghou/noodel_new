@@ -1,49 +1,52 @@
 import React from 'react';
 
-function WordStatsPanel({ wordStats }) {
+function GameStatsBullets({ wordStats, intro }) {
   if (!wordStats) return <div className="word-stats-loading">Loading stats…</div>;
-
-  const { vocabularySize, rarestWord, worldFirsts } = wordStats;
-  const showRarity = rarestWord && rarestWord.timesThisUser <= 3;
-
+  const { longestWord, newWords = [], vocabularySize } = wordStats;
+  const hasContent = longestWord || newWords.length > 0;
+  if (!hasContent) return null;
   return (
-    <div className="word-stats-panel">
-      <div className="word-stat">
-        You&apos;ve now made <strong>{vocabularySize}</strong> unique {vocabularySize === 1 ? 'word' : 'words'} total.
-      </div>
-      {showRarity && (
-        <div className="word-stat">
-          <strong>{rarestWord.word}</strong> — only your {rarestWord.timesThisUser === 1 ? '1st' : rarestWord.timesThisUser === 2 ? '2nd' : '3rd'} time making it!
-        </div>
-      )}
-      {worldFirsts.length > 0 && (
-        <div className="word-stat">
-          World {worldFirsts.length === 1 ? 'first' : 'firsts'}: <strong>{worldFirsts.join(', ')}</strong> — no one else has ever made {worldFirsts.length === 1 ? 'it' : 'these'}!
-        </div>
-      )}
-    </div>
+    <>
+      {intro && <div className="game-stats-intro">{intro}</div>}
+      <ul className="clear-win-bullets">
+        {longestWord && (
+          <li>🏆 Longest word: <strong>{longestWord}</strong></li>
+        )}
+        {newWords.length > 0 && (
+          <li>✨ New words: <strong>{newWords.slice(0, 3).join(', ')}</strong></li>
+        )}
+        {newWords.length > 0 && (
+          <li>💹 <span style={{ color: '#2e7d32' }}>+{newWords.length}</span>: you added {newWords.length} new {newWords.length === 1 ? 'word' : 'words'} and expanded your vocab to {vocabularySize}!</li>
+        )}
+      </ul>
+    </>
   );
 }
 
-function GameOverOverlay({ visible, gameMode, score, lettersRemaining = 0, boardCleared = false, wordStats, onRestart }) {
+function GameOverOverlay({ visible, gameMode, score, lettersRemaining = 0, boardCleared = false, tilesOnBoard = 0, wordStats, onRestart }) {
   if (!visible) return null;
 
   const isClearMode = gameMode === 'clear';
-  // In clear mode, final score is 100 - letters remaining (letters used)
   const finalScore = isClearMode ? (100 - lettersRemaining) : score;
   const lettersUsed = 100 - lettersRemaining;
 
-  // Generate message based on game mode and result
-  let title, message;
+  let title, message, statsIntro;
   if (isClearMode && boardCleared) {
     title = 'Congrats!';
     message = `You've cleared the board in ${lettersUsed} letters.`;
+    statsIntro = "Not only did you clear, you've:";
+  } else if (isClearMode && !boardCleared && tilesOnBoard < 8) {
+    title = 'So Close!';
+    message = 'Better luck tomorrow!';
+    statsIntro = "Along the way, you've:";
   } else if (isClearMode && !boardCleared) {
     title = 'Game Over!';
     message = `You were ${lettersRemaining} letters away from clearing the board.`;
+    statsIntro = "While you didn't clear many letters, you've:";
   } else {
     title = 'Game Over!';
     message = null;
+    statsIntro = "Along the way, you've:";
   }
 
   return (
@@ -56,7 +59,9 @@ function GameOverOverlay({ visible, gameMode, score, lettersRemaining = 0, board
             Final Score: {finalScore}
           </div>
         )}
-        {wordStats !== undefined && <WordStatsPanel wordStats={wordStats} />}
+        {wordStats !== undefined && (
+          <GameStatsBullets wordStats={wordStats} intro={statsIntro} />
+        )}
         <button className="game-over-restart-btn" onClick={onRestart}>
           Play Again
         </button>
