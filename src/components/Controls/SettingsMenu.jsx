@@ -149,35 +149,29 @@ function SettingsMenu({ visible, onClose, isMuted, onToggleMute, onPlayReplay })
             ) : (
               <>
                 <div className="leaderboard-row" style={{ justifyContent: 'space-between', padding: '0.5rem 0' }}>
-                  <span>Vocabulary</span>
+                  <span>Vocabulary size</span>
                   <strong>{stats.vocabularySize}</strong>
                 </div>
-                {stats.worldFirsts.length > 0 && (
-                  <div style={{ margin: '0.75rem 0' }}>
-                    <p className="mode-selection-subtitle" style={{ fontSize: '0.85em', marginBottom: '0.25rem' }}>World firsts 🌍</p>
-                    <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                      {stats.worldFirsts.map(word => (
-                        <li key={word} className="leaderboard-row" style={{ justifyContent: 'center' }}>{word}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
                 {stats.topWords.length > 0 && (
                   <div style={{ margin: '0.75rem 0' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                       <div>
-                        <p className="mode-selection-subtitle" style={{ fontSize: '0.8em', marginBottom: '0.25rem' }}>Most made</p>
-                        {stats.topWords.map(({ word, timesMade }) => (
+                        <p className="mode-selection-subtitle" style={{ fontSize: '0.8em', marginBottom: '0.25rem' }}>
+                          Common Words <span style={{ color: '#2e7d32', fontWeight: 900 }}>⬆</span>
+                        </p>
+                        {stats.topWords.map(({ word, timesMade, isNew }) => (
                           <div key={word} className="leaderboard-row" style={{ justifyContent: 'space-between' }}>
-                            <span>{word}</span><span>×{timesMade}</span>
+                            <span>{isNew && <span style={{ fontSize: '0.75em' }}>⭐ </span>}{word}</span><span>×{timesMade}</span>
                           </div>
                         ))}
                       </div>
                       <div>
-                        <p className="mode-selection-subtitle" style={{ fontSize: '0.8em', marginBottom: '0.25rem' }}>Least made</p>
-                        {stats.rareWords.map(({ word, timesMade }) => (
+                        <p className="mode-selection-subtitle" style={{ fontSize: '0.8em', marginBottom: '0.25rem' }}>
+                          Rare Words <span style={{ color: '#c62828', fontWeight: 900 }}>⬇</span>
+                        </p>
+                        {stats.rareWords.map(({ word, timesMade, isNew }) => (
                           <div key={word} className="leaderboard-row" style={{ justifyContent: 'space-between' }}>
-                            <span>{word}</span><span>×{timesMade}</span>
+                            <span>{isNew && <span style={{ fontSize: '0.75em' }}>💎 </span>}{word}</span><span>×{timesMade}</span>
                           </div>
                         ))}
                       </div>
