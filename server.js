@@ -64,23 +64,18 @@ app.post('/api/scores', async (req, res) => {
                last_made_at = NOW()`,
         [user, words]
       );
-      const [sizeResult, rarestResult, worldFirstsResult] = await Promise.all([
+      const longestWord = words.reduce((best, w) => w.length > best.length ? w : best, words[0]);
+      const [sizeResult, newWordsResult] = await Promise.all([
         pool.query('SELECT COUNT(*)::int AS count FROM word_history WHERE username = $1', [user]),
         pool.query(
-          'SELECT word, times_made FROM word_history WHERE username = $1 AND word = ANY($2::text[]) ORDER BY times_made ASC LIMIT 1',
+          'SELECT word FROM word_history WHERE username = $1 AND word = ANY($2::text[]) AND times_made = 1',
           [user, words]
-        ),
-        pool.query(
-          'SELECT word FROM word_history WHERE word = ANY($1::text[]) GROUP BY word HAVING COUNT(DISTINCT username) = 1',
-          [words]
         ),
       ]);
       wordStats = {
         vocabularySize: sizeResult.rows[0].count,
-        rarestWord: rarestResult.rows[0]
-          ? { word: rarestResult.rows[0].word, timesThisUser: rarestResult.rows[0].times_made }
-          : null,
-        worldFirsts: worldFirstsResult.rows.map(r => r.word),
+        newWords: newWordsResult.rows.map(r => r.word),
+        longestWord,
       };
     }
 
@@ -123,32 +118,21 @@ app.get('/api/scores/:id/session', async (req, res) => {
 app.get('/api/user-stats', async (req, res) => {
   try {
     const username = req.query.username || 'anonymous';
-    const [sizeResult, topWordsResult, rareWordsResult, worldFirstsResult] = await Promise.all([
+    const [sizeResult, topWordsResult, rareWordsResult] = await Promise.all([
       pool.query('SELECT COUNT(*)::int AS count FROM word_history WHERE username = $1', [username]),
       pool.query(
-        'SELECT word, times_made FROM word_history WHERE username = $1 ORDER BY times_made DESC LIMIT 5',
+        'SELECT word, times_made FROM word_history WHERE username = $1 ORDER BY times_made DESC, last_made_at DESC LIMIT 5',
         [username]
       ),
       pool.query(
-        'SELECT word, times_made FROM word_history WHERE username = $1 ORDER BY times_made ASC LIMIT 5',
-        [username]
-      ),
-      pool.query(
-        `SELECT wh.word FROM word_history wh
-         WHERE wh.username = $1
-           AND NOT EXISTS (
-             SELECT 1 FROM word_history wh2
-             WHERE wh2.word = wh.word AND wh2.username != $1
-           )
-         ORDER BY wh.times_made DESC LIMIT 5`,
+        'SELECT word, times_made FROM word_history WHERE username = $1 ORDER BY times_made ASC, last_made_at DESC LIMIT 5',
         [username]
       ),
     ]);
     res.json({
       vocabularySize: sizeResult.rows[0].count,
-      topWords: topWordsResult.rows.map(r => ({ word: r.word, timesMade: r.times_made })),
-      rareWords: rareWordsResult.rows.map(r => ({ word: r.word, timesMade: r.times_made })),
-      worldFirsts: worldFirstsResult.rows.map(r => r.word),
+      topWords: topWordsResult.rows.map(r => ({ word: r.word, timesMade: r.times_made, isNew: r.times_made === 1 })),
+      rareWords: rareWordsResult.rows.map(r => ({ word: r.word, timesMade: r.times_made, isNew: r.times_made === 1 })),
     });
   } catch (err) {
     console.error('GET /api/user-stats error:', err);
