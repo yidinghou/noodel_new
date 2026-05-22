@@ -6,7 +6,7 @@ import NextPreview from '../Controls/NextPreview.jsx';
 import Board from '../Grid/Board.jsx';
 import MadeWords from '../Stats/MadeWords.jsx';
 import DroppingOverlay from '../Grid/DroppingOverlay.jsx';
-import { GRID_COLS, GRID_ROWS } from '../../utils/gameConstants.js';
+import { GRID_COLS, GRID_ROWS } from '../../../../utils/gameConstants.js';
 
 function GameLayout({
   gridWrapperRef = null,
@@ -18,11 +18,6 @@ function GameLayout({
   dictionary = null,
   gameStatus = 'IDLE',
   gameMode = null,
-  dropOrderMap = {},
-  statsVisible = true,
-  controlsVisible = true,
-  boardVisible = true,
-  onFastForward = null,
   onStart,
   onSettings,
   onInfo,
@@ -128,49 +123,32 @@ function GameLayout({
     setActiveDrops(prev => prev.filter(d => d.id !== id));
   }, [onColumnClick]);
 
-  const previewClasses = 'preview-row';
-
-  // Allow fastForward only during intro sequence (before all elements are visible)
-  const isIntroActive = !statsVisible || !controlsVisible || !boardVisible;
-
-  const handleCardClick = (e) => {
-    // Only trigger fastForward during intro, and prevent event bubbling
-    if (isIntroActive && onFastForward) {
-      e.stopPropagation();
-      onFastForward();
-    }
-  };
-
   return (
     <div className="main-container">
       {/* Card Section (Top) */}
-      <div
-        className={`card${isIntroActive ? ' intro-active' : ''}`}
-        onClick={handleCardClick}
-        style={isIntroActive ? { cursor: 'pointer' } : undefined}
-      >
-        <Header dropOrderMap={dropOrderMap} onUndo={onUndo} />
-        <div className={`stats ${statsVisible ? 'visible' : ''}`}>
+      <div className="card">
+        <Header onUndo={onUndo} />
+        <div className="stats visible">
           <ScoreBoard score={score} gameStatus={gameStatus} gameMode={gameMode} />
-          <Actions onStart={onStart} onSettings={onSettings} onInfo={onInfo} visible={controlsVisible} />
+          <Actions onStart={onStart} onSettings={onSettings} onInfo={onInfo} visible={true} />
         </div>
       </div>
 
       {/* Game Grid Section (Middle) */}
       <div className="game-grid-wrapper" ref={gridWrapperRef}>
-        <div className={previewClasses}>
+        <div className="preview-row">
           <NextPreview nextLetters={nextLetters.slice(activeDrops.length, activeDrops.length + 5)} visible={showPreview} nextUpRef={nextUpRef} shiftKey={shiftKey} />
           <div className={`game-grid-letters-remaining${showPreview ? ' visible' : ''}`}>
             <div className="letters-remaining-label">Letters Remaining</div>
             <div className="letters-remaining-value">{lettersRemaining}</div>
           </div>
         </div>
-        <Board grid={grid} onColumnClick={handleColumnClick} gridRef={gridRef} visible={boardVisible} />
+        <Board grid={grid} onColumnClick={handleColumnClick} gridRef={gridRef} visible={true} />
       </div>
 
       {/* Made Words Section (Bottom) */}
       <div className="made-words-section">
-        <MadeWords words={madeWords} dictionary={dictionary} visible={boardVisible} />
+        <MadeWords words={madeWords} dictionary={dictionary} visible={true} />
       </div>
 
       {/* One overlay per in-flight drop — each animates independently */}

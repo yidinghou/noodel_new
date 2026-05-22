@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import Board from '../Grid/Board.jsx';
-import NextPreview from '../Controls/NextPreview.jsx';
-import DroppingOverlay from '../Grid/DroppingOverlay.jsx';
+import Board from '../../themes/classic/components/Grid/Board.jsx';
+import NextPreview from '../../themes/classic/components/Controls/NextPreview.jsx';
+import DroppingOverlay from '../../themes/classic/components/Grid/DroppingOverlay.jsx';
 import { gameReducer, initialState } from '../../context/GameReducer.js';
 import { createPlayer } from '../../services/replayPlayer.js';
 import { GRID_COLS, GRID_ROWS } from '../../utils/gameConstants.js';

@@ -1,13 +1,12 @@
-import ReactDOM from 'react-dom/client';
-import App from './App.jsx';
+import { createRoot } from 'react-dom/client';
 import { GameProvider } from './context/GameContext.jsx';
-import './styles/base.css';
-import './styles/card.css';
-import './styles/grid.css';
-import './styles/made-words.css';
+import { ThemeProvider } from './themes/ThemeContext.jsx';
+import App from './App.jsx';
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <GameProvider>
-    <App />
-  </GameProvider>
+createRoot(document.getElementById('root')).render(
+  <ThemeProvider>
+    <GameProvider>
+      <App />
+    </GameProvider>
+  </ThemeProvider>
 );

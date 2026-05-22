@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useGame } from '../../context/GameContext.jsx';
+import { useGame } from '../../../../context/GameContext.jsx';
 
 const styles = {
   overlay: {
