@@ -452,6 +452,13 @@ button {
   color: var(--rd-text);
   line-height: 1;
 }
+.rd-wordmark__letter {
+  display: inline-block;
+}
+.rd-wordmark__undo {
+  cursor: pointer;
+  transition: opacity 0.1s ease;
+}
 .rd-wordmark__rule {
   width: 40px;
   height: 3px;
