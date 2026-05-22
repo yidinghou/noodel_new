@@ -18,7 +18,7 @@ function GameLayout({
   dictionary = null,
   gameStatus = 'IDLE',
   gameMode = null,
-  onStart,
+  onLogin,
   onSettings,
   onInfo,
   onColumnClick,
@@ -130,7 +130,7 @@ function GameLayout({
         <Header onUndo={onUndo} />
         <div className="stats visible">
           <ScoreBoard score={score} gameStatus={gameStatus} gameMode={gameMode} />
-          <Actions onStart={onStart} onSettings={onSettings} onInfo={onInfo} visible={true} />
+          <Actions onLogin={onLogin} onSettings={onSettings} onInfo={onInfo} visible={true} />
         </div>
       </div>
 

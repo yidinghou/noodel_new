@@ -3,10 +3,10 @@ import NextRow from './NextRow.jsx';
 
 const LEFT_ACTIONS_TEMPLATE = ['howtoplay'];
 
-function Shell({ score, lettersLeft, next, madeWords, nextUpRef, onHowToPlay, onSettings, children }) {
+function Shell({ score, lettersLeft, next, madeWords, nextUpRef, onHowToPlay, onLogin, onSettings, children }) {
   const leftActions = [{ id: 'howtoplay', onClick: onHowToPlay }];
   const rightActions = [
-    { id: 'login' },
+    { id: 'login', onClick: onLogin },
     { id: 'settings', onClick: onSettings },
   ];
 

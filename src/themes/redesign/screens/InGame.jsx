@@ -5,7 +5,7 @@ import Shell from '../components/Shell.jsx';
 import Board from '../components/Board.jsx';
 import DroppingOverlay from '../../classic/components/Grid/DroppingOverlay.jsx';
 
-function InGame({ onHowToPlay, onSettings }) {
+function InGame({ onHowToPlay, onLogin, onSettings }) {
   const { state, dispatch } = useGame();
 
   const boardRef = useRef(null);
@@ -100,6 +100,7 @@ function InGame({ onHowToPlay, onSettings }) {
         madeWords={state.madeWords}
         nextUpRef={nextUpRef}
         onHowToPlay={onHowToPlay}
+        onLogin={onLogin}
         onSettings={onSettings}
       >
         <section className="rd-board-wrapper">

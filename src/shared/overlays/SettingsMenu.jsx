@@ -1,4 +1,4 @@
-import { useSettingsState, USERS } from '../hooks/useSettingsState.js';
+import { useSettingsState } from '../hooks/useSettingsState.js';
 import { useTheme } from '../../themes/ThemeContext.jsx';
 import './SettingsMenu.css';
 
@@ -8,7 +8,6 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
 
   const title =
     s.panel === 'stats'       ? 'Stats'
-    : s.panel === 'login'     ? 'Choose user'
     : s.panel === 'leaderboard' ? 'Leaderboard'
     : s.panel === 'theme'     ? 'Theme'
     : 'Settings';
@@ -26,10 +25,6 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
 
         {s.panel === null && (
           <div className="settings-menu__list">
-            <button className="settings-menu__btn" onClick={() => s.setPanel('login')}>
-              <span>👤 {s.currentUser ? `Logged in: ${s.currentUser}` : 'Login'}</span>
-              <span aria-hidden="true">›</span>
-            </button>
             <button className="settings-menu__btn" onClick={s.openStats}>
               <span>📊 Stats</span>
               <span aria-hidden="true">›</span>
@@ -45,21 +40,6 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
               <span>🎨 Theme: {themes.find(t => t.id === themeId)?.name}</span>
               <span aria-hidden="true">›</span>
             </button>
-          </div>
-        )}
-
-        {s.panel === 'login' && (
-          <div className="settings-menu__list">
-            {USERS.map(name => (
-              <button
-                key={name}
-                className={`settings-menu__btn${s.currentUser === name ? ' is-active' : ''}`}
-                onClick={() => s.selectUser(name)}
-              >
-                <span>{s.currentUser === name ? '✓ ' : ''}{name.charAt(0).toUpperCase() + name.slice(1)}</span>
-              </button>
-            ))}
-            <button className="settings-menu__btn" onClick={() => s.setPanel(null)}>← Back</button>
           </div>
         )}
 

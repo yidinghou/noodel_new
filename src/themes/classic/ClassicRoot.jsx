@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import GameLayout from './components/Layout/GameLayout.jsx';
 import { DebugOverlay } from './components/Debug/DebugOverlay.jsx';
@@ -10,30 +10,35 @@ import './styles/card.css';
 import './styles/grid.css';
 import './styles/made-words.css';
 
-function ClassicRoot({ dictionary, onHowToPlay, onSettings }) {
+function ClassicRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
   const { state, dispatch, undo } = useGame();
   const gridWrapperRef = useRef(null);
-  const [showModeSelector, setShowModeSelector] = useState(false);
+  const [, forceRender] = useState(0);
   const [pendingMode, setPendingMode] = useState(null);
 
-  const handleStart = () => setShowModeSelector(true);
+  // ModeSelector renders into gridWrapperRef via portal; trigger one re-render
+  // after the ref attaches so the auto-show-on-IDLE start menu mounts.
+  useEffect(() => { forceRender(1); }, []);
 
-  const startMode = (mode) => {
-    setShowModeSelector(false);
-    dispatch({ type: 'START_GAME', payload: { mode } });
-  };
+  const showModeSelector = state.status === 'IDLE' || pendingMode !== null;
 
   const handleModeSelect = (mode) => {
     if (!dictionary) {
       setPendingMode(mode);
       return;
     }
-    startMode(mode);
+    setPendingMode(null);
+    dispatch({ type: 'START_GAME', payload: { mode } });
   };
 
   const handleRestart = () => {
+    setPendingMode(null);
     dispatch({ type: 'RESET' });
-    setShowModeSelector(true);
+  };
+
+  const handleCloseModeSelector = () => {
+    // No-op while IDLE — start menu cannot be dismissed; only clears a pending-mode wait.
+    setPendingMode(null);
   };
 
   const handleColumnClick = (column) => {
@@ -62,7 +67,7 @@ function ClassicRoot({ dictionary, onHowToPlay, onSettings }) {
         dictionary={dictionary}
         gameStatus={state.status}
         gameMode={state.gameMode}
-        onStart={handleStart}
+        onLogin={onLogin}
         onSettings={onSettings}
         onInfo={onHowToPlay}
         onColumnClick={handleColumnClick}
@@ -73,7 +78,7 @@ function ClassicRoot({ dictionary, onHowToPlay, onSettings }) {
         <ModeSelector
           visible={showModeSelector}
           onSelectMode={handleModeSelect}
-          onClose={() => setShowModeSelector(false)}
+          onClose={handleCloseModeSelector}
           pendingMode={pendingMode}
           dictReady={!!dictionary}
         />,

@@ -3,13 +3,13 @@ import ActionBar from '../components/ActionBar.jsx';
 import NextRow from '../components/NextRow.jsx';
 import { useAmbientDemo, AmbientBoard } from '../components/AmbientDemo.jsx';
 
-function Landing({ onHowToPlay, onSettings }) {
+function Landing({ onHowToPlay, onLogin, onSettings }) {
   const { dispatch } = useGame();
   const demo = useAmbientDemo();
 
   const leftActions = [{ id: 'howtoplay', onClick: onHowToPlay }];
   const rightActions = [
-    { id: 'login' },
+    { id: 'login', onClick: onLogin },
     { id: 'settings', onClick: onSettings },
   ];
 

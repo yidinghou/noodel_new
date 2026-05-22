@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { useGameLogic } from './hooks/useGameLogic.js';
 import { useTheme } from './themes/ThemeContext.jsx';
 import SettingsMenu from './shared/overlays/SettingsMenu.jsx';
+import LoginMenu from './shared/overlays/LoginMenu.jsx';
 import HowToPlayModal from './shared/overlays/HowToPlayModal.jsx';
 import ReplayOverlay from './shared/overlays/ReplayOverlay.jsx';
 
@@ -10,7 +11,7 @@ function App() {
   const { dictionary } = useGameLogic();
   const { theme } = useTheme();
   const [isMuted, setIsMuted] = useState(false);
-  const [overlay, setOverlay] = useState(null); // 'howtoplay' | 'settings' | null
+  const [overlay, setOverlay] = useState(null); // 'howtoplay' | 'login' | 'settings' | null
   const [replaySession, setReplaySession] = useState(null);
 
   const Root = theme.Root;
@@ -20,11 +21,15 @@ function App() {
       <Root
         dictionary={dictionary}
         onHowToPlay={() => setOverlay('howtoplay')}
+        onLogin={() => setOverlay('login')}
         onSettings={() => setOverlay('settings')}
       />
 
       {overlay === 'howtoplay' && (
         <HowToPlayModal onClose={() => setOverlay(null)} />
+      )}
+      {overlay === 'login' && (
+        <LoginMenu onClose={() => setOverlay(null)} />
       )}
       {overlay === 'settings' && (
         <SettingsMenu

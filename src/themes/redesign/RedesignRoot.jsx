@@ -5,14 +5,14 @@ import GameOver from './screens/GameOver.jsx';
 import './styles/tokens.css';
 import './styles/redesign.css';
 
-function RedesignRoot({ onHowToPlay, onSettings }) {
+function RedesignRoot({ onHowToPlay, onLogin, onSettings }) {
   const { state } = useGame();
 
   const screen =
     state.status === 'IDLE' ? 'landing' :
     state.status === 'GAME_OVER' ? 'gameover' : 'ingame';
 
-  const handlers = { onHowToPlay, onSettings };
+  const handlers = { onHowToPlay, onLogin, onSettings };
 
   return (
     <div className="rd-root">
