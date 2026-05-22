@@ -57,15 +57,15 @@
     visibility: visible;
 }
 
-/* Base Preview Letter Block */
+/* Base Preview Letter Block — matches the dropped-tile look (white with dark letter) */
 .preview-letter-block {
     width: var(--size-letter-block);
     height: var(--size-letter-block);
-    background-color: var(--color-text-muted);
-    color: var(--color-text-white);
+    background-color: #ffffff;
+    color: #000000;
     font-size: var(--size-font-letter);
     font-weight: bold;
-    border: 2px solid var(--color-border-primary);
+    border: 2px solid #333333;
     border-radius: var(--size-border-radius-block);
     display: flex;
     align-items: center;
@@ -155,21 +155,21 @@
     cursor: pointer;
 }
 
-/* Filled Grid Square */
+/* Filled Grid Square (player-dropped tile) - white with dark letter */
 .grid-square.filled {
-    background: var(--color-text-muted);
-    color: var(--color-text-white);
-    border: 2px solid var(--color-border-primary);
-    cursor: default;
-}
-
-/* Initial Block (Clear Mode) - Black letters on white background */
-.grid-square.initial {
     background: #ffffff;
     color: #000000;
     border: 2px solid #333333;
     cursor: default;
     font-weight: bold;
+}
+
+/* Initial Block (Clear Mode starting tile) - grey with white letter */
+.grid-square.initial {
+    background: var(--color-text-muted);
+    color: var(--color-text-white);
+    border: 2px solid var(--color-border-primary);
+    cursor: default;
 }
 
 /* Dropping Letter Overlay (animated letter during drop) */

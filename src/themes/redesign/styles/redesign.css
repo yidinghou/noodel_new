@@ -263,6 +263,12 @@ button {
   transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.15s;
 }
 .rd-cell.is-filled {
+  background: #ffffff;
+  color: #000000;
+  border: 2px solid #333333;
+  cursor: default;
+}
+.rd-cell.is-initial {
   background: #9e9e9e;
   color: #ffffff;
   border: 2px solid #424242;

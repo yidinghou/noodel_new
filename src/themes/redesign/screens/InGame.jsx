@@ -77,6 +77,7 @@ function InGame({ onHowToPlay, onSettings }) {
     let s = 'filled';
     if (cell.isMatched) s = 'match';
     else if (cell.isPending) s = 'pending';
+    else if (cell.isInitial) s = 'initial';
     return {
       ch: cell.char,
       id: cell.id,

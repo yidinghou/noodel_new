@@ -38,6 +38,7 @@ function Board({ cells = [], highlightSet = null, onColumnClick, boardRef, child
 
         const cls = ['rd-cell'];
         if (stateOverride === 'filled')  cls.push('is-filled');
+        else if (stateOverride === 'initial') cls.push('is-initial');
         else if (stateOverride === 'pending') {
           cls.push('is-pending');
           if (dirs.includes('diagonal-down-right')) cls.push('is-pending-diag-dr');
