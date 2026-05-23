@@ -65,9 +65,7 @@
     font-size: clamp(18px, 4.5vw, 28px);
     border: 2px solid var(--color-border-primary);
     box-shadow: var(--shadow-block);
-    transform: translateY(-300px) rotate(var(--rotation));
-    animation: dropIn var(--animation-duration-title-drop) ease-out forwards;
-    animation-delay: calc(var(--drop-order, 0) * 0.2s);
+    transform: translateY(0) rotate(var(--rotation));
     
     /* Progress bar gradient (green to gray transition) */
     --progress-percent: 100%;
@@ -88,6 +86,12 @@
 
 .letter-block:nth-child(even) {
     --rotation: 2deg;
+}
+
+.title--animated .letter-block {
+    transform: translateY(-300px) rotate(var(--rotation));
+    animation: dropIn var(--animation-duration-title-drop) ease-out forwards;
+    animation-delay: calc(var(--drop-order, 0) * 0.2s);
 }
 
 .letter-block:hover {

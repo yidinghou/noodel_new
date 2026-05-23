@@ -13,6 +13,7 @@ import './styles/made-words.css';
 function ClassicRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
   const { state, dispatch, undo } = useGame();
   const gridWrapperRef = useRef(null);
+  const initialStatusRef = useRef(state.status);
   const [, forceRender] = useState(0);
   const [pendingMode, setPendingMode] = useState(null);
 
@@ -67,6 +68,7 @@ function ClassicRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
         dictionary={dictionary}
         gameStatus={state.status}
         gameMode={state.gameMode}
+        animateTitle={initialStatusRef.current === 'IDLE'}
         onHome={handleRestart}
         onLogin={onLogin}
         onSettings={onSettings}

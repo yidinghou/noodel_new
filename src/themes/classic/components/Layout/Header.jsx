@@ -1,6 +1,6 @@
 import React from 'react';
 
-function Header({ onUndo }) {
+function Header({ onUndo, animateIn = true }) {
   const LETTERS = ['N', 'O', 'O', 'D', 'E', 'L'];
 
   const handleUndoClick = (e) => {
@@ -19,7 +19,7 @@ function Header({ onUndo }) {
   };
 
   return (
-    <div className="title">
+    <div className={`title${animateIn ? ' title--animated' : ''}`}>
       {LETTERS.map((letter, index) => {
         // Second O (index 2) is the hidden undo button
         const isUndoButton = index === 2;

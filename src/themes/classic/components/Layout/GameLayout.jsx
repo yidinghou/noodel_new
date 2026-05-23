@@ -18,6 +18,7 @@ function GameLayout({
   dictionary = null,
   gameStatus = 'IDLE',
   gameMode = null,
+  animateTitle = true,
   onHome,
   onLogin,
   onSettings,
@@ -151,7 +152,7 @@ function GameLayout({
 
       {/* Hero (wordmark + compact score) */}
       <div className="hero">
-        <Header onUndo={onUndo} />
+        <Header onUndo={onUndo} animateIn={animateTitle} />
         <ScoreBoard score={score} gameStatus={gameStatus} gameMode={gameMode} />
       </div>
 
