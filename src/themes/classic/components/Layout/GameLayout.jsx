@@ -24,6 +24,7 @@ function GameLayout({
   onInfo,
   onColumnClick,
   onUndo,
+  onStartGame,
   showPreview = false,
 }) {
   const gridRef = useRef(null);
@@ -160,6 +161,13 @@ function GameLayout({
           </div>
         </div>
         <Board grid={grid} onColumnClick={handleColumnClick} gridRef={gridRef} visible={true} />
+        {gameStatus === 'IDLE' && (
+          <div className="classic-start-overlay">
+            <button type="button" className="classic-start-btn" onClick={onStartGame}>
+              Start Game
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Made Words Section (Bottom) */}
