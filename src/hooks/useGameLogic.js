@@ -8,6 +8,7 @@ import {
   classifyIncomingWord,
 } from '../utils/gracePeriodUtils.js';
 import { GRID_COLS } from '../utils/gameConstants.js';
+import { A } from '../utils/actionTypes.js';
 
 const GRACE_PERIOD_MS = 1000;
 const SHAKE_DURATION_MS = 400;
@@ -105,13 +106,13 @@ export function useGameLogic() {
       }
 
       // Shake phase: mark as matched (pauses word detection)
-      dispatch({ type: 'SET_MATCHED_INDICES', payload: { indices: allIndices } });
+      dispatch({ type: A.SET_MATCHED_INDICES, payload: { indices: allIndices } });
 
       pendingRemovesRef.current++;
       setTimeout(() => {
         // Remove expired words and score them
         dispatch({
-          type: 'REMOVE_WORDS',
+          type: A.REMOVE_WORDS,
           payload: {
             wordsToRemove: wordsToExpire.map(e => e.wordData),
             chainId,
@@ -129,7 +130,7 @@ export function useGameLogic() {
           gravityScheduledRef.current = true;
           setTimeout(() => {
             gravityScheduledRef.current = false;
-            dispatch({ type: 'APPLY_GRAVITY' });
+            dispatch({ type: A.APPLY_GRAVITY });
           }, GRAVITY_DELAY_MS);
         }
       }, SHAKE_DURATION_MS);
@@ -209,7 +210,7 @@ export function useGameLogic() {
         const old = pending.get(result.replaceKey);
         clearTimeout(old.timerId);
         dispatch({
-          type: 'CLEAR_PENDING',
+          type: A.CLEAR_PENDING,
           payload: { indices: old.wordData.indices, direction: old.wordData.direction }
         });
         pending.delete(result.replaceKey);
@@ -227,7 +228,7 @@ export function useGameLogic() {
 
       // Start grace period for this word
       dispatch({
-        type: 'SET_PENDING',
+        type: A.SET_PENDING,
         payload: { indices: wordData.indices, direction: wordData.direction }
       });
       const timerId = setTimeout(() => expireWord(wordKey), GRACE_PERIOD_MS);
@@ -244,7 +245,7 @@ export function useGameLogic() {
     const gridEmpty = state.grid.every(cell => !cell);
 
     if (gridEmpty && state.initialBlocks.length > 0) {
-      dispatch({ type: 'GAME_OVER' });
+      dispatch({ type: A.GAME_OVER });
     }
   }, [state.grid, state.gameMode, state.status, state.initialBlocks, dispatch]);
 

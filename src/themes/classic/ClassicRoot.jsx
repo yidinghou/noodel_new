@@ -5,6 +5,7 @@ import { DebugOverlay } from './components/Debug/DebugOverlay.jsx';
 import ModeSelector from './components/Controls/ModeSelector.jsx';
 import GameOverOverlay from './components/Overlays/GameOverOverlay.jsx';
 import { useGame } from '../../context/GameContext.jsx';
+import { A } from '../../utils/actionTypes.js';
 import './styles/base.css';
 import './styles/card.css';
 import './styles/grid.css';
@@ -29,12 +30,12 @@ function ClassicRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
       return;
     }
     setPendingMode(null);
-    dispatch({ type: 'START_GAME', payload: { mode } });
+    dispatch({ type: A.START_GAME, payload: { mode } });
   };
 
   const handleRestart = () => {
     setPendingMode(null);
-    dispatch({ type: 'RESET' });
+    dispatch({ type: A.RESET });
   };
 
   const handleCloseModeSelector = () => {
@@ -44,7 +45,7 @@ function ClassicRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
 
   const handleColumnClick = (column) => {
     if (state.status === 'PLAYING' || state.status === 'PROCESSING') {
-      dispatch({ type: 'DROP_LETTER', payload: { column } });
+      dispatch({ type: A.DROP_LETTER, payload: { column } });
     }
   };
 

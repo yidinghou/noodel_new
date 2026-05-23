@@ -5,6 +5,7 @@ import DroppingOverlay from '../../themes/classic/components/Grid/DroppingOverla
 import { gameReducer, initialState } from '../../context/GameReducer.js';
 import { createPlayer } from '../../services/replayPlayer.js';
 import { GRID_COLS, GRID_ROWS } from '../../utils/gameConstants.js';
+import { A } from '../../utils/actionTypes.js';
 import './ReplayOverlay.css';
 
 const SPEED_OPTIONS = [1, 2];
@@ -32,7 +33,7 @@ function ReplayOverlay({ session, meta, onClose }) {
   // Wrapped dispatch — intercepts DROP_LETTER to play a falling-tile animation
   // before applying the action. All other actions pass through synchronously.
   const wrappedDispatch = useCallback((action) => {
-    if (action.type !== 'DROP_LETTER') {
+    if (action.type !== A.DROP_LETTER) {
       dispatch(action);
       return;
     }
@@ -95,7 +96,7 @@ function ReplayOverlay({ session, meta, onClose }) {
       reset: () => {
         dropTokenRef.current += 1; // invalidate any in-flight drop animation
         setActiveDrop(null);
-        dispatch({ type: 'RESET' });
+        dispatch({ type: A.RESET });
       },
       fastDispatch: dispatch,
     });

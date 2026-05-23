@@ -1,6 +1,7 @@
 import { useSettingsState } from '../hooks/useSettingsState.js';
 import { useTheme } from '../../themes/ThemeContext.jsx';
 import { useGame } from '../../context/GameContext.jsx';
+import { A } from '../../utils/actionTypes.js';
 import './SettingsMenu.css';
 
 function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
@@ -44,7 +45,7 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
               <span aria-hidden="true">›</span>
             </button>
             {isPlaying && (
-              <button className="settings-menu__btn" onClick={() => { dispatch({ type: 'RESET' }); onClose?.(); }}>
+              <button className="settings-menu__btn" onClick={() => { dispatch({ type: A.RESET }); onClose?.(); }}>
                 <span>🏠 Home</span>
               </button>
             )}

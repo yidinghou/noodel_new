@@ -1,6 +1,7 @@
 import { useRef, useState, useCallback } from 'react';
 import { useGame } from '../../../context/GameContext.jsx';
 import { GRID_COLS, GRID_ROWS } from '../../../utils/gameConstants.js';
+import { A } from '../../../utils/actionTypes.js';
 import Shell from '../components/Shell.jsx';
 import Board from '../components/Board.jsx';
 import DroppingOverlay from '../../classic/components/Grid/DroppingOverlay.jsx';
@@ -37,7 +38,7 @@ function InGame({ onHowToPlay, onLogin, onSettings }) {
     const fromEl = nextUpRef.current;
     const gridEl = boardRef.current;
     if (!fromEl || !gridEl) {
-      dispatch({ type: 'DROP_LETTER', payload: { column } });
+      dispatch({ type: A.DROP_LETTER, payload: { column } });
       return;
     }
 
@@ -64,7 +65,7 @@ function InGame({ onHowToPlay, onLogin, onSettings }) {
   }, [state.nextQueue, getDestRow, dispatch]);
 
   const handleDropComplete = useCallback((id, column) => {
-    dispatch({ type: 'DROP_LETTER', payload: { column } });
+    dispatch({ type: A.DROP_LETTER, payload: { column } });
     const remaining = (inFlightColumnsRef.current.get(column) ?? 1) - 1;
     if (remaining === 0) inFlightColumnsRef.current.delete(column);
     else inFlightColumnsRef.current.set(column, remaining);

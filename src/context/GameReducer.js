@@ -1,5 +1,6 @@
 import { calculateWordScore } from '../utils/scoringUtils.js';
 import { GRID_SIZE, TOTAL_LETTERS, GRID_COLS, GRID_ROWS } from '../utils/gameConstants.js';
+import { A } from '../utils/actionTypes.js';
 
 // Game state shape
 export const initialState = {
@@ -18,7 +19,7 @@ export const initialState = {
 // Game reducer
 export function gameReducer(state, action) {
   switch (action.type) {
-    case 'START_GAME': {
+    case A.START_GAME: {
       const { mode, initialQueue, initialGrid, initialBlocks } = action.payload;
 
       return {
@@ -36,7 +37,7 @@ export function gameReducer(state, action) {
       };
     }
 
-    case 'DROP_LETTER': {
+    case A.DROP_LETTER: {
       const { column } = action.payload;
       if (!state.nextQueue.length) return state;
 
@@ -76,7 +77,7 @@ export function gameReducer(state, action) {
     }
 
     // Mark specific cells as pending (grace period countdown)
-    case 'SET_PENDING': {
+    case A.SET_PENDING: {
       const { indices, direction } = action.payload;
       const newGrid = [...state.grid];
       indices.forEach(index => {
@@ -101,7 +102,7 @@ export function gameReducer(state, action) {
     }
 
     // Clear pending state from specific cells
-    case 'CLEAR_PENDING': {
+    case A.CLEAR_PENDING: {
       const { indices, direction } = action.payload;
       const newGrid = [...state.grid];
       indices.forEach(index => {
@@ -119,7 +120,7 @@ export function gameReducer(state, action) {
     }
 
     // Mark specific cells as matched (triggers shake animation), pauses word detection
-    case 'SET_MATCHED_INDICES': {
+    case A.SET_MATCHED_INDICES: {
       const { indices } = action.payload;
       const newGrid = [...state.grid];
       indices.forEach(index => {
@@ -137,7 +138,7 @@ export function gameReducer(state, action) {
     }
 
     // Remove specific words from grid and score them
-    case 'REMOVE_WORDS': {
+    case A.REMOVE_WORDS: {
       const { wordsToRemove, chainId, comboDepth } = action.payload;
       const newGrid = [...state.grid];
       let totalScore = 0;
@@ -173,10 +174,10 @@ export function gameReducer(state, action) {
       };
     }
 
-    case 'SET_WORD_STATS':
+    case A.SET_WORD_STATS:
       return { ...state, wordStats: action.payload };
 
-    case 'APPLY_GRAVITY': {
+    case A.APPLY_GRAVITY: {
       const newGrid = Array(GRID_SIZE).fill(null);
 
       // Apply gravity column by column
@@ -209,14 +210,14 @@ export function gameReducer(state, action) {
       return { ...state, grid: newGrid, status: 'PLAYING' };
     }
 
-    case 'GAME_OVER': {
+    case A.GAME_OVER: {
       return {
         ...state,
         status: 'GAME_OVER'
       };
     }
 
-    case 'LOAD_SAVED_GAME': {
+    case A.LOAD_SAVED_GAME: {
       const { grid, nextQueue, lettersRemaining, score, madeWords, gameMode, initialBlocks } = action.payload;
       return {
         ...initialState,
@@ -231,7 +232,7 @@ export function gameReducer(state, action) {
       };
     }
 
-    case 'RESET':
+    case A.RESET:
       return initialState;
 
     default:

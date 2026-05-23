@@ -1,4 +1,5 @@
 import { useGame } from '../../../context/GameContext.jsx';
+import { A } from '../../../utils/actionTypes.js';
 
 function GameOver() {
   const { state, dispatch } = useGame();
@@ -8,8 +9,8 @@ function GameOver() {
     { label: 'Words made', value: state.madeWords.length },
   ];
 
-  const onHome = () => dispatch({ type: 'RESET' });
-  const onRestart = () => dispatch({ type: 'START_GAME', payload: { mode: state.gameMode } });
+  const onHome = () => dispatch({ type: A.RESET });
+  const onRestart = () => dispatch({ type: A.START_GAME, payload: { mode: state.gameMode } });
 
   return (
     <div className="rd-screen rd-gameover">
