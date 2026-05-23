@@ -67,6 +67,7 @@ function ClassicRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
         dictionary={dictionary}
         gameStatus={state.status}
         gameMode={state.gameMode}
+        onHome={handleRestart}
         onLogin={onLogin}
         onSettings={onSettings}
         onInfo={onHowToPlay}
