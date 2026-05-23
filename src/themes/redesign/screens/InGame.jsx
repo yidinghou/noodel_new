@@ -4,7 +4,7 @@ import { GRID_COLS, GRID_ROWS } from '../../../utils/gameConstants.js';
 import { A } from '../../../utils/actionTypes.js';
 import Shell from '../components/Shell.jsx';
 import Board from '../components/Board.jsx';
-import DroppingOverlay from '../../classic/components/Grid/DroppingOverlay.jsx';
+import DroppingOverlay from '../../../shared/overlays/DroppingOverlay.jsx';
 
 function InGame({ onHowToPlay, onLogin, onSettings }) {
   const { state, dispatch } = useGame();
