@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import AnimatedDemo from './AnimatedDemo.jsx';
-import { PANELS } from './constants.js';
+import AnimatedDemo from '../../poc/AnimatedDemo.jsx';
+import { PANELS } from '../../poc/constants.js';
 
 export default function HowToPlayModal({ onClose = () => {} } = {}) {
   const [panelIdx, setPanelIdx] = useState(0);

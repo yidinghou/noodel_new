@@ -1,12 +1,12 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import Header from './Header.jsx';
 import ScoreBoard from '../Stats/ScoreBoard.jsx';
-import Actions from '../Controls/Actions.jsx';
 import NextPreview from '../Controls/NextPreview.jsx';
 import Board from '../Grid/Board.jsx';
 import MadeWords from '../Stats/MadeWords.jsx';
 import DroppingOverlay from '../Grid/DroppingOverlay.jsx';
-import { GRID_COLS, GRID_ROWS } from '../../utils/gameConstants.js';
+import { HowToPlayIcon, LoginIcon, SettingsIcon } from '../../../../shared/icons/ActionIcons.jsx';
+import { GRID_COLS, GRID_ROWS } from '../../../../utils/gameConstants.js';
 
 function GameLayout({
   gridWrapperRef = null,
@@ -18,12 +18,8 @@ function GameLayout({
   dictionary = null,
   gameStatus = 'IDLE',
   gameMode = null,
-  dropOrderMap = {},
-  statsVisible = true,
-  controlsVisible = true,
-  boardVisible = true,
-  onFastForward = null,
-  onStart,
+  animateTitle = true,
+  onLogin,
   onSettings,
   onInfo,
   onColumnClick,
@@ -128,49 +124,47 @@ function GameLayout({
     setActiveDrops(prev => prev.filter(d => d.id !== id));
   }, [onColumnClick]);
 
-  const previewClasses = 'preview-row';
-
-  // Allow fastForward only during intro sequence (before all elements are visible)
-  const isIntroActive = !statsVisible || !controlsVisible || !boardVisible;
-
-  const handleCardClick = (e) => {
-    // Only trigger fastForward during intro, and prevent event bubbling
-    if (isIntroActive && onFastForward) {
-      e.stopPropagation();
-      onFastForward();
-    }
-  };
-
   return (
     <div className="main-container">
-      {/* Card Section (Top) */}
-      <div
-        className={`card${isIntroActive ? ' intro-active' : ''}`}
-        onClick={handleCardClick}
-        style={isIntroActive ? { cursor: 'pointer' } : undefined}
-      >
-        <Header dropOrderMap={dropOrderMap} onUndo={onUndo} />
-        <div className={`stats ${statsVisible ? 'visible' : ''}`}>
-          <ScoreBoard score={score} gameStatus={gameStatus} gameMode={gameMode} />
-          <Actions onStart={onStart} onSettings={onSettings} onInfo={onInfo} visible={controlsVisible} />
+      {/* App Bar (Top) — info LEFT, login + settings RIGHT */}
+      <header className="app-bar">
+        <div className="app-bar__side app-bar__side--left">
+          <button className="action-btn info-btn" onClick={onInfo} title="How to Play" aria-label="How to Play">
+            <HowToPlayIcon />
+          </button>
         </div>
+        <div className="app-bar__center" />
+        <div className="app-bar__side app-bar__side--right">
+          <button className="action-btn login-btn" onClick={onLogin} title="Log in" aria-label="Log in">
+            <LoginIcon />
+          </button>
+          <button className="action-btn settings-btn" onClick={onSettings} title="Settings" aria-label="Settings">
+            <SettingsIcon />
+          </button>
+        </div>
+      </header>
+
+      {/* Hero (wordmark + compact score) */}
+      <div className="hero">
+        <Header onUndo={onUndo} animateIn={animateTitle} />
+        <ScoreBoard score={score} gameStatus={gameStatus} gameMode={gameMode} />
       </div>
 
       {/* Game Grid Section (Middle) */}
       <div className="game-grid-wrapper" ref={gridWrapperRef}>
-        <div className={previewClasses}>
+        <div className="preview-row">
           <NextPreview nextLetters={nextLetters.slice(activeDrops.length, activeDrops.length + 5)} visible={showPreview} nextUpRef={nextUpRef} shiftKey={shiftKey} />
           <div className={`game-grid-letters-remaining${showPreview ? ' visible' : ''}`}>
             <div className="letters-remaining-label">Letters Remaining</div>
             <div className="letters-remaining-value">{lettersRemaining}</div>
           </div>
         </div>
-        <Board grid={grid} onColumnClick={handleColumnClick} gridRef={gridRef} visible={boardVisible} />
+        <Board grid={grid} onColumnClick={handleColumnClick} gridRef={gridRef} visible={true} />
       </div>
 
       {/* Made Words Section (Bottom) */}
       <div className="made-words-section">
-        <MadeWords words={madeWords} dictionary={dictionary} visible={boardVisible} />
+        <MadeWords words={madeWords} dictionary={dictionary} visible={true} />
       </div>
 
       {/* One overlay per in-flight drop — each animates independently */}

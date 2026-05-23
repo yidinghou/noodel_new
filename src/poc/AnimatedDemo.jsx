@@ -376,8 +376,8 @@ const d = {
   orderLabelPlaceholder: { display: 'block', height: 14 },
   previewCell:  {
     width: PCELL, height: PCELL, borderRadius: 7,
-    background: '#888', border: '2px solid #333',
-    color: '#fff', fontWeight: 800, fontSize: 16,
+    background: '#fff', border: '2px solid #333',
+    color: '#000', fontWeight: 800, fontSize: 16,
     display: 'flex', alignItems: 'center', justifyContent: 'center',
     boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
     transition: 'transform 0.15s',
@@ -424,11 +424,11 @@ const d = {
     transition: 'background 0.25s, border-color 0.25s, transform 0.15s',
   },
   cellFilled: {
-    background: '#888', color: '#fff',
+    background: '#fff', color: '#000',
     border: '2px solid #333',
   },
   cellPreplaced: {
-    background: '#fff', color: '#333',
+    background: '#888', color: '#fff',
     border: '2px solid #333',
   },
   cellHighlight: {
