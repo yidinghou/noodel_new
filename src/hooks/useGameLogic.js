@@ -7,12 +7,9 @@ import {
   hasIntersection,
   classifyIncomingWord,
 } from '../utils/gracePeriodUtils.js';
-import { GRID_COLS, STATUS } from '../utils/gameConstants.js';
+import { GRID_COLS, STATUS, GRACE_PERIOD_MS, SHAKE_DURATION_MS, GRAVITY_DELAY_MS } from '../utils/gameConstants.js';
 import { A } from '../utils/actionTypes.js';
 
-const GRACE_PERIOD_MS = 1000;
-const SHAKE_DURATION_MS = 400;
-const GRAVITY_DELAY_MS = 150;
 
 export function useGameLogic() {
   const { state, dispatch } = useGame();

@@ -1,4 +1,4 @@
-import { GRID_COLS, GRID_ROWS } from './gameConstants.js';
+import { GRID_COLS, GRID_ROWS, MIN_WORD_LENGTH, DIR } from './gameConstants.js';
 
 // Extract a word from grid in specified direction
 function extractWord(grid, startRow, startCol, rowDelta, colDelta, length) {
@@ -18,10 +18,10 @@ function extractWord(grid, startRow, startCol, rowDelta, colDelta, length) {
   }
 
   let direction;
-  if (rowDelta === 0)        direction = 'horizontal';
-  else if (colDelta === 0)   direction = 'vertical';
-  else if (rowDelta === 1)   direction = 'diagonal-down-right';
-  else                       direction = 'diagonal-up-right';
+  if (rowDelta === 0)        direction = DIR.H;
+  else if (colDelta === 0)   direction = DIR.V;
+  else if (rowDelta === 1)   direction = DIR.DD;
+  else                       direction = DIR.DU;
 
   return { word: letters.join(''), indices, startRow, startCol, direction };
 }
@@ -70,7 +70,7 @@ export function findWords(grid, dictionary) {
   // Check horizontal (rows)
   for (let row = 0; row < GRID_ROWS; row++) {
     for (let col = 0; col < GRID_COLS; col++) {
-      for (let length = 3; length <= GRID_COLS - col; length++) {
+      for (let length = MIN_WORD_LENGTH; length <= GRID_COLS - col; length++) {
         const wordData = extractWord(grid, row, col, 0, 1, length);
         if (wordData && dictionary.has(wordData.word)) {
           foundWords.push(wordData);
@@ -82,7 +82,7 @@ export function findWords(grid, dictionary) {
   // Check vertical (columns)
   for (let col = 0; col < GRID_COLS; col++) {
     for (let row = 0; row < GRID_ROWS; row++) {
-      for (let length = 3; length <= GRID_ROWS - row; length++) {
+      for (let length = MIN_WORD_LENGTH; length <= GRID_ROWS - row; length++) {
         const wordData = extractWord(grid, row, col, 1, 0, length);
         if (wordData && dictionary.has(wordData.word)) {
           foundWords.push(wordData);
@@ -95,7 +95,7 @@ export function findWords(grid, dictionary) {
   for (let row = 0; row < GRID_ROWS; row++) {
     for (let col = 0; col < GRID_COLS; col++) {
       const maxLen = Math.min(GRID_ROWS - row, GRID_COLS - col);
-      for (let length = 3; length <= maxLen; length++) {
+      for (let length = MIN_WORD_LENGTH; length <= maxLen; length++) {
         const wordData = extractWord(grid, row, col, 1, 1, length);
         if (wordData && dictionary.has(wordData.word)) {
           foundWords.push(wordData);
@@ -108,7 +108,7 @@ export function findWords(grid, dictionary) {
   for (let row = 0; row < GRID_ROWS; row++) {
     for (let col = 0; col < GRID_COLS; col++) {
       const maxLen = Math.min(row + 1, GRID_COLS - col);
-      for (let length = 3; length <= maxLen; length++) {
+      for (let length = MIN_WORD_LENGTH; length <= maxLen; length++) {
         const wordData = extractWord(grid, row, col, -1, 1, length);
         if (wordData && dictionary.has(wordData.word)) {
           foundWords.push(wordData);

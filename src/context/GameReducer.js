@@ -1,5 +1,5 @@
 import { calculateWordScore } from '../utils/scoringUtils.js';
-import { GRID_SIZE, TOTAL_LETTERS, GRID_COLS, GRID_ROWS, STATUS } from '../utils/gameConstants.js';
+import { GRID_SIZE, TOTAL_LETTERS, GRID_COLS, GRID_ROWS, STATUS, MAX_MADE_WORDS } from '../utils/gameConstants.js';
 import { A } from '../utils/actionTypes.js';
 
 // Game state shape
@@ -168,7 +168,7 @@ export function gameReducer(state, action) {
         ...state,
         grid: newGrid,
         score: state.gameMode === 'clear' ? totalScore : state.score + totalScore,
-        madeWords: newMadeWords.slice(0, 20),
+        madeWords: newMadeWords.slice(0, MAX_MADE_WORDS),
         allWordsThisGame: Array.from(wordsSet),
         status: STATUS.PLAYING
       };

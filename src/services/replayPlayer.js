@@ -1,11 +1,11 @@
 import { A } from '../utils/actionTypes.js';
+import { GRACE_PERIOD_MS } from '../utils/gameConstants.js';
 
 // Drives playback of a recorded session into a reducer dispatch.
 // Pure module — no React. The caller wires it to a useReducer dispatch.
 
 // Cap any single gap between events to this many ms. Matches GRACE_PERIOD_MS
 // so a long player think-pause doesn't stall the replay.
-export const MAX_GAP_MS = 1000;
 
 export function createPlayer(
   events,
@@ -93,7 +93,7 @@ export function createPlayer(
     if (!playing) return;
     if (index >= events.length) { playing = false; emit(); return; }
     const rawGap = events[index].t - current.t;
-    const gap = Math.max(0, Math.min(rawGap, MAX_GAP_MS));
+    const gap = Math.max(0, Math.min(rawGap, GRACE_PERIOD_MS));
     timer = setTimeout(tick, gap / speed);
   }
 
