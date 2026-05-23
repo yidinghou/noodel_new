@@ -7,6 +7,7 @@ import MadeWords from '../Stats/MadeWords.jsx';
 import DroppingOverlay from '../Grid/DroppingOverlay.jsx';
 import { HowToPlayIcon, LoginIcon, SettingsIcon } from '../../../../shared/icons/ActionIcons.jsx';
 import { GRID_COLS, GRID_ROWS } from '../../../../utils/gameConstants.js';
+import { useAmbientDemo } from '../../../../hooks/useAmbientDemo.js';
 
 function GameLayout({
   gridWrapperRef = null,
@@ -29,6 +30,13 @@ function GameLayout({
 }) {
   const gridRef = useRef(null);
   const nextUpRef = useRef(null);
+
+  const { grid: ambientGrid, dropping: ambientDrop, highlight: ambientHighlight, queue: ambientQueue } = useAmbientDemo();
+
+  const isIdle = gameStatus === 'IDLE';
+  const displayGrid = isIdle
+    ? ambientGrid.map((ch, i) => ch ? { char: ch, isMatched: ambientHighlight?.has(i) || false, isPending: false, pendingDirections: [], pendingResetCount: 0, isInitial: false } : null)
+    : grid;
 
   // Parallel drop tracking
   const [activeDrops, setActiveDrops] = useState([]);
@@ -154,13 +162,40 @@ function GameLayout({
       {/* Game Grid Section (Middle) */}
       <div className="game-grid-wrapper" ref={gridWrapperRef}>
         <div className="preview-row">
-          <NextPreview nextLetters={nextLetters.slice(activeDrops.length, activeDrops.length + 5)} visible={showPreview} nextUpRef={nextUpRef} shiftKey={shiftKey} />
+          <NextPreview
+            nextLetters={isIdle ? ambientQueue : nextLetters.slice(activeDrops.length, activeDrops.length + 5)}
+            visible={isIdle || showPreview}
+            nextUpRef={isIdle ? null : nextUpRef}
+            shiftKey={shiftKey}
+          />
           <div className={`game-grid-letters-remaining${showPreview ? ' visible' : ''}`}>
             <div className="letters-remaining-label">Letters Remaining</div>
             <div className="letters-remaining-value">{lettersRemaining}</div>
           </div>
         </div>
-        <Board grid={grid} onColumnClick={handleColumnClick} gridRef={gridRef} visible={true} />
+        <Board grid={displayGrid} onColumnClick={isIdle ? null : handleColumnClick} gridRef={gridRef} visible={true}>
+          {isIdle && ambientDrop && (() => {
+            const gridEl = gridRef.current;
+            if (!gridEl) return null;
+            const { width, height } = gridEl.getBoundingClientRect();
+            const colW = width / GRID_COLS;
+            const rowH = height / GRID_ROWS;
+            const { col, destRow: dr, phase, letter } = ambientDrop;
+            const top = phase === 'top' ? -rowH : dr * rowH;
+            const transition = phase === 'falling'
+              ? `top ${Math.max(0.12, (dr + 1) / 14)}s linear`
+              : 'none';
+            return (
+              <div
+                key={`${col}-${dr}`}
+                className="classic-ambient-drop"
+                style={{ left: col * colW, top, width: colW, height: rowH, transition }}
+              >
+                {letter}
+              </div>
+            );
+          })()}
+        </Board>
         {gameStatus === 'IDLE' && (
           <div className="classic-start-overlay">
             <button type="button" className="classic-start-btn" onClick={onStartGame}>

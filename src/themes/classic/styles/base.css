@@ -387,6 +387,22 @@ body {
     box-shadow: 0 4px 10px rgba(25, 118, 210, 0.3);
 }
 
+.classic-ambient-drop {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--size-font-grid);
+    font-weight: bold;
+    background: #ffffff;
+    color: #000000;
+    border: 0.75px solid var(--color-border-light);
+    border-radius: var(--size-border-radius-small);
+    box-sizing: border-box;
+    pointer-events: none;
+    z-index: 5;
+}
+
 /* Game Over Overlay */
 .game-over-overlay {
     position: fixed;
