@@ -1,11 +1,11 @@
 import { useRef, useState, useCallback, useEffect } from 'react';
 import Header from './Header.jsx';
 import ScoreBoard from '../Stats/ScoreBoard.jsx';
-import Actions from '../Controls/Actions.jsx';
 import NextPreview from '../Controls/NextPreview.jsx';
 import Board from '../Grid/Board.jsx';
 import MadeWords from '../Stats/MadeWords.jsx';
 import DroppingOverlay from '../Grid/DroppingOverlay.jsx';
+import { HowToPlayIcon, LoginIcon, SettingsIcon } from '../../../../shared/icons/ActionIcons.jsx';
 import { GRID_COLS, GRID_ROWS } from '../../../../utils/gameConstants.js';
 
 function GameLayout({
@@ -125,13 +125,28 @@ function GameLayout({
 
   return (
     <div className="main-container">
-      {/* Card Section (Top) */}
-      <div className="card">
-        <Header onUndo={onUndo} />
-        <div className="stats visible">
-          <ScoreBoard score={score} gameStatus={gameStatus} gameMode={gameMode} />
-          <Actions onLogin={onLogin} onSettings={onSettings} onInfo={onInfo} visible={true} />
+      {/* App Bar (Top) — info LEFT, login + settings RIGHT */}
+      <header className="app-bar">
+        <div className="app-bar__side app-bar__side--left">
+          <button className="action-btn info-btn" onClick={onInfo} title="How to Play" aria-label="How to Play">
+            <HowToPlayIcon />
+          </button>
         </div>
+        <div className="app-bar__center" />
+        <div className="app-bar__side app-bar__side--right">
+          <button className="action-btn login-btn" onClick={onLogin} title="Log in" aria-label="Log in">
+            <LoginIcon />
+          </button>
+          <button className="action-btn settings-btn" onClick={onSettings} title="Settings" aria-label="Settings">
+            <SettingsIcon />
+          </button>
+        </div>
+      </header>
+
+      {/* Hero (wordmark + compact score) */}
+      <div className="hero">
+        <Header onUndo={onUndo} />
+        <ScoreBoard score={score} gameStatus={gameStatus} gameMode={gameMode} />
       </div>
 
       {/* Game Grid Section (Middle) */}
