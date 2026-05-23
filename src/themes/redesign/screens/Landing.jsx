@@ -38,7 +38,7 @@ function Landing({ onHowToPlay, onLogin, onSettings }) {
             <button
               type="button"
               className="rd-cta rd-start-cta"
-              onClick={() => dispatch({ type: A.START_GAME, payload: { mode: 'classic' } })}
+              onClick={() => dispatch({ type: A.START_GAME, payload: { mode: 'clear' } })}
             >
               Start Game
             </button>
