@@ -1,7 +1,8 @@
 import React from 'react';
+import { STATUS } from '../../../../utils/gameConstants.js';
 
-function ScoreBoard({ score = 0, gameStatus = 'IDLE', gameMode = null }) {
-  const isPlaying = gameStatus === 'PLAYING' || gameStatus === 'PROCESSING';
+function ScoreBoard({ score = 0, gameStatus = STATUS.IDLE, gameMode = null }) {
+  const isPlaying = gameStatus === STATUS.PLAYING || gameStatus === STATUS.PROCESSING;
   const isClearMode = gameMode === 'clear';
 
   return (

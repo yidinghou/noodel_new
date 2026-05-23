@@ -1,4 +1,5 @@
 import { useGame } from '../../context/GameContext.jsx';
+import { STATUS } from '../../utils/gameConstants.js';
 import Landing from './screens/Landing.jsx';
 import InGame from './screens/InGame.jsx';
 import GameOver from './screens/GameOver.jsx';
@@ -9,8 +10,8 @@ function RedesignRoot({ onHowToPlay, onLogin, onSettings }) {
   const { state } = useGame();
 
   const screen =
-    state.status === 'IDLE' ? 'landing' :
-    state.status === 'GAME_OVER' ? 'gameover' : 'ingame';
+    state.status === STATUS.IDLE ? 'landing' :
+    state.status === STATUS.GAME_OVER ? 'gameover' : 'ingame';
 
   const handlers = { onHowToPlay, onLogin, onSettings };
 

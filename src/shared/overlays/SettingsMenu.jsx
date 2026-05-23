@@ -1,6 +1,7 @@
 import { useSettingsState } from '../hooks/useSettingsState.js';
 import { useTheme } from '../../themes/ThemeContext.jsx';
 import { useGame } from '../../context/GameContext.jsx';
+import { STATUS } from '../../utils/gameConstants.js';
 import { A } from '../../utils/actionTypes.js';
 import './SettingsMenu.css';
 
@@ -8,7 +9,7 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
   const s = useSettingsState({ onPlayReplay, onClose });
   const { themeId, setThemeId, themes } = useTheme();
   const { state, dispatch } = useGame();
-  const isPlaying = state.status !== 'IDLE';
+  const isPlaying = state.status !== STATUS.IDLE;
 
   const title =
     s.panel === 'stats'       ? 'Stats'

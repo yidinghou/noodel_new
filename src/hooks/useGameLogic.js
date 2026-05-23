@@ -7,7 +7,7 @@ import {
   hasIntersection,
   classifyIncomingWord,
 } from '../utils/gracePeriodUtils.js';
-import { GRID_COLS } from '../utils/gameConstants.js';
+import { GRID_COLS, STATUS } from '../utils/gameConstants.js';
 import { A } from '../utils/actionTypes.js';
 
 const GRACE_PERIOD_MS = 1000;
@@ -140,7 +140,7 @@ export function useGameLogic() {
 
   // Clear all pending state when the game resets
   useEffect(() => {
-    if (state.status === 'IDLE') {
+    if (state.status === STATUS.IDLE) {
       const pending = pendingRef.current;
       for (const entry of pending.values()) clearTimeout(entry.timerId);
       pending.clear();
@@ -170,7 +170,7 @@ export function useGameLogic() {
 
   // Main word detection effect — runs after every grid change
   useEffect(() => {
-    if (!dictionary || state.status !== 'PLAYING' || gravityScheduledRef.current) return;
+    if (!dictionary || state.status !== STATUS.PLAYING || gravityScheduledRef.current) return;
 
     // Detect new player drop: lettersRemaining decreases on each DROP_LETTER.
     // Clear chains synchronously before scanning so words from this drop start fresh.
@@ -238,7 +238,7 @@ export function useGameLogic() {
 
   // Check for Clear mode victory condition
   useEffect(() => {
-    if (state.gameMode !== 'clear' || state.status !== 'PLAYING') return;
+    if (state.gameMode !== 'clear' || state.status !== STATUS.PLAYING) return;
 
     // Win requires the entire board to be empty (not just the initial block cells).
     // Player-placed tiles must also be cleared for victory to trigger.

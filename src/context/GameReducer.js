@@ -1,5 +1,5 @@
 import { calculateWordScore } from '../utils/scoringUtils.js';
-import { GRID_SIZE, TOTAL_LETTERS, GRID_COLS, GRID_ROWS } from '../utils/gameConstants.js';
+import { GRID_SIZE, TOTAL_LETTERS, GRID_COLS, GRID_ROWS, STATUS } from '../utils/gameConstants.js';
 import { A } from '../utils/actionTypes.js';
 
 // Game state shape
@@ -8,7 +8,7 @@ export const initialState = {
   score: 0,
   lettersRemaining: TOTAL_LETTERS,
   nextQueue: [], // Array of upcoming letter objects
-  status: 'IDLE', // IDLE, PLAYING, GAME_OVER, PROCESSING
+  status: STATUS.IDLE, // IDLE, PLAYING, GAME_OVER, PROCESSING
   madeWords: [],
   allWordsThisGame: [], // deduped list of all words cleared this game, for server submission
   wordStats: null, // populated after game-over score submission
@@ -26,7 +26,7 @@ export function gameReducer(state, action) {
         ...state,
         nextQueue: initialQueue,
         lettersRemaining: TOTAL_LETTERS,
-        status: 'PLAYING',
+        status: STATUS.PLAYING,
         grid: initialGrid || Array(GRID_SIZE).fill(null),
         score: 0,
         madeWords: [],
@@ -65,7 +65,7 @@ export function gameReducer(state, action) {
       };
 
       // Check for game over (no more letters)
-      const newStatus = remainingQueue.length === 0 ? 'GAME_OVER' : state.status;
+      const newStatus = remainingQueue.length === 0 ? STATUS.GAME_OVER : state.status;
 
       return {
         ...state,
@@ -134,7 +134,7 @@ export function gameReducer(state, action) {
           };
         }
       });
-      return { ...state, grid: newGrid, status: 'PROCESSING' };
+      return { ...state, grid: newGrid, status: STATUS.PROCESSING };
     }
 
     // Remove specific words from grid and score them
@@ -170,7 +170,7 @@ export function gameReducer(state, action) {
         score: state.gameMode === 'clear' ? totalScore : state.score + totalScore,
         madeWords: newMadeWords.slice(0, 20),
         allWordsThisGame: Array.from(wordsSet),
-        status: 'PLAYING'
+        status: STATUS.PLAYING
       };
     }
 
@@ -207,13 +207,13 @@ export function gameReducer(state, action) {
         }
       }
 
-      return { ...state, grid: newGrid, status: 'PLAYING' };
+      return { ...state, grid: newGrid, status: STATUS.PLAYING };
     }
 
     case A.GAME_OVER: {
       return {
         ...state,
-        status: 'GAME_OVER'
+        status: STATUS.GAME_OVER
       };
     }
 
@@ -228,7 +228,7 @@ export function gameReducer(state, action) {
         madeWords,
         gameMode,
         initialBlocks: initialBlocks || [],
-        status: 'PLAYING'
+        status: STATUS.PLAYING
       };
     }
 

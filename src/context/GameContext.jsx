@@ -2,7 +2,7 @@ import React, { createContext, useReducer, useContext, useCallback, useEffect, u
 import { gameReducer, initialState } from './GameReducer.js';
 import { generateLetterSequence } from '../utils/letterUtils.js';
 import { generateClearModeGrid } from '../utils/clearModeUtils.js';
-import { TOTAL_LETTERS } from '../utils/gameConstants.js';
+import { TOTAL_LETTERS, STATUS } from '../utils/gameConstants.js';
 import { A } from '../utils/actionTypes.js';
 import { createRecorder } from '../services/sessionRecorder.js';
 import * as sessionStorage from '../services/sessionStorage.js';
@@ -99,7 +99,7 @@ export function GameProvider({ children }) {
 
   // Submit score when game ends.
   useEffect(() => {
-    if (state.status === 'GAME_OVER' && !scoreSubmittedRef.current) {
+    if (state.status === STATUS.GAME_OVER && !scoreSubmittedRef.current) {
       scoreSubmittedRef.current = true;
       const username = localStorage.getItem('noodel_username') ?? 'anonymous';
       const fullSnapshot = recorderRef.current.snapshot();
