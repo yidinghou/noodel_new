@@ -63,7 +63,7 @@ function GameOverOverlay({ visible, gameMode, score, lettersRemaining = 0, board
           <GameStatsBullets wordStats={wordStats} intro={statsIntro} />
         )}
         <button className="game-over-restart-btn" onClick={onRestart}>
-          Play Again
+          Home
         </button>
       </div>
     </div>
