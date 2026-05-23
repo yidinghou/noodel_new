@@ -1,3 +1,4 @@
+import { useRef } from 'react';
 import { useGame } from '../../../context/GameContext.jsx';
 import { A } from '../../../utils/actionTypes.js';
 import ActionBar from '../components/ActionBar.jsx';
@@ -7,6 +8,7 @@ import { useAmbientDemo, AmbientBoard } from '../components/AmbientDemo.jsx';
 function Landing({ onHowToPlay, onLogin, onSettings }) {
   const { dispatch } = useGame();
   const demo = useAmbientDemo();
+  const firstTileRef = useRef(null);
 
   const leftActions = [{ id: 'howtoplay', onClick: onHowToPlay }];
   const rightActions = [
@@ -31,9 +33,9 @@ function Landing({ onHowToPlay, onLogin, onSettings }) {
       </div>
 
       <section className="rd-landing__stage">
-        <NextRow letters={demo.queue} />
+        <NextRow letters={demo.queue} firstTileRef={firstTileRef} />
         <div className="rd-board-stage">
-          <AmbientBoard {...demo} />
+          <AmbientBoard {...demo} firstTileRef={firstTileRef} />
           <div className="rd-board-overlay">
             <button
               type="button"
