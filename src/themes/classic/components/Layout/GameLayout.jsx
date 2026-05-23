@@ -5,7 +5,7 @@ import NextPreview from '../Controls/NextPreview.jsx';
 import Board from '../Grid/Board.jsx';
 import MadeWords from '../Stats/MadeWords.jsx';
 import DroppingOverlay from '../Grid/DroppingOverlay.jsx';
-import { HowToPlayIcon, HomeIcon, LoginIcon, SettingsIcon } from '../../../../shared/icons/ActionIcons.jsx';
+import { HowToPlayIcon, LoginIcon, SettingsIcon } from '../../../../shared/icons/ActionIcons.jsx';
 import { GRID_COLS, GRID_ROWS } from '../../../../utils/gameConstants.js';
 
 function GameLayout({
@@ -19,7 +19,6 @@ function GameLayout({
   gameStatus = 'IDLE',
   gameMode = null,
   animateTitle = true,
-  onHome,
   onLogin,
   onSettings,
   onInfo,
@@ -130,11 +129,6 @@ function GameLayout({
       {/* App Bar (Top) — info LEFT, login + settings RIGHT */}
       <header className="app-bar">
         <div className="app-bar__side app-bar__side--left">
-          {gameStatus !== 'IDLE' && (
-            <button className="action-btn home-btn" onClick={onHome} title="Home" aria-label="Home">
-              <HomeIcon />
-            </button>
-          )}
           <button className="action-btn info-btn" onClick={onInfo} title="How to Play" aria-label="How to Play">
             <HowToPlayIcon />
           </button>

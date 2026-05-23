@@ -1,10 +1,13 @@
 import { useSettingsState } from '../hooks/useSettingsState.js';
 import { useTheme } from '../../themes/ThemeContext.jsx';
+import { useGame } from '../../context/GameContext.jsx';
 import './SettingsMenu.css';
 
 function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
   const s = useSettingsState({ onPlayReplay, onClose });
   const { themeId, setThemeId, themes } = useTheme();
+  const { state, dispatch } = useGame();
+  const isPlaying = state.status !== 'IDLE';
 
   const title =
     s.panel === 'stats'       ? 'Stats'
@@ -40,6 +43,11 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
               <span>🎨 Theme: {themes.find(t => t.id === themeId)?.name}</span>
               <span aria-hidden="true">›</span>
             </button>
+            {isPlaying && (
+              <button className="settings-menu__btn" onClick={() => { dispatch({ type: 'RESET' }); onClose?.(); }}>
+                <span>🏠 Home</span>
+              </button>
+            )}
           </div>
         )}
 

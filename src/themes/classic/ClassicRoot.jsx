@@ -69,7 +69,6 @@ function ClassicRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
         gameStatus={state.status}
         gameMode={state.gameMode}
         animateTitle={initialStatusRef.current === 'IDLE'}
-        onHome={handleRestart}
         onLogin={onLogin}
         onSettings={onSettings}
         onInfo={onHowToPlay}
