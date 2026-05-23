@@ -7,6 +7,8 @@ import GameOverOverlay from '../components/Overlays/GameOverOverlay.jsx';
 import HowToPlayModal from './HowToPlayModal.jsx';
 import { useGame } from '../context/GameContext.jsx';
 import { useGameLogic } from '../hooks/useGameLogic.js';
+import { STATUS } from '../utils/gameConstants.js';
+import { A } from '../utils/actionTypes.js';
 
 function App() {
   const { state, dispatch } = useGame();
@@ -24,7 +26,7 @@ function App() {
 
   const startMode = (mode) => {
     setShowModeSelector(false);
-    dispatch({ type: 'START_GAME', payload: { mode } });
+    dispatch({ type: A.START_GAME, payload: { mode } });
   };
 
   const handleModeSelect = (mode) => {
@@ -36,7 +38,7 @@ function App() {
   };
 
   const handleRestart = () => {
-    dispatch({ type: 'RESET' });
+    dispatch({ type: A.RESET });
     setShowModeSelector(true);
   };
 
@@ -45,8 +47,8 @@ function App() {
   };
 
   const handleColumnClick = (column) => {
-    if (state.status === 'PLAYING' || state.status === 'PROCESSING') {
-      dispatch({ type: 'DROP_LETTER', payload: { column } });
+    if (state.status === STATUS.PLAYING || state.status === STATUS.PROCESSING) {
+      dispatch({ type: A.DROP_LETTER, payload: { column } });
     }
   };
 
@@ -73,9 +75,9 @@ function App() {
         onHowToPlay={() => setShowHTP(true)}
         onColumnClick={handleColumnClick}
         onUndo={() => {}}
-        showPreview={state.status === 'PLAYING' || state.status === 'PROCESSING'}
-        boardVisible={state.status !== 'IDLE'}
-        canDrop={state.status === 'PLAYING' || state.status === 'PROCESSING'}
+        showPreview={state.status === STATUS.PLAYING || state.status === STATUS.PROCESSING}
+        boardVisible={state.status !== STATUS.IDLE}
+        canDrop={state.status === STATUS.PLAYING || state.status === STATUS.PROCESSING}
       />
       {gridWrapperRef.current && createPortal(
         <ModeSelector
@@ -98,7 +100,7 @@ function App() {
         gridWrapperRef.current
       )}
       <GameOverOverlay
-        visible={state.status === 'GAME_OVER'}
+        visible={state.status === STATUS.GAME_OVER}
         gameMode={state.gameMode}
         score={state.score}
         lettersRemaining={state.lettersRemaining}

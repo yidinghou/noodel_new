@@ -48,6 +48,9 @@ export function getWeightedRandomLetter() {
   return 'E'; // Fallback
 }
 
+const MAX_CONSONANTS_IN_ROW = 3;     // force a vowel after this many consecutive consonants
+const MAX_GENERATION_ATTEMPTS = 100; // loop guard before falling back to a direct pick
+
 const VOWELS = new Set(['A', 'E', 'I', 'O', 'U']);
 
 function isVowel(letter) {
@@ -73,11 +76,11 @@ function getConsonantCount(letters) {
  */
 function getNextValidLetter(previousLetter, consonantCount) {
   // If we have 3 consonants, must pick a vowel
-  const mustBeVowel = consonantCount >= 3;
+  const mustBeVowel = consonantCount >= MAX_CONSONANTS_IN_ROW;
 
   let letter;
   let attempts = 0;
-  const maxAttempts = 100;
+  
 
   do {
     letter = getWeightedRandomLetter();
@@ -90,7 +93,7 @@ function getNextValidLetter(previousLetter, consonantCount) {
     if (!isRepeating && !isInvalidConsonant) {
       return letter;
     }
-  } while (attempts < maxAttempts);
+  } while (attempts < MAX_GENERATION_ATTEMPTS);
 
   // Fallback: if we exhausted attempts, pick a valid letter directly
   if (mustBeVowel) {

@@ -5,6 +5,8 @@ import { DebugOverlay } from './components/Debug/DebugOverlay.jsx';
 import ModeSelector from './components/Controls/ModeSelector.jsx';
 import GameOverOverlay from './components/Overlays/GameOverOverlay.jsx';
 import { useGame } from '../../context/GameContext.jsx';
+import { STATUS } from '../../utils/gameConstants.js';
+import { A } from '../../utils/actionTypes.js';
 import './styles/base.css';
 import './styles/card.css';
 import './styles/grid.css';
@@ -21,7 +23,7 @@ function ClassicRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
   // after the ref attaches so the auto-show-on-IDLE start menu mounts.
   useEffect(() => { forceRender(1); }, []);
 
-  const showModeSelector = state.status === 'IDLE' || pendingMode !== null;
+  const showModeSelector = state.status === STATUS.IDLE || pendingMode !== null;
 
   const handleModeSelect = (mode) => {
     if (!dictionary) {
@@ -29,12 +31,12 @@ function ClassicRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
       return;
     }
     setPendingMode(null);
-    dispatch({ type: 'START_GAME', payload: { mode } });
+    dispatch({ type: A.START_GAME, payload: { mode } });
   };
 
   const handleRestart = () => {
     setPendingMode(null);
-    dispatch({ type: 'RESET' });
+    dispatch({ type: A.RESET });
   };
 
   const handleCloseModeSelector = () => {
@@ -43,8 +45,8 @@ function ClassicRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
   };
 
   const handleColumnClick = (column) => {
-    if (state.status === 'PLAYING' || state.status === 'PROCESSING') {
-      dispatch({ type: 'DROP_LETTER', payload: { column } });
+    if (state.status === STATUS.PLAYING || state.status === STATUS.PROCESSING) {
+      dispatch({ type: A.DROP_LETTER, payload: { column } });
     }
   };
 
@@ -68,13 +70,13 @@ function ClassicRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
         dictionary={dictionary}
         gameStatus={state.status}
         gameMode={state.gameMode}
-        animateTitle={initialStatusRef.current === 'IDLE'}
+        animateTitle={initialStatusRef.current === STATUS.IDLE}
         onLogin={onLogin}
         onSettings={onSettings}
         onInfo={onHowToPlay}
         onColumnClick={handleColumnClick}
         onUndo={undo}
-        showPreview={state.status === 'PLAYING' || state.status === 'PROCESSING'}
+        showPreview={state.status === STATUS.PLAYING || state.status === STATUS.PROCESSING}
       />
       {gridWrapperRef.current && createPortal(
         <ModeSelector
@@ -87,7 +89,7 @@ function ClassicRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
         gridWrapperRef.current
       )}
       <GameOverOverlay
-        visible={state.status === 'GAME_OVER'}
+        visible={state.status === STATUS.GAME_OVER}
         gameMode={state.gameMode}
         score={state.score}
         lettersRemaining={state.lettersRemaining}

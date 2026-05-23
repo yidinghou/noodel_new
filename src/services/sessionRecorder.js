@@ -2,19 +2,21 @@
 // plus pre-drop checkpoints used for undo and mid-game resume.
 // Pure module — no React, no I/O. Caller decides when to snapshot and persist.
 
+import { A } from '../utils/actionTypes.js';
+
 export const SESSION_SCHEMA_VERSION = 2;
 
 // Actions that drive a visible state transition. Anything else (RESET, LOAD_SAVED_GAME)
 // is not part of the gameplay timeline.
 const RECORDABLE = new Set([
-  'START_GAME',
-  'DROP_LETTER',
-  'SET_PENDING',
-  'CLEAR_PENDING',
-  'SET_MATCHED_INDICES',
-  'REMOVE_WORDS',
-  'APPLY_GRAVITY',
-  'GAME_OVER',
+  A.START_GAME,
+  A.DROP_LETTER,
+  A.SET_PENDING,
+  A.CLEAR_PENDING,
+  A.SET_MATCHED_INDICES,
+  A.REMOVE_WORDS,
+  A.APPLY_GRAVITY,
+  A.GAME_OVER,
 ]);
 
 // State fields needed to fully restore the reducer via LOAD_SAVED_GAME.
@@ -43,7 +45,7 @@ export function createRecorder({ now = () => performance.now() } = {}) {
   return {
     record(action) {
       if (!isRecordable(action)) return;
-      if (action.type === 'START_GAME') {
+      if (action.type === A.START_GAME) {
         startedAt = now();
         events = [];
         checkpoints = [];

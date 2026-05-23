@@ -1,9 +1,11 @@
+import { A } from '../utils/actionTypes.js';
+import { GRACE_PERIOD_MS } from '../utils/gameConstants.js';
+
 // Drives playback of a recorded session into a reducer dispatch.
 // Pure module — no React. The caller wires it to a useReducer dispatch.
 
 // Cap any single gap between events to this many ms. Matches GRACE_PERIOD_MS
 // so a long player think-pause doesn't stall the replay.
-export const MAX_GAP_MS = 1000;
 
 export function createPlayer(
   events,
@@ -19,8 +21,8 @@ export function createPlayer(
   // APPLY_GRAVITY (post-cascade frame), plus events.length as the terminal.
   const raw = [];
   for (let i = 0; i < events.length; i++) {
-    if (events[i].type === 'DROP_LETTER') raw.push(i);
-    if (events[i].type === 'APPLY_GRAVITY') raw.push(i + 1);
+    if (events[i].type === A.DROP_LETTER) raw.push(i);
+    if (events[i].type === A.APPLY_GRAVITY) raw.push(i + 1);
   }
   raw.push(events.length);
   raw.sort((a, b) => a - b);
@@ -91,7 +93,7 @@ export function createPlayer(
     if (!playing) return;
     if (index >= events.length) { playing = false; emit(); return; }
     const rawGap = events[index].t - current.t;
-    const gap = Math.max(0, Math.min(rawGap, MAX_GAP_MS));
+    const gap = Math.max(0, Math.min(rawGap, GRACE_PERIOD_MS));
     timer = setTimeout(tick, gap / speed);
   }
 

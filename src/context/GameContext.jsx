@@ -2,7 +2,8 @@ import React, { createContext, useReducer, useContext, useCallback, useEffect, u
 import { gameReducer, initialState } from './GameReducer.js';
 import { generateLetterSequence } from '../utils/letterUtils.js';
 import { generateClearModeGrid } from '../utils/clearModeUtils.js';
-import { TOTAL_LETTERS } from '../utils/gameConstants.js';
+import { TOTAL_LETTERS, STATUS } from '../utils/gameConstants.js';
+import { A } from '../utils/actionTypes.js';
 import { createRecorder } from '../services/sessionRecorder.js';
 import * as sessionStorage from '../services/sessionStorage.js';
 
@@ -55,30 +56,30 @@ export function GameProvider({ children }) {
     resumedRef.current = true;
     const snap = sessionStorage.load();
     if (!snap || !Array.isArray(snap.checkpoints) || snap.checkpoints.length === 0) return;
-    const hasGameOver = Array.isArray(snap.events) && snap.events.some(e => e.type === 'GAME_OVER');
+    const hasGameOver = Array.isArray(snap.events) && snap.events.some(e => e.type === A.GAME_OVER);
     if (hasGameOver) { sessionStorage.clear(); return; }
     if (!recorderRef.current.loadSnapshot(snap)) { sessionStorage.clear(); return; }
     const latest = snap.checkpoints[snap.checkpoints.length - 1];
-    dispatch({ type: 'LOAD_SAVED_GAME', payload: latest.state });
+    dispatch({ type: A.LOAD_SAVED_GAME, payload: latest.state });
   }, []);
 
   const wrappedDispatch = useCallback((action) => {
-    if (action.type === 'START_GAME') {
+    if (action.type === A.START_GAME) {
       scoreSubmittedRef.current = false;
       const { mode } = action.payload;
       const initialQueue = buildInitialQueue(mode);
       const { grid: initialGrid, initialBlocks } = buildInitialGrid(mode);
-      const fullAction = { type: 'START_GAME', payload: { mode, initialQueue, initialGrid, initialBlocks } };
+      const fullAction = { type: A.START_GAME, payload: { mode, initialQueue, initialGrid, initialBlocks } };
       recorderRef.current.record(fullAction);
       dispatch(fullAction);
       return;
     }
 
-    if (action.type === 'DROP_LETTER') {
+    if (action.type === A.DROP_LETTER) {
       recorderRef.current.recordCheckpoint(stateRef.current);
     }
 
-    if (action.type === 'RESET') {
+    if (action.type === A.RESET) {
       recorderRef.current.reset();
       sessionStorage.clear();
       dispatch(action);
@@ -92,13 +93,13 @@ export function GameProvider({ children }) {
   const undo = useCallback(() => {
     const cp = recorderRef.current.popLastCheckpoint();
     if (!cp) return false;
-    dispatch({ type: 'LOAD_SAVED_GAME', payload: cp.state });
+    dispatch({ type: A.LOAD_SAVED_GAME, payload: cp.state });
     return true;
   }, [dispatch]);
 
   // Submit score when game ends.
   useEffect(() => {
-    if (state.status === 'GAME_OVER' && !scoreSubmittedRef.current) {
+    if (state.status === STATUS.GAME_OVER && !scoreSubmittedRef.current) {
       scoreSubmittedRef.current = true;
       const username = localStorage.getItem('noodel_username') ?? 'anonymous';
       const fullSnapshot = recorderRef.current.snapshot();
@@ -113,7 +114,7 @@ export function GameProvider({ children }) {
       })
         .then(r => r.json())
         .then(data => {
-          if (data.wordStats) dispatch({ type: 'SET_WORD_STATS', payload: data.wordStats });
+          if (data.wordStats) dispatch({ type: A.SET_WORD_STATS, payload: data.wordStats });
         })
         .catch(() => {}); // don't break the game on DB errors
       sessionStorage.clear(); // game complete — nothing left to resume

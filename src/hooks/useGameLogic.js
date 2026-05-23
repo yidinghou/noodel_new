@@ -7,11 +7,9 @@ import {
   hasIntersection,
   classifyIncomingWord,
 } from '../utils/gracePeriodUtils.js';
-import { GRID_COLS } from '../utils/gameConstants.js';
+import { GRID_COLS, STATUS, GRACE_PERIOD_MS, SHAKE_DURATION_MS, GRAVITY_DELAY_MS } from '../utils/gameConstants.js';
+import { A } from '../utils/actionTypes.js';
 
-const GRACE_PERIOD_MS = 1000;
-const SHAKE_DURATION_MS = 400;
-const GRAVITY_DELAY_MS = 150;
 
 export function useGameLogic() {
   const { state, dispatch } = useGame();
@@ -105,13 +103,13 @@ export function useGameLogic() {
       }
 
       // Shake phase: mark as matched (pauses word detection)
-      dispatch({ type: 'SET_MATCHED_INDICES', payload: { indices: allIndices } });
+      dispatch({ type: A.SET_MATCHED_INDICES, payload: { indices: allIndices } });
 
       pendingRemovesRef.current++;
       setTimeout(() => {
         // Remove expired words and score them
         dispatch({
-          type: 'REMOVE_WORDS',
+          type: A.REMOVE_WORDS,
           payload: {
             wordsToRemove: wordsToExpire.map(e => e.wordData),
             chainId,
@@ -129,7 +127,7 @@ export function useGameLogic() {
           gravityScheduledRef.current = true;
           setTimeout(() => {
             gravityScheduledRef.current = false;
-            dispatch({ type: 'APPLY_GRAVITY' });
+            dispatch({ type: A.APPLY_GRAVITY });
           }, GRAVITY_DELAY_MS);
         }
       }, SHAKE_DURATION_MS);
@@ -139,7 +137,7 @@ export function useGameLogic() {
 
   // Clear all pending state when the game resets
   useEffect(() => {
-    if (state.status === 'IDLE') {
+    if (state.status === STATUS.IDLE) {
       const pending = pendingRef.current;
       for (const entry of pending.values()) clearTimeout(entry.timerId);
       pending.clear();
@@ -169,7 +167,7 @@ export function useGameLogic() {
 
   // Main word detection effect — runs after every grid change
   useEffect(() => {
-    if (!dictionary || state.status !== 'PLAYING' || gravityScheduledRef.current) return;
+    if (!dictionary || state.status !== STATUS.PLAYING || gravityScheduledRef.current) return;
 
     // Detect new player drop: lettersRemaining decreases on each DROP_LETTER.
     // Clear chains synchronously before scanning so words from this drop start fresh.
@@ -209,7 +207,7 @@ export function useGameLogic() {
         const old = pending.get(result.replaceKey);
         clearTimeout(old.timerId);
         dispatch({
-          type: 'CLEAR_PENDING',
+          type: A.CLEAR_PENDING,
           payload: { indices: old.wordData.indices, direction: old.wordData.direction }
         });
         pending.delete(result.replaceKey);
@@ -227,7 +225,7 @@ export function useGameLogic() {
 
       // Start grace period for this word
       dispatch({
-        type: 'SET_PENDING',
+        type: A.SET_PENDING,
         payload: { indices: wordData.indices, direction: wordData.direction }
       });
       const timerId = setTimeout(() => expireWord(wordKey), GRACE_PERIOD_MS);
@@ -237,14 +235,14 @@ export function useGameLogic() {
 
   // Check for Clear mode victory condition
   useEffect(() => {
-    if (state.gameMode !== 'clear' || state.status !== 'PLAYING') return;
+    if (state.gameMode !== 'clear' || state.status !== STATUS.PLAYING) return;
 
     // Win requires the entire board to be empty (not just the initial block cells).
     // Player-placed tiles must also be cleared for victory to trigger.
     const gridEmpty = state.grid.every(cell => !cell);
 
     if (gridEmpty && state.initialBlocks.length > 0) {
-      dispatch({ type: 'GAME_OVER' });
+      dispatch({ type: A.GAME_OVER });
     }
   }, [state.grid, state.gameMode, state.status, state.initialBlocks, dispatch]);
 

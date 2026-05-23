@@ -1,4 +1,5 @@
 import { useGame } from '../../../context/GameContext.jsx';
+import { A } from '../../../utils/actionTypes.js';
 import ActionBar from '../components/ActionBar.jsx';
 import NextRow from '../components/NextRow.jsx';
 import { useAmbientDemo, AmbientBoard } from '../components/AmbientDemo.jsx';
@@ -37,7 +38,7 @@ function Landing({ onHowToPlay, onLogin, onSettings }) {
             <button
               type="button"
               className="rd-cta rd-start-cta"
-              onClick={() => dispatch({ type: 'START_GAME', payload: { mode: 'classic' } })}
+              onClick={() => dispatch({ type: A.START_GAME, payload: { mode: 'clear' } })}
             >
               Start Game
             </button>
