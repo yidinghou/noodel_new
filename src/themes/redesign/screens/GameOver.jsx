@@ -8,7 +8,8 @@ function GameOver() {
     { label: 'Words made', value: state.madeWords.length },
   ];
 
-  const onRestart = () => dispatch({ type: 'RESET' });
+  const onHome = () => dispatch({ type: 'RESET' });
+  const onRestart = () => dispatch({ type: 'START_GAME', payload: { mode: state.gameMode } });
 
   return (
     <div className="rd-screen rd-gameover">
@@ -29,8 +30,8 @@ function GameOver() {
           <button type="button" className="rd-cta" onClick={onRestart}>
             Play Again
           </button>
-          <button type="button" className="rd-link-btn" onClick={onRestart}>
-            Back to menu
+          <button type="button" className="rd-link-btn" onClick={onHome}>
+            Home
           </button>
         </div>
       </div>
