@@ -69,6 +69,7 @@
     --size-gap-large: 20px;
     --size-padding-card: 15px;
     --size-padding-made-words: 30px;
+    --size-grid-max-height: 45dvh;
 
     /* Shadows */
     --shadow-card: 0 20px 40px rgba(0, 0, 0, 0.1);

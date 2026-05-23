@@ -128,7 +128,8 @@
     border-radius: var(--size-border-radius-grid);
     position: relative;
     aspect-ratio: 7 / 6;
-    width: min(100%, calc(45dvh * 7 / 6));
+    /* Width cap derived from height token; aspect-ratio drives height from here */
+    width: min(100%, calc(var(--size-grid-max-height) * 7 / 6));
     margin: 0 auto;
     opacity: 0;
     transform: scale(0.95);
