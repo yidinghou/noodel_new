@@ -444,11 +444,9 @@ button {
   height: clamp(14px, 3.5vw, 18px);
 }
 
-.rd-action-btn--loggedin {
-  min-width: 100px;
-}
 .rd-action-btn--loggedin .rd-action-btn__label {
-  max-width: 68px;
+  display: inline-block;
+  width: 56px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
