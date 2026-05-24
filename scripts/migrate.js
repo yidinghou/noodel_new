@@ -18,6 +18,12 @@ try {
   await pool.query(`
     ALTER TABLE leaderboard ADD COLUMN IF NOT EXISTS session_data JSONB;
   `);
+  await pool.query(`
+    ALTER TABLE leaderboard ADD COLUMN IF NOT EXISTS game_date DATE NOT NULL DEFAULT CURRENT_DATE;
+  `);
+  await pool.query(`
+    CREATE INDEX IF NOT EXISTS leaderboard_game_date_idx ON leaderboard (game_date);
+  `);
   console.log('✅ leaderboard table ready');
   await pool.query(`
     CREATE TABLE IF NOT EXISTS word_history (
