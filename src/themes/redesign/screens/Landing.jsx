@@ -4,6 +4,7 @@ import { A } from '../../../utils/actionTypes.js';
 import ActionBar from '../components/ActionBar.jsx';
 import NextRow from '../components/NextRow.jsx';
 import { useAmbientDemo, AmbientBoard } from '../components/AmbientDemo.jsx';
+import StartGameOverlay from '../../../shared/components/StartGameOverlay.jsx';
 
 function Landing({ onHowToPlay, onLogin, onSettings }) {
   const { dispatch } = useGame();
@@ -36,15 +37,10 @@ function Landing({ onHowToPlay, onLogin, onSettings }) {
         <NextRow letters={demo.queue} firstTileRef={firstTileRef} />
         <div className="rd-board-stage">
           <AmbientBoard {...demo} firstTileRef={firstTileRef} />
-          <div className="rd-board-overlay">
-            <button
-              type="button"
-              className="rd-cta rd-start-cta"
-              onClick={() => dispatch({ type: A.START_GAME, payload: { mode: 'clear' } })}
-            >
-              Start Game
-            </button>
-          </div>
+          <StartGameOverlay
+            className="start-game-overlay--redesign"
+            onClick={() => dispatch({ type: A.START_GAME, payload: { mode: 'clear' } })}
+          />
         </div>
       </section>
     </div>

@@ -8,6 +8,7 @@ import DroppingOverlay from '../../../../shared/overlays/DroppingOverlay.jsx';
 import { HowToPlayIcon, LoginIcon, SettingsIcon } from '../../../../shared/icons/ActionIcons.jsx';
 import { GRID_COLS, GRID_ROWS } from '../../../../utils/gameConstants.js';
 import { useAmbientDemo } from '../../../../hooks/useAmbientDemo.js';
+import StartGameOverlay from '../../../../shared/components/StartGameOverlay.jsx';
 
 function GameLayout({
   gridWrapperRef = null,
@@ -188,7 +189,7 @@ function GameLayout({
       </div>
 
       {/* Game Grid Section (Middle) */}
-      <div className="game-grid-wrapper" ref={gridWrapperRef}>
+      <div className={`game-grid-wrapper${isIdle ? ' game-grid-wrapper--idle' : ''}`} ref={gridWrapperRef}>
         <div className="preview-row">
           <NextPreview
             nextLetters={isIdle ? ambientQueue : nextLetters.slice(activeDrops.length, activeDrops.length + 5)}
@@ -203,11 +204,7 @@ function GameLayout({
         </div>
         <Board grid={displayGrid} onColumnClick={isIdle ? null : handleColumnClick} gridRef={gridRef} visible={true} />
         {gameStatus === 'IDLE' && (
-          <div className="classic-start-overlay">
-            <button type="button" className="classic-start-btn" onClick={onStartGame}>
-              Start Game
-            </button>
-          </div>
+          <StartGameOverlay className="start-game-overlay--classic" onClick={onStartGame} />
         )}
       </div>
 
@@ -234,6 +231,8 @@ function GameLayout({
         <DroppingOverlay
           key={ambientDropState.id}
           {...ambientDropState}
+          className="classic-ambient-dropping"
+          opacity={0.4}
           onComplete={() => {}}
         />
       )}

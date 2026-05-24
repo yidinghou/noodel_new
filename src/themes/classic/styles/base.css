@@ -348,7 +348,7 @@ body {
 }
 
 /* Start Game Overlay */
-.classic-start-overlay {
+.start-game-overlay--classic {
     position: absolute;
     inset: 0;
     display: flex;
@@ -358,11 +358,8 @@ body {
     pointer-events: none;
 }
 
-.classic-start-overlay .classic-start-btn {
+.start-game-overlay--classic .start-game-btn {
     pointer-events: auto;
-}
-
-.classic-start-btn {
     padding: clamp(14px, 2.5vw, 18px) clamp(28px, 5vw, 40px);
     font-size: clamp(14px, 2.2vw, 18px);
     font-weight: 700;
@@ -376,15 +373,26 @@ body {
     letter-spacing: 0.5px;
 }
 
-.classic-start-btn:hover {
+.start-game-overlay--classic .start-game-btn:hover {
     background: #1565C0;
     transform: translateY(-2px);
     box-shadow: 0 8px 20px rgba(25, 118, 210, 0.3);
 }
 
-.classic-start-btn:active {
+.start-game-overlay--classic .start-game-btn:active {
     transform: translateY(0);
     box-shadow: 0 4px 10px rgba(25, 118, 210, 0.3);
+}
+
+.game-grid-wrapper--idle .preview-row {
+    opacity: 0.4;
+}
+.game-grid-wrapper--idle .game-grid {
+    filter: opacity(0.4);
+}
+
+.dropping-letter-overlay.classic-ambient-dropping {
+    /* opacity controlled via prop on DroppingOverlay */
 }
 
 .classic-ambient-drop {
