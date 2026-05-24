@@ -44,7 +44,8 @@ export function useSettingsState({ onPlayReplay, onClose } = {}) {
     setPanel('leaderboard');
     setLoadingScores(true);
     try {
-      const res = await fetch('/api/scores');
+      const username = localStorage.getItem('noodel_username') ?? '';
+      const res = await fetch(`/api/scores?username=${encodeURIComponent(username)}`);
       setScores(await res.json());
     } catch {
       setScores([]);
