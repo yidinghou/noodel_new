@@ -131,6 +131,13 @@ Local PostgreSQL (Homebrew): `brew services start postgresql@16`, connect at `po
 
 Branch naming: `feat/`, `fix/`, `chore/` prefixes. PRs target `main`. After merge, pull main and delete the branch.
 
+### GitHub Issues
+
+When a task is associated with a GH issue:
+1. Read the issue before planning: `mcp__github__get_issue` (owner: yidinghou, repo: noodel_new, issue_number: N)
+2. Follow the implementation plan in the issue comments
+3. Include `Closes #N` in the PR body so GitHub auto-closes the issue on merge
+
 ### Commit convention
 - One logical change per commit — keep commits atomic
 - Prefix: `feat:` (new behaviour), `fix:` (bug/polish), `chore:` (tooling/docs)
@@ -139,6 +146,6 @@ Branch naming: `feat/`, `fix/`, `chore/` prefixes. PRs target `main`. After merg
 ### Commit → PR → Merge flow
 1. Stage files by logical group and commit each atomically (`git add <specific files>`)
 2. `git push -u origin <branch>`
-3. Create PR via GitHub MCP: `mcp__github__create_pull_request` (owner: yidinghou, repo: noodel_new, base: main)
+3. Create PR via GitHub MCP: `mcp__github__create_pull_request` (owner: yidinghou, repo: noodel_new, base: main) — include `Closes #N` in the body when working from an issue
 4. Merge via GitHub MCP: `mcp__github__merge_pull_request` (merge_method: merge)
 5. `git checkout main && git pull && git branch -d <branch>`
