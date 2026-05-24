@@ -37,7 +37,8 @@ function GameOverOverlay({ visible, gameMode, score, lettersRemaining = 0, board
     if (isClearMode && wordStats !== undefined) {
       setLoadingLeaderboard(true);
       const username = localStorage.getItem('noodel_username') ?? '';
-      fetch(`/api/scores?username=${encodeURIComponent(username)}&gameMode=clear`)
+      const today = new Date().toISOString().split('T')[0];
+      fetch(`/api/scores?username=${encodeURIComponent(username)}&gameMode=clear&date=${today}`)
         .then(r => r.json())
         .then(data => setLeaderboard(data))
         .catch(() => setLeaderboard([]))

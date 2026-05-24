@@ -98,12 +98,16 @@ app.get('/api/scores', async (req, res) => {
     }
 
     const result = await pool.query(
-      `WITH ranked AS (
-        SELECT id, username, score, game_mode, created_at, game_date,
-               RANK() OVER (ORDER BY score DESC)::int AS rank
+      `WITH best_per_user AS (
+        SELECT DISTINCT ON (username) id, username, score, game_mode, created_at, game_date
         FROM leaderboard
         WHERE game_date = COALESCE($3::date, CURRENT_DATE)
           AND ($2 = '' OR game_mode = $2)
+        ORDER BY username, score DESC
+      ),
+      ranked AS (
+        SELECT *, RANK() OVER (ORDER BY score DESC)::int AS rank
+        FROM best_per_user
       )
       SELECT * FROM ranked
       WHERE rank <= 5 OR username = $1
