@@ -3,6 +3,7 @@ import { useTheme } from '../../themes/ThemeContext.jsx';
 import { useGame } from '../../context/GameContext.jsx';
 import { STATUS } from '../../utils/gameConstants.js';
 import { A } from '../../utils/actionTypes.js';
+import WordListModal from './WordListModal.jsx';
 import './SettingsMenu.css';
 
 function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
@@ -16,6 +17,16 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
     : s.panel === 'leaderboard' ? 'Leaderboard'
     : s.panel === 'theme'     ? 'Theme'
     : 'Settings';
+
+  if (s.showVocab) {
+    return (
+      <WordListModal
+        words={s.vocabWords}
+        onClose={() => s.setShowVocab(false)}
+        title="My Vocabulary"
+      />
+    );
+  }
 
   return (
     <div className="settings-menu" onClick={onClose}>
@@ -36,6 +47,10 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
             </button>
             <button className="settings-menu__btn" onClick={s.openLeaderboard}>
               <span>🏆 Leaderboard</span>
+              <span aria-hidden="true">›</span>
+            </button>
+            <button className="settings-menu__btn" onClick={s.openVocabulary}>
+              <span>📖 Vocabulary</span>
               <span aria-hidden="true">›</span>
             </button>
             <button className="settings-menu__btn" onClick={onToggleMute}>

@@ -64,6 +64,7 @@ function ClassicRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
         boardCleared={boardCleared}
         tilesOnBoard={tilesOnBoard}
         wordStats={state.wordStats}
+        allWordsThisGame={state.allWordsThisGame}
         onRestart={handleRestart}
       />
       <DebugOverlay />

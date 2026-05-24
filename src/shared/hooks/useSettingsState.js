@@ -11,6 +11,9 @@ export function useSettingsState({ onPlayReplay, onClose } = {}) {
   const [loadingScores, setLoadingScores] = useState(false);
   const [stats, setStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(false);
+  const [vocabWords, setVocabWords] = useState([]);
+  const [loadingVocab, setLoadingVocab] = useState(false);
+  const [showVocab, setShowVocab] = useState(false);
 
   function selectUser(name) {
     localStorage.setItem('noodel_username', name);
@@ -45,6 +48,21 @@ export function useSettingsState({ onPlayReplay, onClose } = {}) {
     }
   }
 
+  async function openVocabulary() {
+    setShowVocab(true);
+    setLoadingVocab(true);
+    try {
+      const username = localStorage.getItem('noodel_username') ?? 'anonymous';
+      const res = await fetch(`/api/vocabulary?username=${encodeURIComponent(username)}`);
+      const data = await res.json();
+      setVocabWords(data.words?.map(w => w.word) ?? []);
+    } catch {
+      setVocabWords([]);
+    } finally {
+      setLoadingVocab(false);
+    }
+  }
+
   async function handleReplay(scoreId) {
     try {
       const res = await fetch(`/api/scores/${scoreId}/session`);
@@ -68,5 +86,6 @@ export function useSettingsState({ onPlayReplay, onClose } = {}) {
     stats, loadingStats, openStats,
     scores, loadingScores, openLeaderboard,
     handleReplay,
+    vocabWords, loadingVocab, showVocab, setShowVocab, openVocabulary,
   };
 }

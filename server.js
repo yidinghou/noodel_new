@@ -115,6 +115,20 @@ app.get('/api/scores/:id/session', async (req, res) => {
   }
 });
 
+app.get('/api/vocabulary', async (req, res) => {
+  try {
+    const username = req.query.username || 'anonymous';
+    const result = await pool.query(
+      'SELECT word, times_made FROM word_history WHERE username = $1 ORDER BY word ASC',
+      [username]
+    );
+    res.json({ words: result.rows.map(r => ({ word: r.word, timesMade: r.times_made })) });
+  } catch (err) {
+    console.error('GET /api/vocabulary error:', err);
+    res.status(500).json({ error: 'internal server error' });
+  }
+});
+
 app.get('/api/user-stats', async (req, res) => {
   try {
     const username = req.query.username || 'anonymous';
