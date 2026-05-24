@@ -23,7 +23,7 @@ function ActionBar({ items, className = '' }) {
           <button
             key={id}
             type="button"
-            className={`rd-action-btn${isLogin && currentUser ? ' rd-action-btn--loggedin' : ''}`}
+            className={`rd-action-btn${isLogin ? ' rd-action-btn--login' : ''}${isLogin && currentUser ? ' rd-action-btn--loggedin' : ''}`}
             onClick={onClick || defaultHandler}
             aria-label={isLogin && currentUser ? `Logged in as ${currentUser}` : label}
           >

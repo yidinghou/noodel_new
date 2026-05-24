@@ -444,7 +444,7 @@ button {
   height: clamp(14px, 3.5vw, 18px);
 }
 
-.rd-action-btn--loggedin .rd-action-btn__label {
+.rd-action-btn--login .rd-action-btn__label {
   display: inline-block;
   width: 56px;
   overflow: hidden;
