@@ -160,6 +160,25 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.login-btn--loggedin {
+    aspect-ratio: unset;
+    height: auto;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px 6px;
+}
+
+.login-btn__username {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    max-width: 48px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1;
+}
+
 /* Compact inline score / objective pill */
 .stat-group {
     display: inline-flex;

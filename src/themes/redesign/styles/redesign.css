@@ -444,6 +444,13 @@ button {
   height: clamp(14px, 3.5vw, 18px);
 }
 
+.rd-action-btn--loggedin .rd-action-btn__label {
+  max-width: 72px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .rd-wordmark {
   display: inline-flex;
   flex-direction: column;

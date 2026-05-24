@@ -1,4 +1,5 @@
 import { useSettingsState, USERS } from '../hooks/useSettingsState.js';
+import { NOODEL_LOGIN_EVENT } from '../hooks/useCurrentUser.js';
 import './SettingsMenu.css';
 
 function LoginMenu({ onClose }) {
@@ -6,6 +7,7 @@ function LoginMenu({ onClose }) {
 
   const handleSelect = (name) => {
     s.selectUser(name);
+    window.dispatchEvent(new CustomEvent(NOODEL_LOGIN_EVENT));
     onClose?.();
   };
 
