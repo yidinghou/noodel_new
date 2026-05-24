@@ -175,15 +175,23 @@ function GameLayout({
         </div>
         <div className="app-bar__center" />
         <div className="app-bar__side app-bar__side--right">
-          <button
-            className={`action-btn login-btn${currentUser ? ' login-btn--loggedin' : ''}`}
-            onClick={onLogin}
-            title={currentUser ?? 'Log in'}
-            aria-label={currentUser ? `Logged in as ${currentUser}` : 'Log in'}
-          >
-            {currentUser ? <LoggedInIcon /> : <LoginIcon />}
-            {currentUser && <span className="login-btn__username">{currentUser}</span>}
-          </button>
+          {currentUser ? (
+            <div className="login-wrapper">
+              <button
+                className="action-btn login-btn login-btn--loggedin"
+                onClick={onLogin}
+                title={currentUser}
+                aria-label={`Logged in as ${currentUser}`}
+              >
+                <LoggedInIcon />
+              </button>
+              <span className="login-wrapper__username">{currentUser}</span>
+            </div>
+          ) : (
+            <button className="action-btn login-btn" onClick={onLogin} title="Log in" aria-label="Log in">
+              <LoginIcon />
+            </button>
+          )}
           <button className="action-btn settings-btn" onClick={onSettings} title="Settings" aria-label="Settings">
             <SettingsIcon />
           </button>
