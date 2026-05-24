@@ -88,8 +88,18 @@ app.post('/api/scores', async (req, res) => {
 
 app.get('/api/scores', async (req, res) => {
   try {
+    const username = req.query.username || '';
     const result = await pool.query(
-      'SELECT id, username, score, game_mode, created_at FROM leaderboard ORDER BY score DESC LIMIT 10'
+      `WITH ranked AS (
+        SELECT id, username, score, game_mode, created_at,
+               RANK() OVER (ORDER BY score DESC)::int AS rank
+        FROM leaderboard
+        WHERE game_date = CURRENT_DATE
+      )
+      SELECT * FROM ranked
+      WHERE rank <= 5 OR username = $1
+      ORDER BY rank`,
+      [username]
     );
     res.json(result.rows);
   } catch (err) {

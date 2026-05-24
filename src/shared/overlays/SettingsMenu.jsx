@@ -1,6 +1,7 @@
 import { useSettingsState } from '../hooks/useSettingsState.js';
 import { useTheme } from '../../themes/ThemeContext.jsx';
 import { useGame } from '../../context/GameContext.jsx';
+import { formatDailyDate } from '../../utils/seededRandom.js';
 import { STATUS } from '../../utils/gameConstants.js';
 import { A } from '../../utils/actionTypes.js';
 import WordListModal from './WordListModal.jsx';
@@ -127,25 +128,32 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
 
         {s.panel === 'leaderboard' && (
           <div>
+            <div className="settings-menu__date">{formatDailyDate()}</div>
             {s.loadingScores ? (
               <p className="settings-menu__empty">Loading…</p>
             ) : s.scores.length === 0 ? (
               <p className="settings-menu__empty">No scores yet.</p>
             ) : (
               <div className="settings-menu__leaderboard">
-                {s.scores.slice(0, 25).map((row, i) => (
-                  <div key={row.id} className="settings-menu__row">
-                    <span className="settings-menu__rank">#{i + 1}</span>
-                    <span className="settings-menu__name">{row.username || 'anonymous'}</span>
-                    <span className="settings-menu__score">{row.score}</span>
-                    <button
-                      type="button"
-                      className="settings-menu__replay"
-                      onClick={() => s.handleReplay(row.id)}
-                      aria-label="Play replay"
-                    >▶</button>
-                  </div>
-                ))}
+                {s.scores.map((row, i, arr) => {
+                  const isUser = row.username === s.currentUser;
+                  const prevRank = arr[i - 1]?.rank ?? 0;
+                  const showSeparator = row.rank > 5 && prevRank <= 5;
+                  return [
+                    showSeparator && <div key={`sep-${row.id}`} className="settings-menu__separator">···</div>,
+                    <div key={row.id} className={`settings-menu__row${isUser ? ' is-user' : ''}`}>
+                      <span className="settings-menu__rank">#{row.rank}</span>
+                      <span className="settings-menu__name">{row.username || 'anonymous'}</span>
+                      <span className="settings-menu__score">{row.score}</span>
+                      <button
+                        type="button"
+                        className="settings-menu__replay"
+                        onClick={() => s.handleReplay(row.id)}
+                        aria-label="Play replay"
+                      >▶</button>
+                    </div>
+                  ];
+                }).flat()}
               </div>
             )}
             <button className="settings-menu__btn" onClick={() => s.setPanel(null)} style={{ marginTop: 12 }}>← Back</button>

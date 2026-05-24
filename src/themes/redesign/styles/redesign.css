@@ -563,6 +563,16 @@ button {
   box-shadow: 0 2px 8px rgba(56, 142, 60, 0.30);
 }
 
+.start-game-btn__date {
+  display: block;
+  font-size: 0.7em;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+  text-transform: none;
+  margin-top: 2px;
+}
+
 /* ---------- CTA button (game screens) ---------- */
 
 .rd-cta {

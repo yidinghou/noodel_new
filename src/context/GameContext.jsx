@@ -2,6 +2,7 @@ import React, { createContext, useReducer, useContext, useCallback, useEffect, u
 import { gameReducer, initialState } from './GameReducer.js';
 import { generateLetterSequence } from '../utils/letterUtils.js';
 import { generateClearModeGrid } from '../utils/clearModeUtils.js';
+import { createSeededRng, getDailyDateSeed } from '../utils/seededRandom.js';
 import { TOTAL_LETTERS, STATUS } from '../utils/gameConstants.js';
 import { A } from '../utils/actionTypes.js';
 import { createRecorder } from '../services/sessionRecorder.js';
@@ -9,8 +10,8 @@ import * as sessionStorage from '../services/sessionStorage.js';
 
 const GameContext = createContext(null);
 
-function buildInitialQueue(mode) {
-  let seq = generateLetterSequence(TOTAL_LETTERS);
+function buildInitialQueue(mode, rng) {
+  let seq = generateLetterSequence(TOTAL_LETTERS, rng);
   if (mode === 'tutorial') {
     seq = [
       { char: 'W', id: 'tutorial-W-1' },
@@ -29,8 +30,8 @@ function buildInitialQueue(mode) {
   return seq;
 }
 
-function buildInitialGrid(mode) {
-  if (mode === 'clear') return generateClearModeGrid();
+function buildInitialGrid(mode, rng) {
+  if (mode === 'clear') return generateClearModeGrid(rng);
   return { grid: null, initialBlocks: [] };
 }
 
@@ -67,8 +68,9 @@ export function GameProvider({ children }) {
     if (action.type === A.START_GAME) {
       scoreSubmittedRef.current = false;
       const { mode } = action.payload;
-      const initialQueue = buildInitialQueue(mode);
-      const { grid: initialGrid, initialBlocks } = buildInitialGrid(mode);
+      const rng = createSeededRng(getDailyDateSeed());
+      const initialQueue = buildInitialQueue(mode, rng);
+      const { grid: initialGrid, initialBlocks } = buildInitialGrid(mode, rng);
       const fullAction = { type: A.START_GAME, payload: { mode, initialQueue, initialGrid, initialBlocks } };
       recorderRef.current.record(fullAction);
       dispatch(fullAction);

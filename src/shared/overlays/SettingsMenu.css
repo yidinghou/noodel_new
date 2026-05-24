@@ -206,3 +206,25 @@
   background: #388E3C;
   color: #ffffff;
 }
+
+.settings-menu__date {
+  padding: 8px 8px;
+  font-size: 13px;
+  color: #9ca3af;
+  margin-bottom: 4px;
+}
+
+.settings-menu__separator {
+  padding: 8px 8px;
+  text-align: center;
+  color: #d1d5db;
+  font-size: 12px;
+}
+
+.settings-menu__row.is-user {
+  background-color: #f0fdf4;
+}
+
+.settings-menu__row.is-user .settings-menu__rank {
+  color: #16a34a;
+}

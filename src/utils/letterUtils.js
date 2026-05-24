@@ -38,8 +38,8 @@ const cumulativeWeights = LETTER_FREQUENCIES.map(item => {
 /**
  * Generate a weighted random letter
  */
-export function getWeightedRandomLetter() {
-  const random = Math.random() * totalWeight;
+export function getWeightedRandomLetter(rng = Math.random) {
+  const random = rng() * totalWeight;
   for (const item of cumulativeWeights) {
     if (random <= item.cumWeight) {
       return item.letter;
@@ -74,16 +74,16 @@ function getConsonantCount(letters) {
  * 1. No letter repeating consecutively
  * 2. No more than 3 consonants in a row
  */
-function getNextValidLetter(previousLetter, consonantCount) {
+function getNextValidLetter(previousLetter, consonantCount, rng = Math.random) {
   // If we have 3 consonants, must pick a vowel
   const mustBeVowel = consonantCount >= MAX_CONSONANTS_IN_ROW;
 
   let letter;
   let attempts = 0;
-  
+
 
   do {
-    letter = getWeightedRandomLetter();
+    letter = getWeightedRandomLetter(rng);
     attempts++;
 
     // Check constraints
@@ -97,13 +97,13 @@ function getNextValidLetter(previousLetter, consonantCount) {
 
   // Fallback: if we exhausted attempts, pick a valid letter directly
   if (mustBeVowel) {
-    return Array.from(VOWELS)[Math.floor(Math.random() * VOWELS.size)];
+    return Array.from(VOWELS)[Math.floor(rng() * VOWELS.size)];
   }
 
   // Just pick something that's not the previous letter
   const consonants = ['B', 'C', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'X', 'Y', 'Z'];
   const valid = consonants.filter(c => c !== previousLetter);
-  return valid[Math.floor(Math.random() * valid.length)];
+  return valid[Math.floor(rng() * valid.length)];
 }
 
 /**
@@ -111,7 +111,7 @@ function getNextValidLetter(previousLetter, consonantCount) {
  * - No consecutive repeated letters
  * - No more than 3 consecutive consonants
  */
-export function generateLetterSequence(count) {
+export function generateLetterSequence(count, rng = Math.random) {
   const sequence = [];
 
   for (let i = 0; i < count; i++) {
@@ -119,8 +119,8 @@ export function generateLetterSequence(count) {
     const consonantCount = getConsonantCount(sequence);
 
     const letter = previousLetter
-      ? getNextValidLetter(previousLetter, consonantCount)
-      : getWeightedRandomLetter();
+      ? getNextValidLetter(previousLetter, consonantCount, rng)
+      : getWeightedRandomLetter(rng);
 
     sequence.push({
       char: letter,
