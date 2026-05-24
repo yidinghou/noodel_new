@@ -16,6 +16,7 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
   const title =
     s.panel === 'stats'       ? 'Stats'
     : s.panel === 'leaderboard' ? 'Leaderboard'
+    : s.panel === 'my-best'   ? 'My Best Games'
     : s.panel === 'theme'     ? 'Theme'
     : 'Settings';
 
@@ -46,8 +47,12 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
               <span>📊 Stats</span>
               <span aria-hidden="true">›</span>
             </button>
-            <button className="settings-menu__btn" onClick={s.openLeaderboard}>
+            <button className="settings-menu__btn" onClick={() => s.openLeaderboard()}>
               <span>🏆 Leaderboard</span>
+              <span aria-hidden="true">›</span>
+            </button>
+            <button className="settings-menu__btn" onClick={s.openMyBest}>
+              <span>🥇 My Best</span>
               <span aria-hidden="true">›</span>
             </button>
             <button className="settings-menu__btn" onClick={s.openVocabulary}>
@@ -128,7 +133,27 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
 
         {s.panel === 'leaderboard' && (
           <div>
-            <div className="settings-menu__date">{formatDailyDate()}</div>
+            <div style={{ marginBottom: 12, display: 'flex', gap: 8 }}>
+              {['today', 'yesterday'].map(day => (
+                <button
+                  key={day}
+                  onClick={() => s.switchLeaderboardDay(day)}
+                  style={{
+                    flex: 1,
+                    padding: '8px',
+                    backgroundColor: s.leaderboardDay === day ? '#2e7d32' : '#ddd',
+                    color: s.leaderboardDay === day ? 'white' : 'black',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '0.9em',
+                    fontWeight: s.leaderboardDay === day ? '600' : '400',
+                  }}
+                >
+                  {day.charAt(0).toUpperCase() + day.slice(1)}
+                </button>
+              ))}
+            </div>
             {s.loadingScores ? (
               <p className="settings-menu__empty">Loading…</p>
             ) : s.scores.length === 0 ? (
@@ -154,6 +179,35 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
                     </div>
                   ];
                 }).flat()}
+              </div>
+            )}
+            <button className="settings-menu__btn" onClick={() => s.setPanel(null)} style={{ marginTop: 12 }}>← Back</button>
+          </div>
+        )}
+
+        {s.panel === 'my-best' && (
+          <div>
+            {s.loadingMyBest ? (
+              <p className="settings-menu__empty">Loading…</p>
+            ) : s.myBestScores.length === 0 ? (
+              <p className="settings-menu__empty">No scores yet — play a game!</p>
+            ) : (
+              <div className="settings-menu__leaderboard">
+                {s.myBestScores.map((row) => {
+                  const gameDate = row.game_date ? row.game_date.split('T')[0] : '';
+                  return (
+                    <div key={row.id} className="settings-menu__row is-user">
+                      <span className="settings-menu__score">{row.score}</span>
+                      <span style={{ fontSize: '0.8em', color: '#999' }}>{gameDate}</span>
+                      <button
+                        type="button"
+                        className="settings-menu__replay"
+                        onClick={() => s.handleReplay(row.id)}
+                        aria-label="Play replay"
+                      >▶</button>
+                    </div>
+                  );
+                })}
               </div>
             )}
             <button className="settings-menu__btn" onClick={() => s.setPanel(null)} style={{ marginTop: 12 }}>← Back</button>

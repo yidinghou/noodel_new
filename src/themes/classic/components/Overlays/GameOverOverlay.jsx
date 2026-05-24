@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import WordListModal from '../../../../shared/overlays/WordListModal.jsx';
+import { formatDailyDate } from '../../../../utils/seededRandom.js';
 
 function GameStatsBullets({ wordStats, intro }) {
   if (!wordStats) return <div className="word-stats-loading">Loading stats…</div>;
@@ -26,11 +27,26 @@ function GameStatsBullets({ wordStats, intro }) {
 
 function GameOverOverlay({ visible, gameMode, score, lettersRemaining = 0, boardCleared = false, tilesOnBoard = 0, wordStats, allWordsThisGame = [], onRestart }) {
   const [showWordList, setShowWordList] = useState(false);
+  const [leaderboard, setLeaderboard] = useState([]);
+  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const newWordsSet = useMemo(() => new Set(wordStats?.newWords ?? []), [wordStats]);
+
+  const isClearMode = gameMode === 'clear';
+
+  useEffect(() => {
+    if (isClearMode && wordStats !== undefined) {
+      setLoadingLeaderboard(true);
+      const username = localStorage.getItem('noodel_username') ?? '';
+      fetch(`/api/scores?username=${encodeURIComponent(username)}&gameMode=clear`)
+        .then(r => r.json())
+        .then(data => setLeaderboard(data))
+        .catch(() => setLeaderboard([]))
+        .finally(() => setLoadingLeaderboard(false));
+    }
+  }, [isClearMode, wordStats]);
 
   if (!visible) return null;
 
-  const isClearMode = gameMode === 'clear';
   const finalScore = isClearMode ? (100 - lettersRemaining) : score;
   const lettersUsed = 100 - lettersRemaining;
 
@@ -66,6 +82,33 @@ function GameOverOverlay({ visible, gameMode, score, lettersRemaining = 0, board
         {wordStats !== undefined && (
           <GameStatsBullets wordStats={wordStats} intro={statsIntro} />
         )}
+
+        {isClearMode && (
+          <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid #ddd' }}>
+            <h3 style={{ marginBottom: 8, fontSize: '0.95em', fontWeight: 'bold' }}>Today's Clear Leaderboard</h3>
+            {loadingLeaderboard ? (
+              <p style={{ color: '#666', fontSize: '0.9em' }}>Loading…</p>
+            ) : leaderboard.length === 0 ? (
+              <p style={{ color: '#666', fontSize: '0.9em' }}>No scores yet.</p>
+            ) : (
+              <div style={{ fontSize: '0.85em' }}>
+                {leaderboard.map((row, i, arr) => {
+                  const isUser = row.username === (localStorage.getItem('noodel_username') ?? '');
+                  const prevRank = arr[i - 1]?.rank ?? 0;
+                  const showSeparator = row.rank > 5 && prevRank <= 5;
+                  return [
+                    showSeparator && <div key={`sep-${row.id}`} style={{ textAlign: 'center', color: '#999', margin: '4px 0' }}>···</div>,
+                    <div key={row.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', backgroundColor: isUser ? '#f0f0f0' : 'transparent' }}>
+                      <span>#{row.rank} {row.username || 'anonymous'}</span>
+                      <span style={{ fontWeight: 'bold' }}>{row.score}</span>
+                    </div>
+                  ];
+                }).flat()}
+              </div>
+            )}
+          </div>
+        )}
+
         {allWordsThisGame.length > 0 && (
           <button
             className="game-over-restart-btn"

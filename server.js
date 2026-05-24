@@ -89,17 +89,26 @@ app.post('/api/scores', async (req, res) => {
 app.get('/api/scores', async (req, res) => {
   try {
     const username = req.query.username || '';
+    const gameMode = req.query.gameMode || '';
+    let dateParam = req.query.date || null;
+
+    // Validate date format if provided
+    if (dateParam && !/^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
+      return res.status(400).json({ error: 'invalid date format; use YYYY-MM-DD' });
+    }
+
     const result = await pool.query(
       `WITH ranked AS (
-        SELECT id, username, score, game_mode, created_at,
+        SELECT id, username, score, game_mode, created_at, game_date,
                RANK() OVER (ORDER BY score DESC)::int AS rank
         FROM leaderboard
-        WHERE game_date = CURRENT_DATE
+        WHERE game_date = COALESCE($3::date, CURRENT_DATE)
+          AND ($2 = '' OR game_mode = $2)
       )
       SELECT * FROM ranked
       WHERE rank <= 5 OR username = $1
       ORDER BY rank`,
-      [username]
+      [username, gameMode, dateParam]
     );
     res.json(result.rows);
   } catch (err) {
@@ -121,6 +130,24 @@ app.get('/api/scores/:id/session', async (req, res) => {
     res.json(result.rows[0].session_data);
   } catch (err) {
     console.error('GET /api/scores/:id/session error:', err);
+    res.status(500).json({ error: 'internal server error' });
+  }
+});
+
+app.get('/api/scores/my-best', async (req, res) => {
+  try {
+    const username = req.query.username || 'anonymous';
+    const result = await pool.query(
+      `SELECT id, username, score, game_mode, game_date, created_at
+       FROM leaderboard
+       WHERE username = $1
+       ORDER BY score DESC
+       LIMIT 5`,
+      [username]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error('GET /api/scores/my-best error:', err);
     res.status(500).json({ error: 'internal server error' });
   }
 });

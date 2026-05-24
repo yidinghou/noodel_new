@@ -2,6 +2,17 @@ import { useState } from 'react';
 
 export const USERS = ['yiding', 'hannah'];
 
+function getTodayDate() {
+  const d = new Date();
+  return d.toISOString().split('T')[0];
+}
+
+function getDateForDay(day) {
+  const d = new Date();
+  if (day === 'yesterday') d.setDate(d.getDate() - 1);
+  return d.toISOString().split('T')[0];
+}
+
 export function useSettingsState({ onPlayReplay, onClose } = {}) {
   const [panel, setPanel] = useState(null);
   const [currentUser, setCurrentUser] = useState(
@@ -9,8 +20,11 @@ export function useSettingsState({ onPlayReplay, onClose } = {}) {
   );
   const [scores, setScores] = useState([]);
   const [loadingScores, setLoadingScores] = useState(false);
+  const [leaderboardDay, setLeaderboardDay] = useState('today');
   const [stats, setStats] = useState(null);
   const [loadingStats, setLoadingStats] = useState(false);
+  const [myBestScores, setMyBestScores] = useState([]);
+  const [loadingMyBest, setLoadingMyBest] = useState(false);
   const [vocabWords, setVocabWords] = useState([]);
   const [loadingVocab, setLoadingVocab] = useState(false);
   const [showVocab, setShowVocab] = useState(false);
@@ -40,17 +54,50 @@ export function useSettingsState({ onPlayReplay, onClose } = {}) {
     }
   }
 
-  async function openLeaderboard() {
+  async function openLeaderboard(day = 'today') {
+    setLeaderboardDay(day);
     setPanel('leaderboard');
     setLoadingScores(true);
     try {
       const username = localStorage.getItem('noodel_username') ?? '';
-      const res = await fetch(`/api/scores?username=${encodeURIComponent(username)}`);
+      const dateParam = getDateForDay(day);
+      const params = new URLSearchParams({ username, gameMode: 'clear', date: dateParam });
+      const res = await fetch(`/api/scores?${params}`);
       setScores(await res.json());
     } catch {
       setScores([]);
     } finally {
       setLoadingScores(false);
+    }
+  }
+
+  async function switchLeaderboardDay(day) {
+    setLeaderboardDay(day);
+    setLoadingScores(true);
+    try {
+      const username = localStorage.getItem('noodel_username') ?? '';
+      const dateParam = getDateForDay(day);
+      const params = new URLSearchParams({ username, gameMode: 'clear', date: dateParam });
+      const res = await fetch(`/api/scores?${params}`);
+      setScores(await res.json());
+    } catch {
+      setScores([]);
+    } finally {
+      setLoadingScores(false);
+    }
+  }
+
+  async function openMyBest() {
+    setPanel('my-best');
+    setLoadingMyBest(true);
+    try {
+      const username = localStorage.getItem('noodel_username') ?? '';
+      const res = await fetch(`/api/scores/my-best?username=${encodeURIComponent(username)}`);
+      setMyBestScores(await res.json());
+    } catch {
+      setMyBestScores([]);
+    } finally {
+      setLoadingMyBest(false);
     }
   }
 
@@ -90,7 +137,9 @@ export function useSettingsState({ onPlayReplay, onClose } = {}) {
     panel, setPanel,
     currentUser, selectUser, logout,
     stats, loadingStats, openStats,
-    scores, loadingScores, openLeaderboard,
+    scores, loadingScores, openLeaderboard, switchLeaderboardDay,
+    leaderboardDay,
+    myBestScores, loadingMyBest, openMyBest,
     handleReplay,
     vocabWords, loadingVocab, showVocab, setShowVocab, openVocabulary,
   };
