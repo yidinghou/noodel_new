@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
+import WordListModal from '../../../../shared/overlays/WordListModal.jsx';
 
 function GameStatsBullets({ wordStats, intro }) {
   if (!wordStats) return <div className="word-stats-loading">Loading stats…</div>;
@@ -23,7 +24,10 @@ function GameStatsBullets({ wordStats, intro }) {
   );
 }
 
-function GameOverOverlay({ visible, gameMode, score, lettersRemaining = 0, boardCleared = false, tilesOnBoard = 0, wordStats, onRestart }) {
+function GameOverOverlay({ visible, gameMode, score, lettersRemaining = 0, boardCleared = false, tilesOnBoard = 0, wordStats, allWordsThisGame = [], onRestart }) {
+  const [showWordList, setShowWordList] = useState(false);
+  const newWordsSet = useMemo(() => new Set(wordStats?.newWords ?? []), [wordStats]);
+
   if (!visible) return null;
 
   const isClearMode = gameMode === 'clear';
@@ -62,10 +66,27 @@ function GameOverOverlay({ visible, gameMode, score, lettersRemaining = 0, board
         {wordStats !== undefined && (
           <GameStatsBullets wordStats={wordStats} intro={statsIntro} />
         )}
+        {allWordsThisGame.length > 0 && (
+          <button
+            className="game-over-restart-btn"
+            style={{ marginTop: 8, background: 'transparent', color: '#2e7d32', border: '1px solid #2e7d32' }}
+            onClick={() => setShowWordList(true)}
+          >
+            See all {allWordsThisGame.length} words →
+          </button>
+        )}
         <button className="game-over-restart-btn" onClick={onRestart}>
           Home
         </button>
       </div>
+      {showWordList && (
+        <WordListModal
+          words={allWordsThisGame}
+          newWords={newWordsSet}
+          onClose={() => setShowWordList(false)}
+          title={`Words This Game (${allWordsThisGame.length})`}
+        />
+      )}
     </div>
   );
 }

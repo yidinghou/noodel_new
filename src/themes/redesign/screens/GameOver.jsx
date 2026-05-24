@@ -1,6 +1,8 @@
+import { useState, useMemo } from 'react';
 import { useGame } from '../../../context/GameContext.jsx';
 import { A } from '../../../utils/actionTypes.js';
 import { TOTAL_LETTERS } from '../../../utils/gameConstants.js';
+import WordListModal from '../../../shared/overlays/WordListModal.jsx';
 
 function WordStatsBullets({ wordStats, intro }) {
   if (!wordStats) return <div className="rd-word-stats-loading">Loading stats…</div>;
@@ -27,6 +29,8 @@ function WordStatsBullets({ wordStats, intro }) {
 
 function GameOver() {
   const { state, dispatch } = useGame();
+  const [showWordList, setShowWordList] = useState(false);
+  const newWordsSet = useMemo(() => new Set(state.wordStats?.newWords ?? []), [state.wordStats]);
 
   const isClearMode = state.gameMode === 'clear';
   const lettersRemaining = state.lettersRemaining;
@@ -55,9 +59,11 @@ function GameOver() {
     statsIntro = "Along the way, you've:";
   }
 
+  const wordCount = state.allWordsThisGame.length;
+
   const stats = [
     { label: 'Score',      value: state.score },
-    { label: 'Words made', value: state.madeWords.length },
+    { label: 'Words made', value: wordCount },
   ];
 
   const onHome = () => dispatch({ type: A.RESET });
@@ -85,6 +91,12 @@ function GameOver() {
           <WordStatsBullets wordStats={state.wordStats} intro={statsIntro} />
         )}
 
+        {wordCount > 0 && (
+          <button type="button" className="rd-link-btn" onClick={() => setShowWordList(true)}>
+            See all {wordCount} words →
+          </button>
+        )}
+
         <div className="rd-gameover__actions">
           <button type="button" className="rd-cta" onClick={onRestart}>
             Play Again
@@ -94,6 +106,15 @@ function GameOver() {
           </button>
         </div>
       </div>
+
+      {showWordList && (
+        <WordListModal
+          words={state.allWordsThisGame}
+          newWords={newWordsSet}
+          onClose={() => setShowWordList(false)}
+          title={`Words This Game (${wordCount})`}
+        />
+      )}
     </div>
   );
 }
