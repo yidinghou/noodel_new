@@ -42,7 +42,7 @@ export function AmbientBoard({ grid, dropping, highlight, firstTileRef }) {
         <Board cells={cells} highlightSet={highlight} />
       </div>
       {dropState && (
-        <DroppingOverlay key={dropState.id} {...dropState} onComplete={() => {}} />
+        <DroppingOverlay key={dropState.id} {...dropState} className="rd-dropping-ambient" opacity={0.4} onComplete={() => {}} />
       )}
     </>
   );

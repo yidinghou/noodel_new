@@ -5,7 +5,7 @@ import { useAnimate } from 'framer-motion';
 const DROP_SPEED_CELLS_PER_SEC = 20;
 const LETTER_FROM_PREVIEW_TO_GRID_SPEED = 0.25
 
-function DroppingOverlay({ id, column, letter, from, toTop, toFinal, cellSize, onComplete }) {
+function DroppingOverlay({ id, column, letter, from, toTop, toFinal, cellSize, onComplete, className = '', opacity = 1 }) {
   const [scope, animate] = useAnimate();
 
   useEffect(() => {
@@ -13,7 +13,7 @@ function DroppingOverlay({ id, column, letter, from, toTop, toFinal, cellSize, o
       // Phase 1: slide from preview tile to top of the clicked column
       await animate(
         scope.current,
-        { x: toTop.x - from.x, y: toTop.y - from.y },
+        { x: toTop.x - from.x, y: toTop.y - from.y, opacity },
         { duration: LETTER_FROM_PREVIEW_TO_GRID_SPEED, ease: 'easeOut' }
       );
 
@@ -23,7 +23,7 @@ function DroppingOverlay({ id, column, letter, from, toTop, toFinal, cellSize, o
       const duration = Math.max(0.05, dropCells / DROP_SPEED_CELLS_PER_SEC);
       await animate(
         scope.current,
-        { y: toFinal.y - from.y },
+        { y: toFinal.y - from.y, opacity },
         { duration, ease: 'linear' }
       );
 
@@ -36,7 +36,7 @@ function DroppingOverlay({ id, column, letter, from, toTop, toFinal, cellSize, o
   return (
     <div
       ref={scope}
-      className="dropping-letter-overlay animating"
+      className={`dropping-letter-overlay animating${className ? ' ' + className : ''}`}
       style={{
         left: from.x,
         top: from.y,
@@ -47,6 +47,7 @@ function DroppingOverlay({ id, column, letter, from, toTop, toFinal, cellSize, o
         justifyContent: 'center',
         fontSize: 'var(--size-font-grid)',
         fontWeight: 'bold',
+        opacity,
       }}
     >
       {letter}
