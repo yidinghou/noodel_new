@@ -21,6 +21,11 @@ export function useSettingsState({ onPlayReplay, onClose } = {}) {
     setPanel(null);
   }
 
+  function logout() {
+    localStorage.removeItem('noodel_username');
+    setCurrentUser(null);
+  }
+
   async function openStats() {
     setPanel('stats');
     setLoadingStats(true);
@@ -82,7 +87,7 @@ export function useSettingsState({ onPlayReplay, onClose } = {}) {
 
   return {
     panel, setPanel,
-    currentUser, selectUser,
+    currentUser, selectUser, logout,
     stats, loadingStats, openStats,
     scores, loadingScores, openLeaderboard,
     handleReplay,

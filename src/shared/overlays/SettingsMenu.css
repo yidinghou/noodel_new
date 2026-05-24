@@ -105,6 +105,17 @@
   background: #E8F5E9;
   color: #2E7D32;
 }
+.settings-menu__btn--logout {
+  color: #9ca3af;
+  font-weight: 500;
+  justify-content: center;
+  margin-top: 4px;
+}
+.settings-menu__btn--logout:hover {
+  color: #ef4444;
+  border-color: #fca5a5;
+  background: #fff5f5;
+}
 
 .settings-menu__theme span {
   display: flex;

@@ -11,6 +11,12 @@ function LoginMenu({ onClose }) {
     onClose?.();
   };
 
+  const handleLogout = () => {
+    s.logout();
+    window.dispatchEvent(new CustomEvent(NOODEL_LOGIN_EVENT));
+    onClose?.();
+  };
+
   return (
     <div className="settings-menu" onClick={onClose}>
       <div className="settings-menu__card" onClick={e => e.stopPropagation()}>
@@ -32,6 +38,14 @@ function LoginMenu({ onClose }) {
               <span>{s.currentUser === name ? '✓ ' : ''}{name.charAt(0).toUpperCase() + name.slice(1)}</span>
             </button>
           ))}
+          {s.currentUser && (
+            <button
+              className="settings-menu__btn settings-menu__btn--logout"
+              onClick={handleLogout}
+            >
+              Log out
+            </button>
+          )}
         </div>
       </div>
     </div>
