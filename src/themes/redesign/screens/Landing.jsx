@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { useGame } from '../../../context/GameContext.jsx';
 import { A } from '../../../utils/actionTypes.js';
+import { formatDailyDate } from '../../../utils/seededRandom.js';
 import ActionBar from '../components/ActionBar.jsx';
 import NextRow from '../components/NextRow.jsx';
 import { useAmbientDemo, AmbientBoard } from '../components/AmbientDemo.jsx';
@@ -39,6 +40,7 @@ function Landing({ onHowToPlay, onLogin, onSettings }) {
           <AmbientBoard {...demo} firstTileRef={firstTileRef} />
           <StartGameOverlay
             className="start-game-overlay--redesign"
+            date={formatDailyDate()}
             onClick={() => dispatch({ type: A.START_GAME, payload: { mode: 'clear' } })}
           />
         </div>
