@@ -160,6 +160,25 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.login-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+
+.login-wrapper__username {
+    font-size: 9px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    max-width: 40px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.4;
+    color: var(--color-text-secondary);
+}
+
 /* Compact inline score / objective pill */
 .stat-group {
     display: inline-flex;

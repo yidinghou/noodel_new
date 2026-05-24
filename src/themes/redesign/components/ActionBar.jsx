@@ -1,4 +1,5 @@
-import { HowToPlayIcon, LoginIcon, SettingsIcon } from '../../../shared/icons/ActionIcons.jsx';
+import { HowToPlayIcon, LoginIcon, LoggedInIcon, SettingsIcon } from '../../../shared/icons/ActionIcons.jsx';
+import { useCurrentUser } from '../../../shared/hooks/useCurrentUser.js';
 
 const ITEM_DEFS = {
   howtoplay: { label: 'How to Play', Icon: HowToPlayIcon, defaultHandler: () => console.log('how to play') },
@@ -7,19 +8,24 @@ const ITEM_DEFS = {
 };
 
 function ActionBar({ items, className = '' }) {
+  const currentUser = useCurrentUser();
+
   return (
     <nav className={`rd-action-bar ${className}`} aria-label="Primary actions">
       {items.map(({ id, onClick }) => {
         const def = ITEM_DEFS[id];
         if (!def) return null;
-        const { label, Icon, defaultHandler } = def;
+        const { defaultHandler } = def;
+        const isLogin = id === 'login';
+        const Icon = isLogin && currentUser ? LoggedInIcon : def.Icon;
+        const label = isLogin && currentUser ? currentUser : def.label;
         return (
           <button
             key={id}
             type="button"
-            className="rd-action-btn"
+            className={`rd-action-btn${isLogin ? ' rd-action-btn--login' : ''}${isLogin && currentUser ? ' rd-action-btn--loggedin' : ''}`}
             onClick={onClick || defaultHandler}
-            aria-label={label}
+            aria-label={isLogin && currentUser ? `Logged in as ${currentUser}` : label}
           >
             <Icon />
             <span className="rd-action-btn__label">{label}</span>

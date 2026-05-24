@@ -24,6 +24,15 @@ export function LoginIcon(props) {
   );
 }
 
+export function LoggedInIcon(props) {
+  return (
+    <svg {...ICON_PROPS} {...props}>
+      <path fill="currentColor" stroke="none" d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle fill="currentColor" stroke="none" cx="12" cy="7" r="4" />
+    </svg>
+  );
+}
+
 export function HomeIcon(props) {
   return (
     <svg {...ICON_PROPS} {...props}>

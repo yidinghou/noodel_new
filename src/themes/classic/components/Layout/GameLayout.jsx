@@ -5,7 +5,8 @@ import NextPreview from '../Controls/NextPreview.jsx';
 import Board from '../Grid/Board.jsx';
 import MadeWords from '../Stats/MadeWords.jsx';
 import DroppingOverlay from '../../../../shared/overlays/DroppingOverlay.jsx';
-import { HowToPlayIcon, LoginIcon, SettingsIcon } from '../../../../shared/icons/ActionIcons.jsx';
+import { HowToPlayIcon, LoginIcon, LoggedInIcon, SettingsIcon } from '../../../../shared/icons/ActionIcons.jsx';
+import { useCurrentUser } from '../../../../shared/hooks/useCurrentUser.js';
 import { GRID_COLS, GRID_ROWS } from '../../../../utils/gameConstants.js';
 import { useAmbientDemo } from '../../../../hooks/useAmbientDemo.js';
 import StartGameOverlay from '../../../../shared/components/StartGameOverlay.jsx';
@@ -29,6 +30,7 @@ function GameLayout({
   onStartGame,
   showPreview = false,
 }) {
+  const currentUser = useCurrentUser();
   const gridRef = useRef(null);
   const nextUpRef = useRef(null);
 
@@ -173,9 +175,20 @@ function GameLayout({
         </div>
         <div className="app-bar__center" />
         <div className="app-bar__side app-bar__side--right">
-          <button className="action-btn login-btn" onClick={onLogin} title="Log in" aria-label="Log in">
-            <LoginIcon />
-          </button>
+          <div className="login-wrapper">
+            <button
+              className={`action-btn login-btn${currentUser ? ' login-btn--loggedin' : ''}`}
+              onClick={onLogin}
+              title={currentUser ?? 'Log in'}
+              aria-label={currentUser ? `Logged in as ${currentUser}` : 'Log in'}
+            >
+              {currentUser ? <LoggedInIcon /> : <LoginIcon />}
+            </button>
+            <span className="login-wrapper__username" aria-hidden={!currentUser}
+              style={currentUser ? undefined : { visibility: 'hidden' }}>
+              {currentUser ?? 'x'}
+            </span>
+          </div>
           <button className="action-btn settings-btn" onClick={onSettings} title="Settings" aria-label="Settings">
             <SettingsIcon />
           </button>

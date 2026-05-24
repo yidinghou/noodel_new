@@ -1,4 +1,5 @@
 import { useSettingsState, USERS } from '../hooks/useSettingsState.js';
+import { NOODEL_LOGIN_EVENT } from '../hooks/useCurrentUser.js';
 import './SettingsMenu.css';
 
 function LoginMenu({ onClose }) {
@@ -6,6 +7,13 @@ function LoginMenu({ onClose }) {
 
   const handleSelect = (name) => {
     s.selectUser(name);
+    window.dispatchEvent(new CustomEvent(NOODEL_LOGIN_EVENT));
+    onClose?.();
+  };
+
+  const handleLogout = () => {
+    s.logout();
+    window.dispatchEvent(new CustomEvent(NOODEL_LOGIN_EVENT));
     onClose?.();
   };
 
@@ -30,6 +38,14 @@ function LoginMenu({ onClose }) {
               <span>{s.currentUser === name ? '✓ ' : ''}{name.charAt(0).toUpperCase() + name.slice(1)}</span>
             </button>
           ))}
+          {s.currentUser && (
+            <button
+              className="settings-menu__btn settings-menu__btn--logout"
+              onClick={handleLogout}
+            >
+              Log out
+            </button>
+          )}
         </div>
       </div>
     </div>
