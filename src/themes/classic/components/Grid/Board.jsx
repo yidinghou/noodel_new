@@ -2,7 +2,7 @@ import React from 'react';
 import Cell from './Cell.jsx';
 import { GRID_SIZE, GRID_COLS } from '../../../../utils/gameConstants.js';
 
-function Board({ grid = Array(GRID_SIZE).fill(null), onColumnClick, gridRef, visible = true }) {
+function Board({ grid = Array(GRID_SIZE).fill(null), onColumnClick, gridRef, visible = true, children }) {
   const handleCellClick = (index) => {
     const column = index % GRID_COLS;
     if (onColumnClick) {
@@ -44,6 +44,7 @@ function Board({ grid = Array(GRID_SIZE).fill(null), onColumnClick, gridRef, vis
         </div>
         );
       })}
+      {children}
     </div>
   );
 }

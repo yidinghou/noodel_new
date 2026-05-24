@@ -1,8 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
-import { createPortal } from 'react-dom';
+import { useRef } from 'react';
 import GameLayout from './components/Layout/GameLayout.jsx';
 import { DebugOverlay } from './components/Debug/DebugOverlay.jsx';
-import ModeSelector from './components/Controls/ModeSelector.jsx';
 import GameOverOverlay from './components/Overlays/GameOverOverlay.jsx';
 import { useGame } from '../../context/GameContext.jsx';
 import { STATUS } from '../../utils/gameConstants.js';
@@ -15,33 +13,13 @@ import './styles/made-words.css';
 function ClassicRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
   const { state, dispatch, undo } = useGame();
   const gridWrapperRef = useRef(null);
-  const initialStatusRef = useRef(state.status);
-  const [, forceRender] = useState(0);
-  const [pendingMode, setPendingMode] = useState(null);
 
-  // ModeSelector renders into gridWrapperRef via portal; trigger one re-render
-  // after the ref attaches so the auto-show-on-IDLE start menu mounts.
-  useEffect(() => { forceRender(1); }, []);
-
-  const showModeSelector = state.status === STATUS.IDLE || pendingMode !== null;
-
-  const handleModeSelect = (mode) => {
-    if (!dictionary) {
-      setPendingMode(mode);
-      return;
-    }
-    setPendingMode(null);
-    dispatch({ type: A.START_GAME, payload: { mode } });
+  const handleStart = () => {
+    dispatch({ type: A.START_GAME, payload: { mode: 'clear' } });
   };
 
   const handleRestart = () => {
-    setPendingMode(null);
     dispatch({ type: A.RESET });
-  };
-
-  const handleCloseModeSelector = () => {
-    // No-op while IDLE — start menu cannot be dismissed; only clears a pending-mode wait.
-    setPendingMode(null);
   };
 
   const handleColumnClick = (column) => {
@@ -59,7 +37,7 @@ function ClassicRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
   const tilesOnBoard = state.grid.filter(Boolean).length;
 
   return (
-    <div className={`app-root${showModeSelector ? ' menu-open' : ''}`}>
+    <div className="app-root">
       <GameLayout
         gridWrapperRef={gridWrapperRef}
         score={state.score}
@@ -70,24 +48,14 @@ function ClassicRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
         dictionary={dictionary}
         gameStatus={state.status}
         gameMode={state.gameMode}
-        animateTitle={initialStatusRef.current === STATUS.IDLE}
         onLogin={onLogin}
         onSettings={onSettings}
         onInfo={onHowToPlay}
         onColumnClick={handleColumnClick}
         onUndo={undo}
+        onStartGame={handleStart}
         showPreview={state.status === STATUS.PLAYING || state.status === STATUS.PROCESSING}
       />
-      {gridWrapperRef.current && createPortal(
-        <ModeSelector
-          visible={showModeSelector}
-          onSelectMode={handleModeSelect}
-          onClose={handleCloseModeSelector}
-          pendingMode={pendingMode}
-          dictReady={!!dictionary}
-        />,
-        gridWrapperRef.current
-      )}
       <GameOverOverlay
         visible={state.status === STATUS.GAME_OVER}
         gameMode={state.gameMode}

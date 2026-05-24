@@ -4,9 +4,11 @@ import ScoreBoard from '../Stats/ScoreBoard.jsx';
 import NextPreview from '../Controls/NextPreview.jsx';
 import Board from '../Grid/Board.jsx';
 import MadeWords from '../Stats/MadeWords.jsx';
-import DroppingOverlay from '../Grid/DroppingOverlay.jsx';
+import DroppingOverlay from '../../../../shared/overlays/DroppingOverlay.jsx';
 import { HowToPlayIcon, LoginIcon, SettingsIcon } from '../../../../shared/icons/ActionIcons.jsx';
 import { GRID_COLS, GRID_ROWS } from '../../../../utils/gameConstants.js';
+import { useAmbientDemo } from '../../../../hooks/useAmbientDemo.js';
+import StartGameOverlay from '../../../../shared/components/StartGameOverlay.jsx';
 
 function GameLayout({
   gridWrapperRef = null,
@@ -24,10 +26,46 @@ function GameLayout({
   onInfo,
   onColumnClick,
   onUndo,
+  onStartGame,
   showPreview = false,
 }) {
   const gridRef = useRef(null);
   const nextUpRef = useRef(null);
+
+  const { grid: ambientGrid, dropping: ambientDrop, highlight: ambientHighlight, queue: ambientQueue } = useAmbientDemo();
+
+  const isIdle = gameStatus === 'IDLE';
+  const displayGrid = isIdle
+    ? ambientGrid.map((ch, i) => ch ? { char: ch, isMatched: ambientHighlight?.has(i) || false, isPending: false, pendingDirections: [], pendingResetCount: 0, isInitial: false } : null)
+    : grid;
+
+  const [ambientDropState, setAmbientDropState] = useState(null);
+  useEffect(() => {
+    if (!isIdle) { setAmbientDropState(null); return; }
+    if (ambientDrop?.phase === 'falling') {
+      const fromEl = nextUpRef.current;
+      const gridEl = gridRef.current;
+      if (!fromEl || !gridEl) return;
+      const fromRect = fromEl.getBoundingClientRect();
+      const gridRect = gridEl.getBoundingClientRect();
+      const colW = gridRect.width / GRID_COLS;
+      const rowH = gridRect.height / GRID_ROWS;
+      const cellSize = Math.min(colW, rowH);
+      const col = ambientDrop.col;
+      const dr = ambientDrop.destRow;
+      const colLeft = gridRect.left + col * colW + (colW - cellSize) / 2;
+      setAmbientDropState({
+        id: `ambient-${col}-${dr}-${Date.now()}`,
+        letter: ambientDrop.letter,
+        from: { x: fromRect.left, y: fromRect.top },
+        toTop: { x: colLeft, y: gridRect.top },
+        toFinal: { x: colLeft, y: gridRect.top + dr * rowH },
+        cellSize,
+      });
+    } else if (!ambientDrop) {
+      setAmbientDropState(null);
+    }
+  }, [ambientDrop, isIdle]);
 
   // Parallel drop tracking
   const [activeDrops, setActiveDrops] = useState([]);
@@ -151,15 +189,23 @@ function GameLayout({
       </div>
 
       {/* Game Grid Section (Middle) */}
-      <div className="game-grid-wrapper" ref={gridWrapperRef}>
+      <div className={`game-grid-wrapper${isIdle ? ' game-grid-wrapper--idle' : ''}`} ref={gridWrapperRef}>
         <div className="preview-row">
-          <NextPreview nextLetters={nextLetters.slice(activeDrops.length, activeDrops.length + 5)} visible={showPreview} nextUpRef={nextUpRef} shiftKey={shiftKey} />
+          <NextPreview
+            nextLetters={isIdle ? ambientQueue : nextLetters.slice(activeDrops.length, activeDrops.length + 5)}
+            visible={isIdle || showPreview}
+            nextUpRef={nextUpRef}
+            shiftKey={shiftKey}
+          />
           <div className={`game-grid-letters-remaining${showPreview ? ' visible' : ''}`}>
             <div className="letters-remaining-label">Letters Remaining</div>
             <div className="letters-remaining-value">{lettersRemaining}</div>
           </div>
         </div>
-        <Board grid={grid} onColumnClick={handleColumnClick} gridRef={gridRef} visible={true} />
+        <Board grid={displayGrid} onColumnClick={isIdle ? null : handleColumnClick} gridRef={gridRef} visible={true} />
+        {gameStatus === 'IDLE' && (
+          <StartGameOverlay className="start-game-overlay--classic" onClick={onStartGame} />
+        )}
       </div>
 
       {/* Made Words Section (Bottom) */}
@@ -181,6 +227,15 @@ function GameLayout({
           onComplete={handleDropComplete}
         />
       ))}
+      {ambientDropState && (
+        <DroppingOverlay
+          key={ambientDropState.id}
+          {...ambientDropState}
+          className="classic-ambient-dropping"
+          opacity={0.4}
+          onComplete={() => {}}
+        />
+      )}
     </div>
   );
 }

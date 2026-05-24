@@ -360,6 +360,10 @@ button {
   box-shadow: var(--rd-shadow-md);
 }
 
+.dropping-letter-overlay.rd-dropping-ambient {
+  z-index: 5;
+}
+
 .rd-board--interactive .rd-cell { cursor: pointer; }
 
 /* InGame board wrapper centers the fixed-size Board within available width */
@@ -375,6 +379,7 @@ button {
 
 .rd-ambient-demo {
   pointer-events: none;
+  opacity: 0.4;
 }
 
 .rd-demo-drop {
@@ -502,13 +507,16 @@ button {
 .rd-landing__stage .rd-board-stage {
   align-self: center;
 }
+.rd-landing__stage .rd-next-row {
+  opacity: 0.4;
+}
 
 .rd-board-stage {
   position: relative;
   display: inline-flex;
 }
 
-.rd-board-overlay {
+.start-game-overlay--redesign {
   position: absolute;
   inset: 0;
   display: flex;
@@ -518,7 +526,35 @@ button {
   pointer-events: none;
 }
 
-/* ---------- CTA button ---------- */
+.start-game-overlay--redesign .start-game-btn {
+  pointer-events: auto;
+  background: var(--rd-accent);
+  color: var(--rd-accent-text);
+  font-size: var(--rd-fs-md);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: var(--rd-s-3) var(--rd-s-6);
+  border-radius: var(--rd-radius-pill);
+  box-shadow: var(--rd-shadow-cta);
+  transition: transform 0.12s, background 0.15s, box-shadow 0.15s;
+  min-width: 180px;
+  /* white halo keeps button legible against the cycling ambient demo */
+  outline: 8px solid rgba(255, 255, 255, 0.65);
+  outline-offset: 0;
+}
+
+.start-game-overlay--redesign .start-game-btn:hover {
+  background: var(--rd-accent-hover);
+  transform: translateY(-1px);
+}
+
+.start-game-overlay--redesign .start-game-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(56, 142, 60, 0.30);
+}
+
+/* ---------- CTA button (game screens) ---------- */
 
 .rd-cta {
   pointer-events: auto;
@@ -541,12 +577,6 @@ button {
 .rd-cta:active {
   transform: translateY(0);
   box-shadow: 0 2px 8px rgba(56, 142, 60, 0.30);
-}
-
-/* Start CTA gets an extra white halo so it stays legible against the cycling demo */
-.rd-start-cta {
-  outline: 8px solid rgba(255, 255, 255, 0.65);
-  outline-offset: 0;
 }
 
 /* ---------- In-game preview trigger ---------- */
@@ -633,6 +663,40 @@ button {
   padding: var(--rd-s-2) var(--rd-s-3);
 }
 .rd-link-btn:hover { color: var(--rd-text); text-decoration: underline; }
+
+.rd-word-stats {
+  margin-bottom: var(--rd-s-5);
+  text-align: left;
+}
+.rd-word-stats__intro {
+  font-size: var(--rd-fs-sm);
+  color: var(--rd-text-2);
+  font-style: italic;
+  margin-bottom: var(--rd-s-2);
+}
+.rd-word-stats__bullets {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--rd-s-2);
+}
+.rd-word-stats__bullets li {
+  font-size: var(--rd-fs-sm);
+  color: var(--rd-text);
+  line-height: 1.4;
+}
+.rd-word-stats__gain {
+  color: #2e7d32;
+  font-weight: 700;
+}
+.rd-word-stats-loading {
+  font-size: var(--rd-fs-sm);
+  color: var(--rd-text-2);
+  margin-bottom: var(--rd-s-5);
+  text-align: left;
+}
 
 /* ---------- Responsive ---------- */
 
