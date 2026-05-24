@@ -7,13 +7,13 @@ import { getWeightedRandomLetter } from './letterUtils.js';
  * Initial blocks fall to the bottom of their columns (gravity applied)
  * @returns {Object} { grid: Array, initialBlocks: Array<number> }
  */
-export function generateClearModeGrid() {
+export function generateClearModeGrid(rng = Math.random) {
   const grid = Array(GRID_SIZE).fill(null);
   const cellsToFill = Math.floor(GRID_SIZE * CLEAR_MODE_INITIAL_FILL_PERCENTAGE);
 
   // Generate random letters and place them in random columns
   const initialLetters = Array.from({ length: cellsToFill }, (_, i) => ({
-    char: getWeightedRandomLetter(),
+    char: getWeightedRandomLetter(rng),
     id: `initial-${i}`,
     type: 'filled',
     isMatched: false,
@@ -24,11 +24,11 @@ export function generateClearModeGrid() {
   }));
 
   // Randomly distribute letters across columns
-  const shuffledLetters = initialLetters.sort(() => Math.random() - 0.5);
+  const shuffledLetters = initialLetters.sort(() => rng() - 0.5);
   const lettersPerColumn = Array.from({ length: GRID_COLS }, () => []);
 
   shuffledLetters.forEach(letter => {
-    const randomCol = Math.floor(Math.random() * GRID_COLS);
+    const randomCol = Math.floor(rng() * GRID_COLS);
     lettersPerColumn[randomCol].push(letter);
   });
 
