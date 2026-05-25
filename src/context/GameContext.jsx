@@ -3,6 +3,7 @@ import { gameReducer, initialState } from './GameReducer.js';
 import { generateLetterSequence } from '../utils/letterUtils.js';
 import { generateClearModeGrid } from '../utils/clearModeUtils.js';
 import { createSeededRng, getDailyDateSeed } from '../utils/seededRandom.js';
+import { markDailyPlayed, consumeUnlimitedPlay } from '../utils/playLimits.js';
 import { TOTAL_LETTERS, STATUS } from '../utils/gameConstants.js';
 import { A } from '../utils/actionTypes.js';
 import { createRecorder } from '../services/sessionRecorder.js';
@@ -67,11 +68,14 @@ export function GameProvider({ children }) {
   const wrappedDispatch = useCallback((action) => {
     if (action.type === A.START_GAME) {
       scoreSubmittedRef.current = false;
-      const { mode } = action.payload;
-      const rng = createSeededRng(getDailyDateSeed());
+      const { mode, gameType } = action.payload;
+      const seed = gameType === 'unlimited' ? Date.now() : getDailyDateSeed();
+      const rng = createSeededRng(seed);
       const initialQueue = buildInitialQueue(mode, rng);
       const { grid: initialGrid, initialBlocks } = buildInitialGrid(mode, rng);
-      const fullAction = { type: A.START_GAME, payload: { mode, initialQueue, initialGrid, initialBlocks } };
+      if (gameType === 'daily') markDailyPlayed();
+      if (gameType === 'unlimited') consumeUnlimitedPlay();
+      const fullAction = { type: A.START_GAME, payload: { mode, gameType, initialQueue, initialGrid, initialBlocks } };
       recorderRef.current.record(fullAction);
       dispatch(fullAction);
       return;
@@ -99,9 +103,11 @@ export function GameProvider({ children }) {
     return true;
   }, [dispatch]);
 
-  // Submit score when game ends.
+  // Submit score when game ends (daily only); always clear the session snapshot.
   useEffect(() => {
-    if (state.status === STATUS.GAME_OVER && !scoreSubmittedRef.current) {
+    if (state.status !== STATUS.GAME_OVER) return;
+    sessionStorage.clear(); // game complete — nothing left to resume
+    if (!scoreSubmittedRef.current && state.gameType === 'daily') {
       scoreSubmittedRef.current = true;
       const username = localStorage.getItem('noodel_username') ?? 'anonymous';
       const fullSnapshot = recorderRef.current.snapshot();
@@ -119,7 +125,6 @@ export function GameProvider({ children }) {
           if (data.wordStats) dispatch({ type: A.SET_WORD_STATS, payload: data.wordStats });
         })
         .catch(() => {}); // don't break the game on DB errors
-      sessionStorage.clear(); // game complete — nothing left to resume
     }
   }, [state.status]);
 
