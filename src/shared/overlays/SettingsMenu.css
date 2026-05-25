@@ -228,3 +228,87 @@
 .settings-menu__row.is-user .settings-menu__rank {
   color: #16a34a;
 }
+
+/* Login / username creation form */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.login-form__input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: inherit;
+  outline: none;
+  background: #f9fafb;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+.login-form__input:focus {
+  border-color: #388E3C;
+  background: #fff;
+}
+.login-status {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 2px 0;
+}
+.login-status--ok { color: #16a34a; }
+.login-status--err { color: #ef4444; }
+.login-status--checking { color: #9ca3af; }
+.login-form__submit {
+  justify-content: center;
+  transition: opacity 0.15s;
+}
+.login-form__submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.login-form__submit:not(:disabled) {
+  border-color: #388E3C;
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+.login-form__submit:not(:disabled):hover {
+  background: #c8e6c9;
+}
+
+/* Login back button + header row */
+.login-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.login-back {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0 4px;
+  line-height: 1;
+  font-family: inherit;
+}
+.login-back:hover { color: #111827; }
+
+/* Hint text in create view */
+.login-hint {
+  font-size: 12px;
+  color: #9ca3af;
+  margin: -8px 0 12px;
+  line-height: 1.5;
+}
+
+/* Enabled state for login/create submit buttons */
+.login-form__submit--enabled {
+  border-color: #388E3C;
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+.login-form__submit--enabled:hover:not(:disabled) {
+  background: #c8e6c9;
+}

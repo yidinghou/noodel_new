@@ -1,7 +1,5 @@
 import { useState } from 'react';
 
-export const USERS = ['yiding', 'hannah'];
-
 function getTodayDate() {
   const d = new Date();
   return d.toISOString().split('T')[0];
