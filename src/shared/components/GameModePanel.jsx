@@ -45,20 +45,20 @@ function GameModePanel({ dispatch, resumeSession, className = '' }) {
   return (
     <div className={`start-game-overlay${className ? ' ' + className : ''}`}>
       <div className="game-mode-panel__inner">
-        <button
-          type="button"
-          className="start-game-btn"
-          onClick={handleDailyClick}
-          disabled={dailyPlayed && !hasDailyResume}
-        >
-          Daily Puzzle
-          {dailyPlayed
-            ? <span className="start-game-btn__date">Played today ✓</span>
-            : hasDailyResume
-              ? <span className="start-game-btn__date">Resume →</span>
+        {hasDailyResume ? (
+          <button type="button" className="start-game-btn start-game-btn--resume" onClick={handleDailyClick}>
+            Resume
+            <span className="start-game-btn__date">Daily Puzzle in progress</span>
+          </button>
+        ) : (
+          <button type="button" className="start-game-btn" onClick={handleDailyClick} disabled={dailyPlayed}>
+            Daily Puzzle
+            {dailyPlayed
+              ? <span className="start-game-btn__date">Played today ✓</span>
               : <span className="start-game-btn__date">{formatDailyDate()}</span>
-          }
-        </button>
+            }
+          </button>
+        )}
 
         <button
           type="button"
