@@ -40,6 +40,17 @@ try {
     CREATE INDEX IF NOT EXISTS word_history_username_idx ON word_history (username);
   `);
   console.log('✅ word_history table ready');
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      username   TEXT PRIMARY KEY,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
+  await pool.query(`
+    INSERT INTO users (username) VALUES ('yiding'), ('hannah')
+    ON CONFLICT DO NOTHING;
+  `);
+  console.log('✅ users table ready');
 } finally {
   await pool.end();
 }
