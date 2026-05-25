@@ -102,42 +102,44 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
             ) : !s.stats || s.stats.vocabularySize === 0 ? (
               <p className="settings-menu__empty">No stats yet — play a game!</p>
             ) : (
-              <div className="settings-menu__stats">
-                <div className="settings-menu__stats-row">
-                  <span>Vocabulary size</span>
-                  <strong>{s.stats.vocabularySize}</strong>
+              <>
+                <div className="settings-menu__stats">
+                  <div className="settings-menu__stats-row">
+                    <span>Vocabulary size</span>
+                    <strong>{s.stats.vocabularySize}</strong>
+                  </div>
+                  {s.stats.topWords?.length > 0 && (
+                    <div className="settings-menu__words">
+                      <div className="settings-menu__subtitle">Top words</div>
+                      {s.stats.topWords.map(w => (
+                        <div key={w.word} className="settings-menu__word-row">
+                          <span>⭐ {w.word}</span>
+                          <span>×{w.count}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {s.stats.rareWords?.length > 0 && (
+                    <div className="settings-menu__words">
+                      <div className="settings-menu__subtitle">Rare finds</div>
+                      {s.stats.rareWords.map(w => (
+                        <div key={w.word} className="settings-menu__word-row">
+                          <span>💎 {w.word}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                {s.stats.topWords?.length > 0 && (
-                  <div className="settings-menu__words">
-                    <div className="settings-menu__subtitle">Top words</div>
-                    {s.stats.topWords.map(w => (
-                      <div key={w.word} className="settings-menu__word-row">
-                        <span>⭐ {w.word}</span>
-                        <span>×{w.count}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {s.stats.rareWords?.length > 0 && (
-                  <div className="settings-menu__words">
-                    <div className="settings-menu__subtitle">Rare finds</div>
-                    {s.stats.rareWords.map(w => (
-                      <div key={w.word} className="settings-menu__word-row">
-                        <span>💎 {w.word}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                <button
+                  className="settings-menu__btn"
+                  onClick={s.openVocabulary}
+                  style={{ marginTop: 8 }}
+                >
+                  <span>📖 Browse vocabulary ({s.stats.vocabularySize})</span>
+                  <span aria-hidden="true">›</span>
+                </button>
+              </>
             )}
-            <button
-              className="settings-menu__btn"
-              onClick={s.openVocabulary}
-              style={{ marginTop: 8 }}
-            >
-              <span>📖 Browse vocabulary ({s.stats.vocabularySize})</span>
-              <span aria-hidden="true">›</span>
-            </button>
             <button className="settings-menu__btn" onClick={() => s.setPanel(null)} style={{ marginTop: 12 }}>← Back</button>
           </div>
         )}
