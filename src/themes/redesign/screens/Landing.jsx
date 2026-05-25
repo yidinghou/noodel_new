@@ -6,7 +6,7 @@ import { useAmbientDemo, AmbientBoard } from '../components/AmbientDemo.jsx';
 import GameModePanel from '../../../shared/components/GameModePanel.jsx';
 
 function Landing({ onHowToPlay, onLogin, onSettings }) {
-  const { dispatch } = useGame();
+  const { dispatch, resumeSession } = useGame();
   const demo = useAmbientDemo();
   const firstTileRef = useRef(null);
 
@@ -36,7 +36,7 @@ function Landing({ onHowToPlay, onLogin, onSettings }) {
         <NextRow letters={demo.queue} firstTileRef={firstTileRef} />
         <div className="rd-board-stage">
           <AmbientBoard {...demo} firstTileRef={firstTileRef} />
-          <GameModePanel dispatch={dispatch} className="start-game-overlay--redesign" />
+          <GameModePanel dispatch={dispatch} resumeSession={resumeSession} className="start-game-overlay--redesign" />
         </div>
       </section>
     </div>

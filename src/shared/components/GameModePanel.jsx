@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { A } from '../../utils/actionTypes.js';
 import { formatDailyDate } from '../../utils/seededRandom.js';
 import { hasDailyBeenPlayed, getUnlimitedRemaining, redeemCode } from '../../utils/playLimits.js';
+import { peekDailyInProgress } from '../../services/sessionStorage.js';
 import './GameModePanel.css';
 
-function GameModePanel({ dispatch, className = '' }) {
+function GameModePanel({ dispatch, resumeSession, className = '' }) {
   const [dailyPlayed] = useState(hasDailyBeenPlayed);
+  const [hasDailyResume] = useState(() => !hasDailyBeenPlayed() && peekDailyInProgress());
   const [unlimitedLeft, setUnlimitedLeft] = useState(getUnlimitedRemaining);
   const [showCode, setShowCode] = useState(false);
   const [codeInput, setCodeInput] = useState('');
@@ -13,6 +15,11 @@ function GameModePanel({ dispatch, className = '' }) {
 
   const startDaily = () => {
     dispatch({ type: A.START_GAME, payload: { mode: 'clear', gameType: 'daily' } });
+  };
+
+  const handleDailyClick = () => {
+    if (hasDailyResume) resumeSession?.();
+    else startDaily();
   };
 
   const startUnlimited = () => {
@@ -41,13 +48,15 @@ function GameModePanel({ dispatch, className = '' }) {
         <button
           type="button"
           className="start-game-btn"
-          onClick={startDaily}
-          disabled={dailyPlayed}
+          onClick={handleDailyClick}
+          disabled={dailyPlayed && !hasDailyResume}
         >
           Daily Puzzle
           {dailyPlayed
             ? <span className="start-game-btn__date">Played today ✓</span>
-            : <span className="start-game-btn__date">{formatDailyDate()}</span>
+            : hasDailyResume
+              ? <span className="start-game-btn__date">Resume →</span>
+              : <span className="start-game-btn__date">{formatDailyDate()}</span>
           }
         </button>
 
