@@ -103,11 +103,18 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
               <p className="settings-menu__empty">No stats yet — play a game!</p>
             ) : (
               <>
+                <button
+                  className="settings-menu__btn"
+                  onClick={s.openVocabulary}
+                  style={{ marginBottom: 8 }}
+                >
+                  <span>📖 Vocabulary</span>
+                  <span style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                    <strong style={{ fontSize: 18 }}>{s.stats.vocabularySize}</strong>
+                    <span aria-hidden="true">›</span>
+                  </span>
+                </button>
                 <div className="settings-menu__stats">
-                  <div className="settings-menu__stats-row">
-                    <span>Vocabulary size</span>
-                    <strong>{s.stats.vocabularySize}</strong>
-                  </div>
                   {s.stats.topWords?.length > 0 && (
                     <div className="settings-menu__words">
                       <div className="settings-menu__subtitle">Top words</div>
@@ -130,14 +137,6 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
                     </div>
                   )}
                 </div>
-                <button
-                  className="settings-menu__btn"
-                  onClick={s.openVocabulary}
-                  style={{ marginTop: 8 }}
-                >
-                  <span>📖 Browse vocabulary ({s.stats.vocabularySize})</span>
-                  <span aria-hidden="true">›</span>
-                </button>
               </>
             )}
             <button className="settings-menu__btn" onClick={() => s.setPanel(null)} style={{ marginTop: 12 }}>← Back</button>
