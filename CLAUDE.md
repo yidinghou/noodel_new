@@ -119,6 +119,82 @@ The leaderboard shows a ▶ button next to each score. Clicking it fetches the s
 
 **Score deduplication** (`GameContext.jsx`): `scoreSubmittedRef` guards the `POST /api/scores` call so React Strict Mode's double-mount doesn't submit two entries. Reset to `false` on each `START_GAME`.
 
+## Testing
+
+### When to run Jest
+
+Use Jest for unit tests of game logic, utilities, and reducers:
+
+```bash
+npm test                                        # Run all tests
+npm test -- --testPathPattern=gameReducer       # Test a specific file
+npm run test:watch                              # Watch mode
+```
+
+**Test when you change:**
+- `src/context/GameReducer.js` — state transitions, action handling
+- `src/utils/wordUtils.js` — word-finding logic (horizontal/vertical detection)
+- `src/utils/gracePeriodUtils.js` — grace period word classification (skip/extend/add)
+- `src/utils/scoringUtils.js` — score calculation
+- Any utility in `src/utils/` with unit test coverage
+
+### When to test the API
+
+Use the running Express server to verify endpoint behavior:
+
+```bash
+npm run build && npm start
+# Server at http://localhost:3000
+```
+
+**Test when you change:**
+- `server.js` — routes, request handling, database queries
+- Response format or status codes
+
+**Key endpoints to verify:**
+
+| Endpoint | How to test |
+|---|---|
+| `GET /api/scores?gameMode=clear&date=YYYY-MM-DD` | `curl 'http://localhost:3000/api/scores?gameMode=clear&date=2026-05-25'` |
+| `GET /api/scores/my-best?username=test` | `curl 'http://localhost:3000/api/scores/my-best?username=test'` |
+| `POST /api/scores` | Submit a game score via the UI or curl |
+| `GET /api/scores/:id/session` | Click ▶ on a leaderboard score to verify replay data loads |
+| `GET /api/user-stats?username=test` | Settings → Stats panel |
+| `GET /api/vocabulary?username=test` | Settings → Vocabulary |
+
+### When to test the UI
+
+Use the running app in a browser to verify component behavior and visual correctness:
+
+```bash
+npm run build && npm start
+# App at http://localhost:3000
+```
+
+**Test when you change:**
+- `src/shared/overlays/SettingsMenu.jsx` — settings panels, buttons, lists
+- `src/themes/classic/components/Overlays/GameOverOverlay.jsx` — game-over screen
+- Theme files or styles
+- Any hook or component that affects what users see
+
+**Test flow:**
+
+1. Open `http://localhost:3000` in a browser
+2. Optionally set a username in DevTools → Application → LocalStorage (`noodel_username` = your test name)
+3. Interact with the changed UI (open Settings, complete a game, switch themes, etc.)
+4. Verify the expected behavior and visual result
+5. Check adjacent UI for regressions (e.g., alignment, colors, responsive layout)
+
+**Useful debug flags** (append to URL):
+
+```
+?skipAnimations=true     # Remove Framer Motion delays for faster testing
+?debug=true              # Show debug overlay with game state
+?debugGrid=true          # Show grid pattern on board
+```
+
+Example: `http://localhost:3000?skipAnimations=true&debug=true`
+
 ## Database
 
 The app requires `DATABASE_URL` in `.env`. The `.env` file has two URLs (`LOCAL_DATABASE_URL`, `RAILWAY_DATABASE_URL`) — toggle which one `DATABASE_URL` points to.

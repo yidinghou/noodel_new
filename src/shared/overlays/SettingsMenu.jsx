@@ -62,10 +62,6 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
               <span>🥇 My Best</span>
               <span aria-hidden="true">›</span>
             </button>
-            <button className="settings-menu__btn" onClick={s.openVocabulary}>
-              <span>📖 Vocabulary</span>
-              <span aria-hidden="true">›</span>
-            </button>
             <button className="settings-menu__btn" onClick={onToggleMute}>
               <span>{isMuted ? '🔇 Unmute' : '🔊 Sound'}</span>
             </button>
@@ -106,33 +102,45 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
             ) : !s.stats || s.stats.vocabularySize === 0 ? (
               <p className="settings-menu__empty">No stats yet — play a game!</p>
             ) : (
-              <div className="settings-menu__stats">
-                <div className="settings-menu__stats-row">
-                  <span>Vocabulary size</span>
-                  <strong>{s.stats.vocabularySize}</strong>
-                </div>
-                {s.stats.topWords?.length > 0 && (
-                  <div className="settings-menu__words">
-                    <div className="settings-menu__subtitle">Top words</div>
-                    {s.stats.topWords.map(w => (
-                      <div key={w.word} className="settings-menu__word-row">
-                        <span>⭐ {w.word}</span>
-                        <span>×{w.count}</span>
+              <>
+                <button
+                  className="settings-menu__stat-tile"
+                  onClick={s.openVocabulary}
+                  style={{ marginBottom: 8 }}
+                >
+                  <span className="settings-menu__stat-tile__label">Total Words</span>
+                  <strong className="settings-menu__stat-tile__number">{s.stats.vocabularySize}</strong>
+                  <span className="settings-menu__stat-tile__icon">📖</span>
+                  <span className="settings-menu__btn settings-menu__btn--cta">Search vocab →</span>
+                </button>
+
+                {(s.stats.topWords?.length > 0 || s.stats.rareWords?.length > 0) && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                    {s.stats.topWords?.length > 0 && (
+                      <div className="settings-menu__word-tile">
+                        <div className="settings-menu__subtitle">⭐ Top Favs</div>
+                        {s.stats.topWords.map(w => (
+                          <div key={w.word} className="settings-menu__word-row">
+                            <span>{w.word}</span>
+                            <span>×{w.timesMade}</span>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    )}
+                    {s.stats.rareWords?.length > 0 && (
+                      <div className="settings-menu__word-tile">
+                        <div className="settings-menu__subtitle">💎 Rare Finds</div>
+                        {s.stats.rareWords.map(w => (
+                          <div key={w.word} className="settings-menu__word-row">
+                            <span>{w.word}</span>
+                            {w.isNew && <span style={{ fontSize: 10, color: '#16a34a', fontWeight: 700, textTransform: 'uppercase' }}>new</span>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
-                {s.stats.rareWords?.length > 0 && (
-                  <div className="settings-menu__words">
-                    <div className="settings-menu__subtitle">Rare finds</div>
-                    {s.stats.rareWords.map(w => (
-                      <div key={w.word} className="settings-menu__word-row">
-                        <span>💎 {w.word}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+              </>
             )}
             <button className="settings-menu__btn" onClick={() => s.setPanel(null)} style={{ marginTop: 12 }}>← Back</button>
           </div>
