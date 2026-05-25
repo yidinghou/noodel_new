@@ -73,7 +73,6 @@ export function GameProvider({ children }) {
       const rng = createSeededRng(seed);
       const initialQueue = buildInitialQueue(mode, rng);
       const { grid: initialGrid, initialBlocks } = buildInitialGrid(mode, rng);
-      if (gameType === 'daily') markDailyPlayed();
       if (gameType === 'unlimited') consumeUnlimitedPlay();
       const fullAction = { type: A.START_GAME, payload: { mode, gameType, initialQueue, initialGrid, initialBlocks } };
       recorderRef.current.record(fullAction);
@@ -86,8 +85,14 @@ export function GameProvider({ children }) {
     }
 
     if (action.type === A.RESET) {
-      recorderRef.current.reset();
-      sessionStorage.clear();
+      const isDailyInProgress =
+        stateRef.current.gameType === 'daily' &&
+        stateRef.current.status !== STATUS.GAME_OVER &&
+        stateRef.current.status !== STATUS.IDLE;
+      if (!isDailyInProgress) {
+        recorderRef.current.reset();
+        sessionStorage.clear();
+      }
       dispatch(action);
       return;
     }
@@ -103,10 +108,21 @@ export function GameProvider({ children }) {
     return true;
   }, [dispatch]);
 
+  const resumeSession = useCallback(() => {
+    const snap = sessionStorage.load();
+    if (!snap?.checkpoints?.length) return;
+    const hasGameOver = snap.events?.some(e => e.type === A.GAME_OVER);
+    if (hasGameOver) { sessionStorage.clear(); return; }
+    if (!recorderRef.current.loadSnapshot(snap)) { sessionStorage.clear(); return; }
+    const latest = snap.checkpoints[snap.checkpoints.length - 1];
+    dispatch({ type: A.LOAD_SAVED_GAME, payload: latest.state });
+  }, [dispatch]);
+
   // Submit score when game ends (daily only); always clear the session snapshot.
   useEffect(() => {
     if (state.status !== STATUS.GAME_OVER) return;
     sessionStorage.clear(); // game complete — nothing left to resume
+    if (state.gameType === 'daily') markDailyPlayed();
     if (!scoreSubmittedRef.current && state.gameType === 'daily') {
       scoreSubmittedRef.current = true;
       const username = localStorage.getItem('noodel_username') ?? 'anonymous';
@@ -129,7 +145,7 @@ export function GameProvider({ children }) {
   }, [state.status]);
 
   return (
-    <GameContext.Provider value={{ state, dispatch: wrappedDispatch, undo }}>
+    <GameContext.Provider value={{ state, dispatch: wrappedDispatch, undo, resumeSession }}>
       {children}
     </GameContext.Provider>
   );
