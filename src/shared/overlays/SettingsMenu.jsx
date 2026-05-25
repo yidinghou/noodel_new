@@ -111,6 +111,7 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
                   <span className="settings-menu__stat-tile__label">Total Words</span>
                   <strong className="settings-menu__stat-tile__number">{s.stats.vocabularySize}</strong>
                   <span className="settings-menu__stat-tile__icon">📖</span>
+                  <span className="settings-menu__btn settings-menu__btn--cta">Search vocab →</span>
                 </button>
 
                 {(s.stats.topWords?.length > 0 || s.stats.rareWords?.length > 0) && (

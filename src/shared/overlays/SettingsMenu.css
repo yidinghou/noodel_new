@@ -203,6 +203,21 @@
   margin-top: 4px;
 }
 
+.settings-menu__btn--cta {
+  border-color: #388E3C;
+  background: #E8F5E9;
+  color: #2E7D32;
+  font-size: 12px;
+  padding: 6px 14px;
+  margin-top: 8px;
+  justify-content: center;
+  width: auto;
+}
+.settings-menu__btn--cta:hover {
+  background: #c8e6c9;
+  border-color: #2e7d32;
+}
+
 .settings-menu__leaderboard {
   display: flex;
   flex-direction: column;
