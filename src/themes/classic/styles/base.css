@@ -384,6 +384,16 @@ body {
     box-shadow: 0 4px 10px rgba(25, 118, 210, 0.3);
 }
 
+.start-game-overlay--classic .start-game-btn__date {
+    display: block;
+    font-size: 0.7em;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    opacity: 0.85;
+    margin-top: 2px;
+}
+
 .game-grid-wrapper--idle .preview-row {
     opacity: 0.4;
 }

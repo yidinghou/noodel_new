@@ -5,6 +5,7 @@ import GameOverOverlay from './components/Overlays/GameOverOverlay.jsx';
 import { useGame } from '../../context/GameContext.jsx';
 import { STATUS } from '../../utils/gameConstants.js';
 import { A } from '../../utils/actionTypes.js';
+import GameModePanel from '../../shared/components/GameModePanel.jsx';
 import './styles/base.css';
 import './styles/card.css';
 import './styles/grid.css';
@@ -13,10 +14,6 @@ import './styles/made-words.css';
 function ClassicRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
   const { state, dispatch, undo } = useGame();
   const gridWrapperRef = useRef(null);
-
-  const handleStart = () => {
-    dispatch({ type: A.START_GAME, payload: { mode: 'clear' } });
-  };
 
   const handleRestart = () => {
     dispatch({ type: A.RESET });
@@ -53,7 +50,7 @@ function ClassicRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
         onInfo={onHowToPlay}
         onColumnClick={handleColumnClick}
         onUndo={undo}
-        onStartGame={handleStart}
+        renderStartOverlay={() => <GameModePanel dispatch={dispatch} className="start-game-overlay--classic" />}
         showPreview={state.status === STATUS.PLAYING || state.status === STATUS.PROCESSING}
       />
       <GameOverOverlay
