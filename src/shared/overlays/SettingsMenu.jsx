@@ -62,10 +62,6 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
               <span>🥇 My Best</span>
               <span aria-hidden="true">›</span>
             </button>
-            <button className="settings-menu__btn" onClick={s.openVocabulary}>
-              <span>📖 Vocabulary</span>
-              <span aria-hidden="true">›</span>
-            </button>
             <button className="settings-menu__btn" onClick={onToggleMute}>
               <span>{isMuted ? '🔇 Unmute' : '🔊 Sound'}</span>
             </button>
@@ -134,6 +130,14 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
                 )}
               </div>
             )}
+            <button
+              className="settings-menu__btn"
+              onClick={s.openVocabulary}
+              style={{ marginTop: 8 }}
+            >
+              <span>📖 Browse vocabulary ({s.stats.vocabularySize})</span>
+              <span aria-hidden="true">›</span>
+            </button>
             <button className="settings-menu__btn" onClick={() => s.setPanel(null)} style={{ marginTop: 12 }}>← Back</button>
           </div>
         )}
