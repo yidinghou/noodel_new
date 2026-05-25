@@ -195,6 +195,36 @@ app.get('/api/user-stats', async (req, res) => {
   }
 });
 
+app.get('/api/users/check', async (req, res) => {
+  const { username } = req.query;
+  if (!username) return res.status(400).json({ error: 'username required' });
+  try {
+    const result = await pool.query('SELECT 1 FROM users WHERE username = $1', [username.trim().toLowerCase()]);
+    res.json({ available: result.rowCount === 0 });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+app.post('/api/users', async (req, res) => {
+  const raw = (req.body?.username ?? '').trim().toLowerCase();
+  if (!raw) return res.status(400).json({ error: 'username required' });
+  if (raw.length > 20) return res.status(400).json({ error: 'Username too long (max 20 characters)' });
+  if (!/^[a-zA-Z0-9_]+$/.test(raw)) return res.status(400).json({ error: 'Only letters, numbers, and underscores allowed' });
+  try {
+    const result = await pool.query(
+      'INSERT INTO users (username) VALUES ($1) ON CONFLICT DO NOTHING RETURNING username',
+      [raw]
+    );
+    if (result.rowCount === 0) return res.status(409).json({ error: 'Username already taken' });
+    res.status(201).json({ username: raw });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // Serve known HTML entry points directly; fall back to index.html for SPA routes
 const HTML_ENTRIES = ['index.html', 'poc.html'];
 app.get('*', (req, res) => {
