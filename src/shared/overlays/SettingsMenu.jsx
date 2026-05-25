@@ -119,10 +119,10 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                     {s.stats.topWords?.length > 0 && (
                       <div className="settings-menu__word-tile">
-                        <div className="settings-menu__subtitle">Top Favs</div>
+                        <div className="settings-menu__subtitle">⭐ Top Favs</div>
                         {s.stats.topWords.map(w => (
                           <div key={w.word} className="settings-menu__word-row">
-                            <span>⭐ {w.word}</span>
+                            <span>{w.word}</span>
                             <span>×{w.timesMade}</span>
                           </div>
                         ))}
@@ -130,10 +130,10 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
                     )}
                     {s.stats.rareWords?.length > 0 && (
                       <div className="settings-menu__word-tile">
-                        <div className="settings-menu__subtitle">Rare Finds</div>
+                        <div className="settings-menu__subtitle">💎 Rare Finds</div>
                         {s.stats.rareWords.map(w => (
                           <div key={w.word} className="settings-menu__word-row">
-                            <span>💎 {w.word}</span>
+                            <span>{w.word}</span>
                             {w.isNew && <span style={{ fontSize: 10, color: '#16a34a', fontWeight: 700, textTransform: 'uppercase' }}>new</span>}
                           </div>
                         ))}
