@@ -13,6 +13,7 @@ export const initialState = {
   allWordsThisGame: [], // deduped list of all words cleared this game, for server submission
   wordStats: null, // populated after game-over score submission
   gameMode: null, // null, 'classic', or 'clear'
+  gameType: null, // null, 'daily', or 'unlimited'
   initialBlocks: [] // Array of indices for Clear mode initial blocks
 };
 
@@ -20,7 +21,7 @@ export const initialState = {
 export function gameReducer(state, action) {
   switch (action.type) {
     case A.START_GAME: {
-      const { mode, initialQueue, initialGrid, initialBlocks } = action.payload;
+      const { mode, gameType, initialQueue, initialGrid, initialBlocks } = action.payload;
 
       return {
         ...state,
@@ -33,6 +34,7 @@ export function gameReducer(state, action) {
         allWordsThisGame: [],
         wordStats: null,
         gameMode: mode,
+        gameType: gameType ?? null,
         initialBlocks: initialBlocks || []
       };
     }
@@ -218,7 +220,7 @@ export function gameReducer(state, action) {
     }
 
     case A.LOAD_SAVED_GAME: {
-      const { grid, nextQueue, lettersRemaining, score, madeWords, gameMode, initialBlocks } = action.payload;
+      const { grid, nextQueue, lettersRemaining, score, madeWords, gameMode, gameType, initialBlocks } = action.payload;
       return {
         ...initialState,
         grid,
@@ -227,6 +229,7 @@ export function gameReducer(state, action) {
         score,
         madeWords,
         gameMode,
+        gameType: gameType ?? null,
         initialBlocks: initialBlocks || [],
         status: STATUS.PLAYING
       };

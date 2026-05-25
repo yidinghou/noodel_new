@@ -4,6 +4,7 @@ import { useGame } from '../../context/GameContext.jsx';
 import { formatDailyDate } from '../../utils/seededRandom.js';
 import { STATUS } from '../../utils/gameConstants.js';
 import { A } from '../../utils/actionTypes.js';
+import { hasDailyBeenPlayed } from '../../utils/playLimits.js';
 import WordListModal from './WordListModal.jsx';
 import './SettingsMenu.css';
 
@@ -12,6 +13,7 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
   const { themeId, setThemeId, themes } = useTheme();
   const { state, dispatch } = useGame();
   const isPlaying = state.status !== STATUS.IDLE;
+  const dailyPlayed = hasDailyBeenPlayed();
 
   const title =
     s.panel === 'stats'       ? 'Stats'
@@ -47,9 +49,14 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
               <span>📊 Stats</span>
               <span aria-hidden="true">›</span>
             </button>
-            <button className="settings-menu__btn" onClick={() => s.openLeaderboard()}>
-              <span>🏆 Leaderboard</span>
-              <span aria-hidden="true">›</span>
+            <button
+              className="settings-menu__btn"
+              onClick={() => dailyPlayed && s.openLeaderboard()}
+              disabled={!dailyPlayed}
+              title={dailyPlayed ? undefined : "Play today's Daily Puzzle to unlock"}
+            >
+              <span>🏆 Leaderboard{!dailyPlayed ? ' 🔒' : ''}</span>
+              {dailyPlayed && <span aria-hidden="true">›</span>}
             </button>
             <button className="settings-menu__btn" onClick={s.openMyBest}>
               <span>🥇 My Best</span>

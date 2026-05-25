@@ -9,8 +9,6 @@ import { HowToPlayIcon, LoginIcon, LoggedInIcon, SettingsIcon } from '../../../.
 import { useCurrentUser } from '../../../../shared/hooks/useCurrentUser.js';
 import { GRID_COLS, GRID_ROWS } from '../../../../utils/gameConstants.js';
 import { useAmbientDemo } from '../../../../hooks/useAmbientDemo.js';
-import { formatDailyDate } from '../../../../utils/seededRandom.js';
-import StartGameOverlay from '../../../../shared/components/StartGameOverlay.jsx';
 
 function GameLayout({
   gridWrapperRef = null,
@@ -28,7 +26,7 @@ function GameLayout({
   onInfo,
   onColumnClick,
   onUndo,
-  onStartGame,
+  renderStartOverlay,
   showPreview = false,
 }) {
   const currentUser = useCurrentUser();
@@ -217,9 +215,7 @@ function GameLayout({
           </div>
         </div>
         <Board grid={displayGrid} onColumnClick={isIdle ? null : handleColumnClick} gridRef={gridRef} visible={true} />
-        {gameStatus === 'IDLE' && (
-          <StartGameOverlay className="start-game-overlay--classic" date={formatDailyDate()} onClick={onStartGame} />
-        )}
+        {gameStatus === 'IDLE' && renderStartOverlay?.()}
       </div>
 
       {/* Made Words Section (Bottom) */}

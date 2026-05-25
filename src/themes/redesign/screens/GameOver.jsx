@@ -36,9 +36,10 @@ function GameOver() {
   const newWordsSet = useMemo(() => new Set(state.wordStats?.newWords ?? []), [state.wordStats]);
 
   const isClearMode = state.gameMode === 'clear';
+  const isDailyGame = state.gameType === 'daily';
 
   useEffect(() => {
-    if (isClearMode && state.wordStats !== undefined) {
+    if (isClearMode && isDailyGame && state.wordStats !== undefined) {
       setLoadingLeaderboard(true);
       const username = localStorage.getItem('noodel_username') ?? '';
       const today = new Date().toISOString().split('T')[0];
@@ -48,7 +49,7 @@ function GameOver() {
         .catch(() => setLeaderboard([]))
         .finally(() => setLoadingLeaderboard(false));
     }
-  }, [isClearMode, state.wordStats]);
+  }, [isClearMode, isDailyGame, state.wordStats]);
   const lettersRemaining = state.lettersRemaining;
   const lettersUsed = TOTAL_LETTERS - lettersRemaining;
   const boardCleared = isClearMode && state.initialBlocks.length > 0
@@ -83,7 +84,7 @@ function GameOver() {
   ];
 
   const onHome = () => dispatch({ type: A.RESET });
-  const onRestart = () => dispatch({ type: A.START_GAME, payload: { mode: state.gameMode } });
+  const onRestart = () => dispatch({ type: A.START_GAME, payload: { mode: state.gameMode, gameType: 'unlimited' } });
 
   return (
     <div className="rd-screen rd-gameover">
@@ -107,7 +108,7 @@ function GameOver() {
           <WordStatsBullets wordStats={state.wordStats} intro={statsIntro} />
         )}
 
-        {isClearMode && (
+        {isClearMode && isDailyGame && (
           <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid #e0e0e0' }}>
             <h3 style={{ marginBottom: 12, fontSize: '0.95em', fontWeight: 500 }}>Today's Clear Leaderboard</h3>
             {loadingLeaderboard ? (
@@ -130,6 +131,14 @@ function GameOver() {
                 }).flat()}
               </div>
             )}
+          </div>
+        )}
+
+        {isClearMode && !isDailyGame && (
+          <div style={{ marginTop: 24, paddingTop: 16, borderTop: '1px solid #e0e0e0', textAlign: 'center' }}>
+            <p style={{ color: '#666', fontSize: '0.9em' }}>
+              Play today's <strong>Daily Puzzle</strong> to compete on the leaderboard.
+            </p>
           </div>
         )}
 

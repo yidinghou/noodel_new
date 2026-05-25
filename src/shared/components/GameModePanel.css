@@ -1,0 +1,66 @@
+.game-mode-panel__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+  pointer-events: auto;
+  min-width: 200px;
+  max-width: 240px;
+}
+
+.game-mode-panel__code {
+  text-align: center;
+}
+
+.game-mode-panel__code-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75em;
+  opacity: 0.6;
+  padding: 2px 0;
+  pointer-events: auto;
+}
+
+.game-mode-panel__code-form {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  justify-content: center;
+}
+
+.game-mode-panel__code-input {
+  padding: 4px 8px;
+  font-size: 0.85em;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  width: 110px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.game-mode-panel__code-submit {
+  padding: 4px 10px;
+  font-size: 0.85em;
+  border-radius: 4px;
+  background: #2e7d32;
+  color: white;
+  border: none;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.game-mode-panel__code-msg {
+  font-size: 0.75em;
+  margin: 4px 0 0;
+}
+
+.game-mode-panel__code-msg--ok   { color: #2e7d32; }
+.game-mode-panel__code-msg--err  { color: #c62828; }
+
+.start-game-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+  transform: none !important;
+  box-shadow: none !important;
+}
