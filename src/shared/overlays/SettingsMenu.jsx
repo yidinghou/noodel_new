@@ -104,15 +104,13 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
             ) : (
               <>
                 <button
-                  className="settings-menu__btn"
+                  className="settings-menu__stat-tile"
                   onClick={s.openVocabulary}
                   style={{ marginBottom: 8 }}
                 >
-                  <span>📖 Vocabulary</span>
-                  <span style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-                    <strong style={{ fontSize: 18 }}>{s.stats.vocabularySize}</strong>
-                    <span aria-hidden="true">›</span>
-                  </span>
+                  <span className="settings-menu__stat-tile__label">Total Words</span>
+                  <strong className="settings-menu__stat-tile__number">{s.stats.vocabularySize}</strong>
+                  <span className="settings-menu__stat-tile__icon">📖</span>
                 </button>
 
                 {(s.stats.topWords?.length > 0 || s.stats.rareWords?.length > 0) && (
