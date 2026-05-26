@@ -85,11 +85,17 @@ export function GameProvider({ children }) {
     }
 
     if (action.type === A.RESET) {
-      const isDailyInProgress =
-        stateRef.current.gameType === 'daily' &&
+      const isGameInProgress =
         stateRef.current.status !== STATUS.GAME_OVER &&
         stateRef.current.status !== STATUS.IDLE;
-      if (!isDailyInProgress) {
+      if (isGameInProgress) {
+        // Capture current visible state so resume restores here, not pre-last-drop.
+        // Skip if PROCESSING (mid-animation) to avoid persisting a partially-animated grid.
+        if (stateRef.current.status === STATUS.PLAYING) {
+          recorderRef.current.recordCheckpoint(stateRef.current);
+        }
+        // onChange fires → sessionStorage.save automatically
+      } else {
         recorderRef.current.reset();
         sessionStorage.clear();
       }
