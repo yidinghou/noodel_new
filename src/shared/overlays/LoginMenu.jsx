@@ -1,17 +1,21 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSettingsState } from '../hooks/useSettingsState.js';
 import { NOODEL_LOGIN_EVENT } from '../hooks/useCurrentUser.js';
+import { useGame } from '../../context/GameContext.jsx';
+import { A } from '../../utils/actionTypes.js';
 import './SettingsMenu.css';
 
 const USERNAME_REGEX = /^[a-zA-Z0-9_]+$/;
 
 function LoginMenu({ onClose }) {
   const s = useSettingsState({ onClose });
+  const { dispatch } = useGame();
   // view: 'landing' | 'login' | 'create'
   const [view, setView] = useState('landing');
 
   const handleLogout = () => {
     s.logout();
+    dispatch({ type: A.RESET });
     window.dispatchEvent(new CustomEvent(NOODEL_LOGIN_EVENT));
     onClose?.();
   };
