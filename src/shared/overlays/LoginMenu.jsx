@@ -3,13 +3,15 @@ import { useSettingsState } from '../hooks/useSettingsState.js';
 import { NOODEL_LOGIN_EVENT } from '../hooks/useCurrentUser.js';
 import { useGame } from '../../context/GameContext.jsx';
 import { A } from '../../utils/actionTypes.js';
+import { STATUS } from '../../utils/gameConstants.js';
 import './SettingsMenu.css';
 
 const USERNAME_REGEX = /^[a-zA-Z0-9_]+$/;
 
 function LoginMenu({ onClose }) {
   const s = useSettingsState({ onClose });
-  const { dispatch } = useGame();
+  const { dispatch, state } = useGame();
+  const isGameActive = state.status !== STATUS.IDLE;
   // view: 'landing' | 'login' | 'create'
   const [view, setView] = useState('landing');
 
@@ -22,6 +24,7 @@ function LoginMenu({ onClose }) {
 
   const finish = (username) => {
     s.selectUser(username);
+    if (isGameActive) dispatch({ type: A.RESET });
     window.dispatchEvent(new CustomEvent(NOODEL_LOGIN_EVENT));
     onClose?.();
   };
@@ -30,6 +33,12 @@ function LoginMenu({ onClose }) {
     <div className="settings-menu" onClick={onClose}>
       <div className="settings-menu__card" onClick={e => e.stopPropagation()}>
         <button type="button" className="settings-menu__close" onClick={onClose} aria-label="Close">✕</button>
+
+        {isGameActive && (
+          <p className="login-status login-status--warn">
+            ⚠ Logging in or out during a game returns you to the home screen
+          </p>
+        )}
 
         {s.currentUser ? (
           <LoggedInView currentUser={s.currentUser} onLogout={handleLogout} />

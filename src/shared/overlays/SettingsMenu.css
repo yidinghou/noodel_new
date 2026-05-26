@@ -319,6 +319,7 @@
 .login-status--ok { color: #16a34a; }
 .login-status--err { color: #ef4444; }
 .login-status--checking { color: #9ca3af; }
+.login-status--warn { color: #b45309; }
 .login-form__submit {
   justify-content: center;
   transition: opacity 0.15s;
