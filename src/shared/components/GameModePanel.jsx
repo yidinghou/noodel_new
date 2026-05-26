@@ -1,17 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { A } from '../../utils/actionTypes.js';
 import { formatDailyDate } from '../../utils/seededRandom.js';
 import { hasDailyBeenPlayed, getUnlimitedRemaining, redeemCode } from '../../utils/playLimits.js';
 import { peekDailyInProgress } from '../../services/sessionStorage.js';
+import { useCurrentUser } from '../hooks/useCurrentUser.js';
 import './GameModePanel.css';
 
 function GameModePanel({ dispatch, resumeSession, className = '' }) {
-  const [dailyPlayed] = useState(hasDailyBeenPlayed);
-  const [hasDailyResume] = useState(() => !hasDailyBeenPlayed() && peekDailyInProgress());
+  const currentUser = useCurrentUser();
   const [unlimitedLeft, setUnlimitedLeft] = useState(getUnlimitedRemaining);
   const [showCode, setShowCode] = useState(false);
   const [codeInput, setCodeInput] = useState('');
   const [codeMsg, setCodeMsg] = useState('');
+
+  useEffect(() => {
+    setUnlimitedLeft(getUnlimitedRemaining());
+  }, [currentUser]);
+
+  const dailyPlayed = hasDailyBeenPlayed();
+  const hasDailyResume = !dailyPlayed && peekDailyInProgress();
 
   const startDaily = () => {
     dispatch({ type: A.START_GAME, payload: { mode: 'clear', gameType: 'daily' } });
