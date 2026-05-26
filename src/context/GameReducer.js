@@ -220,7 +220,7 @@ export function gameReducer(state, action) {
     }
 
     case A.LOAD_SAVED_GAME: {
-      const { grid, nextQueue, lettersRemaining, score, madeWords, gameMode, gameType, initialBlocks } = action.payload;
+      const { grid, nextQueue, lettersRemaining, score, madeWords, allWordsThisGame, gameMode, gameType, initialBlocks } = action.payload;
       return {
         ...initialState,
         grid,
@@ -228,6 +228,7 @@ export function gameReducer(state, action) {
         lettersRemaining,
         score,
         madeWords,
+        allWordsThisGame: allWordsThisGame || [],
         gameMode,
         gameType: gameType ?? null,
         initialBlocks: initialBlocks || [],

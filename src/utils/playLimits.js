@@ -6,8 +6,12 @@ export function getToday() {
   return new Date().toISOString().split('T')[0];
 }
 
+function getUsername() {
+  try { return localStorage.getItem('noodel_username') ?? 'anonymous'; } catch { return 'anonymous'; }
+}
+
 function key(name) {
-  return `noodel_${name}_${getToday()}`;
+  return `noodel_${name}_${getUsername()}_${getToday()}`;
 }
 
 export function hasDailyBeenPlayed() {
@@ -50,7 +54,7 @@ export function redeemCode(code) {
   const normalized = (code ?? '').trim().toUpperCase();
   if (!VALID_CODES.includes(normalized)) return 'invalid';
   try {
-    const usedKey = `noodel_code_used_${normalized}_${getToday()}`;
+    const usedKey = `noodel_code_used_${normalized}_${getUsername()}_${getToday()}`;
     if (localStorage.getItem(usedKey) === '1') return 'already_used';
     localStorage.setItem(usedKey, '1');
     const bonus = parseInt(localStorage.getItem(key('unlock_bonus')) ?? '0', 10);

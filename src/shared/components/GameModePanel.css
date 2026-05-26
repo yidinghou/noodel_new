@@ -64,3 +64,11 @@
   transform: none !important;
   box-shadow: none !important;
 }
+
+.start-game-btn--resume {
+  background: #2e7d32;
+}
+
+.start-game-btn--resume:hover:not(:disabled) {
+  background: #1b5e20;
+}

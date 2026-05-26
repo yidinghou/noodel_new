@@ -20,7 +20,7 @@ const RECORDABLE = new Set([
 ]);
 
 // State fields needed to fully restore the reducer via LOAD_SAVED_GAME.
-const CHECKPOINT_FIELDS = ['grid', 'nextQueue', 'lettersRemaining', 'score', 'madeWords', 'gameMode', 'initialBlocks'];
+const CHECKPOINT_FIELDS = ['grid', 'nextQueue', 'lettersRemaining', 'score', 'madeWords', 'allWordsThisGame', 'gameMode', 'gameType', 'initialBlocks'];
 
 function pickCheckpointState(state) {
   const out = {};

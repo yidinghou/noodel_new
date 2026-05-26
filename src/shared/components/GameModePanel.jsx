@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { A } from '../../utils/actionTypes.js';
 import { formatDailyDate } from '../../utils/seededRandom.js';
 import { hasDailyBeenPlayed, getUnlimitedRemaining, redeemCode } from '../../utils/playLimits.js';
+import { peekDailyInProgress } from '../../services/sessionStorage.js';
 import './GameModePanel.css';
 
-function GameModePanel({ dispatch, className = '' }) {
+function GameModePanel({ dispatch, resumeSession, className = '' }) {
   const [dailyPlayed] = useState(hasDailyBeenPlayed);
+  const [hasDailyResume] = useState(() => !hasDailyBeenPlayed() && peekDailyInProgress());
   const [unlimitedLeft, setUnlimitedLeft] = useState(getUnlimitedRemaining);
   const [showCode, setShowCode] = useState(false);
   const [codeInput, setCodeInput] = useState('');
@@ -13,6 +15,11 @@ function GameModePanel({ dispatch, className = '' }) {
 
   const startDaily = () => {
     dispatch({ type: A.START_GAME, payload: { mode: 'clear', gameType: 'daily' } });
+  };
+
+  const handleDailyClick = () => {
+    if (hasDailyResume) resumeSession?.();
+    else startDaily();
   };
 
   const startUnlimited = () => {
@@ -38,18 +45,20 @@ function GameModePanel({ dispatch, className = '' }) {
   return (
     <div className={`start-game-overlay${className ? ' ' + className : ''}`}>
       <div className="game-mode-panel__inner">
-        <button
-          type="button"
-          className="start-game-btn"
-          onClick={startDaily}
-          disabled={dailyPlayed}
-        >
-          Daily Puzzle
-          {dailyPlayed
-            ? <span className="start-game-btn__date">Played today ✓</span>
-            : <span className="start-game-btn__date">{formatDailyDate()}</span>
-          }
-        </button>
+        {hasDailyResume ? (
+          <button type="button" className="start-game-btn start-game-btn--resume" onClick={handleDailyClick}>
+            Resume
+            <span className="start-game-btn__date">Daily Puzzle in progress</span>
+          </button>
+        ) : (
+          <button type="button" className="start-game-btn" onClick={handleDailyClick} disabled={dailyPlayed}>
+            Daily Puzzle
+            {dailyPlayed
+              ? <span className="start-game-btn__date">Played today ✓</span>
+              : <span className="start-game-btn__date">{formatDailyDate()}</span>
+            }
+          </button>
+        )}
 
         <button
           type="button"
