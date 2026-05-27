@@ -6,6 +6,15 @@ import Shell from '../components/Shell.jsx';
 import Board from '../components/Board.jsx';
 import DroppingOverlay from '../../../shared/overlays/DroppingOverlay.jsx';
 
+// Convert layout-viewport coordinates from getBoundingClientRect() into visual-viewport
+// coordinates for position:fixed elements, accounting for mobile pinch-zoom offsets
+function getVVOffset() {
+  return {
+    x: window.visualViewport?.offsetLeft ?? 0,
+    y: window.visualViewport?.offsetTop ?? 0,
+  };
+}
+
 function InGame({ onHowToPlay, onLogin, onSettings }) {
   const { state, dispatch } = useGame();
 
@@ -50,6 +59,7 @@ function InGame({ onHowToPlay, onLogin, onSettings }) {
     const colLeft = gridRect.left + column * colWidth + (colWidth - cellSize) / 2;
 
     const id = `${Date.now()}-${Math.random()}`;
+    const vv = getVVOffset();
     inFlightColumnsRef.current.set(column, cif + 1);
     inFlightCountRef.current++;
 
@@ -57,9 +67,9 @@ function InGame({ onHowToPlay, onLogin, onSettings }) {
       id,
       column,
       letter: letter.char,
-      from:    { x: fromRect.left, y: fromRect.top },
-      toTop:   { x: colLeft, y: gridRect.top },
-      toFinal: { x: colLeft, y: gridRect.top + destRow * rowHeight },
+      from:    { x: fromRect.left - vv.x, y: fromRect.top - vv.y },
+      toTop:   { x: colLeft - vv.x, y: gridRect.top - vv.y },
+      toFinal: { x: colLeft - vv.x, y: gridRect.top + destRow * rowHeight - vv.y },
       cellSize,
     }]);
   }, [state.nextQueue, getDestRow, dispatch]);
