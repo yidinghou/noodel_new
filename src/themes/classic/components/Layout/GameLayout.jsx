@@ -10,6 +10,15 @@ import { useCurrentUser } from '../../../../shared/hooks/useCurrentUser.js';
 import { GRID_COLS, GRID_ROWS } from '../../../../utils/gameConstants.js';
 import { useAmbientDemo } from '../../../../hooks/useAmbientDemo.js';
 
+// Convert layout-viewport coordinates from getBoundingClientRect() into visual-viewport
+// coordinates for position:fixed elements, accounting for mobile pinch-zoom offsets
+function getVVOffset() {
+  return {
+    x: window.visualViewport?.offsetLeft ?? 0,
+    y: window.visualViewport?.offsetTop ?? 0,
+  };
+}
+
 function GameLayout({
   gridWrapperRef = null,
   score = 0,
@@ -55,12 +64,13 @@ function GameLayout({
       const col = ambientDrop.col;
       const dr = ambientDrop.destRow;
       const colLeft = gridRect.left + col * colW + (colW - cellSize) / 2;
+      const vv = getVVOffset();
       setAmbientDropState({
         id: `ambient-${col}-${dr}-${Date.now()}`,
         letter: ambientDrop.letter,
-        from: { x: fromRect.left, y: fromRect.top },
-        toTop: { x: colLeft, y: gridRect.top },
-        toFinal: { x: colLeft, y: gridRect.top + dr * rowH },
+        from: { x: fromRect.left - vv.x, y: fromRect.top - vv.y },
+        toTop: { x: colLeft - vv.x, y: gridRect.top - vv.y },
+        toFinal: { x: colLeft - vv.x, y: gridRect.top + dr * rowH - vv.y },
         cellSize,
       });
     } else if (!ambientDrop) {
@@ -136,6 +146,7 @@ function GameLayout({
 
     const id = `${Date.now()}-${Math.random()}`;
 
+    const vv = getVVOffset();
     inFlightColumnsRef.current.set(column, columnInFlight + 1);
     inFlightCountRef.current++;
     setShiftKey(k => k + 1);
@@ -144,9 +155,9 @@ function GameLayout({
       id,
       column,
       letter: nextLetters[letterIndex],
-      from: { x: fromRect.left, y: fromRect.top },
-      toTop: { x: colLeft, y: gridRect.top },
-      toFinal: { x: colLeft, y: gridRect.top + destRow * rowHeight },
+      from: { x: fromRect.left - vv.x, y: fromRect.top - vv.y },
+      toTop: { x: colLeft - vv.x, y: gridRect.top - vv.y },
+      toFinal: { x: colLeft - vv.x, y: gridRect.top + destRow * rowHeight - vv.y },
       cellSize,
     }]);
   }, [nextLetters, getDestRow, onColumnClick]);
