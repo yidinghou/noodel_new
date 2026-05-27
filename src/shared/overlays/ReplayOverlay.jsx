@@ -10,6 +10,15 @@ import './ReplayOverlay.css';
 
 const SPEED_OPTIONS = [1, 2];
 
+// Convert layout-viewport coordinates from getBoundingClientRect() into visual-viewport
+// coordinates for position:fixed elements, accounting for mobile pinch-zoom offsets
+function getVVOffset() {
+  return {
+    x: window.visualViewport?.offsetLeft ?? 0,
+    y: window.visualViewport?.offsetTop ?? 0,
+  };
+}
+
 function ReplayOverlay({ session, meta, onClose }) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const [progress, setProgress] = useState({ index: 0, total: 0, playing: false, speed: 1 });
@@ -65,15 +74,16 @@ function ReplayOverlay({ session, meta, onClose }) {
 
     const token = dropTokenRef.current;
     const id = `replay-drop-${token}-${Date.now()}`;
+    const vv = getVVOffset();
 
     return new Promise((resolve) => {
       setActiveDrop({
         id,
         column,
         letter: queue[0].char,
-        from: { x: fromRect.left, y: fromRect.top },
-        toTop: { x: colLeft, y: gridRect.top },
-        toFinal: { x: colLeft, y: gridRect.top + destRow * rowHeight },
+        from: { x: fromRect.left - vv.x, y: fromRect.top - vv.y },
+        toTop: { x: colLeft - vv.x, y: gridRect.top - vv.y },
+        toFinal: { x: colLeft - vv.x, y: gridRect.top + destRow * rowHeight - vv.y },
         cellSize,
         onComplete: () => {
           // If a restart happened mid-animation, drop this dispatch on the floor.
