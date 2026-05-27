@@ -173,7 +173,7 @@
 
 /* Dropping Letter Overlay (animated letter during drop) */
 .dropping-letter-overlay {
-    position: fixed;
+    position: absolute;
     display: flex;
     align-items: center;
     justify-content: center;

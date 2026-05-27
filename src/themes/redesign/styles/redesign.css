@@ -345,7 +345,7 @@ button {
 
 /* Falling letter overlay (rendered above the redesign board) */
 .dropping-letter-overlay {
-  position: fixed;
+  position: absolute;
   z-index: 1000;
   border-radius: var(--rd-radius-sm);
   pointer-events: none;
