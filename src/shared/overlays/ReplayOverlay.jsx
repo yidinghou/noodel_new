@@ -5,14 +5,11 @@ import DroppingOverlay from './DroppingOverlay.jsx';
 import { gameReducer, initialState } from '../../context/GameReducer.js';
 import { createPlayer } from '../../services/replayPlayer.js';
 import { GRID_COLS, GRID_ROWS } from '../../utils/gameConstants.js';
+import { computeDropCoords } from '../../utils/dropCoordUtils.js';
 import { A } from '../../utils/actionTypes.js';
 import './ReplayOverlay.css';
 
 const SPEED_OPTIONS = [1, 2];
-
-function getZoomLevel() {
-  return parseFloat(window.getComputedStyle(document.documentElement).zoom) || 1;
-}
 
 function ReplayOverlay({ session, meta, onClose }) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
@@ -62,15 +59,7 @@ function ReplayOverlay({ session, meta, onClose }) {
       return;
     }
 
-    const zoom = getZoomLevel();
-    const containerRect = panelRef.current.getBoundingClientRect();
-    const fromRect = nextUpRef.current.getBoundingClientRect();
-    const gridRect = gridRef.current.getBoundingClientRect();
-    const colWidth = gridRect.width / GRID_COLS;
-    const rowHeight = gridRect.height / GRID_ROWS;
-    const cellSize = Math.min(colWidth, rowHeight) / zoom;
-    const colLeft = gridRect.left + column * colWidth + (colWidth - cellSize * zoom) / 2;
-
+    const coords = computeDropCoords(panelRef.current, nextUpRef.current, gridRef.current, column, destRow);
     const token = dropTokenRef.current;
     const id = `replay-drop-${token}-${Date.now()}`;
 
@@ -79,10 +68,7 @@ function ReplayOverlay({ session, meta, onClose }) {
         id,
         column,
         letter: queue[0].char,
-        from: { x: (fromRect.left - containerRect.left) / zoom, y: (fromRect.top - containerRect.top) / zoom },
-        toTop: { x: (colLeft - containerRect.left) / zoom, y: (gridRect.top - containerRect.top) / zoom },
-        toFinal: { x: (colLeft - containerRect.left) / zoom, y: (gridRect.top + destRow * rowHeight - containerRect.top) / zoom },
-        cellSize,
+        ...coords,
         onComplete: () => {
           // If a restart happened mid-animation, drop this dispatch on the floor.
           if (token !== dropTokenRef.current) {

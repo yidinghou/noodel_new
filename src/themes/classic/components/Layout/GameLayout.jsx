@@ -8,11 +8,8 @@ import DroppingOverlay from '../../../../shared/overlays/DroppingOverlay.jsx';
 import { HowToPlayIcon, LoginIcon, LoggedInIcon, SettingsIcon } from '../../../../shared/icons/ActionIcons.jsx';
 import { useCurrentUser } from '../../../../shared/hooks/useCurrentUser.js';
 import { GRID_COLS, GRID_ROWS } from '../../../../utils/gameConstants.js';
+import { computeDropCoords } from '../../../../utils/dropCoordUtils.js';
 import { useAmbientDemo } from '../../../../hooks/useAmbientDemo.js';
-
-function getZoomLevel() {
-  return parseFloat(window.getComputedStyle(document.documentElement).zoom) || 1;
-}
 
 function GameLayout({
   gridWrapperRef = null,
@@ -53,23 +50,13 @@ function GameLayout({
       const gridEl = gridRef.current;
       const containerEl = dropContainerRef.current;
       if (!fromEl || !gridEl || !containerEl) return;
-      const zoom = getZoomLevel();
-      const containerRect = containerEl.getBoundingClientRect();
-      const fromRect = fromEl.getBoundingClientRect();
-      const gridRect = gridEl.getBoundingClientRect();
-      const colW = gridRect.width / GRID_COLS;
-      const rowH = gridRect.height / GRID_ROWS;
-      const cellSize = Math.min(colW, rowH) / zoom;
       const col = ambientDrop.col;
       const dr = ambientDrop.destRow;
-      const colLeft = gridRect.left + col * colW + (colW - cellSize * zoom) / 2;
+      const coords = computeDropCoords(containerEl, fromEl, gridEl, col, dr);
       setAmbientDropState({
         id: `ambient-${col}-${dr}-${Date.now()}`,
         letter: ambientDrop.letter,
-        from: { x: (fromRect.left - containerRect.left) / zoom, y: (fromRect.top - containerRect.top) / zoom },
-        toTop: { x: (colLeft - containerRect.left) / zoom, y: (gridRect.top - containerRect.top) / zoom },
-        toFinal: { x: (colLeft - containerRect.left) / zoom, y: (gridRect.top + dr * rowH - containerRect.top) / zoom },
-        cellSize,
+        ...coords,
       });
     } else if (!ambientDrop) {
       setAmbientDropState(null);
@@ -136,15 +123,7 @@ function GameLayout({
       return;
     }
 
-    const zoom = getZoomLevel();
-    const containerRect = containerEl.getBoundingClientRect();
-    const fromRect = fromEl.getBoundingClientRect();
-    const gridRect = gridEl.getBoundingClientRect();
-    const colWidth = gridRect.width / GRID_COLS;
-    const rowHeight = gridRect.height / GRID_ROWS;
-    const cellSize = Math.min(colWidth, rowHeight) / zoom;
-    const colLeft = gridRect.left + column * colWidth + (colWidth - cellSize * zoom) / 2;
-
+    const coords = computeDropCoords(containerEl, fromEl, gridEl, column, destRow);
     const id = `${Date.now()}-${Math.random()}`;
 
     inFlightColumnsRef.current.set(column, columnInFlight + 1);
@@ -155,10 +134,7 @@ function GameLayout({
       id,
       column,
       letter: nextLetters[letterIndex],
-      from: { x: (fromRect.left - containerRect.left) / zoom, y: (fromRect.top - containerRect.top) / zoom },
-      toTop: { x: (colLeft - containerRect.left) / zoom, y: (gridRect.top - containerRect.top) / zoom },
-      toFinal: { x: (colLeft - containerRect.left) / zoom, y: (gridRect.top + destRow * rowHeight - containerRect.top) / zoom },
-      cellSize,
+      ...coords,
     }]);
   }, [nextLetters, getDestRow, onColumnClick]);
 
