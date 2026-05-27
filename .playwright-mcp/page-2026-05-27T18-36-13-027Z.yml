@@ -1,0 +1,41 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - button "How to Play" [ref=e7] [cursor=pointer]:
+      - img [ref=e8]
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - button "Logged in as yiding" [ref=e12] [cursor=pointer]:
+          - img [ref=e13]
+        - generic [ref=e16]: yiding
+      - button "Settings" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+  - generic [ref=e21]:
+    - generic [ref=e22]:
+      - generic [ref=e23]: "N"
+      - generic [ref=e24]: O
+      - generic "Click to undo (hidden feature)" [ref=e25] [cursor=pointer]: O
+      - generic [ref=e26]: D
+      - generic [ref=e27]: E
+      - generic [ref=e28]: L
+    - generic [ref=e29]:
+      - generic [ref=e30]: Objective
+      - generic [ref=e31]: Clear the board
+  - generic [ref=e32]:
+    - generic [ref=e34]:
+      - generic [ref=e36]: E
+      - generic [ref=e38]: "Y"
+      - generic [ref=e40]: G
+      - generic [ref=e42]: O
+      - generic [ref=e44]: S
+    - generic [ref=e45]:
+      - generic [ref=e129]: "N"
+      - generic [ref=e141]: W
+      - generic [ref=e150]: L
+      - generic [ref=e153]: T
+      - generic [ref=e156]: T
+      - generic [ref=e159]: E
+      - generic [ref=e162]: S
+      - generic [ref=e171]: F
+  - generic [ref=e173]:
+    - generic [ref=e174]: Words Made
+    - generic [ref=e177]: ALL

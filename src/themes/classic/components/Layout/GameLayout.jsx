@@ -10,6 +10,10 @@ import { useCurrentUser } from '../../../../shared/hooks/useCurrentUser.js';
 import { GRID_COLS, GRID_ROWS } from '../../../../utils/gameConstants.js';
 import { useAmbientDemo } from '../../../../hooks/useAmbientDemo.js';
 
+function getZoomLevel() {
+  return parseFloat(window.getComputedStyle(document.documentElement).zoom) || 1;
+}
+
 function GameLayout({
   gridWrapperRef = null,
   score = 0,
@@ -49,21 +53,22 @@ function GameLayout({
       const gridEl = gridRef.current;
       const containerEl = dropContainerRef.current;
       if (!fromEl || !gridEl || !containerEl) return;
+      const zoom = getZoomLevel();
       const containerRect = containerEl.getBoundingClientRect();
       const fromRect = fromEl.getBoundingClientRect();
       const gridRect = gridEl.getBoundingClientRect();
       const colW = gridRect.width / GRID_COLS;
       const rowH = gridRect.height / GRID_ROWS;
-      const cellSize = Math.min(colW, rowH);
+      const cellSize = Math.min(colW, rowH) / zoom;
       const col = ambientDrop.col;
       const dr = ambientDrop.destRow;
-      const colLeft = gridRect.left + col * colW + (colW - cellSize) / 2;
+      const colLeft = gridRect.left + col * colW + (colW - cellSize * zoom) / 2;
       setAmbientDropState({
         id: `ambient-${col}-${dr}-${Date.now()}`,
         letter: ambientDrop.letter,
-        from: { x: fromRect.left - containerRect.left, y: fromRect.top - containerRect.top },
-        toTop: { x: colLeft - containerRect.left, y: gridRect.top - containerRect.top },
-        toFinal: { x: colLeft - containerRect.left, y: gridRect.top + dr * rowH - containerRect.top },
+        from: { x: (fromRect.left - containerRect.left) / zoom, y: (fromRect.top - containerRect.top) / zoom },
+        toTop: { x: (colLeft - containerRect.left) / zoom, y: (gridRect.top - containerRect.top) / zoom },
+        toFinal: { x: (colLeft - containerRect.left) / zoom, y: (gridRect.top + dr * rowH - containerRect.top) / zoom },
         cellSize,
       });
     } else if (!ambientDrop) {
@@ -131,13 +136,14 @@ function GameLayout({
       return;
     }
 
+    const zoom = getZoomLevel();
     const containerRect = containerEl.getBoundingClientRect();
     const fromRect = fromEl.getBoundingClientRect();
     const gridRect = gridEl.getBoundingClientRect();
     const colWidth = gridRect.width / GRID_COLS;
     const rowHeight = gridRect.height / GRID_ROWS;
-    const cellSize = Math.min(colWidth, rowHeight);
-    const colLeft = gridRect.left + column * colWidth + (colWidth - cellSize) / 2;
+    const cellSize = Math.min(colWidth, rowHeight) / zoom;
+    const colLeft = gridRect.left + column * colWidth + (colWidth - cellSize * zoom) / 2;
 
     const id = `${Date.now()}-${Math.random()}`;
 
@@ -149,9 +155,9 @@ function GameLayout({
       id,
       column,
       letter: nextLetters[letterIndex],
-      from: { x: fromRect.left - containerRect.left, y: fromRect.top - containerRect.top },
-      toTop: { x: colLeft - containerRect.left, y: gridRect.top - containerRect.top },
-      toFinal: { x: colLeft - containerRect.left, y: gridRect.top + destRow * rowHeight - containerRect.top },
+      from: { x: (fromRect.left - containerRect.left) / zoom, y: (fromRect.top - containerRect.top) / zoom },
+      toTop: { x: (colLeft - containerRect.left) / zoom, y: (gridRect.top - containerRect.top) / zoom },
+      toFinal: { x: (colLeft - containerRect.left) / zoom, y: (gridRect.top + destRow * rowHeight - containerRect.top) / zoom },
       cellSize,
     }]);
   }, [nextLetters, getDestRow, onColumnClick]);

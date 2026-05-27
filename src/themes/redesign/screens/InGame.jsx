@@ -6,6 +6,10 @@ import Shell from '../components/Shell.jsx';
 import Board from '../components/Board.jsx';
 import DroppingOverlay from '../../../shared/overlays/DroppingOverlay.jsx';
 
+function getZoomLevel() {
+  return parseFloat(window.getComputedStyle(document.documentElement).zoom) || 1;
+}
+
 function InGame({ onHowToPlay, onLogin, onSettings }) {
   const { state, dispatch } = useGame();
 
@@ -44,13 +48,14 @@ function InGame({ onHowToPlay, onLogin, onSettings }) {
       return;
     }
 
+    const zoom = getZoomLevel();
     const containerRect = screenEl.getBoundingClientRect();
     const fromRect = fromEl.getBoundingClientRect();
     const gridRect = gridEl.getBoundingClientRect();
     const colWidth = gridRect.width / GRID_COLS;
     const rowHeight = gridRect.height / GRID_ROWS;
-    const cellSize = Math.min(colWidth, rowHeight);
-    const colLeft = gridRect.left + column * colWidth + (colWidth - cellSize) / 2;
+    const cellSize = Math.min(colWidth, rowHeight) / zoom;
+    const colLeft = gridRect.left + column * colWidth + (colWidth - cellSize * zoom) / 2;
 
     const id = `${Date.now()}-${Math.random()}`;
     inFlightColumnsRef.current.set(column, cif + 1);
@@ -60,9 +65,9 @@ function InGame({ onHowToPlay, onLogin, onSettings }) {
       id,
       column,
       letter: letter.char,
-      from:    { x: fromRect.left - containerRect.left, y: fromRect.top - containerRect.top },
-      toTop:   { x: colLeft - containerRect.left, y: gridRect.top - containerRect.top },
-      toFinal: { x: colLeft - containerRect.left, y: gridRect.top + destRow * rowHeight - containerRect.top },
+      from:    { x: (fromRect.left - containerRect.left) / zoom, y: (fromRect.top - containerRect.top) / zoom },
+      toTop:   { x: (colLeft - containerRect.left) / zoom, y: (gridRect.top - containerRect.top) / zoom },
+      toFinal: { x: (colLeft - containerRect.left) / zoom, y: (gridRect.top + destRow * rowHeight - containerRect.top) / zoom },
       cellSize,
     }]);
   }, [state.nextQueue, getDestRow, dispatch]);

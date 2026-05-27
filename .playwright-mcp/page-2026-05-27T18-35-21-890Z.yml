@@ -1,0 +1,48 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - button "How to Play" [ref=e7] [cursor=pointer]:
+      - img [ref=e8]
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - button "Logged in as yiding" [ref=e12] [cursor=pointer]:
+          - img [ref=e13]
+        - generic [ref=e16]: yiding
+      - button "Settings" [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+  - generic [ref=e21]:
+    - generic [ref=e22]:
+      - generic [ref=e23]: "N"
+      - generic [ref=e24]: O
+      - generic "Click to undo (hidden feature)" [ref=e25] [cursor=pointer]: O
+      - generic [ref=e26]: D
+      - generic [ref=e27]: E
+      - generic [ref=e28]: L
+    - generic [ref=e29]:
+      - generic [ref=e30]: Objective
+      - generic [ref=e31]: Clear the board
+  - generic [ref=e32]:
+    - generic [ref=e33]:
+      - generic [ref=e34]:
+        - generic [ref=e189]: "Y"
+        - generic [ref=e38]: G
+        - generic [ref=e40]: O
+        - generic [ref=e42]: S
+        - generic [ref=e44]: V
+      - generic [ref=e45]:
+        - generic [ref=e46]: Letters Remaining
+        - generic [ref=e47]: "96"
+    - generic [ref=e48]:
+      - generic [ref=e132]: "N"
+      - generic [ref=e190]: E
+      - generic [ref=e144]: W
+      - generic [ref=e153]: L
+      - generic [ref=e187]: T
+      - generic [ref=e159]: T
+      - generic [ref=e162]: E
+      - generic [ref=e165]: S
+      - generic [ref=e174]: F
+  - generic [ref=e176]:
+    - generic [ref=e177]: Words Made
+    - generic [ref=e182]:
+      - generic [ref=e183]: ALL
+      - generic [ref=e184]: quantifier; used with either mass or count nouns to indicate the whole number or amount of or every one of a class

@@ -1,0 +1,49 @@
+- generic [ref=e5]:
+  - banner [ref=e6]:
+    - navigation "Primary actions" [ref=e7]:
+      - button "How to Play" [ref=e8] [cursor=pointer]:
+        - img [ref=e9]
+        - generic [ref=e11]: How to Play
+    - navigation "Primary actions" [ref=e12]:
+      - button "Logged in as yiding" [ref=e13] [cursor=pointer]:
+        - img [ref=e14]
+        - generic [ref=e17]: yiding
+      - button "Settings" [ref=e18] [cursor=pointer]:
+        - img [ref=e19]
+        - generic [ref=e22]: Settings
+  - generic [ref=e23]:
+    - generic [ref=e25]:
+      - generic [ref=e26]: "N"
+      - generic [ref=e27]: O
+      - generic "Click to undo (hidden feature)" [ref=e28] [cursor=pointer]: O
+      - generic [ref=e29]: D
+      - generic [ref=e30]: E
+      - generic [ref=e31]: L
+    - generic [ref=e33]:
+      - generic [ref=e34]: Score
+      - generic [ref=e35]: "98"
+  - region "Next letters" [ref=e36]:
+    - generic [ref=e37]:
+      - generic [ref=e38]: Next
+      - generic [ref=e39]:
+        - generic [ref=e40]: "Y"
+        - generic [ref=e41]: G
+        - generic [ref=e42]: O
+        - generic [ref=e43]: S
+        - generic [ref=e44]: V
+    - generic [ref=e45]:
+      - generic [ref=e46]: Letters Left
+      - generic [ref=e47]: "96"
+  - generic [ref=e50]:
+    - generic [ref=e79] [cursor=pointer]: "N"
+    - generic [ref=e81] [cursor=pointer]: E
+    - generic [ref=e85] [cursor=pointer]: W
+    - generic [ref=e89] [cursor=pointer]: L
+    - generic [ref=e91] [cursor=pointer]: T
+    - generic [ref=e93] [cursor=pointer]: T
+    - generic [ref=e95] [cursor=pointer]: E
+    - generic [ref=e97] [cursor=pointer]: S
+    - generic [ref=e101] [cursor=pointer]: F
+  - generic [ref=e102]:
+    - generic [ref=e103]: Words made
+    - generic [ref=e105]: ALL
