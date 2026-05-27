@@ -6,18 +6,10 @@ import Shell from '../components/Shell.jsx';
 import Board from '../components/Board.jsx';
 import DroppingOverlay from '../../../shared/overlays/DroppingOverlay.jsx';
 
-// Convert layout-viewport coordinates from getBoundingClientRect() into visual-viewport
-// coordinates for position:fixed elements, accounting for mobile pinch-zoom offsets
-function getVVOffset() {
-  return {
-    x: window.visualViewport?.offsetLeft ?? 0,
-    y: window.visualViewport?.offsetTop ?? 0,
-  };
-}
-
 function InGame({ onHowToPlay, onLogin, onSettings }) {
   const { state, dispatch } = useGame();
 
+  const screenRef = useRef(null);
   const boardRef = useRef(null);
   const nextUpRef = useRef(null);
   const inFlightColumnsRef = useRef(new Map());
@@ -46,11 +38,13 @@ function InGame({ onHowToPlay, onLogin, onSettings }) {
 
     const fromEl = nextUpRef.current;
     const gridEl = boardRef.current;
-    if (!fromEl || !gridEl) {
+    const screenEl = screenRef.current;
+    if (!fromEl || !gridEl || !screenEl) {
       dispatch({ type: A.DROP_LETTER, payload: { column } });
       return;
     }
 
+    const containerRect = screenEl.getBoundingClientRect();
     const fromRect = fromEl.getBoundingClientRect();
     const gridRect = gridEl.getBoundingClientRect();
     const colWidth = gridRect.width / GRID_COLS;
@@ -59,7 +53,6 @@ function InGame({ onHowToPlay, onLogin, onSettings }) {
     const colLeft = gridRect.left + column * colWidth + (colWidth - cellSize) / 2;
 
     const id = `${Date.now()}-${Math.random()}`;
-    const vv = getVVOffset();
     inFlightColumnsRef.current.set(column, cif + 1);
     inFlightCountRef.current++;
 
@@ -67,9 +60,9 @@ function InGame({ onHowToPlay, onLogin, onSettings }) {
       id,
       column,
       letter: letter.char,
-      from:    { x: fromRect.left - vv.x, y: fromRect.top - vv.y },
-      toTop:   { x: colLeft - vv.x, y: gridRect.top - vv.y },
-      toFinal: { x: colLeft - vv.x, y: gridRect.top + destRow * rowHeight - vv.y },
+      from:    { x: fromRect.left - containerRect.left, y: fromRect.top - containerRect.top },
+      toTop:   { x: colLeft - containerRect.left, y: gridRect.top - containerRect.top },
+      toFinal: { x: colLeft - containerRect.left, y: gridRect.top + destRow * rowHeight - containerRect.top },
       cellSize,
     }]);
   }, [state.nextQueue, getDestRow, dispatch]);
@@ -103,7 +96,7 @@ function InGame({ onHowToPlay, onLogin, onSettings }) {
     .map(l => l.char);
 
   return (
-    <div className="rd-screen rd-ingame">
+    <div className="rd-screen rd-ingame" ref={screenRef}>
       <Shell
         score={state.score}
         lettersLeft={state.lettersRemaining}

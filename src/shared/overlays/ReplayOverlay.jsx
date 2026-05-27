@@ -10,15 +10,6 @@ import './ReplayOverlay.css';
 
 const SPEED_OPTIONS = [1, 2];
 
-// Convert layout-viewport coordinates from getBoundingClientRect() into visual-viewport
-// coordinates for position:fixed elements, accounting for mobile pinch-zoom offsets
-function getVVOffset() {
-  return {
-    x: window.visualViewport?.offsetLeft ?? 0,
-    y: window.visualViewport?.offsetTop ?? 0,
-  };
-}
-
 function ReplayOverlay({ session, meta, onClose }) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
   const [progress, setProgress] = useState({ index: 0, total: 0, playing: false, speed: 1 });
@@ -32,6 +23,7 @@ function ReplayOverlay({ session, meta, onClose }) {
   // Refs measured at render time by Board / NextPreview.
   const gridRef = useRef(null);
   const nextUpRef = useRef(null);
+  const panelRef = useRef(null);
 
   // Token to invalidate in-flight drop animations on restart/dispose so a
   // late-firing onComplete can't dispatch into a freshly reset reducer.
@@ -59,12 +51,14 @@ function ReplayOverlay({ session, meta, onClose }) {
       destRow === -1 ||
       !queue.length ||
       !gridRef.current ||
-      !nextUpRef.current
+      !nextUpRef.current ||
+      !panelRef.current
     ) {
       dispatch(action);
       return;
     }
 
+    const containerRect = panelRef.current.getBoundingClientRect();
     const fromRect = nextUpRef.current.getBoundingClientRect();
     const gridRect = gridRef.current.getBoundingClientRect();
     const colWidth = gridRect.width / GRID_COLS;
@@ -74,16 +68,15 @@ function ReplayOverlay({ session, meta, onClose }) {
 
     const token = dropTokenRef.current;
     const id = `replay-drop-${token}-${Date.now()}`;
-    const vv = getVVOffset();
 
     return new Promise((resolve) => {
       setActiveDrop({
         id,
         column,
         letter: queue[0].char,
-        from: { x: fromRect.left - vv.x, y: fromRect.top - vv.y },
-        toTop: { x: colLeft - vv.x, y: gridRect.top - vv.y },
-        toFinal: { x: colLeft - vv.x, y: gridRect.top + destRow * rowHeight - vv.y },
+        from: { x: fromRect.left - containerRect.left, y: fromRect.top - containerRect.top },
+        toTop: { x: colLeft - containerRect.left, y: gridRect.top - containerRect.top },
+        toFinal: { x: colLeft - containerRect.left, y: gridRect.top + destRow * rowHeight - containerRect.top },
         cellSize,
         onComplete: () => {
           // If a restart happened mid-animation, drop this dispatch on the floor.
@@ -152,7 +145,7 @@ function ReplayOverlay({ session, meta, onClose }) {
   return (
     <div className="replay-overlay">
       <div className="replay-overlay-backdrop" onClick={onClose} />
-      <div className="replay-overlay-panel">
+      <div className="replay-overlay-panel" ref={panelRef}>
         <div className="replay-overlay-header">
           <div className="replay-overlay-summary">
             <span className="replay-overlay-score">SCORE: {meta?.score ?? '—'}</span>
@@ -200,21 +193,21 @@ function ReplayOverlay({ session, meta, onClose }) {
             ))}
           </div>
         </div>
-      </div>
 
-      {activeDrop && (
-        <DroppingOverlay
-          key={activeDrop.id}
-          id={activeDrop.id}
-          column={activeDrop.column}
-          letter={activeDrop.letter}
-          from={activeDrop.from}
-          toTop={activeDrop.toTop}
-          toFinal={activeDrop.toFinal}
-          cellSize={activeDrop.cellSize}
-          onComplete={activeDrop.onComplete}
-        />
-      )}
+        {activeDrop && (
+          <DroppingOverlay
+            key={activeDrop.id}
+            id={activeDrop.id}
+            column={activeDrop.column}
+            letter={activeDrop.letter}
+            from={activeDrop.from}
+            toTop={activeDrop.toTop}
+            toFinal={activeDrop.toFinal}
+            cellSize={activeDrop.cellSize}
+            onComplete={activeDrop.onComplete}
+          />
+        )}
+      </div>
     </div>
   );
 }
