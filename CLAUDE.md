@@ -51,6 +51,7 @@ Append to any URL during development:
 - `?debug=true` — debug overlay
 - `?skipAnimations=true` — skip Framer Motion animations
 - `?debugGrid=true` — grid pattern overlay
+- `?slowDrop=true` — slow drop animation 10× (for Playwright mid-drop screenshots)
 
 ## Design Decisions
 
@@ -191,6 +192,7 @@ npm run build && npm start
 ?skipAnimations=true     # Remove Framer Motion delays for faster testing
 ?debug=true              # Show debug overlay with game state
 ?debugGrid=true          # Show grid pattern on board
+?slowDrop=true           # Slow drop animation 10× — keeps tile mid-air for ~3-5s (Playwright screenshots)
 ```
 
 Example: `http://localhost:3000?skipAnimations=true&debug=true`
