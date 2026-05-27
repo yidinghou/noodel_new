@@ -12,7 +12,7 @@ import './styles/grid.css';
 import './styles/made-words.css';
 
 function ClassicRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
-  const { state, dispatch, undo } = useGame();
+  const { state, dispatch, undo, resumeSession } = useGame();
   const gridWrapperRef = useRef(null);
 
   const handleRestart = () => {
@@ -50,7 +50,7 @@ function ClassicRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
         onInfo={onHowToPlay}
         onColumnClick={handleColumnClick}
         onUndo={undo}
-        renderStartOverlay={() => <GameModePanel dispatch={dispatch} className="start-game-overlay--classic" />}
+        renderStartOverlay={() => <GameModePanel dispatch={dispatch} resumeSession={resumeSession} className="start-game-overlay--classic" />}
         showPreview={state.status === STATUS.PLAYING || state.status === STATUS.PROCESSING}
       />
       <GameOverOverlay

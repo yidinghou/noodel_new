@@ -40,3 +40,12 @@ export function peekDailyInProgress() {
   const start = snap.events?.find(e => e.type === 'START_GAME');
   return start?.payload?.gameType === 'daily';
 }
+
+export function peekUnlimitedInProgress() {
+  const snap = load();
+  if (!snap?.checkpoints?.length) return false;
+  const hasGameOver = snap.events?.some(e => e.type === 'GAME_OVER');
+  if (hasGameOver) return false;
+  const start = snap.events?.find(e => e.type === 'START_GAME');
+  return start?.payload?.gameType === 'unlimited';
+}

@@ -1,17 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { A } from '../../utils/actionTypes.js';
 import { formatDailyDate } from '../../utils/seededRandom.js';
 import { hasDailyBeenPlayed, getUnlimitedRemaining, redeemCode } from '../../utils/playLimits.js';
-import { peekDailyInProgress } from '../../services/sessionStorage.js';
+import { peekDailyInProgress, peekUnlimitedInProgress } from '../../services/sessionStorage.js';
+import { useCurrentUser } from '../hooks/useCurrentUser.js';
 import './GameModePanel.css';
 
 function GameModePanel({ dispatch, resumeSession, className = '' }) {
-  const [dailyPlayed] = useState(hasDailyBeenPlayed);
-  const [hasDailyResume] = useState(() => !hasDailyBeenPlayed() && peekDailyInProgress());
+  const currentUser = useCurrentUser();
   const [unlimitedLeft, setUnlimitedLeft] = useState(getUnlimitedRemaining);
   const [showCode, setShowCode] = useState(false);
   const [codeInput, setCodeInput] = useState('');
   const [codeMsg, setCodeMsg] = useState('');
+
+  useEffect(() => {
+    setUnlimitedLeft(getUnlimitedRemaining());
+  }, [currentUser]);
+
+  const dailyPlayed = hasDailyBeenPlayed();
+  const hasDailyResume = !dailyPlayed && peekDailyInProgress();
+  const hasUnlimitedResume = peekUnlimitedInProgress();
 
   const startDaily = () => {
     dispatch({ type: A.START_GAME, payload: { mode: 'clear', gameType: 'daily' } });
@@ -25,6 +33,11 @@ function GameModePanel({ dispatch, resumeSession, className = '' }) {
   const startUnlimited = () => {
     if (unlimitedLeft <= 0) return;
     dispatch({ type: A.START_GAME, payload: { mode: 'clear', gameType: 'unlimited' } });
+  };
+
+  const handleUnlimitedClick = () => {
+    if (hasUnlimitedResume) resumeSession?.();
+    else startUnlimited();
   };
 
   const handleRedeem = () => {
@@ -60,15 +73,17 @@ function GameModePanel({ dispatch, resumeSession, className = '' }) {
           </button>
         )}
 
-        <button
-          type="button"
-          className="start-game-btn"
-          onClick={startUnlimited}
-          disabled={unlimitedLeft === 0}
-        >
-          Unlimited Play
-          <span className="start-game-btn__date">{playsLabel}</span>
-        </button>
+        {hasUnlimitedResume ? (
+          <button type="button" className="start-game-btn start-game-btn--resume" onClick={handleUnlimitedClick}>
+            Resume
+            <span className="start-game-btn__date">Unlimited game in progress</span>
+          </button>
+        ) : (
+          <button type="button" className="start-game-btn" onClick={handleUnlimitedClick} disabled={unlimitedLeft === 0}>
+            Unlimited Play
+            <span className="start-game-btn__date">{playsLabel}</span>
+          </button>
+        )}
 
         <div className="game-mode-panel__code">
           <button
