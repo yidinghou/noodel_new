@@ -4,7 +4,7 @@ import { useAnimate } from 'framer-motion';
 // Cells per second for the constant-speed drop phase
 const DROP_SPEED_CELLS_PER_SEC = 20;
 const LETTER_FROM_PREVIEW_TO_GRID_SPEED = 0.25;
-const SLOW_FACTOR = new URLSearchParams(window.location.search).has('slowDrop') ? 10 : 1;
+const SLOW_FACTOR = new URLSearchParams(window.location.search).has('slowDrop') ? 30 : 1;
 
 function DroppingOverlay({ id, column, letter, from, toTop, toFinal, cellSize, onComplete, className = '', opacity = 1 }) {
   const [scope, animate] = useAnimate();
