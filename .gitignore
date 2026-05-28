@@ -60,3 +60,9 @@ __pycache__/
 .Python
 env/
 venv/
+
+# Playwright MCP session snapshots
+.playwright-mcp/
+
+# Debug screenshots from Playwright testing sessions
+*.png
