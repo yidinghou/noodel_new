@@ -8,16 +8,8 @@ import DroppingOverlay from '../../../../shared/overlays/DroppingOverlay.jsx';
 import { HowToPlayIcon, LoginIcon, LoggedInIcon, SettingsIcon } from '../../../../shared/icons/ActionIcons.jsx';
 import { useCurrentUser } from '../../../../shared/hooks/useCurrentUser.js';
 import { GRID_COLS, GRID_ROWS } from '../../../../utils/gameConstants.js';
+import { computeDropCoords } from '../../../../utils/dropCoordUtils.js';
 import { useAmbientDemo } from '../../../../hooks/useAmbientDemo.js';
-
-// Convert layout-viewport coordinates from getBoundingClientRect() into visual-viewport
-// coordinates for position:fixed elements, accounting for mobile pinch-zoom offsets
-function getVVOffset() {
-  return {
-    x: window.visualViewport?.offsetLeft ?? 0,
-    y: window.visualViewport?.offsetTop ?? 0,
-  };
-}
 
 function GameLayout({
   gridWrapperRef = null,
@@ -41,6 +33,7 @@ function GameLayout({
   const currentUser = useCurrentUser();
   const gridRef = useRef(null);
   const nextUpRef = useRef(null);
+  const dropContainerRef = useRef(null);
 
   const { grid: ambientGrid, dropping: ambientDrop, highlight: ambientHighlight, queue: ambientQueue } = useAmbientDemo();
 
@@ -55,23 +48,15 @@ function GameLayout({
     if (ambientDrop?.phase === 'falling') {
       const fromEl = nextUpRef.current;
       const gridEl = gridRef.current;
-      if (!fromEl || !gridEl) return;
-      const fromRect = fromEl.getBoundingClientRect();
-      const gridRect = gridEl.getBoundingClientRect();
-      const colW = gridRect.width / GRID_COLS;
-      const rowH = gridRect.height / GRID_ROWS;
-      const cellSize = Math.min(colW, rowH);
+      const containerEl = dropContainerRef.current;
+      if (!fromEl || !gridEl || !containerEl) return;
       const col = ambientDrop.col;
       const dr = ambientDrop.destRow;
-      const colLeft = gridRect.left + col * colW + (colW - cellSize) / 2;
-      const vv = getVVOffset();
+      const coords = computeDropCoords(containerEl, fromEl, gridEl, col, dr);
       setAmbientDropState({
         id: `ambient-${col}-${dr}-${Date.now()}`,
         letter: ambientDrop.letter,
-        from: { x: fromRect.left - vv.x, y: fromRect.top - vv.y },
-        toTop: { x: colLeft - vv.x, y: gridRect.top - vv.y },
-        toFinal: { x: colLeft - vv.x, y: gridRect.top + dr * rowH - vv.y },
-        cellSize,
+        ...coords,
       });
     } else if (!ambientDrop) {
       setAmbientDropState(null);
@@ -120,6 +105,7 @@ function GameLayout({
 
     const fromEl = nextUpRef.current;
     const gridEl = gridRef.current;
+    const containerEl = dropContainerRef.current;
 
     // Which letter does this drop carry? The Nth queued letter where N = total in-flight count
     const letterIndex = inFlightCountRef.current;
@@ -132,21 +118,14 @@ function GameLayout({
     if (destRow === -1) return; // column full (no more empty rows to reserve)
 
     // Fallback: refs not ready — dispatch immediately with no animation
-    if (!fromEl || !gridEl) {
+    if (!fromEl || !gridEl || !containerEl) {
       onColumnClick?.(column);
       return;
     }
 
-    const fromRect = fromEl.getBoundingClientRect();
-    const gridRect = gridEl.getBoundingClientRect();
-    const colWidth = gridRect.width / GRID_COLS;
-    const rowHeight = gridRect.height / GRID_ROWS;
-    const cellSize = Math.min(colWidth, rowHeight);
-    const colLeft = gridRect.left + column * colWidth + (colWidth - cellSize) / 2;
-
+    const coords = computeDropCoords(containerEl, fromEl, gridEl, column, destRow);
     const id = `${Date.now()}-${Math.random()}`;
 
-    const vv = getVVOffset();
     inFlightColumnsRef.current.set(column, columnInFlight + 1);
     inFlightCountRef.current++;
     setShiftKey(k => k + 1);
@@ -155,10 +134,7 @@ function GameLayout({
       id,
       column,
       letter: nextLetters[letterIndex],
-      from: { x: fromRect.left - vv.x, y: fromRect.top - vv.y },
-      toTop: { x: colLeft - vv.x, y: gridRect.top - vv.y },
-      toFinal: { x: colLeft - vv.x, y: gridRect.top + destRow * rowHeight - vv.y },
-      cellSize,
+      ...coords,
     }]);
   }, [nextLetters, getDestRow, onColumnClick]);
 
@@ -212,7 +188,10 @@ function GameLayout({
       </div>
 
       {/* Game Grid Section (Middle) */}
-      <div className={`game-grid-wrapper${isIdle ? ' game-grid-wrapper--idle' : ''}`} ref={gridWrapperRef}>
+      <div className={`game-grid-wrapper${isIdle ? ' game-grid-wrapper--idle' : ''}`} ref={(el) => {
+        gridWrapperRef.current = el;
+        dropContainerRef.current = el;
+      }}>
         <div className="preview-row">
           <NextPreview
             nextLetters={isIdle ? ambientQueue : nextLetters.slice(activeDrops.length, activeDrops.length + 5)}
@@ -227,36 +206,36 @@ function GameLayout({
         </div>
         <Board grid={displayGrid} onColumnClick={isIdle ? null : handleColumnClick} gridRef={gridRef} visible={true} />
         {gameStatus === 'IDLE' && renderStartOverlay?.()}
+
+        {/* One overlay per in-flight drop — each animates independently */}
+        {activeDrops.map(drop => (
+          <DroppingOverlay
+            key={drop.id}
+            id={drop.id}
+            column={drop.column}
+            letter={drop.letter}
+            from={drop.from}
+            toTop={drop.toTop}
+            toFinal={drop.toFinal}
+            cellSize={drop.cellSize}
+            onComplete={handleDropComplete}
+          />
+        ))}
+        {ambientDropState && (
+          <DroppingOverlay
+            key={ambientDropState.id}
+            {...ambientDropState}
+            className="classic-ambient-dropping"
+            opacity={0.4}
+            onComplete={() => {}}
+          />
+        )}
       </div>
 
       {/* Made Words Section (Bottom) */}
       <div className="made-words-section">
         <MadeWords words={madeWords} dictionary={dictionary} visible={true} />
       </div>
-
-      {/* One overlay per in-flight drop — each animates independently */}
-      {activeDrops.map(drop => (
-        <DroppingOverlay
-          key={drop.id}
-          id={drop.id}
-          column={drop.column}
-          letter={drop.letter}
-          from={drop.from}
-          toTop={drop.toTop}
-          toFinal={drop.toFinal}
-          cellSize={drop.cellSize}
-          onComplete={handleDropComplete}
-        />
-      ))}
-      {ambientDropState && (
-        <DroppingOverlay
-          key={ambientDropState.id}
-          {...ambientDropState}
-          className="classic-ambient-dropping"
-          opacity={0.4}
-          onComplete={() => {}}
-        />
-      )}
     </div>
   );
 }

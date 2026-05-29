@@ -5,19 +5,11 @@ import DroppingOverlay from './DroppingOverlay.jsx';
 import { gameReducer, initialState } from '../../context/GameReducer.js';
 import { createPlayer } from '../../services/replayPlayer.js';
 import { GRID_COLS, GRID_ROWS } from '../../utils/gameConstants.js';
+import { computeDropCoords } from '../../utils/dropCoordUtils.js';
 import { A } from '../../utils/actionTypes.js';
 import './ReplayOverlay.css';
 
 const SPEED_OPTIONS = [1, 2];
-
-// Convert layout-viewport coordinates from getBoundingClientRect() into visual-viewport
-// coordinates for position:fixed elements, accounting for mobile pinch-zoom offsets
-function getVVOffset() {
-  return {
-    x: window.visualViewport?.offsetLeft ?? 0,
-    y: window.visualViewport?.offsetTop ?? 0,
-  };
-}
 
 function ReplayOverlay({ session, meta, onClose }) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
@@ -32,6 +24,7 @@ function ReplayOverlay({ session, meta, onClose }) {
   // Refs measured at render time by Board / NextPreview.
   const gridRef = useRef(null);
   const nextUpRef = useRef(null);
+  const panelRef = useRef(null);
 
   // Token to invalidate in-flight drop animations on restart/dispose so a
   // late-firing onComplete can't dispatch into a freshly reset reducer.
@@ -59,32 +52,23 @@ function ReplayOverlay({ session, meta, onClose }) {
       destRow === -1 ||
       !queue.length ||
       !gridRef.current ||
-      !nextUpRef.current
+      !nextUpRef.current ||
+      !panelRef.current
     ) {
       dispatch(action);
       return;
     }
 
-    const fromRect = nextUpRef.current.getBoundingClientRect();
-    const gridRect = gridRef.current.getBoundingClientRect();
-    const colWidth = gridRect.width / GRID_COLS;
-    const rowHeight = gridRect.height / GRID_ROWS;
-    const cellSize = Math.min(colWidth, rowHeight);
-    const colLeft = gridRect.left + column * colWidth + (colWidth - cellSize) / 2;
-
+    const coords = computeDropCoords(panelRef.current, nextUpRef.current, gridRef.current, column, destRow);
     const token = dropTokenRef.current;
     const id = `replay-drop-${token}-${Date.now()}`;
-    const vv = getVVOffset();
 
     return new Promise((resolve) => {
       setActiveDrop({
         id,
         column,
         letter: queue[0].char,
-        from: { x: fromRect.left - vv.x, y: fromRect.top - vv.y },
-        toTop: { x: colLeft - vv.x, y: gridRect.top - vv.y },
-        toFinal: { x: colLeft - vv.x, y: gridRect.top + destRow * rowHeight - vv.y },
-        cellSize,
+        ...coords,
         onComplete: () => {
           // If a restart happened mid-animation, drop this dispatch on the floor.
           if (token !== dropTokenRef.current) {
@@ -152,7 +136,7 @@ function ReplayOverlay({ session, meta, onClose }) {
   return (
     <div className="replay-overlay">
       <div className="replay-overlay-backdrop" onClick={onClose} />
-      <div className="replay-overlay-panel">
+      <div className="replay-overlay-panel" ref={panelRef}>
         <div className="replay-overlay-header">
           <div className="replay-overlay-summary">
             <span className="replay-overlay-score">SCORE: {meta?.score ?? '—'}</span>
@@ -200,21 +184,21 @@ function ReplayOverlay({ session, meta, onClose }) {
             ))}
           </div>
         </div>
-      </div>
 
-      {activeDrop && (
-        <DroppingOverlay
-          key={activeDrop.id}
-          id={activeDrop.id}
-          column={activeDrop.column}
-          letter={activeDrop.letter}
-          from={activeDrop.from}
-          toTop={activeDrop.toTop}
-          toFinal={activeDrop.toFinal}
-          cellSize={activeDrop.cellSize}
-          onComplete={activeDrop.onComplete}
-        />
-      )}
+        {activeDrop && (
+          <DroppingOverlay
+            key={activeDrop.id}
+            id={activeDrop.id}
+            column={activeDrop.column}
+            letter={activeDrop.letter}
+            from={activeDrop.from}
+            toTop={activeDrop.toTop}
+            toFinal={activeDrop.toFinal}
+            cellSize={activeDrop.cellSize}
+            onComplete={activeDrop.onComplete}
+          />
+        )}
+      </div>
     </div>
   );
 }

@@ -3,7 +3,8 @@ import { useAnimate } from 'framer-motion';
 
 // Cells per second for the constant-speed drop phase
 const DROP_SPEED_CELLS_PER_SEC = 20;
-const LETTER_FROM_PREVIEW_TO_GRID_SPEED = 0.25
+const LETTER_FROM_PREVIEW_TO_GRID_SPEED = 0.25;
+const SLOW_FACTOR = new URLSearchParams(window.location.search).has('slowDrop') ? 30 : 1;
 
 function DroppingOverlay({ id, column, letter, from, toTop, toFinal, cellSize, onComplete, className = '', opacity = 1 }) {
   const [scope, animate] = useAnimate();
@@ -14,13 +15,13 @@ function DroppingOverlay({ id, column, letter, from, toTop, toFinal, cellSize, o
       await animate(
         scope.current,
         { x: toTop.x - from.x, y: toTop.y - from.y, opacity },
-        { duration: LETTER_FROM_PREVIEW_TO_GRID_SPEED, ease: 'easeOut' }
+        { duration: LETTER_FROM_PREVIEW_TO_GRID_SPEED * SLOW_FACTOR, ease: 'easeOut' }
       );
 
       // Phase 2: drop at constant speed to the destination row
       const dropDistance = toFinal.y - toTop.y;
       const dropCells = dropDistance / cellSize;
-      const duration = Math.max(0.05, dropCells / DROP_SPEED_CELLS_PER_SEC);
+      const duration = Math.max(0.05, dropCells / DROP_SPEED_CELLS_PER_SEC) * SLOW_FACTOR;
       await animate(
         scope.current,
         { y: toFinal.y - from.y, opacity },
