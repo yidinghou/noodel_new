@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import WordListModal from '../../../../shared/overlays/WordListModal.jsx';
-import { formatDailyDate } from '../../../../utils/seededRandom.js';
+import { formatDailyDate, getLocalDateString } from '../../../../utils/seededRandom.js';
 
 function GameStatsBullets({ wordStats, intro }) {
   if (!wordStats) return <div className="word-stats-loading">Loading stats…</div>;
@@ -37,7 +37,7 @@ function GameOverOverlay({ visible, gameMode, score, lettersRemaining = 0, board
     if (isClearMode && wordStats !== undefined) {
       setLoadingLeaderboard(true);
       const username = localStorage.getItem('noodel_username') ?? '';
-      const today = new Date().toISOString().split('T')[0];
+      const today = getLocalDateString();
       fetch(`/api/scores?username=${encodeURIComponent(username)}&gameMode=clear&date=${today}`)
         .then(r => r.json())
         .then(data => setLeaderboard(data))

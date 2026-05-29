@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useGame } from '../../../context/GameContext.jsx';
 import { A } from '../../../utils/actionTypes.js';
 import { TOTAL_LETTERS } from '../../../utils/gameConstants.js';
-import { formatDailyDate } from '../../../utils/seededRandom.js';
+import { formatDailyDate, getLocalDateString } from '../../../utils/seededRandom.js';
 import WordListModal from '../../../shared/overlays/WordListModal.jsx';
 
 function WordStatsBullets({ wordStats, intro }) {
@@ -42,7 +42,7 @@ function GameOver() {
     if (isClearMode && isDailyGame && state.wordStats !== undefined) {
       setLoadingLeaderboard(true);
       const username = localStorage.getItem('noodel_username') ?? '';
-      const today = new Date().toISOString().split('T')[0];
+      const today = getLocalDateString();
       fetch(`/api/scores?username=${encodeURIComponent(username)}&gameMode=clear&date=${today}`)
         .then(r => r.json())
         .then(data => setLeaderboard(data))

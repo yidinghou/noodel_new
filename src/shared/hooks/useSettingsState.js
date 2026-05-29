@@ -1,14 +1,14 @@
 import { useState } from 'react';
+import { getLocalDateString } from '../../utils/seededRandom.js';
 
 function getTodayDate() {
-  const d = new Date();
-  return d.toISOString().split('T')[0];
+  return getLocalDateString();
 }
 
 function getDateForDay(day) {
   const d = new Date();
   if (day === 'yesterday') d.setDate(d.getDate() - 1);
-  return d.toISOString().split('T')[0];
+  return getLocalDateString(d);
 }
 
 export function useSettingsState({ onPlayReplay, onClose } = {}) {

@@ -30,6 +30,11 @@ function ordinal(n) {
   return `${n}th`;
 }
 
+/** Returns today's local date as YYYY-MM-DD (not UTC). */
+export function getLocalDateString(d = new Date()) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 /** Returns a human-readable date string like "May 24th, 2026". */
 export function formatDailyDate(date = new Date()) {
   return `${MONTH_NAMES[date.getMonth()]} ${ordinal(date.getDate())}, ${date.getFullYear()}`;

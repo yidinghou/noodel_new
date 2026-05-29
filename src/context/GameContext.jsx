@@ -2,7 +2,7 @@ import React, { createContext, useReducer, useContext, useCallback, useEffect, u
 import { gameReducer, initialState } from './GameReducer.js';
 import { generateLetterSequence } from '../utils/letterUtils.js';
 import { generateClearModeGrid } from '../utils/clearModeUtils.js';
-import { createSeededRng, getDailyDateSeed } from '../utils/seededRandom.js';
+import { createSeededRng, getDailyDateSeed, getLocalDateString } from '../utils/seededRandom.js';
 import { markDailyPlayed, consumeUnlimitedPlay } from '../utils/playLimits.js';
 import { TOTAL_LETTERS, STATUS } from '../utils/gameConstants.js';
 import { A } from '../utils/actionTypes.js';
@@ -140,7 +140,7 @@ export function GameProvider({ children }) {
       fetch('/api/scores', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ score: state.score, gameMode: state.gameMode, username, sessionData, wordsCleared: state.allWordsThisGame }),
+        body: JSON.stringify({ score: state.score, gameMode: state.gameMode, username, sessionData, wordsCleared: state.allWordsThisGame, gameDate: getLocalDateString() }),
       })
         .then(r => r.json())
         .then(data => {

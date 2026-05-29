@@ -45,12 +45,13 @@ app.use(express.static(DIST, {
 // Leaderboard API
 app.post('/api/scores', async (req, res) => {
   try {
-    const { score, gameMode, username, sessionData, wordsCleared } = req.body;
+    const { score, gameMode, username, sessionData, wordsCleared, gameDate } = req.body;
     if (typeof score !== 'number') return res.status(400).json({ error: 'score required' });
     const user = username || 'anonymous';
+    const datePart = (gameDate && /^\d{4}-\d{2}-\d{2}$/.test(gameDate)) ? gameDate : null;
     const result = await pool.query(
-      'INSERT INTO leaderboard (score, game_mode, username, session_data) VALUES ($1, $2, $3, $4) RETURNING id, username, score, game_mode, created_at',
-      [score, gameMode || 'classic', user, sessionData ? JSON.stringify(sessionData) : null]
+      'INSERT INTO leaderboard (score, game_mode, username, session_data, game_date) VALUES ($1, $2, $3, $4, COALESCE($5::date, CURRENT_DATE)) RETURNING id, username, score, game_mode, created_at',
+      [score, gameMode || 'classic', user, sessionData ? JSON.stringify(sessionData) : null, datePart]
     );
 
     let wordStats = null;
