@@ -109,6 +109,17 @@
     --animation-delay-start-letter-drop: 80ms;
     --animation-delay-start-word-pause: 300ms;
     --animation-delay-start-clear-pause: 150ms;
+
+    /* Z-Index Scale */
+    --z-ambient-drop: 5;
+    --z-game-drop: 10;
+    --z-game-ui: 10;
+    --z-game-ui-focus: 11;
+    --z-start-overlay: 20;
+    --z-header-ui: 100;
+    --z-overlay: 1000;
+    --z-modal: 1100;
+    --z-modal-top: 1200;
 }
 
 body {
@@ -251,7 +262,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: var(--z-overlay);
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
@@ -303,7 +314,7 @@ body {
     cursor: pointer;
     box-shadow: var(--shadow-button);
     transition: transform var(--transition-fast), box-shadow var(--transition-fast), opacity var(--transition-fast);
-    z-index: 100;
+    z-index: var(--z-header-ui);
 }
 
 .skip-tutorial-btn:hover {
@@ -354,7 +365,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10;
+    z-index: var(--z-start-overlay);
     pointer-events: none;
 }
 
@@ -403,6 +414,7 @@ body {
 
 .dropping-letter-overlay.classic-ambient-dropping {
     /* opacity controlled via prop on DroppingOverlay */
+    z-index: var(--z-ambient-drop);
 }
 
 .classic-ambient-drop {
@@ -418,7 +430,7 @@ body {
     border-radius: var(--size-border-radius-small);
     box-sizing: border-box;
     pointer-events: none;
-    z-index: 5;
+    z-index: var(--z-ambient-drop);
 }
 
 /* Game Over Overlay */
@@ -435,7 +447,7 @@ body {
     opacity: 0;
     visibility: hidden;
     transition: opacity var(--transition-quick), visibility var(--transition-quick);
-    z-index: 1001;
+    z-index: calc(var(--z-overlay) + 1);
     pointer-events: none;
 }
 
