@@ -49,6 +49,13 @@ app.post('/api/scores', async (req, res) => {
     if (typeof score !== 'number') return res.status(400).json({ error: 'score required' });
     const user = username || 'anonymous';
     const datePart = (gameDate && /^\d{4}-\d{2}-\d{2}$/.test(gameDate)) ? gameDate : null;
+    if ((gameMode || 'classic') === 'clear') {
+      const dup = await pool.query(
+        `SELECT 1 FROM leaderboard WHERE username = $1 AND game_mode = 'clear' AND game_date = COALESCE($2::date, CURRENT_DATE) LIMIT 1`,
+        [user, datePart]
+      );
+      if (dup.rowCount > 0) return res.status(409).json({ error: 'already submitted' });
+    }
     const result = await pool.query(
       'INSERT INTO leaderboard (score, game_mode, username, session_data, game_date) VALUES ($1, $2, $3, $4, COALESCE($5::date, CURRENT_DATE)) RETURNING id, username, score, game_mode, created_at',
       [score, gameMode || 'classic', user, sessionData ? JSON.stringify(sessionData) : null, datePart]
@@ -118,6 +125,20 @@ app.get('/api/scores', async (req, res) => {
     res.json(result.rows);
   } catch (err) {
     console.error('GET /api/scores error:', err);
+    res.status(500).json({ error: 'internal server error' });
+  }
+});
+
+app.get('/api/daily-status', async (req, res) => {
+  try {
+    const username = req.query.username || 'anonymous';
+    const result = await pool.query(
+      `SELECT 1 FROM leaderboard WHERE username = $1 AND game_mode = 'clear' AND game_date = CURRENT_DATE LIMIT 1`,
+      [username]
+    );
+    res.json({ played: result.rowCount > 0 });
+  } catch (err) {
+    console.error('GET /api/daily-status error:', err);
     res.status(500).json({ error: 'internal server error' });
   }
 });

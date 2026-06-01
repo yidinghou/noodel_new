@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { A } from '../../utils/actionTypes.js';
 import { formatDailyDate } from '../../utils/seededRandom.js';
-import { hasDailyBeenPlayed, getUnlimitedRemaining, redeemCode } from '../../utils/playLimits.js';
+import { hasDailyBeenPlayed, markDailyPlayed, getUnlimitedRemaining, redeemCode } from '../../utils/playLimits.js';
 import { peekDailyInProgress, peekUnlimitedInProgress } from '../../services/sessionStorage.js';
 import { useCurrentUser } from '../hooks/useCurrentUser.js';
 import './GameModePanel.css';
@@ -9,6 +9,7 @@ import './GameModePanel.css';
 function GameModePanel({ dispatch, resumeSession, className = '' }) {
   const currentUser = useCurrentUser();
   const [unlimitedLeft, setUnlimitedLeft] = useState(getUnlimitedRemaining);
+  const [dailyPlayed, setDailyPlayed] = useState(hasDailyBeenPlayed);
   const [showCode, setShowCode] = useState(false);
   const [codeInput, setCodeInput] = useState('');
   const [codeMsg, setCodeMsg] = useState('');
@@ -17,7 +18,20 @@ function GameModePanel({ dispatch, resumeSession, className = '' }) {
     setUnlimitedLeft(getUnlimitedRemaining());
   }, [currentUser]);
 
-  const dailyPlayed = hasDailyBeenPlayed();
+  useEffect(() => {
+    setDailyPlayed(hasDailyBeenPlayed());
+    if (!currentUser) return;
+    fetch(`/api/daily-status?username=${encodeURIComponent(currentUser)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.played) {
+          markDailyPlayed();
+          setDailyPlayed(true);
+        }
+      })
+      .catch(() => {});
+  }, [currentUser]);
+
   const hasDailyResume = !dailyPlayed && peekDailyInProgress();
   const hasUnlimitedResume = peekUnlimitedInProgress();
 

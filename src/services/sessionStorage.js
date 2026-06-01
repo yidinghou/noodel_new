@@ -38,7 +38,10 @@ export function peekDailyInProgress() {
   const hasGameOver = snap.events?.some(e => e.type === 'GAME_OVER');
   if (hasGameOver) return false;
   const start = snap.events?.find(e => e.type === 'START_GAME');
-  return start?.payload?.gameType === 'daily';
+  if (start?.payload?.gameType !== 'daily') return false;
+  const today = new Date().toISOString().split('T')[0];
+  if (!start.payload.gameDate || start.payload.gameDate !== today) return false;
+  return true;
 }
 
 export function peekUnlimitedInProgress() {
