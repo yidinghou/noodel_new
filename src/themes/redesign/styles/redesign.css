@@ -4,6 +4,16 @@
 :root {
   /* Board width = COLS*CELL + (COLS-1)*GAP + 2*board-padding (6px) */
   --rd-board-w: calc(7 * 48px + 6 * 4px + 12px);
+
+  /* Z-Index Scale */
+  --z-ambient-drop: 5;
+  --z-game-drop: 1000;
+  --z-game-ui: 5;
+  --z-game-ui-focus: 6;
+  --z-header-ui: 100;
+  --z-overlay: 1000;
+  --z-modal: 1100;
+  --z-modal-top: 1200;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -54,7 +64,7 @@ button {
   background: rgba(17, 24, 39, 0.85);
   border-radius: var(--rd-radius-pill);
   box-shadow: var(--rd-shadow-lg);
-  z-index: 100;
+  z-index: var(--z-header-ui);
   backdrop-filter: blur(8px);
 }
 .rd-screen-picker__btn {
@@ -346,7 +356,7 @@ button {
 /* Falling letter overlay (rendered above the redesign board) */
 .dropping-letter-overlay {
   position: absolute;
-  z-index: 1000;
+  z-index: var(--z-game-drop);
   border-radius: var(--rd-radius-sm);
   pointer-events: none;
   font-family: var(--rd-font);
@@ -361,7 +371,7 @@ button {
 }
 
 .dropping-letter-overlay.rd-dropping-ambient {
-  z-index: 5;
+  z-index: var(--z-ambient-drop);
 }
 
 .rd-board--interactive .rd-cell { cursor: pointer; }
@@ -531,7 +541,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 5;
+  z-index: var(--z-game-ui);
   pointer-events: none;
 }
 
