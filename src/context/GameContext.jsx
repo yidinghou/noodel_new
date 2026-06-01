@@ -60,6 +60,14 @@ export function GameProvider({ children }) {
     if (!snap || !Array.isArray(snap.checkpoints) || snap.checkpoints.length === 0) return;
     const hasGameOver = Array.isArray(snap.events) && snap.events.some(e => e.type === A.GAME_OVER);
     if (hasGameOver) { sessionStorage.clear(); return; }
+    const startEvent = snap.events?.find(e => e.type === A.START_GAME);
+    if (startEvent?.payload?.gameType === 'daily') {
+      const today = getLocalDateString();
+      if (!startEvent.payload.gameDate || startEvent.payload.gameDate !== today) {
+        sessionStorage.clear();
+        return;
+      }
+    }
     if (!recorderRef.current.loadSnapshot(snap)) { sessionStorage.clear(); return; }
     const latest = snap.checkpoints[snap.checkpoints.length - 1];
     dispatch({ type: A.LOAD_SAVED_GAME, payload: latest.state });
@@ -74,7 +82,7 @@ export function GameProvider({ children }) {
       const initialQueue = buildInitialQueue(mode, rng);
       const { grid: initialGrid, initialBlocks } = buildInitialGrid(mode, rng);
       if (gameType === 'unlimited') consumeUnlimitedPlay();
-      const fullAction = { type: A.START_GAME, payload: { mode, gameType, initialQueue, initialGrid, initialBlocks } };
+      const fullAction = { type: A.START_GAME, payload: { mode, gameType, gameDate: getLocalDateString(), initialQueue, initialGrid, initialBlocks } };
       recorderRef.current.record(fullAction);
       dispatch(fullAction);
       return;
