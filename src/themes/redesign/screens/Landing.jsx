@@ -4,6 +4,7 @@ import ActionBar from '../components/ActionBar.jsx';
 import NextRow from '../components/NextRow.jsx';
 import { useAmbientDemo, AmbientBoard } from '../components/AmbientDemo.jsx';
 import GameModePanel from '../../../shared/components/GameModePanel.jsx';
+import LandingBanner from '../../../shared/components/LandingBanner.jsx';
 
 function Landing({ onHowToPlay, onLogin, onSettings }) {
   const { dispatch, resumeSession } = useGame();
@@ -23,6 +24,8 @@ function Landing({ onHowToPlay, onLogin, onSettings }) {
         <div aria-hidden="true" />
         <ActionBar items={rightActions} className="rd-action-bar--right" />
       </header>
+
+      <LandingBanner onLogin={onLogin} />
 
       <div className="rd-hero">
         <div className="rd-wordmark">
