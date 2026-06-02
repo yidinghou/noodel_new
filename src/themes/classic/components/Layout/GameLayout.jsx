@@ -10,6 +10,7 @@ import { useCurrentUser } from '../../../../shared/hooks/useCurrentUser.js';
 import { GRID_COLS, GRID_ROWS } from '../../../../utils/gameConstants.js';
 import { computeDropCoords } from '../../../../utils/dropCoordUtils.js';
 import { useAmbientDemo } from '../../../../hooks/useAmbientDemo.js';
+import LandingBanner from '../../../../shared/components/LandingBanner.jsx';
 
 function GameLayout({
   gridWrapperRef = null,
@@ -180,6 +181,8 @@ function GameLayout({
           </button>
         </div>
       </header>
+
+      {isIdle && <LandingBanner onLogin={onLogin} />}
 
       {/* Hero (wordmark + compact score) */}
       <div className="hero">

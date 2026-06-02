@@ -5,7 +5,7 @@
   align-items: stretch;
   pointer-events: auto;
   min-width: 200px;
-  max-width: 240px;
+  max-width: 260px;
 }
 
 .game-mode-panel__code {
@@ -66,9 +66,23 @@
 }
 
 .start-game-btn--resume {
-  background: #2e7d32;
+  background: #FF9800;
 }
 
 .start-game-btn--resume:hover:not(:disabled) {
-  background: #1b5e20;
+  background: #F57C00;
+}
+
+/* Daily resume: outlined green — light fill, green border + text */
+.start-game-btn--resume-daily {
+  background: #E8F5E9 !important;
+  color: #388E3C !important;
+  border: 2px solid #388E3C !important;
+  box-shadow: none !important;
+  outline: none !important;
+  white-space: nowrap;
+}
+
+.start-game-btn--resume-daily:hover:not(:disabled) {
+  background: #d4edda !important;
 }

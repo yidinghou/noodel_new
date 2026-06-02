@@ -51,28 +51,6 @@ export function GameProvider({ children }) {
     });
   }
 
-  // Auto-resume on first mount if a mid-game snapshot exists.
-  const resumedRef = useRef(false);
-  useEffect(() => {
-    if (resumedRef.current) return;
-    resumedRef.current = true;
-    const snap = sessionStorage.load();
-    if (!snap || !Array.isArray(snap.checkpoints) || snap.checkpoints.length === 0) return;
-    const hasGameOver = Array.isArray(snap.events) && snap.events.some(e => e.type === A.GAME_OVER);
-    if (hasGameOver) { sessionStorage.clear(); return; }
-    const startEvent = snap.events?.find(e => e.type === A.START_GAME);
-    if (startEvent?.payload?.gameType === 'daily') {
-      const today = getLocalDateString();
-      if (!startEvent.payload.gameDate || startEvent.payload.gameDate !== today) {
-        sessionStorage.clear();
-        return;
-      }
-    }
-    if (!recorderRef.current.loadSnapshot(snap)) { sessionStorage.clear(); return; }
-    const latest = snap.checkpoints[snap.checkpoints.length - 1];
-    dispatch({ type: A.LOAD_SAVED_GAME, payload: latest.state });
-  }, []);
-
   const wrappedDispatch = useCallback((action) => {
     if (action.type === A.START_GAME) {
       scoreSubmittedRef.current = false;

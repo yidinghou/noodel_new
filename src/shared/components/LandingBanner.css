@@ -1,0 +1,45 @@
+.landing-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid;
+  flex-wrap: wrap;
+  text-align: center;
+}
+
+.landing-banner--guest {
+  background: #f9f9f9;
+  border-color: #e5e7eb;
+  color: #6b7280;
+}
+
+.landing-banner--loggedin {
+  background: #E8F5E9;
+  border-color: #A5D6A7;
+  color: #2E7D32;
+}
+
+.landing-banner--resume {
+  background: #FFF3E0;
+  border-color: #FFCC80;
+  color: #7c3800;
+}
+
+.landing-banner__link {
+  font-size: 13px;
+  font-weight: 700;
+  color: #388E3C;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.landing-banner--resume .landing-banner__link {
+  color: #E65100;
+}

@@ -17,15 +17,31 @@ function ActionBar({ items, className = '' }) {
         if (!def) return null;
         const { defaultHandler } = def;
         const isLogin = id === 'login';
-        const Icon = isLogin && currentUser ? LoggedInIcon : def.Icon;
-        const label = isLogin && currentUser ? currentUser : def.label;
+        if (isLogin && currentUser) {
+          return (
+            <button
+              key={id}
+              type="button"
+              className="rd-avatar-pill"
+              onClick={onClick || defaultHandler}
+              aria-label={`Logged in as ${currentUser}`}
+            >
+              <div className="rd-avatar-circle" aria-hidden="true">
+                {currentUser[0].toUpperCase()}
+              </div>
+              <span className="rd-avatar-name">{currentUser}</span>
+            </button>
+          );
+        }
+        const Icon = def.Icon;
+        const label = def.label;
         return (
           <button
             key={id}
             type="button"
-            className={`rd-action-btn${isLogin ? ' rd-action-btn--login' : ''}${isLogin && currentUser ? ' rd-action-btn--loggedin' : ''}`}
+            className={`rd-action-btn${isLogin ? ' rd-action-btn--login' : ''}`}
             onClick={onClick || defaultHandler}
-            aria-label={isLogin && currentUser ? `Logged in as ${currentUser}` : label}
+            aria-label={label}
           >
             <Icon />
             <span className="rd-action-btn__label">{label}</span>
