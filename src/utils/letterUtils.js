@@ -37,25 +37,7 @@ function sampleFromWeights(cumulativeArr) {
   return cumulativeArr[cumulativeArr.length - 1].letter;
 }
 
-// Small floor used in backwardsBlend to prevent any letter being zeroed out entirely.
-const EPSILON = 1e-6;
-
-// Backwards blend: for each candidate letter N, how likely is `lastLetter` to precede N?
-// reverse_bigrams[N][lastLetter] = P(lastLetter came before N in the corpus).
-// Multiplying this into the forward-blended weights sharpens transitions that are strong
-// in both directions (e.g. T→H, Q→U) and suppresses one-directional coincidences.
-function backwardsBlend(blended, lastLetter, letters) {
-  if (!lastLetter) return blended;
-  const result = {};
-  for (const l of letters) {
-    const revRow = markovData.reverse_bigrams[l] || {};
-    result[l] = blended[l] * (revRow[lastLetter] || EPSILON);
-  }
-  return result;
-}
-
-// Blend up to 3 forward bigram distributions with equal weight, then apply
-// backwards blend from the most recent letter before sampling.
+// Blend up to 3 forward bigram distributions with equal weight and sample.
 // 10% of the time skips Markov entirely and samples from raw dictionary
 // frequency as an escape valve to prevent letter clustering.
 // history is an array of the last 1–3 letter strings (most recent last).
@@ -72,11 +54,11 @@ function getMarkovLetter(history) {
 
   const recent = history.slice(-3);
   const n = recent.length;
-  const lastLetter = recent[recent.length - 1];
 
-  // Forward blend: accumulate equal-weight bigram rows from last ≤3 letters
+  // Blend equal-weight bigram rows from last ≤3 letters
   const letters = Object.keys(markovData.bigrams);
-  let blended = {};
+  let total = 0;
+  const blended = {};
   for (const l of letters) blended[l] = 0;
 
   for (const prev of recent) {
@@ -86,11 +68,6 @@ function getMarkovLetter(history) {
     }
   }
 
-  // Backwards blend: multiply in reverse-bigram signal from the most recent letter
-  blended = backwardsBlend(blended, lastLetter, letters);
-
-  // Build cumulative weights from the combined distribution and sample
-  let total = 0;
   const cumArr = letters.map(l => {
     total += blended[l];
     return { letter: l, cumWeight: total };
