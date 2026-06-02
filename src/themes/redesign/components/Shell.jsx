@@ -54,10 +54,6 @@ function Shell({ score, lettersLeft, next, madeWords, dictionary, nextUpRef, onH
           </span>
           <span className="rd-wordmark__rule" aria-hidden="true" />
         </div>
-        <div className="rd-hero-score">
-          <span className="rd-hero-score__label">Score</span>
-          <span className="rd-hero-score__value">{score}</span>
-        </div>
       </div>
 
       <NextRow letters={next} lettersLeft={lettersLeft} firstTileRef={nextUpRef} />
