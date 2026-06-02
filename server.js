@@ -6,6 +6,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import pg from 'pg';
+import { computeStreak } from './src/utils/streakUtils.js';
 
 const { Pool } = pg;
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
@@ -213,6 +214,37 @@ app.get('/api/user-stats', async (req, res) => {
     });
   } catch (err) {
     console.error('GET /api/user-stats error:', err);
+    res.status(500).json({ error: 'internal server error' });
+  }
+});
+
+app.get('/api/streaks', async (req, res) => {
+  try {
+    const username = req.query.username || 'anonymous';
+    // Use the client's local date as "today" so streak computation matches the
+    // user's timezone rather than the server's UTC clock.
+    const today = req.query.date ? new Date(req.query.date) : new Date();
+    const [loginRows, clearRows] = await Promise.all([
+      pool.query(
+        `SELECT DISTINCT game_date FROM leaderboard
+         WHERE username = $1 AND game_date <= $2
+         ORDER BY game_date DESC LIMIT 60`,
+        [username, today]
+      ),
+      pool.query(
+        `SELECT DISTINCT game_date FROM leaderboard
+         WHERE username = $1 AND game_mode = 'clear' AND game_date <= $2
+         ORDER BY game_date DESC LIMIT 60`,
+        [username, today]
+      ),
+    ]);
+
+    res.json({
+      loginStreak: computeStreak(loginRows.rows, today),
+      clearStreak: computeStreak(clearRows.rows, today),
+    });
+  } catch (err) {
+    console.error('GET /api/streaks error:', err);
     res.status(500).json({ error: 'internal server error' });
   }
 });
