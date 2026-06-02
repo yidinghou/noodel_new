@@ -34,6 +34,7 @@ function GameModePanel({ dispatch, resumeSession, className = '' }) {
 
   const hasDailyResume = !dailyPlayed && peekDailyInProgress();
   const hasUnlimitedResume = peekUnlimitedInProgress();
+  const unlimitedBlocked = hasDailyResume;
 
   const startDaily = () => {
     dispatch({ type: A.START_GAME, payload: { mode: 'clear', gameType: 'daily' } });
@@ -73,9 +74,9 @@ function GameModePanel({ dispatch, resumeSession, className = '' }) {
     <div className={`start-game-overlay${className ? ' ' + className : ''}`}>
       <div className="game-mode-panel__inner">
         {hasDailyResume ? (
-          <button type="button" className="start-game-btn start-game-btn--resume" onClick={handleDailyClick}>
-            Resume
-            <span className="start-game-btn__date">Daily Puzzle in progress</span>
+          <button type="button" className="start-game-btn start-game-btn--resume start-game-btn--resume-daily" onClick={handleDailyClick}>
+            Continue Daily →
+            <span className="start-game-btn__date">{formatDailyDate()}</span>
           </button>
         ) : (
           <button type="button" className="start-game-btn" onClick={handleDailyClick} disabled={dailyPlayed}>
@@ -89,13 +90,15 @@ function GameModePanel({ dispatch, resumeSession, className = '' }) {
 
         {hasUnlimitedResume ? (
           <button type="button" className="start-game-btn start-game-btn--resume" onClick={handleUnlimitedClick}>
-            Resume
+            Continue Unlimited →
             <span className="start-game-btn__date">Unlimited game in progress</span>
           </button>
         ) : (
-          <button type="button" className="start-game-btn" onClick={handleUnlimitedClick} disabled={unlimitedLeft === 0}>
+          <button type="button" className="start-game-btn" onClick={handleUnlimitedClick} disabled={unlimitedLeft === 0 || unlimitedBlocked}>
             Unlimited Play
-            <span className="start-game-btn__date">{playsLabel}</span>
+            <span className="start-game-btn__date">
+              {unlimitedBlocked ? 'Finish your daily first' : playsLabel}
+            </span>
           </button>
         )}
 
