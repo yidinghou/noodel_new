@@ -1,6 +1,6 @@
 import ActionBar from './ActionBar.jsx';
 import NextRow from './NextRow.jsx';
-import MadeWords from '../../classic/components/Stats/MadeWords.jsx';
+import MadeWordsA from './MadeWordsA.jsx';
 import { useGame } from '../../../context/GameContext.jsx';
 
 const WORDMARK_LETTERS = ['N', 'O', 'O', 'D', 'E', 'L'];
@@ -60,7 +60,7 @@ function Shell({ score, lettersLeft, next, madeWords, dictionary, nextUpRef, onH
 
       {children}
 
-      <MadeWords words={madeWords ?? []} dictionary={dictionary} visible={true} />
+      <MadeWordsA words={madeWords ?? []} dictionary={dictionary} />
     </div>
   );
 }
