@@ -120,6 +120,18 @@ The leaderboard shows a ▶ button next to each score. Clicking it fetches the s
 
 **Score deduplication** (`GameContext.jsx`): `scoreSubmittedRef` guards the `POST /api/scores` call so React Strict Mode's double-mount doesn't submit two entries. Reset to `false` on each `START_GAME`.
 
+### Letter Generation (`src/utils/letterUtils.js`, `src/utils/clearModeUtils.js`)
+
+**Markov chain approach**: bigram transition probabilities are derived from the actual word dictionary (all 3-7 letter word CSVs) via `scripts/markov_analysis.py`. The generator blends the last 3 bigram rows with equal weight rather than implementing a full 2nd-order (trigram) model — simpler, avoids combinatorial explosion of the transition table, and produces comparable results.
+
+**Random injection (10%)**: 10% of draws skip the Markov chain entirely and sample from raw dictionary letter frequency. Acts as an escape valve to prevent local letter clustering. The injection is small enough that it doesn't meaningfully shift aggregate frequency statistics (verified via `scripts/analyze_letter_frequency.py`).
+
+**No consecutive identical letters**: a retry loop prevents the same letter appearing back-to-back. This is a deliberate keep — it prevents EEEE-style runs that feel wrong and are hard to use. The trade-off (double-letter words like MOON, BOOK exist) was considered but accepted because the Markov chain already makes same-letter repeats rare; the heuristic only catches the tail. Removing it is a valid option if playtesting suggests it's too restrictive.
+
+**Vowel cap**: a vowel is forced after 4 consecutive consonants. Threshold is 4 (not 3) to allow common consonant clusters like STR, SCR, SPL without immediately interrupting them.
+
+**Clear mode column caps (`MAX_COL` in `clearModeUtils.js`)**: pre-filled tiles for letters that rarely end 3-4 letter words are capped from rightmost columns so they don't strand on the right edge with nowhere to extend. Caps derived from actual word-ending counts: J/Q → col 2, V → col 3, Z/C → col 4, I/W/X → col 5. H and all other letters are uncapped (H alone has 80 word endings: DISH, MATH, BASH, …).
+
 ## Testing
 
 ### When to run Jest
