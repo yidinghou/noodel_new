@@ -1,34 +1,29 @@
 import { useEffect, useRef, useState } from 'react';
-import Board, { CELL, STEP } from './Board.jsx';
+import Board from './Board.jsx';
 import { useAmbientDemo } from '../../../hooks/useAmbientDemo.js';
 import DroppingOverlay from '../../../shared/overlays/DroppingOverlay.jsx';
+import { computeDropCoords } from '../../../utils/dropCoordUtils.js';
 
 export { useAmbientDemo };
 
 export function AmbientBoard({ grid, dropping, highlight, firstTileRef }) {
-  const boardRef = useRef(null);
+  const gridRef = useRef(null);
   const containerRef = useRef(null);
   const [dropState, setDropState] = useState(null);
 
   useEffect(() => {
     if (dropping?.phase === 'falling') {
       const tileEl = firstTileRef?.current;
-      const boardEl = boardRef.current;
+      const gridEl = gridRef.current;
       const containerEl = containerRef.current;
-      if (!tileEl || !boardEl || !containerEl) return;
-      const tileRect = tileEl.getBoundingClientRect();
-      const boardRect = boardEl.getBoundingClientRect();
-      const containerRect = containerEl.getBoundingClientRect();
+      if (!tileEl || !gridEl || !containerEl) return;
       const col = dropping.col;
       const dr = dropping.destRow;
-      const colLeft = boardRect.left + col * STEP + (STEP - CELL) / 2;
+      const coords = computeDropCoords(containerEl, tileEl, gridEl, col, dr);
       setDropState({
         id: `rd-ambient-${col}-${dr}-${Date.now()}`,
         letter: dropping.letter,
-        from:    { x: tileRect.left - containerRect.left, y: tileRect.top - containerRect.top },
-        toTop:   { x: colLeft - containerRect.left,       y: boardRect.top - containerRect.top },
-        toFinal: { x: colLeft - containerRect.left,       y: boardRect.top + dr * STEP - containerRect.top },
-        cellSize: CELL,
+        ...coords,
       });
     } else if (!dropping) {
       setDropState(null);
@@ -41,8 +36,8 @@ export function AmbientBoard({ grid, dropping, highlight, firstTileRef }) {
 
   return (
     <div ref={containerRef} style={{ position: 'relative' }}>
-      <div ref={boardRef} className="rd-ambient-demo" aria-hidden="true">
-        <Board cells={cells} highlightSet={highlight} />
+      <div className="rd-ambient-demo" aria-hidden="true">
+        <Board cells={cells} highlightSet={highlight} boardRef={gridRef} />
       </div>
       {dropState && (
         <DroppingOverlay key={dropState.id} {...dropState} className="rd-dropping-ambient" opacity={0.4} onComplete={() => {}} />

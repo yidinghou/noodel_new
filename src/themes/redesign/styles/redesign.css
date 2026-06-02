@@ -468,6 +468,7 @@ button {
 .rd-ambient-demo {
   pointer-events: none;
   opacity: 0.4;
+  width: min(90vw, 388px);
 }
 
 .rd-demo-drop {
