@@ -25,7 +25,8 @@ The app is a React 18 + Vite SPA deployed on Railway with an Express.js backend 
 All runtime game state lives in `src/context/GameReducer.js` (`initialState`) and is distributed via `src/context/GameContext.jsx`. The state shape is:
 - `grid`: flat 42-element array (6 rows × 7 cols), each cell is `null` or a tile object `{ char, id, type, isMatched, isPending, pendingDirections, ... }`
 - `status`: `'IDLE' | 'PLAYING' | 'GAME_OVER' | 'PROCESSING'`
-- `gameMode`: `'classic' | 'clear'`
+- `queueExhausted`: `boolean` — set `true` when the last letter is dropped; `STATUS.GAME_OVER` is dispatched by `useGameLogic` once the cascade fully settles (see Design Decisions)
+- `gameMode`: `'clear'` (classic mode has been removed)
 
 ### Core game loop (`src/hooks/useGameLogic.js`)
 
@@ -42,8 +43,7 @@ Sessions are **event-sourced** (schema v3): every `DROP_LETTER`, `WORDS_CLEARED`
 
 ### Game modes
 
-- **Classic**: score by word length; `calculateWordScore()` in `scoringUtils.js`
-- **Clear**: board starts 20% pre-filled with blocks; score is set (not accumulated) to `lettersRemaining` at the time of each clear — the score reflects the most recent clear only; win condition is a fully empty board (all cells null, including player-placed tiles)
+Only **Clear** mode exists (classic has been removed). Board starts 20% pre-filled with blocks; score is set (not accumulated) to `lettersRemaining` at the time of each clear — the score reflects the most recent clear only; win condition is a fully empty board (all cells null, including player-placed tiles). Both entry points (`Daily Puzzle`, `Unlimited Play`) dispatch `mode: 'clear'`.
 
 ### URL debug flags
 
@@ -52,6 +52,7 @@ Append to any URL during development:
 - `?skipAnimations=true` — skip Framer Motion animations
 - `?debugGrid=true` — grid pattern overlay
 - `?slowDrop=true` — slow drop animation 10× (for Playwright mid-drop screenshots)
+- `?admin=true` — show admin screen picker pill (also auto-shown in dev mode via `import.meta.env.DEV`)
 
 ## Design Decisions
 
@@ -62,6 +63,10 @@ Append to any URL during development:
 | `GRACE_PERIOD_MS` | 1000ms | How long a detected word shows its countdown before clearing |
 | `SHAKE_DURATION_MS` | 400ms | Shake animation duration after `SET_MATCHED_INDICES` fires |
 | `GRAVITY_DELAY_MS` | 150ms | Pause after tiles clear before gravity drops remaining tiles |
+
+### Deferred GAME_OVER (`src/context/GameReducer.js`, `src/hooks/useGameLogic.js`)
+
+`DROP_LETTER` does **not** set `STATUS.GAME_OVER` when the queue empties. Instead it sets `queueExhausted: true` while keeping `STATUS.PLAYING`. The word-detection `useEffect` dispatches `A.GAME_OVER` after the cascade fully settles (`pendingRef.size === 0 && pendingRemovesRef.current === 0`). This ensures words formed by the final drop are detected and scored, and the Clear-mode board-clear win condition fires correctly.
 
 ### `PROCESSING` status
 
@@ -186,7 +191,7 @@ npm run build && npm start
 
 **Test when you change:**
 - `src/shared/overlays/SettingsMenu.jsx` — settings panels, buttons, lists
-- `src/themes/classic/components/Overlays/GameOverOverlay.jsx` — game-over screen
+- `src/themes/redesign/screens/GameOver.jsx` — game-over screen
 - Theme files or styles
 - Any hook or component that affects what users see
 
