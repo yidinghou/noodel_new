@@ -369,6 +369,11 @@ button {
   color: var(--rd-text-2);
   letter-spacing: 0.04em;
 }
+.rd-chip--new {
+  background: var(--rd-accent-soft);
+  border-color: #A5D6A7;
+  color: var(--rd-accent-hover);
+}
 
 /* ---------- Shared Board (InGame + AmbientDemo) ---------- */
 
@@ -821,6 +826,27 @@ button {
   color: var(--rd-text);
   font-weight: 700;
   letter-spacing: 0.02em;
+}
+
+.rd-gameover-words {
+  margin-bottom: var(--rd-s-5);
+  text-align: left;
+}
+.rd-gameover-words__label {
+  font-size: var(--rd-fs-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--rd-text-3);
+  margin-bottom: var(--rd-s-2);
+}
+.rd-gameover-words__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rd-s-2);
+  max-height: 160px;
+  overflow-y: auto;
+  padding-right: 4px;
 }
 
 .rd-gameover__actions {
