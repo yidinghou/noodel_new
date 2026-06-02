@@ -231,7 +231,14 @@ export function useGameLogic() {
       const timerId = setTimeout(() => expireWord(wordKey), GRACE_PERIOD_MS);
       pending.set(wordKey, { wordData, timerId, idxSet: newIdxSet });
     }
-  }, [state.grid, state.status, state.gameMode, dictionary, dispatch, expireWord]);
+
+
+    // When the last letter was dropped, wait for the cascade to fully settle before ending
+    // the game — this ensures words formed by the final drop are detected and scored.
+    if (state.queueExhausted && pendingRef.current.size === 0 && pendingRemovesRef.current === 0) {
+      dispatch({ type: A.GAME_OVER });
+    }
+  }, [state.grid, state.status, state.gameMode, state.queueExhausted, dictionary, dispatch, expireWord]);
 
   // Check for Clear mode victory condition
   useEffect(() => {
