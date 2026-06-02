@@ -50,7 +50,7 @@ function Landing({ onHowToPlay, onLogin, onSettings }) {
           </span>
           {clearStreak > 0 && (
             <span className="rd-wordmark__clear-streak">
-              🔥 <strong>{clearStreak}</strong> clear streak
+              🔥 <strong>{clearStreak}</strong> day clear streak
             </span>
           )}
         </div>

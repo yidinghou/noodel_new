@@ -58,7 +58,7 @@ function Shell({ score, lettersLeft, next, madeWords, dictionary, nextUpRef, onH
           </span>
           {clearStreak > 0 && (
             <span className="rd-wordmark__clear-streak">
-              🔥 <strong>{clearStreak}</strong> clear streak
+              🔥 <strong>{clearStreak}</strong> day clear streak
             </span>
           )}
         </div>
