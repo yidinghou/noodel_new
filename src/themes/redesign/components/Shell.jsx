@@ -1,9 +1,11 @@
 import ActionBar from './ActionBar.jsx';
 import NextRow from './NextRow.jsx';
+import MadeWordsA from './MadeWordsA.jsx';
 import { useGame } from '../../../context/GameContext.jsx';
 
 const WORDMARK_LETTERS = ['N', 'O', 'O', 'D', 'E', 'L'];
 const UNDO_LETTER_INDEX = 2;
+const STREAK_MAX = WORDMARK_LETTERS.length;
 
 function handleUndoClick(undo, e) {
   e.stopPropagation();
@@ -17,7 +19,7 @@ function handleUndoClick(undo, e) {
 
 const LEFT_ACTIONS_TEMPLATE = ['howtoplay'];
 
-function Shell({ score, lettersLeft, next, madeWords, nextUpRef, onHowToPlay, onLogin, onSettings, children }) {
+function Shell({ score, lettersLeft, next, madeWords, dictionary, nextUpRef, onHowToPlay, onLogin, onSettings, loginStreak, clearStreak, children }) {
   const { undo } = useGame();
   const leftActions = [{ id: 'howtoplay', onClick: onHowToPlay }];
   const rightActions = [
@@ -25,37 +27,40 @@ function Shell({ score, lettersLeft, next, madeWords, nextUpRef, onHowToPlay, on
     { id: 'settings', onClick: onSettings },
   ];
 
-  const wordList = (madeWords ?? []).map((entry) =>
-    typeof entry === 'string' ? entry : entry.word
-  );
-
   return (
     <div className="rd-shell">
-      <header className="rd-app-bar">
-        <ActionBar items={leftActions} className="rd-action-bar--left" />
+      <header className="app-bar">
+        <div className="app-bar__side app-bar__side--left">
+          <ActionBar items={leftActions} />
+        </div>
         <div aria-hidden="true" />
-        <ActionBar items={rightActions} className="rd-action-bar--right" />
+        <div className="app-bar__side app-bar__side--right">
+          <ActionBar items={rightActions} />
+        </div>
       </header>
 
       <div className="rd-hero">
         <div className="rd-wordmark">
-          <span className="rd-wordmark__text">
-            {WORDMARK_LETTERS.map((letter, i) => (
-              <span
-                key={i}
-                className={`rd-wordmark__letter${i === UNDO_LETTER_INDEX ? ' rd-wordmark__undo' : ''}`}
-                onClick={i === UNDO_LETTER_INDEX ? (e) => handleUndoClick(undo, e) : undefined}
-                title={i === UNDO_LETTER_INDEX ? 'Click to undo (hidden feature)' : undefined}
-              >
-                {letter}
-              </span>
-            ))}
+          <span className="rd-wordmark__tiles">
+            {WORDMARK_LETTERS.map((letter, i) => {
+              const lit = i < Math.min(loginStreak ?? 0, STREAK_MAX);
+              return (
+                <span
+                  key={i}
+                  className={`rd-wordmark__tile${lit ? ' rd-wordmark__tile--lit' : ''}${i === UNDO_LETTER_INDEX ? ' rd-wordmark__undo' : ''}`}
+                  onClick={i === UNDO_LETTER_INDEX ? (e) => handleUndoClick(undo, e) : undefined}
+                  title={i === UNDO_LETTER_INDEX ? 'Click to undo (hidden feature)' : undefined}
+                >
+                  {letter}
+                </span>
+              );
+            })}
           </span>
-          <span className="rd-wordmark__rule" aria-hidden="true" />
-        </div>
-        <div className="rd-hero-score">
-          <span className="rd-hero-score__label">Score</span>
-          <span className="rd-hero-score__value">{score}</span>
+          {clearStreak > 0 && (
+            <span className="rd-wordmark__clear-streak">
+              🔥 <strong>{clearStreak}</strong> day clear streak
+            </span>
+          )}
         </div>
       </div>
 
@@ -63,14 +68,7 @@ function Shell({ score, lettersLeft, next, madeWords, nextUpRef, onHowToPlay, on
 
       {children}
 
-      <section className="rd-made-words">
-        <div className="rd-made-words__label">Words made</div>
-        <div className="rd-made-words__list">
-          {wordList.map((w, i) => (
-            <span key={`${w}-${i}`} className="rd-chip">{w}</span>
-          ))}
-        </div>
-      </section>
+      <MadeWordsA words={madeWords ?? []} dictionary={dictionary} />
     </div>
   );
 }

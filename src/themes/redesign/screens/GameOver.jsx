@@ -5,25 +5,17 @@ import { TOTAL_LETTERS } from '../../../utils/gameConstants.js';
 import { formatDailyDate, getLocalDateString } from '../../../utils/seededRandom.js';
 import WordListModal from '../../../shared/overlays/WordListModal.jsx';
 
-function WordStatsBullets({ wordStats, intro }) {
-  if (!wordStats) return <div className="rd-word-stats-loading">Loading stats…</div>;
-  const { longestWord, newWords = [], vocabularySize } = wordStats;
-  const hasContent = longestWord || newWords.length > 0;
-  if (!hasContent) return null;
+function WordsMadeSection({ words, newWordsSet }) {
+  if (!words.length) return null;
+  const sorted = [...words].sort((a, b) => a.localeCompare(b));
   return (
-    <div className="rd-word-stats">
-      {intro && <p className="rd-word-stats__intro">{intro}</p>}
-      <ul className="rd-word-stats__bullets">
-        {longestWord && (
-          <li>🏆 Longest word: <strong>{longestWord}</strong></li>
-        )}
-        {newWords.length > 0 && (
-          <li>✨ New words: <strong>{newWords.slice(0, 3).join(', ')}</strong></li>
-        )}
-        {newWords.length > 0 && (
-          <li>💹 <span className="rd-word-stats__gain">+{newWords.length}</span>: you added {newWords.length} new {newWords.length === 1 ? 'word' : 'words'} and expanded your vocab to {vocabularySize}!</li>
-        )}
-      </ul>
+    <div className="rd-gameover-words">
+      <p className="rd-gameover-words__label">Words made ({words.length})</p>
+      <div className="rd-gameover-words__list">
+        {sorted.map(w => (
+          <span key={w} className={`rd-chip${newWordsSet.has(w) ? ' rd-chip--new' : ''}`}>{w}</span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -77,10 +69,12 @@ function GameOver() {
   }
 
   const wordCount = state.allWordsThisGame.length;
+  const vocabSize = state.wordStats?.vocabularySize;
 
   const stats = [
     { label: 'Score',      value: state.score },
     { label: 'Words made', value: wordCount },
+    ...(vocabSize != null ? [{ label: 'Total vocab', value: vocabSize }] : []),
   ];
 
   const onHome = () => dispatch({ type: A.RESET });
@@ -104,8 +98,8 @@ function GameOver() {
           ))}
         </dl>
 
-        {state.wordStats !== undefined && (
-          <WordStatsBullets wordStats={state.wordStats} intro={statsIntro} />
+        {boardCleared && (
+          <WordsMadeSection words={state.allWordsThisGame} newWordsSet={newWordsSet} />
         )}
 
         {isClearMode && isDailyGame && (
@@ -142,7 +136,7 @@ function GameOver() {
           </div>
         )}
 
-        {wordCount > 0 && (
+        {wordCount > 0 && !boardCleared && (
           <button type="button" className="rd-link-btn" onClick={() => setShowWordList(true)}>
             See all {wordCount} words →
           </button>

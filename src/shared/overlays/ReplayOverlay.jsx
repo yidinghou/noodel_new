@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import Board from '../../themes/classic/components/Grid/Board.jsx';
-import NextPreview from '../../themes/classic/components/Controls/NextPreview.jsx';
+import Board from '../components/Board.jsx';
+import NextPreview from '../components/NextPreview.jsx';
 import DroppingOverlay from './DroppingOverlay.jsx';
 import { gameReducer, initialState } from '../../context/GameReducer.js';
 import { createPlayer } from '../../services/replayPlayer.js';

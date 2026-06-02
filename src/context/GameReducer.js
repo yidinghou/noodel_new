@@ -9,6 +9,7 @@ export const initialState = {
   lettersRemaining: TOTAL_LETTERS,
   nextQueue: [], // Array of upcoming letter objects
   status: STATUS.IDLE, // IDLE, PLAYING, GAME_OVER, PROCESSING
+  queueExhausted: false, // true after last letter is dropped; GAME_OVER fires once cascade settles
   madeWords: [],
   allWordsThisGame: [], // deduped list of all words cleared this game, for server submission
   wordStats: null, // populated after game-over score submission
@@ -28,6 +29,7 @@ export function gameReducer(state, action) {
         nextQueue: initialQueue,
         lettersRemaining: TOTAL_LETTERS,
         status: STATUS.PLAYING,
+        queueExhausted: false,
         grid: initialGrid || Array(GRID_SIZE).fill(null),
         score: 0,
         madeWords: [],
@@ -66,15 +68,12 @@ export function gameReducer(state, action) {
         isInitial: false
       };
 
-      // Check for game over (no more letters)
-      const newStatus = remainingQueue.length === 0 ? STATUS.GAME_OVER : state.status;
-
       return {
         ...state,
         grid: newGrid,
         nextQueue: remainingQueue,
         lettersRemaining: remainingQueue.length,
-        status: newStatus
+        queueExhausted: remainingQueue.length === 0,
       };
     }
 

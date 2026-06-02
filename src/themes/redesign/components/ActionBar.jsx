@@ -2,53 +2,54 @@ import { HowToPlayIcon, LoginIcon, LoggedInIcon, SettingsIcon } from '../../../s
 import { useCurrentUser } from '../../../shared/hooks/useCurrentUser.js';
 
 const ITEM_DEFS = {
-  howtoplay: { label: 'How to Play', Icon: HowToPlayIcon, defaultHandler: () => console.log('how to play') },
-  login:     { label: 'Log in',      Icon: LoginIcon,     defaultHandler: () => console.log('log in') },
-  settings:  { label: 'Settings',    Icon: SettingsIcon,  defaultHandler: () => console.log('settings') },
+  howtoplay: { Icon: HowToPlayIcon, extraClass: 'info-btn',     label: 'How to Play' },
+  login:     { Icon: LoginIcon,     extraClass: 'login-btn',    label: 'Log in' },
+  settings:  { Icon: SettingsIcon,  extraClass: 'settings-btn', label: 'Settings' },
 };
 
-function ActionBar({ items, className = '' }) {
+function ActionBar({ items }) {
   const currentUser = useCurrentUser();
 
   return (
-    <nav className={`rd-action-bar ${className}`} aria-label="Primary actions">
+    <>
       {items.map(({ id, onClick }) => {
         const def = ITEM_DEFS[id];
         if (!def) return null;
-        const { defaultHandler } = def;
         const isLogin = id === 'login';
-        if (isLogin && currentUser) {
-          return (
-            <button
-              key={id}
-              type="button"
-              className="rd-avatar-pill"
-              onClick={onClick || defaultHandler}
-              aria-label={`Logged in as ${currentUser}`}
-            >
-              <div className="rd-avatar-circle" aria-hidden="true">
-                {currentUser[0].toUpperCase()}
-              </div>
-              <span className="rd-avatar-name">{currentUser}</span>
-            </button>
-          );
-        }
-        const Icon = def.Icon;
-        const label = def.label;
-        return (
+        const Icon = isLogin && currentUser ? LoggedInIcon : def.Icon;
+        const ariaLabel = isLogin && currentUser ? `Logged in as ${currentUser}` : def.label;
+
+        const btn = (
           <button
             key={id}
             type="button"
-            className={`rd-action-btn${isLogin ? ' rd-action-btn--login' : ''}`}
-            onClick={onClick || defaultHandler}
-            aria-label={label}
+            className={`action-btn ${def.extraClass}${isLogin && currentUser ? ' login-btn--loggedin' : ''}`}
+            onClick={onClick}
+            aria-label={ariaLabel}
+            title={ariaLabel}
           >
             <Icon />
-            <span className="rd-action-btn__label">{label}</span>
           </button>
         );
+
+        if (isLogin) {
+          return (
+            <div key={id} className="login-wrapper">
+              {btn}
+              <span
+                className="login-wrapper__username"
+                aria-hidden={!currentUser}
+                style={currentUser ? undefined : { visibility: 'hidden' }}
+              >
+                {currentUser ?? 'x'}
+              </span>
+            </div>
+          );
+        }
+
+        return btn;
       })}
-    </nav>
+    </>
   );
 }
 
