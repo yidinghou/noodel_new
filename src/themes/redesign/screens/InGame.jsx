@@ -7,7 +7,7 @@ import Shell from '../components/Shell.jsx';
 import Board from '../components/Board.jsx';
 import DroppingOverlay from '../../../shared/overlays/DroppingOverlay.jsx';
 
-function InGame({ onHowToPlay, onLogin, onSettings }) {
+function InGame({ onHowToPlay, onLogin, onSettings, dictionary }) {
   const { state, dispatch } = useGame();
 
   const screenRef = useRef(null);
@@ -93,6 +93,7 @@ function InGame({ onHowToPlay, onLogin, onSettings }) {
         lettersLeft={state.lettersRemaining}
         next={next}
         madeWords={state.madeWords}
+        dictionary={dictionary}
         nextUpRef={nextUpRef}
         onHowToPlay={onHowToPlay}
         onLogin={onLogin}

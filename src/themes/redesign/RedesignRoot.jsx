@@ -5,8 +5,12 @@ import InGame from './screens/InGame.jsx';
 import GameOver from './screens/GameOver.jsx';
 import './styles/tokens.css';
 import './styles/redesign.css';
+import '../classic/styles/base.css';
+import '../classic/styles/grid.css';
+import '../classic/styles/card.css';
+import '../classic/styles/made-words.css';
 
-function RedesignRoot({ onHowToPlay, onLogin, onSettings }) {
+function RedesignRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
   const { state } = useGame();
 
   const screen =
@@ -18,7 +22,7 @@ function RedesignRoot({ onHowToPlay, onLogin, onSettings }) {
   return (
     <div className="rd-root">
       {screen === 'landing'  && <Landing  {...handlers} />}
-      {screen === 'ingame'   && <InGame   {...handlers} />}
+      {screen === 'ingame'   && <InGame   {...handlers} dictionary={dictionary} />}
       {screen === 'gameover' && <GameOver {...handlers} />}
     </div>
   );

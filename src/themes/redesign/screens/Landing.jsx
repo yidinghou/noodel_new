@@ -19,10 +19,14 @@ function Landing({ onHowToPlay, onLogin, onSettings }) {
 
   return (
     <div className="rd-screen rd-landing">
-      <header className="rd-app-bar">
-        <ActionBar items={leftActions} className="rd-action-bar--left" />
+      <header className="app-bar">
+        <div className="app-bar__side app-bar__side--left">
+          <ActionBar items={leftActions} />
+        </div>
         <div aria-hidden="true" />
-        <ActionBar items={rightActions} className="rd-action-bar--right" />
+        <div className="app-bar__side app-bar__side--right">
+          <ActionBar items={rightActions} />
+        </div>
       </header>
 
       <LandingBanner onLogin={onLogin} />

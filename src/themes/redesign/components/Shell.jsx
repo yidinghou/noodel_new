@@ -1,5 +1,6 @@
 import ActionBar from './ActionBar.jsx';
 import NextRow from './NextRow.jsx';
+import MadeWords from '../../classic/components/Stats/MadeWords.jsx';
 import { useGame } from '../../../context/GameContext.jsx';
 
 const WORDMARK_LETTERS = ['N', 'O', 'O', 'D', 'E', 'L'];
@@ -17,7 +18,7 @@ function handleUndoClick(undo, e) {
 
 const LEFT_ACTIONS_TEMPLATE = ['howtoplay'];
 
-function Shell({ score, lettersLeft, next, madeWords, nextUpRef, onHowToPlay, onLogin, onSettings, children }) {
+function Shell({ score, lettersLeft, next, madeWords, dictionary, nextUpRef, onHowToPlay, onLogin, onSettings, children }) {
   const { undo } = useGame();
   const leftActions = [{ id: 'howtoplay', onClick: onHowToPlay }];
   const rightActions = [
@@ -25,16 +26,16 @@ function Shell({ score, lettersLeft, next, madeWords, nextUpRef, onHowToPlay, on
     { id: 'settings', onClick: onSettings },
   ];
 
-  const wordList = (madeWords ?? []).map((entry) =>
-    typeof entry === 'string' ? entry : entry.word
-  );
-
   return (
     <div className="rd-shell">
-      <header className="rd-app-bar">
-        <ActionBar items={leftActions} className="rd-action-bar--left" />
+      <header className="app-bar">
+        <div className="app-bar__side app-bar__side--left">
+          <ActionBar items={leftActions} />
+        </div>
         <div aria-hidden="true" />
-        <ActionBar items={rightActions} className="rd-action-bar--right" />
+        <div className="app-bar__side app-bar__side--right">
+          <ActionBar items={rightActions} />
+        </div>
       </header>
 
       <div className="rd-hero">
@@ -63,14 +64,7 @@ function Shell({ score, lettersLeft, next, madeWords, nextUpRef, onHowToPlay, on
 
       {children}
 
-      <section className="rd-made-words">
-        <div className="rd-made-words__label">Words made</div>
-        <div className="rd-made-words__list">
-          {wordList.map((w, i) => (
-            <span key={`${w}-${i}`} className="rd-chip">{w}</span>
-          ))}
-        </div>
-      </section>
+      <MadeWords words={madeWords ?? []} dictionary={dictionary} visible={true} />
     </div>
   );
 }
