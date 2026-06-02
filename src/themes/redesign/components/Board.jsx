@@ -1,5 +1,5 @@
 import { GRID_COLS } from '../../../utils/gameConstants.js';
-import Cell from '../../classic/components/Grid/Cell.jsx';
+import Cell from '../../../shared/components/Cell.jsx';
 
 function Board({ cells = [], highlightSet = null, onColumnClick, boardRef, children }) {
   return (

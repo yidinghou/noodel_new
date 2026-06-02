@@ -1,5 +1,4 @@
 import { useSettingsState } from '../hooks/useSettingsState.js';
-import { useTheme } from '../../themes/ThemeContext.jsx';
 import { useGame } from '../../context/GameContext.jsx';
 import { formatDailyDate } from '../../utils/seededRandom.js';
 import { STATUS } from '../../utils/gameConstants.js';
@@ -10,7 +9,6 @@ import './SettingsMenu.css';
 
 function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
   const s = useSettingsState({ onPlayReplay, onClose });
-  const { themeId, setThemeId, themes } = useTheme();
   const { state, dispatch } = useGame();
   const isPlaying = state.status !== STATUS.IDLE;
   const dailyPlayed = hasDailyBeenPlayed();
@@ -19,7 +17,6 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
     s.panel === 'stats'       ? 'Stats'
     : s.panel === 'leaderboard' ? 'Leaderboard'
     : s.panel === 'my-best'   ? 'My Best Games'
-    : s.panel === 'theme'     ? 'Theme'
     : 'Settings';
 
   if (s.showVocab) {
@@ -65,33 +62,11 @@ function SettingsMenu({ onClose, isMuted, onToggleMute, onPlayReplay }) {
             <button className="settings-menu__btn" onClick={onToggleMute}>
               <span>{isMuted ? '🔇 Unmute' : '🔊 Sound'}</span>
             </button>
-            <button className="settings-menu__btn" onClick={() => s.setPanel('theme')}>
-              <span>🎨 Theme: {themes.find(t => t.id === themeId)?.name}</span>
-              <span aria-hidden="true">›</span>
-            </button>
             {isPlaying && (
               <button className="settings-menu__btn" onClick={() => { dispatch({ type: A.RESET }); onClose?.(); }}>
                 <span>🏠 Home</span>
               </button>
             )}
-          </div>
-        )}
-
-        {s.panel === 'theme' && (
-          <div className="settings-menu__list">
-            {themes.map(t => (
-              <button
-                key={t.id}
-                className={`settings-menu__btn settings-menu__theme${themeId === t.id ? ' is-active' : ''}`}
-                onClick={() => { setThemeId(t.id); onClose?.(); }}
-              >
-                <span>
-                  <strong>{themeId === t.id ? '✓ ' : ''}{t.name}</strong>
-                  <em className="settings-menu__theme-blurb">{t.blurb}</em>
-                </span>
-              </button>
-            ))}
-            <button className="settings-menu__btn" onClick={() => s.setPanel(null)}>← Back</button>
           </div>
         )}
 

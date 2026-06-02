@@ -4,11 +4,11 @@ import Landing from './screens/Landing.jsx';
 import InGame from './screens/InGame.jsx';
 import GameOver from './screens/GameOver.jsx';
 import './styles/tokens.css';
+import './styles/base.css';
+import './styles/grid.css';
+import './styles/card.css';
+import './styles/made-words.css';
 import './styles/redesign.css';
-import '../classic/styles/base.css';
-import '../classic/styles/grid.css';
-import '../classic/styles/card.css';
-import '../classic/styles/made-words.css';
 
 function RedesignRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
   const { state } = useGame();
