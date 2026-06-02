@@ -3,9 +3,8 @@ import { useState } from 'react';
 function MadeWordsA({ words = [], dictionary = null }) {
   const [expanded, setExpanded] = useState(false);
 
-  const reversed = [...words].reverse();
-  const recent = reversed.slice(0, 3);
-  const older = reversed.slice(3);
+  const recent = words.slice(0, 3);
+  const older = words.slice(3);
   const olderCount = older.length;
 
   return (
