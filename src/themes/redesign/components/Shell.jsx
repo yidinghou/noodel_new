@@ -5,6 +5,7 @@ import { useGame } from '../../../context/GameContext.jsx';
 
 const WORDMARK_LETTERS = ['N', 'O', 'O', 'D', 'E', 'L'];
 const UNDO_LETTER_INDEX = 2;
+const STREAK_MAX = WORDMARK_LETTERS.length;
 
 function handleUndoClick(undo, e) {
   e.stopPropagation();
@@ -18,7 +19,7 @@ function handleUndoClick(undo, e) {
 
 const LEFT_ACTIONS_TEMPLATE = ['howtoplay'];
 
-function Shell({ score, lettersLeft, next, madeWords, dictionary, nextUpRef, onHowToPlay, onLogin, onSettings, children }) {
+function Shell({ score, lettersLeft, next, madeWords, dictionary, nextUpRef, onHowToPlay, onLogin, onSettings, loginStreak, clearStreak, children }) {
   const { undo } = useGame();
   const leftActions = [{ id: 'howtoplay', onClick: onHowToPlay }];
   const rightActions = [
@@ -40,19 +41,26 @@ function Shell({ score, lettersLeft, next, madeWords, dictionary, nextUpRef, onH
 
       <div className="rd-hero">
         <div className="rd-wordmark">
-          <span className="rd-wordmark__text">
-            {WORDMARK_LETTERS.map((letter, i) => (
-              <span
-                key={i}
-                className={`rd-wordmark__letter${i === UNDO_LETTER_INDEX ? ' rd-wordmark__undo' : ''}`}
-                onClick={i === UNDO_LETTER_INDEX ? (e) => handleUndoClick(undo, e) : undefined}
-                title={i === UNDO_LETTER_INDEX ? 'Click to undo (hidden feature)' : undefined}
-              >
-                {letter}
-              </span>
-            ))}
+          <span className="rd-wordmark__tiles">
+            {WORDMARK_LETTERS.map((letter, i) => {
+              const lit = i < Math.min(loginStreak ?? 0, STREAK_MAX);
+              return (
+                <span
+                  key={i}
+                  className={`rd-wordmark__tile${lit ? ' rd-wordmark__tile--lit' : ''}${i === UNDO_LETTER_INDEX ? ' rd-wordmark__undo' : ''}`}
+                  onClick={i === UNDO_LETTER_INDEX ? (e) => handleUndoClick(undo, e) : undefined}
+                  title={i === UNDO_LETTER_INDEX ? 'Click to undo (hidden feature)' : undefined}
+                >
+                  {letter}
+                </span>
+              );
+            })}
           </span>
-          <span className="rd-wordmark__rule" aria-hidden="true" />
+          {clearStreak > 0 && (
+            <span className="rd-wordmark__clear-streak">
+              🔥 <strong>{clearStreak}</strong> clear streak
+            </span>
+          )}
         </div>
       </div>
 

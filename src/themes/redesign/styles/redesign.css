@@ -593,25 +593,45 @@ button {
   align-items: center;
   gap: var(--rd-s-2);
 }
-.rd-wordmark__text {
-  font-size: clamp(32px, 8vw, 48px);
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  color: var(--rd-text);
-  line-height: 1;
+.rd-wordmark__tiles {
+  display: flex;
+  gap: 5px;
 }
-.rd-wordmark__letter {
-  display: inline-block;
+.rd-wordmark__tile {
+  width: clamp(36px, 9vw, 48px);
+  height: clamp(36px, 9vw, 48px);
+  border-radius: var(--rd-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: clamp(18px, 4.5vw, 24px);
+  font-weight: 800;
+  line-height: 1;
+  background: #e5e7eb;
+  border: 2px solid #d1d5db;
+  color: #6b7280;
+  box-shadow: 0 2px 0 #d1d5db;
+  user-select: none;
+}
+.rd-wordmark__tile--lit {
+  background: var(--rd-match);
+  border-color: var(--rd-accent);
+  color: #fff;
+  box-shadow: 0 2px 0 var(--rd-accent), 0 4px 10px rgba(76, 175, 80, 0.25);
 }
 .rd-wordmark__undo {
   cursor: pointer;
   transition: opacity 0.1s ease;
 }
-.rd-wordmark__rule {
-  width: 40px;
-  height: 3px;
-  background: var(--rd-accent);
-  border-radius: var(--rd-radius-pill);
+.rd-wordmark__clear-streak {
+  font-size: var(--rd-fs-xs);
+  font-weight: 500;
+  color: var(--rd-text-3);
+  letter-spacing: 0.02em;
+}
+.rd-wordmark__clear-streak strong {
+  font-weight: 800;
+  color: var(--rd-text);
 }
 
 .rd-tagline {

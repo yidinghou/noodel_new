@@ -6,9 +6,12 @@ import { A } from '../../../utils/actionTypes.js';
 import Shell from '../components/Shell.jsx';
 import Board from '../components/Board.jsx';
 import DroppingOverlay from '../../../shared/overlays/DroppingOverlay.jsx';
+import { useStreaks } from '../../../hooks/useStreaks.js';
 
 function InGame({ onHowToPlay, onLogin, onSettings, dictionary }) {
   const { state, dispatch } = useGame();
+  const username = localStorage.getItem('noodel_username') ?? null;
+  const { loginStreak, clearStreak } = useStreaks(username);
 
   const screenRef = useRef(null);
   const boardRef = useRef(null);
@@ -98,6 +101,8 @@ function InGame({ onHowToPlay, onLogin, onSettings, dictionary }) {
         onHowToPlay={onHowToPlay}
         onLogin={onLogin}
         onSettings={onSettings}
+        loginStreak={loginStreak}
+        clearStreak={clearStreak}
       >
         <section className="rd-board-wrapper">
           <div className="rd-board-center">
