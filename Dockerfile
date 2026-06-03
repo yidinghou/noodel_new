@@ -19,6 +19,7 @@ RUN npm ci --only=production
 COPY --from=builder /app/dist ./dist
 COPY server.js ./
 COPY scripts ./scripts
+COPY src ./src
 
 EXPOSE 3000
 
