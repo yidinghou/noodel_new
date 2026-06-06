@@ -1,5 +1,6 @@
 import { GRID_SIZE, GRID_COLS, GRID_ROWS, CLEAR_MODE_INITIAL_FILL_PERCENTAGE } from './gameConstants.js';
 import { getWeightedRandomLetter } from './letterUtils.js';
+import { rng } from './seededRandom.js';
 
 // Max column (0-based) for letters that rarely end 3-4 letter words.
 // Keeps them away from the right edge where they'd have nowhere to extend.
@@ -16,7 +17,7 @@ const MAX_COL = {
  * Initial blocks fall to the bottom of their columns (gravity applied)
  * @returns {Object} { grid: Array, initialBlocks: Array<number> }
  */
-export function generateClearModeGrid(rng = Math.random) {
+export function generateClearModeGrid() {
   const grid = Array(GRID_SIZE).fill(null);
   const cellsToFill = Math.floor(GRID_SIZE * CLEAR_MODE_INITIAL_FILL_PERCENTAGE);
 
@@ -38,7 +39,7 @@ export function generateClearModeGrid(rng = Math.random) {
 
   shuffledLetters.forEach(letter => {
     const maxCol = MAX_COL[letter.char] ?? GRID_COLS - 1;
-    const randomCol = Math.floor(Math.random() * (maxCol + 1));
+    const randomCol = Math.floor(rng() * (maxCol + 1));
     lettersPerColumn[randomCol].push(letter);
   });
 

@@ -1,4 +1,5 @@
 import markovData from '../assets/letter_markov.json';
+import { rng } from './seededRandom.js';
 
 const MAX_CONSONANTS_IN_ROW = 3;     // force a vowel after this many consecutive consonants
 const MAX_GENERATION_ATTEMPTS = 100; // loop guard before falling back to a direct pick
@@ -30,7 +31,7 @@ for (const letter of Object.keys(markovData.bigrams)) {
 
 function sampleFromWeights(cumulativeArr) {
   const total = cumulativeArr[cumulativeArr.length - 1].cumWeight;
-  const rand = Math.random() * total;
+  const rand = rng() * total;
   for (const item of cumulativeArr) {
     if (rand <= item.cumWeight) return item.letter;
   }
@@ -44,7 +45,7 @@ function sampleFromWeights(cumulativeArr) {
 // Falls back to start distribution when history is empty.
 function getMarkovLetter(history) {
   // Random injection: occasionally sample from raw dictionary frequency.
-  if (Math.random() < RANDOM_INJECTION_PROB) {
+  if (rng() < RANDOM_INJECTION_PROB) {
     return sampleFromWeights(frequencyWeights);
   }
 
@@ -117,10 +118,10 @@ function getNextValidLetter(sequence) {
   // Forced fallback
   if (mustBeVowel) {
     const vowels = Array.from(VOWELS).filter(v => v !== previousLetter);
-    return vowels[Math.floor(Math.random() * vowels.length)];
+    return vowels[Math.floor(rng() * vowels.length)];
   }
   const consonants = 'BCDFGHJKLMNPQRSTVWXYZ'.split('').filter(c => c !== previousLetter);
-  return consonants[Math.floor(Math.random() * consonants.length)];
+  return consonants[Math.floor(rng() * consonants.length)];
 }
 
 /**
@@ -129,7 +130,7 @@ function getNextValidLetter(sequence) {
  * - Vowel forced after 4 consecutive consonants
  * - Letter choice guided by bigram Markov model over last 3 letters
  */
-export function generateLetterSequence(count, rng = Math.random) {
+export function generateLetterSequence(count) {
   const sequence = [];
 
   for (let i = 0; i < count; i++) {
