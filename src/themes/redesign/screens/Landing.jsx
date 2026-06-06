@@ -1,7 +1,5 @@
-import { useRef } from 'react';
 import { useGame } from '../../../context/GameContext.jsx';
 import ActionBar from '../components/ActionBar.jsx';
-import NextRow from '../components/NextRow.jsx';
 import { useAmbientDemo, AmbientBoard } from '../components/AmbientDemo.jsx';
 import GameModePanel from '../../../shared/components/GameModePanel.jsx';
 import LandingBanner from '../../../shared/components/LandingBanner.jsx';
@@ -12,7 +10,6 @@ const WORDMARK_LETTERS = ['N', 'O', 'O', 'D', 'E', 'L'];
 function Landing({ onHowToPlay, onLogin, onSettings }) {
   const { dispatch, resumeSession } = useGame();
   const demo = useAmbientDemo();
-  const firstTileRef = useRef(null);
   const username = localStorage.getItem('noodel_username') ?? null;
   const { loginStreak, clearStreak } = useStreaks(username);
 
@@ -33,8 +30,6 @@ function Landing({ onHowToPlay, onLogin, onSettings }) {
           <ActionBar items={rightActions} />
         </div>
       </header>
-
-      <LandingBanner onLogin={onLogin} />
 
       <div className="rd-hero">
         <div className="rd-wordmark">
@@ -57,10 +52,11 @@ function Landing({ onHowToPlay, onLogin, onSettings }) {
         <p className="rd-tagline">A word-dropping puzzle</p>
       </div>
 
+      <LandingBanner onLogin={onLogin} clearStreak={clearStreak} loginStreak={loginStreak} />
+
       <section className="rd-landing__stage">
-        <NextRow letters={demo.queue} firstTileRef={firstTileRef} />
         <div className="rd-board-stage">
-          <AmbientBoard {...demo} firstTileRef={firstTileRef} />
+          <AmbientBoard {...demo} />
           <GameModePanel dispatch={dispatch} resumeSession={resumeSession} className="start-game-overlay--redesign" />
         </div>
       </section>

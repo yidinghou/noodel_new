@@ -52,6 +52,9 @@
   --rd-fs-2xl:     32px;
   --rd-fs-display: clamp(40px, 10vw, 64px);
 
+  /* Shared banner / next-row height — keeps landing and in-game slot the same size */
+  --banner-h: 9vh;
+
   /* Shadows */
   --rd-shadow-sm:  0 1px 2px rgba(17, 24, 39, 0.06);
   --rd-shadow-md:  0 4px 12px rgba(17, 24, 39, 0.08);

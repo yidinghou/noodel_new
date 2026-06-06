@@ -5,9 +5,15 @@
   gap: 6px;
   padding: 9px 16px;
   font-size: 13px;
-  border-bottom: 1px solid;
+  border: 1px solid;
+  border-radius: var(--rd-radius-md, 10px);
   flex-wrap: wrap;
   text-align: center;
+  width: var(--rd-board-w, 100%);
+  max-width: 100%;
+  margin: 0 auto;
+  height: var(--banner-h, 9vh);
+  overflow: hidden;
 }
 
 .landing-banner--guest {
@@ -16,7 +22,8 @@
   color: #6b7280;
 }
 
-.landing-banner--loggedin {
+.landing-banner--loggedin,
+.landing-banner--new {
   background: #E8F5E9;
   border-color: #A5D6A7;
   color: #2E7D32;
@@ -42,4 +49,16 @@
 
 .landing-banner--resume .landing-banner__link {
   color: #E65100;
+}
+
+.landing-banner__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  background: rgba(0, 0, 0, 0.06);
+  color: inherit;
 }

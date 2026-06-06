@@ -6,14 +6,15 @@ import { computeDropCoords } from '../../../utils/dropCoordUtils.js';
 
 export { useAmbientDemo };
 
-export function AmbientBoard({ grid, dropping, highlight, firstTileRef }) {
+export function AmbientBoard({ grid, dropping, highlight }) {
   const gridRef = useRef(null);
   const containerRef = useRef(null);
+  const anchorRef = useRef(null);
   const [dropState, setDropState] = useState(null);
 
   useEffect(() => {
     if (dropping?.phase === 'falling') {
-      const tileEl = firstTileRef?.current;
+      const tileEl = anchorRef.current;
       const gridEl = gridRef.current;
       const containerEl = containerRef.current;
       if (!tileEl || !gridEl || !containerEl) return;
@@ -28,7 +29,7 @@ export function AmbientBoard({ grid, dropping, highlight, firstTileRef }) {
     } else if (!dropping) {
       setDropState(null);
     }
-  }, [dropping, firstTileRef]);
+  }, [dropping]);
 
   const cells = grid.map((letter) =>
     letter ? { ch: letter, state: 'filled' } : null
@@ -36,6 +37,20 @@ export function AmbientBoard({ grid, dropping, highlight, firstTileRef }) {
 
   return (
     <div ref={containerRef} style={{ position: 'relative' }}>
+      <div
+        ref={anchorRef}
+        aria-hidden="true"
+        style={{
+          position: 'absolute',
+          top: -40,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: 32,
+          height: 32,
+          opacity: 0,
+          pointerEvents: 'none',
+        }}
+      />
       <div className="rd-ambient-demo" aria-hidden="true">
         <Board cells={cells} highlightSet={highlight} boardRef={gridRef} />
       </div>

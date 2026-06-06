@@ -2,7 +2,7 @@ import { useCurrentUser } from '../hooks/useCurrentUser.js';
 import { peekDailyInProgress } from '../../services/sessionStorage.js';
 import './LandingBanner.css';
 
-function LandingBanner({ onLogin }) {
+function LandingBanner({ onLogin, clearStreak = 0, loginStreak = 0 }) {
   const currentUser = useCurrentUser();
   const hasDailyResume = currentUser ? peekDailyInProgress() : false;
 
@@ -26,6 +26,17 @@ function LandingBanner({ onLogin }) {
       <div className="landing-banner landing-banner--resume">
         <span aria-hidden="true">⏸</span>
         <strong>{currentUser}</strong>, you have a daily puzzle in progress.
+        {clearStreak > 0 && <span className="landing-banner__pill">🔥 {clearStreak}-day clear streak</span>}
+        {loginStreak > 0 && <span className="landing-banner__pill">📅 {loginStreak}-day login streak</span>}
+      </div>
+    );
+  }
+
+  if (clearStreak === 0 && loginStreak === 0) {
+    return (
+      <div className="landing-banner landing-banner--new">
+        <span aria-hidden="true">👋</span>
+        Welcome to Noodel, <strong>{currentUser}</strong>! Ready to drop some words?
       </div>
     );
   }
@@ -33,7 +44,9 @@ function LandingBanner({ onLogin }) {
   return (
     <div className="landing-banner landing-banner--loggedin">
       <span aria-hidden="true">👋</span>
-      Welcome back, <strong>{currentUser}</strong> — ready for today's puzzle?
+      Welcome back, <strong>{currentUser}</strong>!
+      {clearStreak > 0 && <span className="landing-banner__pill">🔥 {clearStreak}-day clear streak</span>}
+      {loginStreak > 0 && <span className="landing-banner__pill">📅 {loginStreak}-day login streak</span>}
     </div>
   );
 }
