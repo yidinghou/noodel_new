@@ -12,6 +12,17 @@ export function createSeededRng(seed) {
   };
 }
 
+// Module-level RNG singleton. Call seedModule(seed) before any generation.
+let _rng = Math.random;
+
+export function seedModule(seed) {
+  _rng = createSeededRng(seed);
+}
+
+export function rng() {
+  return _rng();
+}
+
 /** Returns YYYYMMDD integer for today's local date, used as the daily seed. */
 export function getDailyDateSeed() {
   const d = new Date();

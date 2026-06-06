@@ -2,7 +2,7 @@ import React, { createContext, useReducer, useContext, useCallback, useEffect, u
 import { gameReducer, initialState } from './GameReducer.js';
 import { generateLetterSequence } from '../utils/letterUtils.js';
 import { generateClearModeGrid } from '../utils/clearModeUtils.js';
-import { createSeededRng, getDailyDateSeed, getLocalDateString } from '../utils/seededRandom.js';
+import { seedModule, getDailyDateSeed, getLocalDateString } from '../utils/seededRandom.js';
 import { markDailyPlayed, consumeUnlimitedPlay } from '../utils/playLimits.js';
 import { TOTAL_LETTERS, STATUS } from '../utils/gameConstants.js';
 import { A } from '../utils/actionTypes.js';
@@ -11,8 +11,8 @@ import * as sessionStorage from '../services/sessionStorage.js';
 
 const GameContext = createContext(null);
 
-function buildInitialQueue(mode, rng) {
-  let seq = generateLetterSequence(TOTAL_LETTERS, rng);
+function buildInitialQueue(mode) {
+  let seq = generateLetterSequence(TOTAL_LETTERS);
   if (mode === 'tutorial') {
     seq = [
       { char: 'W', id: 'tutorial-W-1' },
@@ -31,8 +31,8 @@ function buildInitialQueue(mode, rng) {
   return seq;
 }
 
-function buildInitialGrid(mode, rng) {
-  if (mode === 'clear') return generateClearModeGrid(rng);
+function buildInitialGrid(mode) {
+  if (mode === 'clear') return generateClearModeGrid();
   return { grid: null, initialBlocks: [] };
 }
 
@@ -56,9 +56,9 @@ export function GameProvider({ children }) {
       scoreSubmittedRef.current = false;
       const { mode, gameType } = action.payload;
       const seed = gameType === 'unlimited' ? Date.now() : getDailyDateSeed();
-      const rng = createSeededRng(seed);
-      const initialQueue = buildInitialQueue(mode, rng);
-      const { grid: initialGrid, initialBlocks } = buildInitialGrid(mode, rng);
+      seedModule(seed);
+      const initialQueue = buildInitialQueue(mode);
+      const { grid: initialGrid, initialBlocks } = buildInitialGrid(mode);
       if (gameType === 'unlimited') consumeUnlimitedPlay();
       const fullAction = { type: A.START_GAME, payload: { mode, gameType, gameDate: getLocalDateString(), initialQueue, initialGrid, initialBlocks } };
       recorderRef.current.record(fullAction);
@@ -110,10 +110,38 @@ export function GameProvider({ children }) {
     dispatch({ type: A.LOAD_SAVED_GAME, payload: latest.state });
   }, [dispatch]);
 
+  // Sync in-progress session to server when the page is hidden (tab switch, browser close).
+  // Uses sendBeacon so the request survives page unload. Only syncs for named accounts.
+  useEffect(() => {
+    const sync = () => {
+      const username = localStorage.getItem('noodel_username');
+      if (!username || username === 'anonymous') return;
+      if (stateRef.current.status === STATUS.IDLE || stateRef.current.status === STATUS.GAME_OVER) return;
+      const snap = recorderRef.current.snapshot();
+      if (!snap) return;
+      navigator.sendBeacon('/api/session', new Blob(
+        [JSON.stringify({ username, snapshot: snap })],
+        { type: 'application/json' }
+      ));
+    };
+    const onVisibility = () => { if (document.hidden) sync(); };
+    document.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('beforeunload', sync);
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('beforeunload', sync);
+    };
+  }, []);
+
   // Submit score when game ends (daily only); always clear the session snapshot.
   useEffect(() => {
     if (state.status !== STATUS.GAME_OVER) return;
     sessionStorage.clear(); // game complete — nothing left to resume
+    // Remove the in-progress server session now that the game is done.
+    const doneUser = localStorage.getItem('noodel_username');
+    if (doneUser && doneUser !== 'anonymous') {
+      fetch(`/api/session?username=${encodeURIComponent(doneUser)}`, { method: 'DELETE' }).catch(() => {});
+    }
     if (state.gameType === 'daily') markDailyPlayed();
     if (!scoreSubmittedRef.current && state.gameType === 'daily') {
       scoreSubmittedRef.current = true;
