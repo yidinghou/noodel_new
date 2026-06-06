@@ -51,6 +51,15 @@ try {
     ON CONFLICT DO NOTHING;
   `);
   console.log('✅ users table ready');
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS active_sessions (
+      username    TEXT PRIMARY KEY,
+      game_type   TEXT,
+      snapshot    JSONB NOT NULL,
+      updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
+  console.log('✅ active_sessions table ready');
 } finally {
   await pool.end();
 }

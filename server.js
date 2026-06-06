@@ -279,6 +279,55 @@ app.post('/api/users', async (req, res) => {
   }
 });
 
+// In-progress session storage — enables cross-device resume for the same account
+app.put('/api/session', async (req, res) => {
+  try {
+    const { username, snapshot } = req.body;
+    if (!username || !snapshot) return res.status(400).json({ error: 'username and snapshot required' });
+    await pool.query(
+      `INSERT INTO active_sessions (username, game_type, snapshot, updated_at)
+       VALUES ($1, $2, $3, NOW())
+       ON CONFLICT (username) DO UPDATE
+         SET game_type = EXCLUDED.game_type,
+             snapshot  = EXCLUDED.snapshot,
+             updated_at = NOW()`,
+      [username, snapshot.events?.find(e => e.type === 'START_GAME')?.payload?.gameType ?? null, JSON.stringify(snapshot)]
+    );
+    res.status(204).end();
+  } catch (err) {
+    console.error('PUT /api/session error:', err);
+    res.status(500).json({ error: 'internal server error' });
+  }
+});
+
+app.get('/api/session', async (req, res) => {
+  try {
+    const { username } = req.query;
+    if (!username) return res.status(400).json({ error: 'username required' });
+    const result = await pool.query(
+      'SELECT snapshot FROM active_sessions WHERE username = $1',
+      [username]
+    );
+    if (!result.rows.length) return res.status(404).json({ error: 'no active session' });
+    res.json({ snapshot: result.rows[0].snapshot });
+  } catch (err) {
+    console.error('GET /api/session error:', err);
+    res.status(500).json({ error: 'internal server error' });
+  }
+});
+
+app.delete('/api/session', async (req, res) => {
+  try {
+    const { username } = req.query;
+    if (!username) return res.status(400).json({ error: 'username required' });
+    await pool.query('DELETE FROM active_sessions WHERE username = $1', [username]);
+    res.status(204).end();
+  } catch (err) {
+    console.error('DELETE /api/session error:', err);
+    res.status(500).json({ error: 'internal server error' });
+  }
+});
+
 // Serve known HTML entry points directly; fall back to index.html for SPA routes
 const HTML_ENTRIES = ['index.html', 'poc.html'];
 app.get('*', (req, res) => {

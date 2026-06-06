@@ -4,6 +4,7 @@ import { NOODEL_LOGIN_EVENT } from '../hooks/useCurrentUser.js';
 import { useGame } from '../../context/GameContext.jsx';
 import { A } from '../../utils/actionTypes.js';
 import { STATUS } from '../../utils/gameConstants.js';
+import * as sessionStorageSvc from '../../services/sessionStorage.js';
 import './SettingsMenu.css';
 
 const USERNAME_REGEX = /^[a-zA-Z0-9_]+$/;
@@ -16,16 +17,32 @@ function LoginMenu({ onClose }) {
   const [view, setView] = useState('landing');
 
   const handleLogout = () => {
+    // Reset game BEFORE clearing username so the session checkpoint is saved under the
+    // current user's key (not anonymous), allowing them to resume after logging back in.
+    if (isGameActive) dispatch({ type: A.RESET });
     s.logout();
-    dispatch({ type: A.RESET });
     window.dispatchEvent(new CustomEvent(NOODEL_LOGIN_EVENT));
     onClose?.();
   };
 
-  const finish = (username) => {
-    s.selectUser(username);
+  const finish = async (username) => {
+    // Reset game BEFORE switching username so the old user's checkpoint is saved under
+    // their key (not the incoming user's), preventing session bleed between accounts.
     if (isGameActive) dispatch({ type: A.RESET });
+    s.selectUser(username);
     window.dispatchEvent(new CustomEvent(NOODEL_LOGIN_EVENT));
+    // Load any in-progress session the new account has on the server, so the landing
+    // screen's resume button appears correctly even on a fresh device.
+    try {
+      const res = await fetch(`/api/session?username=${encodeURIComponent(username)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.snapshot) {
+          sessionStorageSvc.save(data.snapshot);
+          window.dispatchEvent(new CustomEvent(NOODEL_LOGIN_EVENT));
+        }
+      }
+    } catch {}
     onClose?.();
   };
 
