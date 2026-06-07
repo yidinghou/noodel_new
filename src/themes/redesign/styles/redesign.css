@@ -283,13 +283,17 @@ button {
 
 .rd-next-row {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: var(--rd-s-3);
   width: var(--rd-board-w);
   max-width: 100%;
   margin: 0 auto;
-  padding: 0 0 var(--rd-s-3);
+  padding: 0 var(--rd-s-4);
+  height: var(--banner-h);
+  border: 1px solid var(--rd-border);
+  border-radius: var(--rd-radius-md);
+  background: var(--rd-surface);
 }
 .rd-next-row__left {
   display: flex;
@@ -507,6 +511,7 @@ button {
 /* InGame board wrapper centers the fixed-size Board within available width */
 .rd-board-wrapper {
   padding: 0 var(--rd-s-4);
+  margin-top: var(--rd-s-3);
 }
 .rd-board-center {
   display: flex;
@@ -518,7 +523,7 @@ button {
 .rd-ambient-demo {
   pointer-events: none;
   opacity: 0.4;
-  width: min(90vw, 388px);
+  width: min(90vw, calc(var(--size-grid-max-height) * 7 / 6));
 }
 
 .rd-demo-drop {
@@ -670,13 +675,11 @@ button {
   flex-direction: column;
   gap: var(--rd-s-3);
   padding: 0 var(--rd-s-4);
+  margin-top: var(--rd-s-3);
   padding-bottom: max(var(--rd-s-4), env(safe-area-inset-bottom));
 }
 .rd-landing__stage .rd-board-stage {
   align-self: center;
-}
-.rd-landing__stage .rd-next-row {
-  opacity: 0.4;
 }
 
 .rd-board-stage {

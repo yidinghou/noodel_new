@@ -62,6 +62,7 @@ function Shell({ score, lettersLeft, next, madeWords, dictionary, nextUpRef, onH
             </span>
           )}
         </div>
+        <p className="rd-tagline">A word-dropping puzzle</p>
       </div>
 
       <NextRow letters={next} lettersLeft={lettersLeft} firstTileRef={nextUpRef} />
