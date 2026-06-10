@@ -1,85 +1,49 @@
-import markovData from '../assets/letter_markov.json';
 import { rng } from './seededRandom.js';
 
-const MAX_CONSONANTS_IN_ROW = 3;     // force a vowel after this many consecutive consonants
-const MAX_GENERATION_ATTEMPTS = 100; // loop guard before falling back to a direct pick
+const LETTER_FREQUENCIES = [
+  { letter: 'E', weight: 12.70 },
+  { letter: 'T', weight: 9.06 },
+  { letter: 'A', weight: 8.17 },
+  { letter: 'O', weight: 7.51 },
+  { letter: 'I', weight: 6.97 },
+  { letter: 'N', weight: 6.75 },
+  { letter: 'S', weight: 6.33 },
+  { letter: 'H', weight: 6.09 },
+  { letter: 'R', weight: 5.99 },
+  { letter: 'D', weight: 4.25 },
+  { letter: 'L', weight: 4.03 },
+  { letter: 'C', weight: 2.78 },
+  { letter: 'U', weight: 2.76 },
+  { letter: 'M', weight: 2.41 },
+  { letter: 'W', weight: 2.36 },
+  { letter: 'F', weight: 2.23 },
+  { letter: 'G', weight: 2.02 },
+  { letter: 'Y', weight: 1.97 },
+  { letter: 'P', weight: 1.93 },
+  { letter: 'B', weight: 1.29 },
+  { letter: 'V', weight: 0.98 },
+  { letter: 'K', weight: 0.77 },
+  { letter: 'J', weight: 0.15 },
+  { letter: 'X', weight: 0.15 },
+  { letter: 'Q', weight: 0.10 },
+  { letter: 'Z', weight: 0.07 },
+];
 
+let totalWeight = 0;
+const cumulativeWeights = LETTER_FREQUENCIES.map(item => {
+  totalWeight += item.weight;
+  return { letter: item.letter, cumWeight: totalWeight };
+});
+
+const MAX_CONSONANTS_IN_ROW = 3;
 const VOWELS = new Set(['A', 'E', 'I', 'O', 'U']);
 
-// Build cumulative-weight array from a probability distribution object.
-// Returns an array of { letter, cumWeight } sorted by cumulative weight.
-function buildCumulativeWeights(distObj) {
-  const entries = Object.entries(distObj);
-  let total = 0;
-  return entries.map(([letter, prob]) => {
-    total += prob;
-    return { letter, cumWeight: total };
-  });
-}
-
-// Probability of skipping the Markov chain entirely and sampling from raw
-// dictionary frequency — acts as an escape valve to prevent letter clustering.
-const RANDOM_INJECTION_PROB = 0.10;
-
-// Pre-build cumulative weight tables at module load for O(n) sampling
-const startWeights = buildCumulativeWeights(markovData.start);
-const frequencyWeights = buildCumulativeWeights(markovData.frequency);
-const bigramWeights = {};
-for (const letter of Object.keys(markovData.bigrams)) {
-  bigramWeights[letter] = buildCumulativeWeights(markovData.bigrams[letter]);
-}
-
-function sampleFromWeights(cumulativeArr) {
-  const total = cumulativeArr[cumulativeArr.length - 1].cumWeight;
-  const rand = rng() * total;
-  for (const item of cumulativeArr) {
+export function getWeightedRandomLetter() {
+  const rand = rng() * totalWeight;
+  for (const item of cumulativeWeights) {
     if (rand <= item.cumWeight) return item.letter;
   }
-  return cumulativeArr[cumulativeArr.length - 1].letter;
-}
-
-// Blend up to 3 forward bigram distributions with equal weight and sample.
-// 10% of the time skips Markov entirely and samples from raw dictionary
-// frequency as an escape valve to prevent letter clustering.
-// history is an array of the last 1–3 letter strings (most recent last).
-// Falls back to start distribution when history is empty.
-function getMarkovLetter(history) {
-  // Random injection: occasionally sample from raw dictionary frequency.
-  if (rng() < RANDOM_INJECTION_PROB) {
-    return sampleFromWeights(frequencyWeights);
-  }
-
-  if (!history || history.length === 0) {
-    return sampleFromWeights(startWeights);
-  }
-
-  const recent = history.slice(-3);
-  const n = recent.length;
-
-  // Blend equal-weight bigram rows from last ≤3 letters
-  const letters = Object.keys(markovData.bigrams);
-  let total = 0;
-  const blended = {};
-  for (const l of letters) blended[l] = 0;
-
-  for (const prev of recent) {
-    const row = markovData.bigrams[prev] || {};
-    for (const l of letters) {
-      blended[l] += (row[l] || 0) / n;
-    }
-  }
-
-  const cumArr = letters.map(l => {
-    total += blended[l];
-    return { letter: l, cumWeight: total };
-  });
-
-  return sampleFromWeights(cumArr);
-}
-
-// Re-export for callers that use getWeightedRandomLetter() directly (e.g. clearModeUtils)
-export function getWeightedRandomLetter() {
-  return getMarkovLetter([]);
+  return 'E';
 }
 
 function isVowel(letter) {
@@ -95,27 +59,19 @@ function getConsonantCount(sequence) {
   return count;
 }
 
-// Sample next letter, enforcing:
-//   1. No consecutive identical letters
-//   2. Vowel required after 4 consecutive consonants
 function getNextValidLetter(sequence) {
-  const history = sequence.slice(-3).map(t => t.char);
-  const previousLetter = history.length > 0 ? history[history.length - 1] : null;
+  const previousLetter = sequence.length > 0 ? sequence[sequence.length - 1].char : null;
   const consonantCount = getConsonantCount(sequence);
-  const mustBeVowel = consonantCount >= 4;
+  const mustBeVowel = consonantCount >= MAX_CONSONANTS_IN_ROW;
 
   let letter;
   let attempts = 0;
-
   do {
-    letter = getMarkovLetter(history);
+    letter = getWeightedRandomLetter();
     attempts++;
-    const isRepeating = letter === previousLetter;
-    const isInvalidConsonant = mustBeVowel && !isVowel(letter);
-    if (!isRepeating && !isInvalidConsonant) return letter;
+    if (letter !== previousLetter && !(mustBeVowel && !isVowel(letter))) return letter;
   } while (attempts < 100);
 
-  // Forced fallback
   if (mustBeVowel) {
     const vowels = Array.from(VOWELS).filter(v => v !== previousLetter);
     return vowels[Math.floor(rng() * vowels.length)];
@@ -124,22 +80,13 @@ function getNextValidLetter(sequence) {
   return consonants[Math.floor(rng() * consonants.length)];
 }
 
-/**
- * Generate N letters with unique IDs.
- * - No consecutive identical letters
- * - Vowel forced after 4 consecutive consonants
- * - Letter choice guided by bigram Markov model over last 3 letters
- */
 export function generateLetterSequence(count) {
   const sequence = [];
-
   for (let i = 0; i < count; i++) {
     const char = sequence.length === 0
-      ? getMarkovLetter([])
+      ? getWeightedRandomLetter()
       : getNextValidLetter(sequence);
-
     sequence.push({ char, id: `tile-${i}`, type: 'letter' });
   }
-
   return sequence;
 }
