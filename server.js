@@ -329,7 +329,7 @@ app.delete('/api/session', async (req, res) => {
 });
 
 // Serve known HTML entry points directly; fall back to index.html for SPA routes
-const HTML_ENTRIES = ['index.html', 'poc.html'];
+const HTML_ENTRIES = ['index.html'];
 app.get('*', (req, res) => {
   const requested = path.basename(req.path);
   const file = HTML_ENTRIES.includes(requested) ? requested : 'index.html';
