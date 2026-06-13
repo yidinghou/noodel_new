@@ -14,7 +14,7 @@ import './styles/redesign.css';
 
 const isAdmin = import.meta.env.DEV || new URLSearchParams(window.location.search).get('admin') === 'true';
 
-function RedesignRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
+function GameRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
   const { state } = useGame();
   const [previewScreen, setPreviewScreen] = useState(null);
 
@@ -29,7 +29,7 @@ function RedesignRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
   const handlers = { onHowToPlay, onLogin, onSettings };
 
   return (
-    <div className="rd-root">
+    <div className="root">
       {screen === 'landing'  && <Landing  {...handlers} />}
       {screen === 'ingame'   && <InGame   {...handlers} dictionary={dictionary} />}
       {screen === 'gameover' && <GameOver {...handlers} />}
@@ -38,4 +38,4 @@ function RedesignRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
   );
 }
 
-export default RedesignRoot;
+export default GameRoot;

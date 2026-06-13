@@ -8,7 +8,7 @@ import { GRID_COLS, GRID_ROWS } from './gameConstants.js';
  * mechanism (CSS zoom, browser pinch-zoom, transform:scale).
  *
  * Measures actual cell dimensions from the grid's first children so the overlay
- * matches grids that have internal padding or gaps (e.g. the redesign board).
+ * matches grids that have internal padding or gaps (e.g. the game board).
  */
 export function computeDropCoords(containerEl, fromEl, gridEl, col, destRow) {
   const containerRect = containerEl.getBoundingClientRect();

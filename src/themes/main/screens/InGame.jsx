@@ -90,7 +90,7 @@ function InGame({ onHowToPlay, onLogin, onSettings, dictionary }) {
     .map(l => l.char);
 
   return (
-    <div className="rd-screen rd-ingame" ref={screenRef}>
+    <div className="screen ingame" ref={screenRef}>
       <Shell
         score={state.score}
         lettersLeft={state.lettersRemaining}
@@ -104,8 +104,8 @@ function InGame({ onHowToPlay, onLogin, onSettings, dictionary }) {
         loginStreak={loginStreak}
         clearStreak={clearStreak}
       >
-        <section className="rd-board-wrapper">
-          <div className="rd-board-center">
+        <section className="board-wrapper">
+          <div className="board-center">
             <Board cells={cells} onColumnClick={handleColumnClick} boardRef={boardRef} />
           </div>
         </section>
