@@ -350,7 +350,7 @@ App (GameProvider)
 ## Final File Structure
 
 ```
-noodel_new/
+noodel/
 ├── public/
 │   └── words/              # Dictionary CSV files (5 files)
 ├── src/
