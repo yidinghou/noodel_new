@@ -24,6 +24,19 @@ try {
   await pool.query(`
     CREATE INDEX IF NOT EXISTS leaderboard_game_date_idx ON leaderboard (game_date);
   `);
+  // Remove pre-existing duplicate daily ('clear') entries, keeping the most recent per
+  // (username, game_date), so the unique index below can be created.
+  await pool.query(`
+    DELETE FROM leaderboard a USING leaderboard b
+    WHERE a.game_mode = 'clear' AND b.game_mode = 'clear'
+      AND a.username = b.username AND a.game_date = b.game_date
+      AND a.id < b.id;
+  `);
+  await pool.query(`
+    CREATE UNIQUE INDEX IF NOT EXISTS leaderboard_daily_unique_idx
+      ON leaderboard (username, game_date)
+      WHERE game_mode = 'clear';
+  `);
   console.log('✅ leaderboard table ready');
   await pool.query(`
     CREATE TABLE IF NOT EXISTS word_history (
