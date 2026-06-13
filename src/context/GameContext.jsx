@@ -156,9 +156,12 @@ export function GameProvider({ children }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ score: state.score, gameMode: state.gameMode, username, sessionData, wordsCleared: state.allWordsThisGame, gameDate: getLocalDateString() }),
       })
-        .then(r => r.json())
+        .then(r => {
+          if (r.status === 409) { markDailyPlayed(); return null; }
+          return r.json();
+        })
         .then(data => {
-          if (data.wordStats) dispatch({ type: A.SET_WORD_STATS, payload: data.wordStats });
+          if (data?.wordStats) dispatch({ type: A.SET_WORD_STATS, payload: data.wordStats });
         })
         .catch(() => {}); // don't break the game on DB errors
     }

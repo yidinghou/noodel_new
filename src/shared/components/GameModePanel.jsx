@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { A } from '../../utils/actionTypes.js';
-import { formatDailyDate } from '../../utils/seededRandom.js';
+import { formatDailyDate, getLocalDateString } from '../../utils/seededRandom.js';
 import { hasDailyBeenPlayed, markDailyPlayed, getUnlimitedRemaining, redeemCode } from '../../utils/playLimits.js';
 import { peekDailyInProgress, peekUnlimitedInProgress } from '../../services/sessionStorage.js';
 import { useCurrentUser } from '../hooks/useCurrentUser.js';
@@ -21,7 +21,7 @@ function GameModePanel({ dispatch, resumeSession, className = '' }) {
   useEffect(() => {
     setDailyPlayed(hasDailyBeenPlayed());
     if (!currentUser) return;
-    fetch(`/api/daily-status?username=${encodeURIComponent(currentUser)}`)
+    fetch(`/api/daily-status?username=${encodeURIComponent(currentUser)}&date=${getLocalDateString()}`)
       .then(r => r.json())
       .then(data => {
         if (data.played) {
