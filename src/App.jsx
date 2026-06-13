@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useGameLogic } from './hooks/useGameLogic.js';
-import RedesignRoot from './themes/redesign/RedesignRoot.jsx';
+import GameRoot from './themes/main/GameRoot.jsx';
 import SettingsMenu from './shared/overlays/SettingsMenu.jsx';
 import LoginMenu from './shared/overlays/LoginMenu.jsx';
 import HowToPlayModal from './shared/overlays/HowToPlayModal.jsx';
@@ -15,7 +15,7 @@ function App() {
 
   return (
     <>
-      <RedesignRoot
+      <GameRoot
         dictionary={dictionary}
         onHowToPlay={() => setOverlay('howtoplay')}
         onLogin={() => setOverlay('login')}
