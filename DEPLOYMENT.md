@@ -89,7 +89,7 @@ Add URL parameters for debugging:
 The project is organized as a modern JavaScript application:
 
 ```
-noodel_new/
+noodel/
 ├── server.js           # Express server (for Railway)
 ├── package.json        # Dependencies & scripts  
 ├── railway.toml        # Railway configuration

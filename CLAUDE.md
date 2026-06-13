@@ -229,7 +229,7 @@ Branch naming: `feat/`, `fix/`, `chore/` prefixes. PRs target `main`. After merg
 ### GitHub Issues
 
 When a task is associated with a GH issue:
-1. Read the issue before planning: `mcp__github__get_issue` (owner: yidinghou, repo: noodel_new, issue_number: N)
+1. Read the issue before planning: `mcp__github__get_issue` (owner: yidinghou, repo: noodel, issue_number: N)
 2. Follow the implementation plan in the issue comments
 3. Include `Closes #N` in the PR body so GitHub auto-closes the issue on merge
 
@@ -241,6 +241,6 @@ When a task is associated with a GH issue:
 ### Commit → PR → Merge flow
 1. Stage files by logical group and commit each atomically (`git add <specific files>`)
 2. `git push -u origin <branch>`
-3. Create PR via GitHub MCP: `mcp__github__create_pull_request` (owner: yidinghou, repo: noodel_new, base: main) — include `Closes #N` in the body when working from an issue
+3. Create PR via GitHub MCP: `mcp__github__create_pull_request` (owner: yidinghou, repo: noodel, base: main) — include `Closes #N` in the body when working from an issue
 4. Merge via GitHub MCP: `mcp__github__merge_pull_request` (merge_method: merge)
 5. `git checkout main && git pull && git branch -d <branch>`

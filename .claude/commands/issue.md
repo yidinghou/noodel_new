@@ -10,7 +10,7 @@ Take the request in $ARGUMENTS and do the following:
 
 2. **Create the issue** via `mcp__github__create_issue`:
     - owner: yidinghou
-    - repo: noodel_new
+    - repo: noodel
     - title: (refined title)
     - body: (refined body)
 
