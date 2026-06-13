@@ -28,7 +28,7 @@ function Shell({ score, lettersLeft, next, madeWords, dictionary, nextUpRef, onH
   ];
 
   return (
-    <div className="rd-shell">
+    <div className="shell">
       <header className="app-bar">
         <div className="app-bar__side app-bar__side--left">
           <ActionBar items={leftActions} />
@@ -39,15 +39,15 @@ function Shell({ score, lettersLeft, next, madeWords, dictionary, nextUpRef, onH
         </div>
       </header>
 
-      <div className="rd-hero">
-        <div className="rd-wordmark">
-          <span className="rd-wordmark__tiles">
+      <div className="hero">
+        <div className="wordmark">
+          <span className="wordmark__tiles">
             {WORDMARK_LETTERS.map((letter, i) => {
               const lit = i < Math.min(loginStreak ?? 0, STREAK_MAX);
               return (
                 <span
                   key={i}
-                  className={`rd-wordmark__tile${lit ? ' rd-wordmark__tile--lit' : ''}${i === UNDO_LETTER_INDEX ? ' rd-wordmark__undo' : ''}`}
+                  className={`wordmark__tile${lit ? ' wordmark__tile--lit' : ''}${i === UNDO_LETTER_INDEX ? ' wordmark__undo' : ''}`}
                   onClick={i === UNDO_LETTER_INDEX ? (e) => handleUndoClick(undo, e) : undefined}
                   title={i === UNDO_LETTER_INDEX ? 'Click to undo (hidden feature)' : undefined}
                 >
@@ -57,12 +57,12 @@ function Shell({ score, lettersLeft, next, madeWords, dictionary, nextUpRef, onH
             })}
           </span>
           {clearStreak > 0 && (
-            <span className="rd-wordmark__clear-streak">
+            <span className="wordmark__clear-streak">
               🔥 <strong>{clearStreak}</strong> day clear streak
             </span>
           )}
         </div>
-        <p className="rd-tagline">A word-dropping puzzle</p>
+        <p className="tagline">A word-dropping puzzle</p>
       </div>
 
       <NextRow letters={next} lettersLeft={lettersLeft} firstTileRef={nextUpRef} />

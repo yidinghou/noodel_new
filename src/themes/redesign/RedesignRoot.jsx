@@ -29,7 +29,7 @@ function RedesignRoot({ dictionary, onHowToPlay, onLogin, onSettings }) {
   const handlers = { onHowToPlay, onLogin, onSettings };
 
   return (
-    <div className="rd-root">
+    <div className="root">
       {screen === 'landing'  && <Landing  {...handlers} />}
       {screen === 'ingame'   && <InGame   {...handlers} dictionary={dictionary} />}
       {screen === 'gameover' && <GameOver {...handlers} />}

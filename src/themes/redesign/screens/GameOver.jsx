@@ -9,11 +9,11 @@ function WordsMadeSection({ words, newWordsSet }) {
   if (!words.length) return null;
   const sorted = [...words].sort((a, b) => a.localeCompare(b));
   return (
-    <div className="rd-gameover-words">
-      <p className="rd-gameover-words__label">Words made ({words.length})</p>
-      <div className="rd-gameover-words__list">
+    <div className="gameover-words">
+      <p className="gameover-words__label">Words made ({words.length})</p>
+      <div className="gameover-words__list">
         {sorted.map(w => (
-          <span key={w} className={`rd-chip${newWordsSet.has(w) ? ' rd-chip--new' : ''}`}>{w}</span>
+          <span key={w} className={`chip${newWordsSet.has(w) ? ' chip--new' : ''}`}>{w}</span>
         ))}
       </div>
     </div>
@@ -81,17 +81,17 @@ function GameOver() {
   const onRestart = () => dispatch({ type: A.START_GAME, payload: { mode: state.gameMode, gameType: 'unlimited' } });
 
   return (
-    <div className="rd-screen rd-gameover">
-      <div className="rd-gameover__card">
-        <h1 className="rd-gameover__title">{title}</h1>
+    <div className="screen gameover">
+      <div className="gameover__card">
+        <h1 className="gameover__title">{title}</h1>
         {message
-          ? <p className="rd-gameover__intro">{message}</p>
-          : <p className="rd-gameover__intro">Here's how it went.</p>
+          ? <p className="gameover__intro">{message}</p>
+          : <p className="gameover__intro">Here's how it went.</p>
         }
 
-        <dl className="rd-stat-grid">
+        <dl className="stat-grid">
           {stats.map((s) => (
-            <div key={s.label} className="rd-stat-grid__row">
+            <div key={s.label} className="stat-grid__row">
               <dt>{s.label}</dt>
               <dd>{s.value}</dd>
             </div>
@@ -137,16 +137,16 @@ function GameOver() {
         )}
 
         {wordCount > 0 && !boardCleared && (
-          <button type="button" className="rd-link-btn" onClick={() => setShowWordList(true)}>
+          <button type="button" className="link-btn" onClick={() => setShowWordList(true)}>
             See all {wordCount} words →
           </button>
         )}
 
-        <div className="rd-gameover__actions">
-          <button type="button" className="rd-cta" onClick={onRestart}>
+        <div className="gameover__actions">
+          <button type="button" className="cta" onClick={onRestart}>
             Play Again
           </button>
-          <button type="button" className="rd-link-btn" onClick={onHome}>
+          <button type="button" className="link-btn" onClick={onHome}>
             Home
           </button>
         </div>

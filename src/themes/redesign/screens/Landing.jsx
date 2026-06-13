@@ -20,7 +20,7 @@ function Landing({ onHowToPlay, onLogin, onSettings }) {
   ];
 
   return (
-    <div className="rd-screen rd-landing">
+    <div className="screen landing">
       <header className="app-bar">
         <div className="app-bar__side app-bar__side--left">
           <ActionBar items={leftActions} />
@@ -31,31 +31,31 @@ function Landing({ onHowToPlay, onLogin, onSettings }) {
         </div>
       </header>
 
-      <div className="rd-hero">
-        <div className="rd-wordmark">
-          <span className="rd-wordmark__tiles">
+      <div className="hero">
+        <div className="wordmark">
+          <span className="wordmark__tiles">
             {WORDMARK_LETTERS.map((letter, i) => (
               <span
                 key={i}
-                className={`rd-wordmark__tile${i < Math.min(loginStreak, 6) ? ' rd-wordmark__tile--lit' : ''}`}
+                className={`wordmark__tile${i < Math.min(loginStreak, 6) ? ' wordmark__tile--lit' : ''}`}
               >
                 {letter}
               </span>
             ))}
           </span>
           {clearStreak > 0 && (
-            <span className="rd-wordmark__clear-streak">
+            <span className="wordmark__clear-streak">
               🔥 <strong>{clearStreak}</strong> day clear streak
             </span>
           )}
         </div>
-        <p className="rd-tagline">A word-dropping puzzle</p>
+        <p className="tagline">A word-dropping puzzle</p>
       </div>
 
       <LandingBanner onLogin={onLogin} clearStreak={clearStreak} loginStreak={loginStreak} />
 
-      <section className="rd-landing__stage">
-        <div className="rd-board-stage">
+      <section className="landing__stage">
+        <div className="board-stage">
           <AmbientBoard {...demo} />
           <GameModePanel dispatch={dispatch} resumeSession={resumeSession} className="start-game-overlay--redesign" />
         </div>

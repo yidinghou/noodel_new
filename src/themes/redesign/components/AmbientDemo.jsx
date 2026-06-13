@@ -22,7 +22,7 @@ export function AmbientBoard({ grid, dropping, highlight }) {
       const dr = dropping.destRow;
       const coords = computeDropCoords(containerEl, tileEl, gridEl, col, dr);
       setDropState({
-        id: `rd-ambient-${col}-${dr}-${Date.now()}`,
+        id: `ambient-${col}-${dr}-${Date.now()}`,
         letter: dropping.letter,
         ...coords,
       });
@@ -51,11 +51,11 @@ export function AmbientBoard({ grid, dropping, highlight }) {
           pointerEvents: 'none',
         }}
       />
-      <div className="rd-ambient-demo" aria-hidden="true">
+      <div className="ambient-demo" aria-hidden="true">
         <Board cells={cells} highlightSet={highlight} boardRef={gridRef} />
       </div>
       {dropState && (
-        <DroppingOverlay key={dropState.id} {...dropState} className="rd-dropping-ambient" opacity={0.4} onComplete={() => {}} />
+        <DroppingOverlay key={dropState.id} {...dropState} className="dropping-ambient" opacity={0.4} onComplete={() => {}} />
       )}
     </div>
   );

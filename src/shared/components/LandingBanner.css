@@ -6,10 +6,10 @@
   padding: 9px 16px;
   font-size: 13px;
   border: 1px solid;
-  border-radius: var(--rd-radius-md, 10px);
+  border-radius: var(--radius-md, 10px);
   flex-wrap: wrap;
   text-align: center;
-  width: var(--rd-board-w, 100%);
+  width: var(--board-w, 100%);
   max-width: 100%;
   margin: 0 auto;
   height: var(--banner-h, 9vh);
